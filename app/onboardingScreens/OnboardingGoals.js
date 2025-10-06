@@ -1,16 +1,12 @@
 // app/onboardingScreens/OnboardingGoals.js
 import React, { useState } from 'react';
 import {
-  Animated,
-  Dimensions,
-  Modal,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-
-const { width } = Dimensions.get('window');
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -18,129 +14,133 @@ const BRAND_COLORS = {
   cream: '#FDF5E6',
   black: '#000000',
   white: '#FFFFFF',
-  gray: '#999999',
-  darkGray: '#666666',
-  lightGray: '#E5E5E5',
 };
 
-const responses = {
-  'clear_skin': "The dream! And totally achievable with the right approach",
-  'even_tone': "Those dark spots and marks can be so stubborn, but we've got strategies",
-  'healthy_glow': "The glow from within - that's what we're all chasing!"
-};
+const GOALS = [
+  { 
+    id: 'clear_acne', 
+    label: 'Clear existing acne',
+    icon: require('../../assets/images/check.png'),
+    color: BRAND_COLORS.primary,
+  },
+  { 
+    id: 'prevent_breakouts', 
+    label: 'Prevent future breakouts',
+    icon: require('../../assets/images/check.png'),
+    color: '#4A90E2',
+  },
+  { 
+    id: 'reduce_scars', 
+    label: 'Reduce acne scars',
+    icon: require('../../assets/images/check.png'),
+    color: BRAND_COLORS.secondary,
+  },
+  { 
+    id: 'even_tone', 
+    label: 'Even out skin tone',
+    icon: require('../../assets/images/check.png'),
+    color: '#9B59B6',
+  },
+  { 
+    id: 'healthy_glow', 
+    label: 'Achieve healthy glow',
+    icon: require('../../assets/images/check.png'),
+    color: '#F39C12',
+  },
+];
 
 export default function OnboardingGoals({ onNext }) {
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [showResponseModal, setShowResponseModal] = useState(false);
-  const [responseText, setResponseText] = useState('');
-  const [fadeAnim] = useState(new Animated.Value(0));
+  const [selectedGoals, setSelectedGoals] = useState([]);
 
-  const handleOptionSelect = (option) => {
-    setSelectedOption(option);
-  };
-
-  const showResponse = (response) => {
-    setResponseText(response);
-    setShowResponseModal(true);
-    
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }).start(() => {
-          setShowResponseModal(false);
-          onNext('onboardingTimeline', { goals: selectedOption });
-        });
-      }, 3500);
-    });
+  const handleToggleGoal = (goalId) => {
+    if (selectedGoals.includes(goalId)) {
+      setSelectedGoals(selectedGoals.filter(id => id !== goalId));
+    } else {
+      setSelectedGoals([...selectedGoals, goalId]);
+    }
   };
 
   const handleContinue = () => {
-    if (selectedOption) {
-      const response = responses[selectedOption];
-      showResponse(response);
+    if (selectedGoals.length > 0) {
+      onNext('onboardingTimeline', { goals: selectedGoals });
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Main Content */}
       <View style={styles.content}>
-        <View style={styles.heroSection}>
-          <Text style={styles.questionTitle}>What would make you feel most confident about your skin?</Text>
-          <Text style={styles.questionSubtitle}>
-            Let's set your skincare goals together
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            What are your <Text style={styles.titleHighlight}>skincare goals?</Text>
           </Text>
+          <Text style={styles.subtitle}>Select all that apply</Text>
         </View>
 
-        <View style={styles.optionsSection}>
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'clear_skin' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('clear_skin')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'clear_skin' && styles.selectedOptionText]}>
-              Clear, breakout-free skin
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.goalsContainer}>
+          {GOALS.map((goal) => {
+            const isSelected = selectedGoals.includes(goal.id);
+            return (
+              <TouchableOpacity
+                key={goal.id}
+                style={[
+                  styles.goalCard,
+                  isSelected && { 
+                    borderColor: goal.color,
+                    borderWidth: 2,
+                    backgroundColor: `${goal.color}10`,
+                  }
+                ]}
+                onPress={() => handleToggleGoal(goal.id)}
+              >
+                <View style={[
+                  styles.iconContainer,
+                  { backgroundColor: isSelected ? goal.color : '#F5F5F5' }
+                ]}>
+                  <Image
+                    source={goal.icon}
+                    style={[
+                      styles.icon,
+                      { tintColor: isSelected ? BRAND_COLORS.white : '#999' }
+                    ]}
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text style={[
+                  styles.goalLabel,
+                  isSelected && { color: goal.color, fontWeight: '600' }
+                ]}>
+                  {goal.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'even_tone' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('even_tone')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'even_tone' && styles.selectedOptionText]}>
-              Even skin tone
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'healthy_glow' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('healthy_glow')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'healthy_glow' && styles.selectedOptionText]}>
-              Just healthy-looking skin
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.selectionInfo}>
+          <Text style={styles.selectionText}>
+            {selectedGoals.length} goal{selectedGoals.length !== 1 ? 's' : ''} selected
+          </Text>
         </View>
       </View>
 
-      {/* Fixed Bottom Section */}
       <View style={styles.bottomSection}>
-        <TouchableOpacity 
-          style={[styles.continueButton, !selectedOption && styles.continueButtonDisabled]}
+        <TouchableOpacity
+          style={[
+            styles.continueButton,
+            selectedGoals.length === 0 && styles.continueButtonDisabled
+          ]}
           onPress={handleContinue}
-          disabled={!selectedOption}
+          disabled={selectedGoals.length === 0}
         >
-          <Text style={[styles.continueButtonText, !selectedOption && styles.continueButtonTextDisabled]}>
+          <Text style={[
+            styles.continueButtonText,
+            selectedGoals.length === 0 && styles.continueButtonTextDisabled
+          ]}>
             Continue
           </Text>
         </TouchableOpacity>
-        
-        <Text style={styles.helperText}>Your dream skin is totally achievable</Text>
+        <Text style={styles.helperText}>Choose at least one goal</Text>
       </View>
-
-      {/* Response Modal */}
-      <Modal
-        transparent={true}
-        visible={showResponseModal}
-        animationType="none"
-      >
-        <View style={styles.modalOverlay}>
-          <Animated.View 
-            style={[
-              styles.responseModal,
-              { opacity: fadeAnim }
-            ]}
-          >
-            <Text style={styles.responseText}>{responseText}</Text>
-          </Animated.View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -152,71 +152,99 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: 'transparent', // ✓ ADDED
+    backgroundColor: 'transparent',
     paddingHorizontal: 20,
-    paddingTop: 20,
-    justifyContent: 'center',
+    paddingTop: 40,
+    justifyContent: 'flex-start',
   },
-  heroSection: {
+  header: {
     alignItems: 'center',
-    marginBottom: 50,
-  },
-  questionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: BRAND_COLORS.black,
-    textAlign: 'center',
-    marginBottom: 12,
-    lineHeight: 30,
-  },
-  questionSubtitle: {
-    fontSize: 16,
-    color: BRAND_COLORS.gray,
-    textAlign: 'center',
-    lineHeight: 22,
-    fontWeight: 'normal',
-  },
-  optionsSection: {
     marginBottom: 40,
   },
-  optionButton: {
-    backgroundColor: '#E6E6E6',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    marginBottom: 12,
-    alignItems: 'center',
-  },
-  selectedOption: {
-    backgroundColor: BRAND_COLORS.primary,
-  },
-  optionText: {
-    fontSize: 16,
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
     color: BRAND_COLORS.black,
-    fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: 12,
+    lineHeight: 34,
+  },
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
     textAlign: 'center',
   },
-  selectedOptionText: {
-    color: BRAND_COLORS.white,
+  goalsContainer: {
+    marginBottom: 24,
+  },
+  goalCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  icon: {
+    width: 22,
+    height: 22,
+  },
+  goalLabel: {
+    fontSize: 16,
+    color: BRAND_COLORS.black,
+    flex: 1,
+  },
+  selectionInfo: {
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  selectionText: {
+    fontSize: 14,
+    color: BRAND_COLORS.primary,
+    fontWeight: '500',
   },
   bottomSection: {
     paddingHorizontal: 20,
     paddingBottom: 40,
     paddingTop: 20,
-    backgroundColor: 'transparent', // ✓ CHANGED from BRAND_COLORS.white
+    backgroundColor: 'transparent',
     alignItems: 'center',
   },
   continueButton: {
     backgroundColor: BRAND_COLORS.primary,
     paddingVertical: 16,
-    paddingHorizontal: 50,
     borderRadius: 25,
     marginBottom: 12,
     width: '100%',
-    maxWidth: 300,
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   continueButtonDisabled: {
-    backgroundColor: BRAND_COLORS.lightGray,
+    backgroundColor: '#E5E5E5',
+    shadowOpacity: 0,
+    elevation: 0,
   },
   continueButtonText: {
     color: BRAND_COLORS.white,
@@ -225,37 +253,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   continueButtonTextDisabled: {
-    color: BRAND_COLORS.gray,
+    color: '#999',
   },
   helperText: {
     fontSize: 13,
-    color: BRAND_COLORS.gray,
+    color: '#666',
     textAlign: 'center',
-    fontWeight: 'normal',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  responseModal: {
-    backgroundColor: '#8BA365',
-    paddingVertical: 20,
-    paddingHorizontal: 30,
-    borderRadius: 15,
-    maxWidth: width * 0.8,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-  },
-  responseText: {
-    color: BRAND_COLORS.white,
-    fontSize: 16,
-    fontWeight: '500',
-    textAlign: 'center',
-    lineHeight: 22,
   },
 });

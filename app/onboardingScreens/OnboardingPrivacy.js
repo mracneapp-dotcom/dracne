@@ -2,12 +2,11 @@
 import React from 'react';
 import {
   Image,
-  ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
-import { DrAcneButton } from '../../components/ui/DrAcneButton';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -17,97 +16,83 @@ const BRAND_COLORS = {
   white: '#FFFFFF',
 };
 
-const PRIVACY_POINTS = [
+const PRIVACY_FEATURES = [
   {
+    icon: require('../../assets/images/check.png'),
     title: 'Your photos stay private',
-    description: 'Photos are analyzed securely and never shared with third parties',
-    icon: require('../../assets/images/camera2.png'),
+    description: 'Never shared or stored on our servers',
+    color: BRAND_COLORS.primary,
   },
   {
-    title: 'AI-powered analysis only',
-    description: 'Our AI processes your skin analysis - no human ever sees your photos',
-    icon: require('../../assets/images/robot.png'),
+    icon: require('../../assets/images/check.png'),
+    title: 'Secure AI processing',
+    description: 'Analysis happens instantly and securely',
+    color: '#4A90E2',
   },
   {
-    title: 'No cloud storage',
-    description: 'Your photos are processed in real-time and not stored on our servers',
-    icon: require('../../assets/images/no_cloud.png'),
-  },
-  {
-    title: 'Data encryption',
-    description: 'All data transmission is encrypted using industry-standard security',
-    icon: require('../../assets/images/lock1.png'),
+    icon: require('../../assets/images/check.png'),
+    title: 'No data selling',
+    description: 'We never sell your information',
+    color: BRAND_COLORS.secondary,
   },
 ];
 
 export default function OnboardingPrivacy({ onNext }) {
   const handleContinue = () => {
-    onNext('onboardingGenerating', { acceptedPrivacy: true });
+    onNext('onboardingGenerating', { privacyAccepted: true });
   };
 
   return (
     <View style={styles.container}>
-      {/* Scrollable Content */}
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header Section */}
+      <View style={styles.content}>
+        <View style={styles.iconContainer}>
+          <View style={styles.lockCircle}>
+            <Image
+              source={require('../../assets/images/check.png')}
+              style={styles.lockIcon}
+              resizeMode="contain"
+            />
+          </View>
+        </View>
+
         <View style={styles.header}>
-          <Text style={styles.title}>Your Privacy Matters</Text>
+          <Text style={styles.title}>
+            Your <Text style={styles.titleHighlight}>privacy</Text> matters
+          </Text>
           <Text style={styles.subtitle}>
-            We take your privacy seriously. Here's how we protect your data
+            Here's how we protect your information
           </Text>
         </View>
 
-        {/* Privacy Points */}
-        <View style={styles.privacyPointsContainer}>
-          {PRIVACY_POINTS.map((point, index) => (
-            <View key={index} style={styles.privacyPoint}>
-              <View style={styles.iconCircle}>
+        <View style={styles.featuresContainer}>
+          {PRIVACY_FEATURES.map((feature, index) => (
+            <View key={index} style={styles.featureCard}>
+              <View style={[styles.featureIconContainer, { backgroundColor: `${feature.color}15` }]}>
                 <Image
-                  source={point.icon}
-                  style={styles.iconImage}
+                  source={feature.icon}
+                  style={[styles.featureIcon, { tintColor: feature.color }]}
                   resizeMode="contain"
                 />
               </View>
-              <View style={styles.pointContent}>
-                <Text style={styles.pointTitle}>{point.title}</Text>
-                <Text style={styles.pointDescription}>{point.description}</Text>
+              <View style={styles.featureContent}>
+                <Text style={styles.featureTitle}>{feature.title}</Text>
+                <Text style={styles.featureDescription}>{feature.description}</Text>
               </View>
             </View>
           ))}
         </View>
 
-        {/* Disclaimer Section */}
-        <View style={styles.disclaimerContainer}>
-          <Text style={styles.disclaimerTitle}>Medical Disclaimer</Text>
-          <Text style={styles.disclaimerText}>
-            Dr. Acne provides educational skincare guidance and is not a substitute 
-            for professional medical advice. Always consult a dermatologist for 
-            diagnosis and treatment.
-          </Text>
-        </View>
-
-        {/* Legal Text */}
         <View style={styles.legalContainer}>
           <Text style={styles.legalText}>
-            By continuing, you agree to our{' '}
-            <Text style={styles.legalLink}>Terms of Service</Text>
-            {' '}and{' '}
-            <Text style={styles.legalLink}>Privacy Policy</Text>
+            By continuing, you agree to our Terms of Service and Privacy Policy
           </Text>
         </View>
-      </ScrollView>
+      </View>
 
-      {/* Fixed Button at Bottom */}
       <View style={styles.buttonContainer}>
-        <DrAcneButton
-          title="I understand, let's start"
-          onPress={handleContinue}
-          style={styles.button}
-        />
+        <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
+          <Text style={styles.continueButtonText}>I understand, continue</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -116,115 +101,134 @@ export default function OnboardingPrivacy({ onNext }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent', // ✓ CHANGED from white
+    backgroundColor: 'transparent',
   },
-  scrollView: {
+  content: {
     flex: 1,
-    backgroundColor: 'transparent', // ✓ ADDED
+    backgroundColor: 'transparent',
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    justifyContent: 'flex-start',
   },
-  scrollContent: {
-    paddingBottom: 20,
+  iconContainer: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  lockCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: BRAND_COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  lockIcon: {
+    width: 40,
+    height: 40,
+    tintColor: BRAND_COLORS.white,
   },
   header: {
-    paddingHorizontal: 24,
-    paddingTop: 32,
-    paddingBottom: 24,
     alignItems: 'center',
+    marginBottom: 40,
   },
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '700',
     color: BRAND_COLORS.black,
     textAlign: 'center',
     marginBottom: 12,
-    lineHeight: 34,
+    lineHeight: 36,
+  },
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: 16,
     color: '#666',
     textAlign: 'center',
-    lineHeight: 22,
-    paddingHorizontal: 20,
+    lineHeight: 24,
   },
-  privacyPointsContainer: {
-    paddingHorizontal: 24,
-    paddingBottom: 16,
+  featuresContainer: {
+    marginBottom: 30,
   },
-  privacyPoint: {
+  featureCard: {
     flexDirection: 'row',
-    marginBottom: 20,
-    alignItems: 'flex-start',
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  iconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: BRAND_COLORS.cream,
+  featureIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 14,
-    marginTop: 2,
   },
-  iconImage: {
+  featureIcon: {
     width: 24,
     height: 24,
   },
-  pointContent: {
+  featureContent: {
     flex: 1,
   },
-  pointTitle: {
+  featureTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: BRAND_COLORS.black,
-    marginBottom: 4,
-    lineHeight: 21,
-  },
-  pointDescription: {
-    fontSize: 14,
-    color: '#666',
+    marginBottom: 3,
     lineHeight: 20,
   },
-  disclaimerContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    backgroundColor: '#F8F9FA',
-    marginHorizontal: 24,
-    borderRadius: 10,
-    marginBottom: 16,
-  },
-  disclaimerTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: BRAND_COLORS.black,
-    marginBottom: 6,
-  },
-  disclaimerText: {
-    fontSize: 12,
+  featureDescription: {
+    fontSize: 14,
     color: '#666',
-    lineHeight: 17,
+    lineHeight: 19,
   },
   legalContainer: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
     alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 20,
   },
   legalText: {
     fontSize: 12,
     color: '#999',
     textAlign: 'center',
     lineHeight: 18,
-  },
-  legalLink: {
-    color: BRAND_COLORS.primary,
-    fontWeight: '600',
+    paddingHorizontal: 20,
   },
   buttonContainer: {
     paddingHorizontal: 20,
     paddingVertical: 16,
     paddingBottom: 32,
-    backgroundColor: 'transparent', // ✓ Already transparent
+    backgroundColor: 'transparent',
   },
-  button: {
+  continueButton: {
+    backgroundColor: BRAND_COLORS.primary,
     paddingVertical: 16,
+    borderRadius: 25,
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  continueButtonText: {
+    color: BRAND_COLORS.white,
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

@@ -20,32 +20,63 @@ const BRAND_COLORS = {
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
+const BENEFITS = [
+  {
+    icon: require('../../assets/images/check.png'),
+    title: 'No Payment Due Now',
+    description: '3 days completely free',
+    color: BRAND_COLORS.primary,
+  },
+  {
+    icon: require('../../assets/images/check.png'),
+    title: 'AI-Powered Acne Detection',
+    description: 'Smart skin analysis',
+    color: '#4A90E2',
+  },
+  {
+    icon: require('../../assets/images/check.png'),
+    title: 'Personalized Skincare Plans',
+    description: 'Tailored to your skin',
+    color: '#9B59B6',
+  },
+];
+
 export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
-  const slideAnim = useRef(new Animated.Value(-SCREEN_WIDTH)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.98)).current;
 
   useEffect(() => {
-    const animateLoop = () => {
-      slideAnim.setValue(SCREEN_WIDTH);
-      
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 800,
+    // Gentle entrance animation only - stays visible
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
         useNativeDriver: true,
-      }).start(() => {
-        setTimeout(() => {
-          Animated.timing(slideAnim, {
-            toValue: -SCREEN_WIDTH,
-            duration: 800,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        tension: 30,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      // Subtle breathing animation - very gentle
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(scaleAnim, {
+            toValue: 1.02,
+            duration: 2000,
             useNativeDriver: true,
-          }).start(() => {
-            setTimeout(animateLoop, 500);
-          });
-        }, 3000);
-      });
-    };
-
-    animateLoop();
-  }, [slideAnim]);
+          }),
+          Animated.timing(scaleAnim, {
+            toValue: 1,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    });
+  }, [fadeAnim, scaleAnim]);
 
   const handleContinue = () => {
     onNext('complete', {
@@ -60,7 +91,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>
-          Experience Dr. Acne{'\n'}for free.
+          Experience <Text style={styles.titleHighlight}>Dr. Acne</Text> for free
         </Text>
         <Text style={styles.subtitle}>
           Get personalized skincare analysis and professional routines
@@ -73,7 +104,8 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
           style={[
             styles.mockupWrapper,
             {
-              transform: [{ translateX: slideAnim }]
+              opacity: fadeAnim,
+              transform: [{ scale: scaleAnim }]
             }
           ]}
         >
@@ -83,22 +115,32 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
             resizeMode="contain"
           />
         </Animated.View>
+        <Text style={styles.mockupLabel}>See your personalized plan in action</Text>
       </View>
 
-      {/* Benefits Section */}
+      {/* Modern Benefits Cards */}
       <View style={styles.benefitsContainer}>
-        <View style={styles.benefitItem}>
-          <Text style={styles.checkmark}>✓</Text>
-          <Text style={styles.benefitText}>No Payment Due Now</Text>
-        </View>
-        <View style={styles.benefitItem}>
-          <Text style={styles.checkmark}>✓</Text>
-          <Text style={styles.benefitText}>AI-Powered Acne Detection</Text>
-        </View>
-        <View style={styles.benefitItem}>
-          <Text style={styles.checkmark}>✓</Text>
-          <Text style={styles.benefitText}>Personalized Skincare Plans</Text>
-        </View>
+        {BENEFITS.map((benefit, index) => (
+          <View key={index} style={styles.benefitCard}>
+            <View style={[
+              styles.benefitIconContainer,
+              { backgroundColor: `${benefit.color}15` }
+            ]}>
+              <Image
+                source={benefit.icon}
+                style={[
+                  styles.benefitIcon,
+                  { tintColor: benefit.color }
+                ]}
+                resizeMode="contain"
+              />
+            </View>
+            <View style={styles.benefitContent}>
+              <Text style={styles.benefitTitle}>{benefit.title}</Text>
+              <Text style={styles.benefitDescription}>{benefit.description}</Text>
+            </View>
+          </View>
+        ))}
       </View>
 
       {/* Bottom Section */}
@@ -112,6 +154,9 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
         <Text style={styles.pricingText}>
           3 days free, then $35 per year
         </Text>
+        <Text style={styles.cancelText}>
+          Cancel anytime • No commitment
+        </Text>
       </View>
     </View>
   );
@@ -121,14 +166,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'transparent',
-    paddingTop: 20,
   },
   header: {
     paddingHorizontal: 24,
-    paddingTop: 10,
-    paddingBottom: 20,
+    paddingTop: 40,
+    paddingBottom: 24,
     alignItems: 'center',
-    backgroundColor: 'transparent', // ✓ ADDED
+    backgroundColor: 'transparent',
   },
   title: {
     fontSize: 28,
@@ -138,6 +182,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     lineHeight: 34,
   },
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
+  },
   subtitle: {
     fontSize: 16,
     color: '#666',
@@ -146,62 +194,102 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   mockupContainer: {
-    height: 280,
+    height: 260,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 40,
-    overflow: 'hidden',
-    backgroundColor: 'transparent', // ✓ ADDED
+    marginBottom: 24,
+    overflow: 'visible',
+    backgroundColor: 'transparent',
   },
   mockupWrapper: {
     justifyContent: 'center',
     alignItems: 'center',
   },
   mockupImage: {
-    width: 200,
-    height: 270,
+    width: 180,
+    height: 240,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.2,
     shadowRadius: 20,
+    elevation: 10,
+  },
+  mockupLabel: {
+    fontSize: 13,
+    color: BRAND_COLORS.primary,
+    fontWeight: '600',
+    marginTop: 10,
+    textAlign: 'center',
   },
   benefitsContainer: {
     paddingHorizontal: 24,
-    marginBottom: 30,
-    backgroundColor: 'transparent', // ✓ ADDED
+    marginBottom: 140,
+    backgroundColor: 'transparent',
   },
-  benefitItem: {
+  benefitCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-    justifyContent: 'center',
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 7,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  checkmark: {
-    fontSize: 16,
-    color: BRAND_COLORS.primary,
-    fontWeight: '700',
+  benefitIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 10,
   },
-  benefitText: {
-    fontSize: 15,
+  benefitIcon: {
+    width: 16,
+    height: 16,
+  },
+  benefitContent: {
+    flex: 1,
+  },
+  benefitTitle: {
+    fontSize: 14,
+    fontWeight: '600',
     color: BRAND_COLORS.black,
-    fontWeight: '500',
+    marginBottom: 1,
+  },
+  benefitDescription: {
+    fontSize: 12,
+    color: '#666',
+    lineHeight: 16,
   },
   bottomSection: {
-    flex: 1,
     paddingHorizontal: 24,
-    justifyContent: 'flex-end',
     paddingBottom: 40,
-    backgroundColor: 'transparent', // ✓ CHANGED from implicit default - THIS WAS THE ISSUE!
+    paddingTop: 20,
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   continueButton: {
     paddingVertical: 18,
     marginBottom: 12,
   },
   pricingText: {
-    fontSize: 14,
+    fontSize: 15,
+    color: BRAND_COLORS.black,
+    textAlign: 'center',
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  cancelText: {
+    fontSize: 13,
     color: '#999',
     textAlign: 'center',
-    fontWeight: '500',
+    fontWeight: '400',
   },
 });

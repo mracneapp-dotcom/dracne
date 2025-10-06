@@ -1,14 +1,12 @@
 // app/onboardingScreens/OnboardingDiscovery.js
 import React, { useState } from 'react';
 import {
-  Dimensions,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-
-const { width } = Dimensions.get('window');
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -20,6 +18,15 @@ const BRAND_COLORS = {
   darkGray: '#666666',
   lightGray: '#E5E5E5',
 };
+
+const DISCOVERY_OPTIONS = [
+  { id: 'tiktok', label: 'TikTok', icon: require('../../assets/images/check.png'), color: '#FF0050' },
+  { id: 'instagram', label: 'Instagram', icon: require('../../assets/images/check.png'), color: '#E4405F' },
+  { id: 'google', label: 'Google', icon: require('../../assets/images/check.png'), color: '#4285F4' },
+  { id: 'friends', label: 'Friends or Family', icon: require('../../assets/images/check.png'), color: BRAND_COLORS.primary },
+  { id: 'appstore', label: 'App Store', icon: require('../../assets/images/check.png'), color: '#0D7EFF' },
+  { id: 'other', label: 'Other', icon: require('../../assets/images/check.png'), color: '#999' },
+];
 
 export default function OnboardingDiscovery({ onNext }) {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -36,68 +43,76 @@ export default function OnboardingDiscovery({ onNext }) {
 
   return (
     <View style={styles.container}>
-      {/* Main Content */}
       <View style={styles.content}>
         <View style={styles.heroSection}>
-          <Text style={styles.questionTitle}>How did you find us?</Text>
+          <Text style={styles.questionTitle}>
+            How did you <Text style={styles.titleHighlight}>find us?</Text>
+          </Text>
           <Text style={styles.questionSubtitle}>
             We're always curious about our skincare community
           </Text>
         </View>
 
         <View style={styles.optionsSection}>
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'tiktok' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('tiktok')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'tiktok' && styles.selectedOptionText]}>TikTok</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'instagram' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('instagram')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'instagram' && styles.selectedOptionText]}>Instagram</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'google' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('google')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'google' && styles.selectedOptionText]}>Google</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'friends' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('friends')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'friends' && styles.selectedOptionText]}>Friends or Family</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'appstore' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('appstore')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'appstore' && styles.selectedOptionText]}>App Store</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'other' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('other')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'other' && styles.selectedOptionText]}>Other</Text>
-          </TouchableOpacity>
+          {DISCOVERY_OPTIONS.map((option) => {
+            const isSelected = selectedOption === option.id;
+            return (
+              <TouchableOpacity 
+                key={option.id}
+                style={[
+                  styles.optionCard,
+                  isSelected && { 
+                    borderColor: option.color,
+                    borderWidth: 2,
+                    backgroundColor: `${option.color}10`,
+                  }
+                ]}
+                onPress={() => handleOptionSelect(option.id)}
+              >
+                <View style={[
+                  styles.iconContainer,
+                  { backgroundColor: isSelected ? option.color : '#F5F5F5' }
+                ]}>
+                  <Image
+                    source={option.icon}
+                    style={[
+                      styles.icon,
+                      { tintColor: isSelected ? BRAND_COLORS.white : '#999' }
+                    ]}
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text style={[
+                  styles.optionText,
+                  isSelected && { color: option.color, fontWeight: '600' }
+                ]}>
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
+
+        {selectedOption && (
+          <View style={styles.selectionInfo}>
+            <Text style={styles.selectionText}>Great choice!</Text>
+          </View>
+        )}
       </View>
 
-      {/* Fixed Bottom Section */}
       <View style={styles.bottomSection}>
         <TouchableOpacity 
-          style={[styles.continueButton, !selectedOption && styles.continueButtonDisabled]}
+          style={[
+            styles.continueButton,
+            !selectedOption && styles.continueButtonDisabled
+          ]}
           onPress={handleContinue}
           disabled={!selectedOption}
         >
-          <Text style={[styles.continueButtonText, !selectedOption && styles.continueButtonTextDisabled]}>
+          <Text style={[
+            styles.continueButtonText,
+            !selectedOption && styles.continueButtonTextDisabled
+          ]}>
             Continue
           </Text>
         </TouchableOpacity>
@@ -111,55 +126,81 @@ export default function OnboardingDiscovery({ onNext }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent', // ✓ CHANGED from white
+    backgroundColor: 'transparent',
   },
   content: {
     flex: 1,
-    backgroundColor: 'transparent', // ✓ ADDED
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    paddingHorizontal: 24,
+    paddingTop: 40, // ✓ REDUCED from 50
+    paddingBottom: 160, // ✓ INCREASED from 140 - more space for button
+    justifyContent: 'flex-start',
   },
   heroSection: {
     alignItems: 'center',
-    marginBottom: 50,
+    marginBottom: 32, // ✓ REDUCED from 40 - tighter header spacing
   },
   questionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: '700',
     color: BRAND_COLORS.black,
     textAlign: 'center',
     marginBottom: 12,
-    lineHeight: 30,
+    lineHeight: 34,
+  },
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
   },
   questionSubtitle: {
     fontSize: 16,
-    color: BRAND_COLORS.gray,
+    color: '#666',
     textAlign: 'center',
-    lineHeight: 22,
-    fontWeight: 'normal',
+    lineHeight: 24,
   },
   optionsSection: {
-    marginBottom: 40,
+    marginBottom: 16, // ✓ REDUCED from 20 - tighter section spacing
   },
-  optionButton: {
-    backgroundColor: '#E6E6E6',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    marginBottom: 12,
+  optionCard: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 14, // ✓ REDUCED from 16 - more compact cards
+    marginBottom: 10, // ✓ REDUCED from 12 - tighter card spacing
+    borderWidth: 2,
+    borderColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  selectedOption: {
-    backgroundColor: BRAND_COLORS.primary,
+  iconContainer: {
+    width: 40, // ✓ REDUCED from 44 - smaller icons
+    height: 40, // ✓ REDUCED from 44
+    borderRadius: 20, // ✓ ADJUSTED for new size
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12, // ✓ REDUCED from 14
+  },
+  icon: {
+    width: 20, // ✓ REDUCED from 22
+    height: 20, // ✓ REDUCED from 22
   },
   optionText: {
     fontSize: 16,
     color: BRAND_COLORS.black,
-    fontWeight: '500',
+    flex: 1,
   },
-  selectedOptionText: {
-    color: BRAND_COLORS.white,
+  selectionInfo: {
+    alignItems: 'center',
+    marginTop: 8, // ✓ REDUCED from 10
+  },
+  selectionText: {
+    fontSize: 14,
+    color: BRAND_COLORS.primary,
+    fontWeight: '500',
   },
   bottomSection: {
     paddingHorizontal: 20,
@@ -171,14 +212,19 @@ const styles = StyleSheet.create({
   continueButton: {
     backgroundColor: BRAND_COLORS.primary,
     paddingVertical: 16,
-    paddingHorizontal: 50,
     borderRadius: 25,
     marginBottom: 12,
     width: '100%',
-    maxWidth: 300,
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   continueButtonDisabled: {
-    backgroundColor: BRAND_COLORS.lightGray,
+    backgroundColor: '#E5E5E5',
+    shadowOpacity: 0,
+    elevation: 0,
   },
   continueButtonText: {
     color: BRAND_COLORS.white,
@@ -187,12 +233,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   continueButtonTextDisabled: {
-    color: BRAND_COLORS.gray,
+    color: '#999',
   },
   helperText: {
     fontSize: 13,
-    color: BRAND_COLORS.gray,
+    color: '#666',
     textAlign: 'center',
-    fontWeight: 'normal',
   },
 });

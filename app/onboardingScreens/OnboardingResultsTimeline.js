@@ -2,7 +2,6 @@
 import React from 'react';
 import {
   Image,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -21,26 +20,30 @@ const TIMELINE_MILESTONES = [
   {
     week: 'Week 1',
     title: 'Your routine is working',
-    description: 'Skin begins adjusting to your new routine',
+    description: 'Skin begins adjusting',
     icon: require('../../assets/images/check.png'),
+    color: '#4A90E2',
   },
   {
     week: 'Weeks 2-3',
     title: 'First visible improvements',
     description: "You'll start noticing clearer patches",
     icon: require('../../assets/images/check.png'),
+    color: '#9B59B6',
   },
   {
     week: 'Weeks 4-6',
     title: 'Significant progress',
-    description: 'Friends notice your skin looks better',
+    description: 'Friends notice your skin',
     icon: require('../../assets/images/check.png'),
+    color: '#F39C12',
   },
   {
     week: 'Week 8+',
     title: 'Goal achieved!',
-    description: 'Consistently clear, healthy-looking skin',
+    description: 'Consistently clear skin',
     icon: require('../../assets/images/check.png'),
+    color: BRAND_COLORS.primary,
   },
 ];
 
@@ -51,25 +54,25 @@ export default function OnboardingResultsTimeline({ onNext }) {
 
   return (
     <View style={styles.container}>
-      {/* Scrollable Content */}
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <View style={styles.content}>
         {/* Header Section */}
         <View style={styles.header}>
-          <Text style={styles.title}>Here's What to Expect</Text>
+          <Text style={styles.title}>
+            Here's What to <Text style={styles.titleHighlight}>Expect</Text>
+          </Text>
           <Text style={styles.subtitle}>Your skin transformation timeline</Text>
         </View>
 
-        {/* Timeline Section */}
+        {/* Modern Timeline with Cards */}
         <View style={styles.timelineContainer}>
           {TIMELINE_MILESTONES.map((milestone, index) => (
             <View key={index} style={styles.milestoneRow}>
-              {/* Timeline Connector */}
+              {/* Timeline Track */}
               <View style={styles.timelineTrack}>
-                <View style={styles.iconContainer}>
+                <View style={[
+                  styles.iconCircle,
+                  { backgroundColor: milestone.color }
+                ]}>
                   <Image
                     source={milestone.icon}
                     style={styles.icon}
@@ -81,9 +84,14 @@ export default function OnboardingResultsTimeline({ onNext }) {
                 )}
               </View>
 
-              {/* Milestone Content */}
-              <View style={styles.milestoneContent}>
-                <Text style={styles.weekLabel}>{milestone.week}</Text>
+              {/* Milestone Card */}
+              <View style={styles.milestoneCard}>
+                <Text style={[
+                  styles.weekLabel,
+                  { color: milestone.color }
+                ]}>
+                  {milestone.week}
+                </Text>
                 <Text style={styles.milestoneTitle}>{milestone.title}</Text>
                 <Text style={styles.milestoneDescription}>
                   {milestone.description}
@@ -102,7 +110,7 @@ export default function OnboardingResultsTimeline({ onNext }) {
             Results may vary based on skin type and routine consistency
           </Text>
         </View>
-      </ScrollView>
+      </View>
 
       {/* Fixed Button at Bottom */}
       <View style={styles.buttonContainer}>
@@ -121,18 +129,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
   },
-  scrollView: {
+  content: {
     flex: 1,
     backgroundColor: 'transparent',
-  },
-  scrollContent: {
-    paddingBottom: 40, // ✓ INCREASED from 20 to 40 - gives more space before button
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    paddingBottom: 140,
+    justifyContent: 'flex-start',
   },
   header: {
-    paddingHorizontal: 24,
-    paddingTop: 32,
-    paddingBottom: 24,
     alignItems: 'center',
+    marginBottom: 40,
   },
   title: {
     fontSize: 28,
@@ -142,33 +149,39 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     lineHeight: 34,
   },
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
+  },
   subtitle: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 24,
   },
   timelineContainer: {
-    paddingHorizontal: 24,
-    paddingVertical: 20,
+    marginBottom: 30,
   },
   milestoneRow: {
     flexDirection: 'row',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   timelineTrack: {
-    width: 50,
+    width: 40,
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 14,
   },
-  iconContainer: {
+  iconCircle: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: BRAND_COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   icon: {
     width: 20,
@@ -179,51 +192,60 @@ const styles = StyleSheet.create({
     flex: 1,
     width: 2,
     backgroundColor: '#E0E0E0',
-    minHeight: 60,
+    marginTop: 4,
+    marginBottom: 4,
   },
-  milestoneContent: {
+  milestoneCard: {
     flex: 1,
-    paddingBottom: 24,
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
   weekLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: BRAND_COLORS.primary,
+    fontSize: 13,
+    fontWeight: '700',
     marginBottom: 4,
     letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
   milestoneTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
     color: BRAND_COLORS.black,
-    marginBottom: 6,
-    lineHeight: 24,
+    marginBottom: 3,
+    lineHeight: 20,
   },
   milestoneDescription: {
-    fontSize: 15,
+    fontSize: 14,
     color: '#666',
-    lineHeight: 21,
+    lineHeight: 19,
   },
   proofContainer: {
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 60, // ✓ INCREASED from 32 to 60 - provides more space so text is fully visible
+    backgroundColor: `${BRAND_COLORS.primary}10`,
+    borderRadius: 12,
+    padding: 16,
     alignItems: 'center',
+    marginTop: 10,
   },
   proofText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: BRAND_COLORS.primary,
     textAlign: 'center',
-    marginBottom: 12, // ✓ INCREASED from 8 to 12 - more space between the two texts
-    lineHeight: 20,
+    marginBottom: 6,
+    lineHeight: 19,
   },
   disclaimerText: {
     fontSize: 12,
     color: '#999',
     textAlign: 'center',
-    lineHeight: 18,
-    paddingHorizontal: 20,
+    lineHeight: 17,
   },
   buttonContainer: {
     paddingHorizontal: 20,

@@ -35,7 +35,7 @@ const TESTIMONIALS = [
   },
   {
     name: 'Emma',
-    text: 'Finally, a skincare app that actually knows what it\'s talking about. My skin has never looked better.',
+    text: 'Finally, a skincare app that actually knows what it is talking about. My skin has never looked better.',
     isRight: true,
   },
 ];
@@ -219,12 +219,10 @@ export default function OnboardingRating({ onNext }) {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
         <Text style={styles.title}>Give us a rating</Text>
       </Animated.View>
 
-      {/* Social Proof */}
       <Animated.View style={[styles.socialProofContainer, { opacity: fadeAnim }]}>
         <Text style={styles.socialProofTitle}>Dr. Acne was made for people like you</Text>
         <View style={styles.usersContainer}>
@@ -239,12 +237,10 @@ export default function OnboardingRating({ onNext }) {
         </View>
       </Animated.View>
 
-      {/* Testimonials */}
       <View style={styles.testimonialsContainer}>
         {TESTIMONIALS.map((testimonial, index) => renderTestimonial(testimonial, index))}
       </View>
 
-      {/* Fixed Button at Bottom */}
       <View style={styles.buttonContainer}>
         <DrAcneButton
           title="Continue"
@@ -253,7 +249,7 @@ export default function OnboardingRating({ onNext }) {
         />
       </View>
 
-      {/* Native iOS Style Rating Popup */}
+      {/* ✓ NATIVE iOS/Android Rating Popup - DO NOT CHANGE */}
       {showPopup && (
         <Modal transparent={true} animationType="fade">
           <TouchableOpacity
@@ -425,7 +421,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     paddingBottom: 32,
-    backgroundColor: 'transparent', // ✓ CHANGED from BRAND_COLORS.white
+    backgroundColor: 'transparent',
   },
   button: {
     paddingVertical: 16,

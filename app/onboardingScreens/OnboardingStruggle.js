@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import {
   Animated,
   Dimensions,
+  Image,
   Modal,
   StyleSheet,
   Text,
@@ -22,6 +23,37 @@ const BRAND_COLORS = {
   darkGray: '#666666',
   lightGray: '#E5E5E5',
 };
+
+const STRUGGLE_OPTIONS = [
+  { 
+    id: 'breakouts', 
+    label: 'Breakouts won\'t stop',
+    description: 'Persistent acne issues',
+    icon: require('../../assets/images/no_icon.png'),
+    color: BRAND_COLORS.secondary,
+  },
+  { 
+    id: 'nothing_works', 
+    label: 'Nothing seems to work',
+    description: 'Tried many products',
+    icon: require('../../assets/images/no_icon.png'),
+    color: '#F39C12',
+  },
+  { 
+    id: 'too_many_options', 
+    label: 'Too many options, I\'m overwhelmed',
+    description: 'Need guidance',
+    icon: require('../../assets/images/no_icon.png'),
+    color: '#9B59B6',
+  },
+  { 
+    id: 'dont_know', 
+    label: 'Don\'t know where to start',
+    description: 'New to skincare',
+    icon: require('../../assets/images/no_icon.png'),
+    color: '#4A90E2',
+  },
+];
 
 const responses = {
   'breakouts': "Ugh, the worst feeling! But here's the thing - your skin is trying to tell you something and we're here to help decode it :)",
@@ -73,60 +105,73 @@ export default function OnboardingStruggle({ onNext }) {
     <View style={styles.container}>
       {/* Main Content */}
       <View style={styles.content}>
-        <View style={styles.heroSection}>
-          <Text style={styles.questionTitle}>What's your biggest skin frustration right now?</Text>
-          <Text style={styles.questionSubtitle}>
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            What's your biggest <Text style={styles.titleHighlight}>skin frustration?</Text>
+          </Text>
+          <Text style={styles.subtitle}>
             Let's tackle what's bothering you most
           </Text>
         </View>
 
-        <View style={styles.optionsSection}>
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'breakouts' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('breakouts')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'breakouts' && styles.selectedOptionText]}>
-              Breakouts won't stop
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'nothing_works' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('nothing_works')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'nothing_works' && styles.selectedOptionText]}>
-              Nothing seems to work
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'too_many_options' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('too_many_options')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'too_many_options' && styles.selectedOptionText]}>
-              Too many options, I'm overwhelmed
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'dont_know' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('dont_know')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'dont_know' && styles.selectedOptionText]}>
-              Don't know where to start
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.optionsContainer}>
+          {STRUGGLE_OPTIONS.map((option) => {
+            const isSelected = selectedOption === option.id;
+            return (
+              <TouchableOpacity
+                key={option.id}
+                style={[
+                  styles.optionCard,
+                  isSelected && {
+                    borderColor: option.color,
+                    borderWidth: 2,
+                    backgroundColor: `${option.color}10`,
+                  }
+                ]}
+                onPress={() => handleOptionSelect(option.id)}
+              >
+                <View style={[
+                  styles.iconContainer,
+                  { backgroundColor: isSelected ? option.color : '#F5F5F5' }
+                ]}>
+                  <Image
+                    source={option.icon}
+                    style={[
+                      styles.icon,
+                      { tintColor: isSelected ? BRAND_COLORS.white : '#999' }
+                    ]}
+                    resizeMode="contain"
+                  />
+                </View>
+                <View style={styles.textContainer}>
+                  <Text style={[
+                    styles.optionLabel,
+                    isSelected && { color: option.color, fontWeight: '600' }
+                  ]}>
+                    {option.label}
+                  </Text>
+                  <Text style={styles.optionDescription}>{option.description}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </View>
 
       {/* Fixed Bottom Section */}
       <View style={styles.bottomSection}>
         <TouchableOpacity 
-          style={[styles.continueButton, !selectedOption && styles.continueButtonDisabled]}
+          style={[
+            styles.continueButton,
+            !selectedOption && styles.continueButtonDisabled
+          ]}
           onPress={handleContinue}
           disabled={!selectedOption}
         >
-          <Text style={[styles.continueButtonText, !selectedOption && styles.continueButtonTextDisabled]}>
+          <Text style={[
+            styles.continueButtonText,
+            !selectedOption && styles.continueButtonTextDisabled
+          ]}>
             Continue
           </Text>
         </TouchableOpacity>
@@ -162,71 +207,100 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: 'transparent', // ✓ ADDED
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    paddingBottom: 140,
+    justifyContent: 'flex-start',
   },
-  heroSection: {
+  header: {
     alignItems: 'center',
-    marginBottom: 50,
-  },
-  questionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: BRAND_COLORS.black,
-    textAlign: 'center',
-    marginBottom: 12,
-    lineHeight: 30,
-  },
-  questionSubtitle: {
-    fontSize: 16,
-    color: BRAND_COLORS.gray,
-    textAlign: 'center',
-    lineHeight: 22,
-    fontWeight: 'normal',
-  },
-  optionsSection: {
     marginBottom: 40,
   },
-  optionButton: {
-    backgroundColor: '#E6E6E6',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+    textAlign: 'center',
     marginBottom: 12,
+    lineHeight: 34,
+  },
+  titleHighlight: {
+    color: BRAND_COLORS.secondary,
+    fontWeight: '800',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  optionsContainer: {
+    marginBottom: 20,
+  },
+  optionCard: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  selectedOption: {
-    backgroundColor: BRAND_COLORS.primary,
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
   },
-  optionText: {
+  icon: {
+    width: 22,
+    height: 22,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  optionLabel: {
     fontSize: 16,
     color: BRAND_COLORS.black,
-    fontWeight: '500',
-    textAlign: 'center',
+    marginBottom: 3,
   },
-  selectedOptionText: {
-    color: BRAND_COLORS.white,
+  optionDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 19,
   },
   bottomSection: {
     paddingHorizontal: 20,
     paddingBottom: 40,
     paddingTop: 20,
-    backgroundColor: 'transparent', // ✓ CHANGED from BRAND_COLORS.white
+    backgroundColor: 'transparent',
     alignItems: 'center',
   },
   continueButton: {
     backgroundColor: BRAND_COLORS.primary,
     paddingVertical: 16,
-    paddingHorizontal: 50,
     borderRadius: 25,
     marginBottom: 12,
     width: '100%',
-    maxWidth: 300,
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   continueButtonDisabled: {
-    backgroundColor: BRAND_COLORS.lightGray,
+    backgroundColor: '#E5E5E5',
+    shadowOpacity: 0,
+    elevation: 0,
   },
   continueButtonText: {
     color: BRAND_COLORS.white,
@@ -235,13 +309,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   continueButtonTextDisabled: {
-    color: BRAND_COLORS.gray,
+    color: '#999',
   },
   helperText: {
     fontSize: 13,
-    color: BRAND_COLORS.gray,
+    color: '#666',
     textAlign: 'center',
-    fontWeight: 'normal',
   },
   modalOverlay: {
     flex: 1,

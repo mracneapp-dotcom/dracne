@@ -1,16 +1,12 @@
 // app/onboardingScreens/OnboardingBarrierHealth1.js
 import React, { useState } from 'react';
 import {
-  Animated,
-  Dimensions,
-  Modal,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-
-const { width } = Dimensions.get('window');
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -18,129 +14,140 @@ const BRAND_COLORS = {
   cream: '#FDF5E6',
   black: '#000000',
   white: '#FFFFFF',
-  gray: '#999999',
-  darkGray: '#666666',
-  lightGray: '#E5E5E5',
-};
-
-const responses = {
-  'often_burns': "Your skin is telling you it needs some TLC first. Let's focus on calming things down",
-  'sometimes_sensitive': "Sounds like your skin just needs the right gentle approach",
-  'pretty_tough': "Lucky you! But even tough skin deserves proper care"
 };
 
 export default function OnboardingBarrierHealth1({ onNext }) {
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [showResponseModal, setShowResponseModal] = useState(false);
-  const [responseText, setResponseText] = useState('');
-  const [fadeAnim] = useState(new Animated.Value(0));
+  const [hasBarrierDamage, setHasBarrierDamage] = useState(null);
 
-  const handleOptionSelect = (option) => {
-    setSelectedOption(option);
-  };
-
-  const showResponse = (response) => {
-    setResponseText(response);
-    setShowResponseModal(true);
-    
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }).start(() => {
-          setShowResponseModal(false);
-          onNext('onboardingBarrierHealth2', { barrierHealth1: selectedOption });
-        });
-      }, 3500);
-    });
+  const handleSelect = (value) => {
+    setHasBarrierDamage(value);
   };
 
   const handleContinue = () => {
-    if (selectedOption) {
-      const response = responses[selectedOption];
-      showResponse(response);
+    if (hasBarrierDamage !== null) {
+      onNext('onboardingBarrierHealth2', { barrierDamage1: hasBarrierDamage });
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Main Content */}
       <View style={styles.content}>
-        <View style={styles.heroSection}>
-          <Text style={styles.questionTitle}>Does your skin ever feel angry or irritated?</Text>
-          <Text style={styles.questionSubtitle}>
-            This helps us understand your skin's sensitivity level
+        <View style={styles.iconContainer}>
+          <View style={styles.questionCircle}>
+            <Image
+              source={require('../../assets/images/check.png')}
+              style={styles.questionIcon}
+              resizeMode="contain"
+            />
+          </View>
+        </View>
+
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            Does your skin feel <Text style={styles.titleHighlight}>tight or burning?</Text>
+          </Text>
+          <Text style={styles.subtitle}>
+            This helps us assess your skin barrier health
           </Text>
         </View>
 
-        <View style={styles.optionsSection}>
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'often_burns' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('often_burns')}
+        <View style={styles.optionsContainer}>
+          <TouchableOpacity
+            style={[
+              styles.optionCard,
+              hasBarrierDamage === true && {
+                borderColor: BRAND_COLORS.secondary,
+                borderWidth: 2,
+                backgroundColor: `${BRAND_COLORS.secondary}10`,
+              }
+            ]}
+            onPress={() => handleSelect(true)}
           >
-            <Text style={[styles.optionText, selectedOption === 'often_burns' && styles.selectedOptionText]}>
-              Often burns or stings
-            </Text>
+            <View style={[
+              styles.iconCircle,
+              { backgroundColor: hasBarrierDamage === true ? BRAND_COLORS.secondary : '#F5F5F5' }
+            ]}>
+              <Image
+                source={require('../../assets/images/no_icon.png')}
+                style={[
+                  styles.optionIcon,
+                  { tintColor: hasBarrierDamage === true ? BRAND_COLORS.white : '#999' }
+                ]}
+                resizeMode="contain"
+              />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={[
+                styles.optionLabel,
+                hasBarrierDamage === true && { color: BRAND_COLORS.secondary, fontWeight: '600' }
+              ]}>
+                Yes, often
+              </Text>
+              <Text style={styles.optionDescription}>My skin feels tight or has a burning sensation</Text>
+            </View>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'sometimes_sensitive' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('sometimes_sensitive')}
+          <TouchableOpacity
+            style={[
+              styles.optionCard,
+              hasBarrierDamage === false && {
+                borderColor: BRAND_COLORS.primary,
+                borderWidth: 2,
+                backgroundColor: `${BRAND_COLORS.primary}10`,
+              }
+            ]}
+            onPress={() => handleSelect(false)}
           >
-            <Text style={[styles.optionText, selectedOption === 'sometimes_sensitive' && styles.selectedOptionText]}>
-              Sometimes sensitive
-            </Text>
+            <View style={[
+              styles.iconCircle,
+              { backgroundColor: hasBarrierDamage === false ? BRAND_COLORS.primary : '#F5F5F5' }
+            ]}>
+              <Image
+                source={require('../../assets/images/check.png')}
+                style={[
+                  styles.optionIcon,
+                  { tintColor: hasBarrierDamage === false ? BRAND_COLORS.white : '#999' }
+                ]}
+                resizeMode="contain"
+              />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={[
+                styles.optionLabel,
+                hasBarrierDamage === false && { color: BRAND_COLORS.primary, fontWeight: '600' }
+              ]}>
+                No, not really
+              </Text>
+              <Text style={styles.optionDescription}>My skin feels comfortable and balanced</Text>
+            </View>
           </TouchableOpacity>
+        </View>
 
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'pretty_tough' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('pretty_tough')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'pretty_tough' && styles.selectedOptionText]}>
-              Pretty tough, rarely bothered
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.infoBox}>
+          <Text style={styles.infoText}>
+            Barrier damage can affect how your skin responds to products
+          </Text>
         </View>
       </View>
 
-      {/* Fixed Bottom Section */}
       <View style={styles.bottomSection}>
-        <TouchableOpacity 
-          style={[styles.continueButton, !selectedOption && styles.continueButtonDisabled]}
+        <TouchableOpacity
+          style={[
+            styles.continueButton,
+            hasBarrierDamage === null && styles.continueButtonDisabled
+          ]}
           onPress={handleContinue}
-          disabled={!selectedOption}
+          disabled={hasBarrierDamage === null}
         >
-          <Text style={[styles.continueButtonText, !selectedOption && styles.continueButtonTextDisabled]}>
+          <Text style={[
+            styles.continueButtonText,
+            hasBarrierDamage === null && styles.continueButtonTextDisabled
+          ]}>
             Continue
           </Text>
         </TouchableOpacity>
-        
-        <Text style={styles.helperText}>Your honesty helps us protect your skin</Text>
+        <Text style={styles.helperText}>Select one option</Text>
       </View>
-
-      {/* Response Modal */}
-      <Modal
-        transparent={true}
-        visible={showResponseModal}
-        animationType="none"
-      >
-        <View style={styles.modalOverlay}>
-          <Animated.View 
-            style={[
-              styles.responseModal,
-              { opacity: fadeAnim }
-            ]}
-          >
-            <Text style={styles.responseText}>{responseText}</Text>
-          </Animated.View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -148,56 +155,114 @@ export default function OnboardingBarrierHealth1({ onNext }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent', // ✓ CHANGED from white
+    backgroundColor: 'transparent',
   },
   content: {
     flex: 1,
-    backgroundColor: 'transparent', // ✓ ADDED
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    justifyContent: 'flex-start',
   },
-  heroSection: {
+  iconContainer: {
     alignItems: 'center',
-    marginBottom: 50,
+    marginBottom: 32,
   },
-  questionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: BRAND_COLORS.black,
-    textAlign: 'center',
-    marginBottom: 12,
-    lineHeight: 30,
+  questionCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#4A90E2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#4A90E2',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  questionSubtitle: {
-    fontSize: 16,
-    color: BRAND_COLORS.gray,
-    textAlign: 'center',
-    lineHeight: 22,
-    fontWeight: 'normal',
+  questionIcon: {
+    width: 40,
+    height: 40,
+    tintColor: BRAND_COLORS.white,
   },
-  optionsSection: {
+  header: {
+    alignItems: 'center',
     marginBottom: 40,
   },
-  optionButton: {
-    backgroundColor: '#E6E6E6',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+    textAlign: 'center',
     marginBottom: 12,
+    lineHeight: 34,
+  },
+  titleHighlight: {
+    color: BRAND_COLORS.secondary,
+    fontWeight: '800',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  optionsContainer: {
+    marginBottom: 24,
+  },
+  optionCard: {
+    flexDirection: 'row',
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 14,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  iconCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  optionIcon: {
+    width: 26,
+    height: 26,
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  optionLabel: {
+    fontSize: 17,
+    color: BRAND_COLORS.black,
+    marginBottom: 4,
+  },
+  optionDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 19,
+  },
+  infoBox: {
+    backgroundColor: `${BRAND_COLORS.primary}10`,
+    borderRadius: 12,
+    padding: 16,
     alignItems: 'center',
   },
-  selectedOption: {
-    backgroundColor: BRAND_COLORS.primary,
-  },
-  optionText: {
-    fontSize: 16,
-    color: BRAND_COLORS.black,
-    fontWeight: '500',
+  infoText: {
+    fontSize: 13,
+    color: BRAND_COLORS.primary,
     textAlign: 'center',
-  },
-  selectedOptionText: {
-    color: BRAND_COLORS.white,
+    lineHeight: 19,
+    fontWeight: '500',
   },
   bottomSection: {
     paddingHorizontal: 20,
@@ -209,14 +274,19 @@ const styles = StyleSheet.create({
   continueButton: {
     backgroundColor: BRAND_COLORS.primary,
     paddingVertical: 16,
-    paddingHorizontal: 50,
     borderRadius: 25,
     marginBottom: 12,
     width: '100%',
-    maxWidth: 300,
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   continueButtonDisabled: {
-    backgroundColor: BRAND_COLORS.lightGray,
+    backgroundColor: '#E5E5E5',
+    shadowOpacity: 0,
+    elevation: 0,
   },
   continueButtonText: {
     color: BRAND_COLORS.white,
@@ -225,37 +295,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   continueButtonTextDisabled: {
-    color: BRAND_COLORS.gray,
+    color: '#999',
   },
   helperText: {
     fontSize: 13,
-    color: BRAND_COLORS.gray,
+    color: '#666',
     textAlign: 'center',
-    fontWeight: 'normal',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  responseModal: {
-    backgroundColor: '#8BA365',
-    paddingVertical: 20,
-    paddingHorizontal: 30,
-    borderRadius: 15,
-    maxWidth: width * 0.8,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-  },
-  responseText: {
-    color: BRAND_COLORS.white,
-    fontSize: 16,
-    fontWeight: '500',
-    textAlign: 'center',
-    lineHeight: 22,
   },
 });

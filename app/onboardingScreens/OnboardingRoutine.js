@@ -1,16 +1,12 @@
 // app/onboardingScreens/OnboardingRoutine.js
 import React, { useState } from 'react';
 import {
-  Animated,
-  Dimensions,
-  Modal,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-
-const { width } = Dimensions.get('window');
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -18,129 +14,125 @@ const BRAND_COLORS = {
   cream: '#FDF5E6',
   black: '#000000',
   white: '#FFFFFF',
-  gray: '#999999',
-  darkGray: '#666666',
-  lightGray: '#E5E5E5',
 };
 
-const responses = {
-  'products_0_2': "Minimalist approach! Sometimes less really is more",
-  'products_3_5': "Sweet spot! You understand routine without overdoing it",
-  'products_6_plus': "Wow! You're dedicated. Let's make sure each product is actually helping"
-};
+const ROUTINE_OPTIONS = [
+  {
+    id: 'minimal',
+    label: 'Minimal',
+    description: '2-3 products, simple steps',
+    icon: require('../../assets/images/check.png'),
+    color: '#4A90E2',
+  },
+  {
+    id: 'moderate',
+    label: 'Moderate',
+    description: '4-5 products, balanced routine',
+    icon: require('../../assets/images/check.png'),
+    color: BRAND_COLORS.primary,
+  },
+  {
+    id: 'comprehensive',
+    label: 'Comprehensive',
+    description: '6+ products, complete care',
+    icon: require('../../assets/images/check.png'),
+    color: '#9B59B6',
+  },
+];
 
 export default function OnboardingRoutine({ onNext }) {
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [showResponseModal, setShowResponseModal] = useState(false);
-  const [responseText, setResponseText] = useState('');
-  const [fadeAnim] = useState(new Animated.Value(0));
+  const [selectedRoutine, setSelectedRoutine] = useState(null);
 
-  const handleOptionSelect = (option) => {
-    setSelectedOption(option);
-  };
-
-  const showResponse = (response) => {
-    setResponseText(response);
-    setShowResponseModal(true);
-    
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }).start(() => {
-          setShowResponseModal(false);
-          onNext('onboardingGoals', { routine: selectedOption });
-        });
-      }, 3500);
-    });
+  const handleSelect = (routineId) => {
+    setSelectedRoutine(routineId);
   };
 
   const handleContinue = () => {
-    if (selectedOption) {
-      const response = responses[selectedOption];
-      showResponse(response);
+    if (selectedRoutine) {
+      onNext('onboardingGoals', { routinePreference: selectedRoutine });
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Main Content */}
       <View style={styles.content}>
-        <View style={styles.heroSection}>
-          <Text style={styles.questionTitle}>How many products do you currently use daily?</Text>
-          <Text style={styles.questionSubtitle}>
-            This helps us understand your routine complexity
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            What <Text style={styles.titleHighlight}>routine level</Text> fits you?
+          </Text>
+          <Text style={styles.subtitle}>
+            We'll tailor recommendations to match your preference
           </Text>
         </View>
 
-        <View style={styles.optionsSection}>
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'products_0_2' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('products_0_2')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'products_0_2' && styles.selectedOptionText]}>
-              0-2 products
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.optionsContainer}>
+          {ROUTINE_OPTIONS.map((option) => {
+            const isSelected = selectedRoutine === option.id;
+            return (
+              <TouchableOpacity
+                key={option.id}
+                style={[
+                  styles.optionCard,
+                  isSelected && {
+                    borderColor: option.color,
+                    borderWidth: 2,
+                    backgroundColor: `${option.color}10`,
+                  }
+                ]}
+                onPress={() => handleSelect(option.id)}
+              >
+                <View style={[
+                  styles.iconContainer,
+                  { backgroundColor: isSelected ? option.color : '#F5F5F5' }
+                ]}>
+                  <Image
+                    source={option.icon}
+                    style={[
+                      styles.icon,
+                      { tintColor: isSelected ? BRAND_COLORS.white : '#999' }
+                    ]}
+                    resizeMode="contain"
+                  />
+                </View>
+                <View style={styles.textContainer}>
+                  <Text style={[
+                    styles.optionLabel,
+                    isSelected && { color: option.color, fontWeight: '600' }
+                  ]}>
+                    {option.label}
+                  </Text>
+                  <Text style={styles.optionDescription}>{option.description}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'products_3_5' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('products_3_5')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'products_3_5' && styles.selectedOptionText]}>
-              3-5 products
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'products_6_plus' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('products_6_plus')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'products_6_plus' && styles.selectedOptionText]}>
-              6+ products
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.infoBox}>
+          <Text style={styles.infoText}>
+            Don't worry, you can always adjust this later
+          </Text>
         </View>
       </View>
 
-      {/* Fixed Bottom Section */}
       <View style={styles.bottomSection}>
-        <TouchableOpacity 
-          style={[styles.continueButton, !selectedOption && styles.continueButtonDisabled]}
+        <TouchableOpacity
+          style={[
+            styles.continueButton,
+            !selectedRoutine && styles.continueButtonDisabled
+          ]}
           onPress={handleContinue}
-          disabled={!selectedOption}
+          disabled={!selectedRoutine}
         >
-          <Text style={[styles.continueButtonText, !selectedOption && styles.continueButtonTextDisabled]}>
+          <Text style={[
+            styles.continueButtonText,
+            !selectedRoutine && styles.continueButtonTextDisabled
+          ]}>
             Continue
           </Text>
         </TouchableOpacity>
-        
-        <Text style={styles.helperText}>Include morning and evening routines</Text>
+        <Text style={styles.helperText}>Select your preferred routine level</Text>
       </View>
-
-      {/* Response Modal */}
-      <Modal
-        transparent={true}
-        visible={showResponseModal}
-        animationType="none"
-      >
-        <View style={styles.modalOverlay}>
-          <Animated.View 
-            style={[
-              styles.responseModal,
-              { opacity: fadeAnim }
-            ]}
-          >
-            <Text style={styles.responseText}>{responseText}</Text>
-          </Animated.View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -152,71 +144,112 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: 'transparent', // ✓ ADDED
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    paddingHorizontal: 24,
+    paddingTop: 50,
+    justifyContent: 'flex-start',
   },
-  heroSection: {
+  header: {
     alignItems: 'center',
-    marginBottom: 50,
-  },
-  questionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: BRAND_COLORS.black,
-    textAlign: 'center',
-    marginBottom: 12,
-    lineHeight: 30,
-  },
-  questionSubtitle: {
-    fontSize: 16,
-    color: BRAND_COLORS.gray,
-    textAlign: 'center',
-    lineHeight: 22,
-    fontWeight: 'normal',
-  },
-  optionsSection: {
     marginBottom: 40,
   },
-  optionButton: {
-    backgroundColor: '#E6E6E6',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+    textAlign: 'center',
     marginBottom: 12,
+    lineHeight: 34,
+  },
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  optionsContainer: {
+    marginBottom: 24,
+  },
+  optionCard: {
+    flexDirection: 'row',
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 14,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  iconContainer: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  icon: {
+    width: 26,
+    height: 26,
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  optionLabel: {
+    fontSize: 18,
+    color: BRAND_COLORS.black,
+    marginBottom: 4,
+  },
+  optionDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 19,
+  },
+  infoBox: {
+    backgroundColor: `${BRAND_COLORS.primary}10`,
+    borderRadius: 12,
+    padding: 16,
     alignItems: 'center',
   },
-  selectedOption: {
-    backgroundColor: BRAND_COLORS.primary,
-  },
-  optionText: {
-    fontSize: 16,
-    color: BRAND_COLORS.black,
-    fontWeight: '500',
+  infoText: {
+    fontSize: 13,
+    color: BRAND_COLORS.primary,
     textAlign: 'center',
-  },
-  selectedOptionText: {
-    color: BRAND_COLORS.white,
+    lineHeight: 19,
+    fontWeight: '500',
   },
   bottomSection: {
     paddingHorizontal: 20,
     paddingBottom: 40,
     paddingTop: 20,
-    backgroundColor: 'transparent', // ✓ CHANGED from BRAND_COLORS.white
+    backgroundColor: 'transparent',
     alignItems: 'center',
   },
   continueButton: {
     backgroundColor: BRAND_COLORS.primary,
     paddingVertical: 16,
-    paddingHorizontal: 50,
     borderRadius: 25,
     marginBottom: 12,
     width: '100%',
-    maxWidth: 300,
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   continueButtonDisabled: {
-    backgroundColor: BRAND_COLORS.lightGray,
+    backgroundColor: '#E5E5E5',
+    shadowOpacity: 0,
+    elevation: 0,
   },
   continueButtonText: {
     color: BRAND_COLORS.white,
@@ -225,37 +258,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   continueButtonTextDisabled: {
-    color: BRAND_COLORS.gray,
+    color: '#999',
   },
   helperText: {
     fontSize: 13,
-    color: BRAND_COLORS.gray,
+    color: '#666',
     textAlign: 'center',
-    fontWeight: 'normal',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  responseModal: {
-    backgroundColor: '#8BA365',
-    paddingVertical: 20,
-    paddingHorizontal: 30,
-    borderRadius: 15,
-    maxWidth: width * 0.8,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-  },
-  responseText: {
-    color: BRAND_COLORS.white,
-    fontSize: 16,
-    fontWeight: '500',
-    textAlign: 'center',
-    lineHeight: 22,
   },
 });

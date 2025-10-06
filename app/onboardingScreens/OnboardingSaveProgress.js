@@ -55,15 +55,17 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      {/* ✓ UPDATED: Modern Header with highlighted word */}
       <View style={styles.header}>
-        <Text style={styles.title}>Save your progress</Text>
+        <Text style={styles.title}>
+          Save your <Text style={styles.titleHighlight}>progress</Text>
+        </Text>
         <Text style={styles.subtitle}>
           Create an account to save your personalized skincare plan and progress
         </Text>
       </View>
 
-      {/* Sign In Buttons */}
+      {/* ✓ KEPT: Sign In Buttons */}
       <View style={styles.buttonsSection}>
         <TouchableOpacity style={styles.appleButton} onPress={handleAppleSignIn}>
           <Image
@@ -84,10 +86,10 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
         </TouchableOpacity>
       </View>
 
-      {/* Spacer to push bottom content down */}
+      {/* ✓ KEPT: Spacer */}
       <View style={styles.spacer} />
 
-      {/* Bottom Section with Skip and Continue */}
+      {/* ✓ KEPT: Bottom Section with Skip and Continue */}
       <View style={styles.bottomSection}>
         {/* Skip Section */}
         <View style={styles.skipSection}>
@@ -128,6 +130,12 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.black,
     textAlign: 'center',
     marginBottom: 16,
+    lineHeight: 34, // ✓ ADDED for consistency
+  },
+  // ✓ ADDED: Highlight style for green word
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
   },
   subtitle: {
     fontSize: 16,
@@ -195,7 +203,7 @@ const styles = StyleSheet.create({
   bottomSection: {
     paddingHorizontal: 24,
     paddingBottom: 40,
-    backgroundColor: 'transparent', // ✓ Already correct
+    backgroundColor: 'transparent',
   },
   skipSection: {
     alignItems: 'center',

@@ -2,7 +2,6 @@
 import React from 'react';
 import {
   Image,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -28,20 +27,16 @@ export default function OnboardingComparison({ onNext }) {
 
   return (
     <View style={styles.container}>
-      {/* Main Content - Scrollable */}
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
+      <View style={styles.content}>
         <View style={styles.heroSection}>
-          <Text style={styles.questionTitle}>Why Dr. Acne vs. Going Alone?</Text>
+          <Text style={styles.questionTitle}>
+            Why <Text style={styles.titleHighlight}>Dr. Acne</Text> vs. Going Alone?
+          </Text>
           <Text style={styles.questionSubtitle}>
             See the difference personalized AI guidance makes
           </Text>
         </View>
 
-        {/* Column Headers */}
         <View style={styles.headerRow}>
           <View style={styles.headerColumn}>
             <Text style={styles.headerText}>On Your Own</Text>
@@ -52,14 +47,13 @@ export default function OnboardingComparison({ onNext }) {
         </View>
 
         <View style={styles.comparisonSection}>
-          {/* Comparison Row 1 */}
           <View style={styles.comparisonRow}>
             <View style={styles.comparisonBox}>
               <Image 
                 source={require('../../assets/images/no_icon.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonText}>Trial and error with products</Text>
+              <Text style={styles.comparisonText}>Trial and error</Text>
             </View>
             
             <View style={styles.comparisonBoxHighlight}>
@@ -67,18 +61,17 @@ export default function OnboardingComparison({ onNext }) {
                 source={require('../../assets/images/check.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonTextHighlight}>AI-powered personalized recommendations</Text>
+              <Text style={styles.comparisonTextHighlight}>AI personalized</Text>
             </View>
           </View>
 
-          {/* Comparison Row 2 */}
           <View style={styles.comparisonRow}>
             <View style={styles.comparisonBox}>
               <Image 
                 source={require('../../assets/images/no_icon.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonText}>Conflicting online advice</Text>
+              <Text style={styles.comparisonText}>Conflicting advice</Text>
             </View>
             
             <View style={styles.comparisonBoxHighlight}>
@@ -86,18 +79,17 @@ export default function OnboardingComparison({ onNext }) {
                 source={require('../../assets/images/check.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonTextHighlight}>Science-backed guidance</Text>
+              <Text style={styles.comparisonTextHighlight}>Science-backed</Text>
             </View>
           </View>
 
-          {/* Comparison Row 3 */}
           <View style={styles.comparisonRow}>
             <View style={styles.comparisonBox}>
               <Image 
                 source={require('../../assets/images/no_icon.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonText}>Expensive product mistakes</Text>
+              <Text style={styles.comparisonText}>Expensive mistakes</Text>
             </View>
             
             <View style={styles.comparisonBoxHighlight}>
@@ -105,18 +97,17 @@ export default function OnboardingComparison({ onNext }) {
                 source={require('../../assets/images/check.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonTextHighlight}>Targeted routine that works</Text>
+              <Text style={styles.comparisonTextHighlight}>Targeted routine</Text>
             </View>
           </View>
 
-          {/* Comparison Row 4 */}
           <View style={styles.comparisonRow}>
             <View style={styles.comparisonBox}>
               <Image 
                 source={require('../../assets/images/no_icon.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonText}>Months of guessing</Text>
+              <Text style={styles.comparisonText}>Months guessing</Text>
             </View>
             
             <View style={styles.comparisonBoxHighlight}>
@@ -124,7 +115,7 @@ export default function OnboardingComparison({ onNext }) {
                 source={require('../../assets/images/check.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonTextHighlight}>Clear path to results</Text>
+              <Text style={styles.comparisonTextHighlight}>Clear path</Text>
             </View>
           </View>
         </View>
@@ -134,9 +125,8 @@ export default function OnboardingComparison({ onNext }) {
             Join thousands who cleared their skin with us
           </Text>
         </View>
-      </ScrollView>
+      </View>
 
-      {/* Fixed Bottom Section */}
       <View style={styles.bottomSection}>
         <TouchableOpacity 
           style={styles.continueButton}
@@ -158,35 +148,35 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
   },
-  scrollView: {
-    flex: 1,
-    backgroundColor: 'transparent', // ✓ ADDED
-  },
   content: {
-    backgroundColor: 'transparent', // ✓ ADDED
+    flex: 1,
+    backgroundColor: 'transparent',
     paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
+    paddingTop: 40,
+    justifyContent: 'flex-start',
   },
   heroSection: {
     alignItems: 'center',
     marginBottom: 30,
-    backgroundColor: 'transparent', // ✓ ADDED
+    backgroundColor: 'transparent',
   },
   questionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 26,
+    fontWeight: '700',
     color: BRAND_COLORS.black,
     textAlign: 'center',
-    marginBottom: 12,
-    lineHeight: 30,
+    marginBottom: 10,
+    lineHeight: 32,
+  },
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
   },
   questionSubtitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: BRAND_COLORS.gray,
     textAlign: 'center',
-    lineHeight: 22,
-    fontWeight: 'normal',
+    lineHeight: 21,
   },
   headerRow: {
     flexDirection: 'row',
@@ -198,74 +188,73 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerText: {
-    fontSize: 14,
+    fontSize: 13,
     color: BRAND_COLORS.gray,
     fontWeight: '600',
     textAlign: 'center',
   },
   headerTextHighlight: {
-    fontSize: 14,
+    fontSize: 13,
     color: BRAND_COLORS.primary,
     fontWeight: '600',
     textAlign: 'center',
   },
   comparisonSection: {
-    marginBottom: 30,
+    marginBottom: 24,
   },
   comparisonRow: {
     flexDirection: 'row',
-    marginBottom: 12,
+    marginBottom: 10,
     gap: 12,
   },
   comparisonBox: {
     flex: 1,
-    backgroundColor: 'rgba(230, 230, 230, 0.7)', // ✓ CHANGED: Semi-transparent gray (70% opacity)
+    backgroundColor: 'rgba(230, 230, 230, 0.7)',
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 100,
+    minHeight: 85,
   },
   comparisonBoxHighlight: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.85)', // ✓ CHANGED: Semi-transparent white (85% opacity)
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 100,
+    minHeight: 85,
     borderWidth: 2,
     borderColor: BRAND_COLORS.primary,
   },
   icon: {
-    width: 24,
-    height: 24,
-    marginBottom: 12,
+    width: 20,
+    height: 20,
+    marginBottom: 8,
   },
   comparisonText: {
-    fontSize: 14,
+    fontSize: 12,
     color: BRAND_COLORS.darkGray,
     textAlign: 'center',
-    lineHeight: 18,
+    lineHeight: 16,
   },
   comparisonTextHighlight: {
-    fontSize: 14,
+    fontSize: 12,
     color: BRAND_COLORS.black,
     textAlign: 'center',
-    lineHeight: 18,
+    lineHeight: 16,
     fontWeight: '500',
   },
   socialProofSection: {
     alignItems: 'center',
-    marginTop: 20,
-    paddingHorizontal: 20,
+    marginTop: 10,
   },
   socialProofText: {
-    fontSize: 15,
+    fontSize: 14,
     color: BRAND_COLORS.primary,
     textAlign: 'center',
     fontWeight: '500',
-    lineHeight: 20,
+    lineHeight: 18,
   },
   bottomSection: {
     paddingHorizontal: 20,
@@ -277,11 +266,14 @@ const styles = StyleSheet.create({
   continueButton: {
     backgroundColor: BRAND_COLORS.primary,
     paddingVertical: 16,
-    paddingHorizontal: 50,
     borderRadius: 25,
     marginBottom: 12,
     width: '100%',
-    maxWidth: 300,
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   continueButtonText: {
     color: BRAND_COLORS.white,
@@ -293,6 +285,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: BRAND_COLORS.gray,
     textAlign: 'center',
-    fontWeight: 'normal',
   },
 });

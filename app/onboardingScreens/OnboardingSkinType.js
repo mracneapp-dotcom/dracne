@@ -1,16 +1,12 @@
 // app/onboardingScreens/OnboardingSkinType.js
 import React, { useState } from 'react';
 import {
-  Animated,
-  Dimensions,
-  Modal,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-
-const { width } = Dimensions.get('window');
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -18,139 +14,139 @@ const BRAND_COLORS = {
   cream: '#FDF5E6',
   black: '#000000',
   white: '#FFFFFF',
-  gray: '#999999',
-  darkGray: '#666666',
-  lightGray: '#E5E5E5',
 };
 
-const responses = {
-  'shiny_all': "Understanding oily skin is the first step to working with it",
-  'shiny_tzone': "Classic combination skin - super common and totally manageable",
-  'balanced_glow': "That natural glow is exactly what we're all aiming for",
-  'tight_dry': "Your skin is asking for more hydration and gentle care"
-};
+const SKIN_TYPES = [
+  {
+    id: 'oily',
+    label: 'Oily',
+    description: 'Shiny throughout the day',
+    icon: require('../../assets/images/check.png'),
+    color: '#4A90E2',
+  },
+  {
+    id: 'dry',
+    label: 'Dry',
+    description: 'Tight, flaky, or rough',
+    icon: require('../../assets/images/check.png'),
+    color: '#F39C12',
+  },
+  {
+    id: 'combination',
+    label: 'Combination',
+    description: 'Oily T-zone, dry cheeks',
+    icon: require('../../assets/images/check.png'),
+    color: BRAND_COLORS.primary,
+  },
+  {
+    id: 'normal',
+    label: 'Normal',
+    description: 'Balanced, not too oily or dry',
+    icon: require('../../assets/images/check.png'),
+    color: '#9B59B6',
+  },
+  {
+    id: 'sensitive',
+    label: 'Sensitive',
+    description: 'Easily irritated or red',
+    icon: require('../../assets/images/check.png'),
+    color: BRAND_COLORS.secondary,
+  },
+];
 
 export default function OnboardingSkinType({ onNext }) {
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [showResponseModal, setShowResponseModal] = useState(false);
-  const [responseText, setResponseText] = useState('');
-  const [fadeAnim] = useState(new Animated.Value(0));
+  const [selectedType, setSelectedType] = useState(null);
 
-  const handleOptionSelect = (option) => {
-    setSelectedOption(option);
-  };
-
-  const showResponse = (response) => {
-    setResponseText(response);
-    setShowResponseModal(true);
-    
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }).start(() => {
-          setShowResponseModal(false);
-          onNext('onboardingRoutine', { skinType: selectedOption });
-        });
-      }, 3500);
-    });
+  const handleSelect = (typeId) => {
+    setSelectedType(typeId);
   };
 
   const handleContinue = () => {
-    if (selectedOption) {
-      const response = responses[selectedOption];
-      showResponse(response);
+    if (selectedType) {
+      onNext('onboardingRoutine', { skinType: selectedType });
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Main Content */}
       <View style={styles.content}>
-        <View style={styles.heroSection}>
-          <Text style={styles.questionTitle}>By mid-morning, how does your skin typically look?</Text>
-          <Text style={styles.questionSubtitle}>
-            This helps us understand your natural skin type
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            What's your <Text style={styles.titleHighlight}>skin type?</Text>
+          </Text>
+          <Text style={styles.subtitle}>
+            Choose the one that best describes your skin
           </Text>
         </View>
 
-        <View style={styles.optionsSection}>
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'shiny_all' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('shiny_all')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'shiny_all' && styles.selectedOptionText]}>
-              Shiny all over my face
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'shiny_tzone' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('shiny_tzone')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'shiny_tzone' && styles.selectedOptionText]}>
-              Shiny T-zone only
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'balanced_glow' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('balanced_glow')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'balanced_glow' && styles.selectedOptionText]}>
-              Balanced with natural glow
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'tight_dry' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('tight_dry')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'tight_dry' && styles.selectedOptionText]}>
-              Tight or dry feeling
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.typesContainer}>
+          {SKIN_TYPES.map((type) => {
+            const isSelected = selectedType === type.id;
+            return (
+              <TouchableOpacity
+                key={type.id}
+                style={[
+                  styles.typeCard,
+                  isSelected && {
+                    borderColor: type.color,
+                    borderWidth: 2,
+                    backgroundColor: `${type.color}10`,
+                  }
+                ]}
+                onPress={() => handleSelect(type.id)}
+              >
+                <View style={[
+                  styles.iconContainer,
+                  { backgroundColor: isSelected ? type.color : '#F5F5F5' }
+                ]}>
+                  <Image
+                    source={type.icon}
+                    style={[
+                      styles.icon,
+                      { tintColor: isSelected ? BRAND_COLORS.white : '#999' }
+                    ]}
+                    resizeMode="contain"
+                  />
+                </View>
+                <View style={styles.textContainer}>
+                  <Text style={[
+                    styles.typeLabel,
+                    isSelected && { color: type.color, fontWeight: '600' }
+                  ]}>
+                    {type.label}
+                  </Text>
+                  <Text style={styles.typeDescription}>{type.description}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
         </View>
+
+        {selectedType && (
+          <View style={styles.selectionInfo}>
+            <Text style={styles.selectionText}>Great choice!</Text>
+          </View>
+        )}
       </View>
 
-      {/* Fixed Bottom Section */}
       <View style={styles.bottomSection}>
-        <TouchableOpacity 
-          style={[styles.continueButton, !selectedOption && styles.continueButtonDisabled]}
+        <TouchableOpacity
+          style={[
+            styles.continueButton,
+            !selectedType && styles.continueButtonDisabled
+          ]}
           onPress={handleContinue}
-          disabled={!selectedOption}
+          disabled={!selectedType}
         >
-          <Text style={[styles.continueButtonText, !selectedOption && styles.continueButtonTextDisabled]}>
+          <Text style={[
+            styles.continueButtonText,
+            !selectedType && styles.continueButtonTextDisabled
+          ]}>
             Continue
           </Text>
         </TouchableOpacity>
-        
-        <Text style={styles.helperText}>Think about your natural skin without products</Text>
+        <Text style={styles.helperText}>Select your skin type</Text>
       </View>
-
-      {/* Response Modal */}
-      <Modal
-        transparent={true}
-        visible={showResponseModal}
-        animationType="none"
-      >
-        <View style={styles.modalOverlay}>
-          <Animated.View 
-            style={[
-              styles.responseModal,
-              { opacity: fadeAnim }
-            ]}
-          >
-            <Text style={styles.responseText}>{responseText}</Text>
-          </Animated.View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -162,71 +158,108 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: 'transparent', // ✓ ADDED
+    backgroundColor: 'transparent',
     paddingHorizontal: 20,
-    paddingTop: 20,
-    justifyContent: 'center',
+    paddingTop: 40,
+    justifyContent: 'flex-start',
   },
-  heroSection: {
+  header: {
     alignItems: 'center',
-    marginBottom: 50,
-  },
-  questionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: BRAND_COLORS.black,
-    textAlign: 'center',
-    marginBottom: 12,
-    lineHeight: 30,
-  },
-  questionSubtitle: {
-    fontSize: 16,
-    color: BRAND_COLORS.gray,
-    textAlign: 'center',
-    lineHeight: 22,
-    fontWeight: 'normal',
-  },
-  optionsSection: {
     marginBottom: 40,
   },
-  optionButton: {
-    backgroundColor: '#E6E6E6',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    marginBottom: 12,
-    alignItems: 'center',
-  },
-  selectedOption: {
-    backgroundColor: BRAND_COLORS.primary,
-  },
-  optionText: {
-    fontSize: 16,
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
     color: BRAND_COLORS.black,
-    fontWeight: '500',
     textAlign: 'center',
+    marginBottom: 12,
+    lineHeight: 34,
   },
-  selectedOptionText: {
-    color: BRAND_COLORS.white,
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  typesContainer: {
+    marginBottom: 20,
+  },
+  typeCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  icon: {
+    width: 24,
+    height: 24,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  typeLabel: {
+    fontSize: 17,
+    color: BRAND_COLORS.black,
+    marginBottom: 3,
+  },
+  typeDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 19,
+  },
+  selectionInfo: {
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  selectionText: {
+    fontSize: 14,
+    color: BRAND_COLORS.primary,
+    fontWeight: '500',
   },
   bottomSection: {
     paddingHorizontal: 20,
     paddingBottom: 40,
     paddingTop: 20,
-    backgroundColor: 'transparent', // ✓ CHANGED from BRAND_COLORS.white
+    backgroundColor: 'transparent',
     alignItems: 'center',
   },
   continueButton: {
     backgroundColor: BRAND_COLORS.primary,
     paddingVertical: 16,
-    paddingHorizontal: 50,
     borderRadius: 25,
     marginBottom: 12,
     width: '100%',
-    maxWidth: 300,
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   continueButtonDisabled: {
-    backgroundColor: BRAND_COLORS.lightGray,
+    backgroundColor: '#E5E5E5',
+    shadowOpacity: 0,
+    elevation: 0,
   },
   continueButtonText: {
     color: BRAND_COLORS.white,
@@ -235,37 +268,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   continueButtonTextDisabled: {
-    color: BRAND_COLORS.gray,
+    color: '#999',
   },
   helperText: {
     fontSize: 13,
-    color: BRAND_COLORS.gray,
+    color: '#666',
     textAlign: 'center',
-    fontWeight: 'normal',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  responseModal: {
-    backgroundColor: '#8BA365',
-    paddingVertical: 20,
-    paddingHorizontal: 30,
-    borderRadius: 15,
-    maxWidth: width * 0.8,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-  },
-  responseText: {
-    color: BRAND_COLORS.white,
-    fontSize: 16,
-    fontWeight: '500',
-    textAlign: 'center',
-    lineHeight: 22,
   },
 });

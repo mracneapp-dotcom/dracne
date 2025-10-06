@@ -1,17 +1,13 @@
 // app/onboardingScreens/OnboardingWelcome.js
-import React, { useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Animated,
-  Dimensions,
   Image,
-  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-
-const { width, height } = Dimensions.get('window');
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -19,124 +15,248 @@ const BRAND_COLORS = {
   cream: '#FDF5E6',
   black: '#000000',
   white: '#FFFFFF',
-  gray: '#999999',
-  darkGray: '#666666',
-  lightGray: '#E5E5E5',
 };
 
 export default function OnboardingWelcome({ onNext }) {
-  const [showResponseModal, setShowResponseModal] = useState(false);
-  const [responseText, setResponseText] = useState('');
-  const [fadeAnim] = useState(new Animated.Value(0));
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  
+  // Logo animations
+  const logoPulseAnim = useRef(new Animated.Value(1)).current;
+  const logoGlowAnim = useRef(new Animated.Value(0.3)).current;
+  
+  // Feature cards animations (one for each card)
+  const card1Anim = useRef(new Animated.Value(1)).current;
+  const card2Anim = useRef(new Animated.Value(1)).current;
+  const card3Anim = useRef(new Animated.Value(1)).current;
 
-  const showResponse = (response) => {
-    setResponseText(response);
-    setShowResponseModal(true);
-    
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 300,
+  useEffect(() => {
+    // Initial fade in
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        tension: 50,
+        friction: 7,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Logo pulse animation (continuous loop)
+    const logoPulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(logoPulseAnim, {
+          toValue: 1.08,
+          duration: 2000,
           useNativeDriver: true,
-        }).start(() => {
-          setShowResponseModal(false);
-          onNext('onboardingDiscovery');
-        });
-      }, 2500);
-    });
-  };
+        }),
+        Animated.timing(logoPulseAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    // Logo glow animation (continuous loop)
+    const logoGlow = Animated.loop(
+      Animated.sequence([
+        Animated.timing(logoGlowAnim, {
+          toValue: 0.7,
+          duration: 1500,
+          useNativeDriver: false,
+        }),
+        Animated.timing(logoGlowAnim, {
+          toValue: 0.3,
+          duration: 1500,
+          useNativeDriver: false,
+        }),
+      ])
+    );
+
+    // Feature cards staggered pulse animation (continuous loop)
+    const cardsPulse = Animated.loop(
+      Animated.stagger(400, [
+        // Card 1
+        Animated.sequence([
+          Animated.timing(card1Anim, {
+            toValue: 1.05,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(card1Anim, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.delay(1200), // Wait for other cards
+        ]),
+        // Card 2
+        Animated.sequence([
+          Animated.timing(card2Anim, {
+            toValue: 1.05,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(card2Anim, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.delay(800), // Wait for card 3
+        ]),
+        // Card 3
+        Animated.sequence([
+          Animated.timing(card3Anim, {
+            toValue: 1.05,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(card3Anim, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.delay(400), // Small delay before loop restarts
+        ]),
+      ])
+    );
+
+    logoPulse.start();
+    logoGlow.start();
+    
+    // Delay cards animation to start after initial fade in
+    setTimeout(() => {
+      cardsPulse.start();
+    }, 1000);
+
+    return () => {
+      logoPulse.stop();
+      logoGlow.stop();
+      cardsPulse.stop();
+    };
+  }, []);
 
   const handleGetStarted = () => {
-    showResponse("Amazing! Your skin is going to love this journey");
+    onNext('onboardingDiscovery', { welcomeCompleted: true });
   };
 
   return (
     <View style={styles.container}>
-      {/* Main Content - Scrollable area */}
-      <View style={styles.content}>
-        <View style={styles.heroSection}>
-          <Text style={styles.welcomeTitle}>Your skincare journey starts here</Text>
-          <Text style={styles.welcomeSubtitle}>
-            AI-powered skin analysis that actually gets you
-          </Text>
-        </View>
-
-        <View style={styles.valueSection}>
-          <View style={styles.valueItem}>
-            <View style={styles.valueIcon}>
-              <Image 
-                source={require('../../assets/images/target.png')} 
-                style={styles.iconImage}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.valueText}>Personalized routine in minutes</Text>
-          </View>
-
-          <View style={styles.valueItem}>
-            <View style={styles.valueIcon}>
-              <Image 
-                source={require('../../assets/images/lab.png')} 
-                style={styles.iconImage}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.valueText}>Science-backed recommendations</Text>
-          </View>
-
-          <View style={styles.valueItem}>
-            <View style={styles.valueIcon}>
-              <Image 
-                source={require('../../assets/images/heart.png')} 
-                style={styles.iconImage}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.valueText}>Safe, gentle approach to clear skin</Text>
-          </View>
-        </View>
-
-        <View style={styles.questionSection}>
-          <Text style={styles.questionText}>
-            Ready to discover what your skin really needs?
-          </Text>
-        </View>
-      </View>
-
-      {/* Fixed Bottom Section - Always at bottom */}
-      <View style={styles.bottomSection}>
-        <TouchableOpacity 
-          style={styles.getStartedButton}
-          onPress={handleGetStarted}
-        >
-          <Text style={styles.getStartedButtonText}>Let's Get Started</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.timeText}>Takes just 3 minutes</Text>
-      </View>
-
-      {/* Response Modal */}
-      <Modal
-        transparent={true}
-        visible={showResponseModal}
-        animationType="none"
+      <Animated.View 
+        style={[
+          styles.content,
+          { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }
+        ]}
       >
-        <View style={styles.modalOverlay}>
-          <Animated.View 
+        {/* Animated Logo Section */}
+        <View style={styles.logoContainer}>
+          <Animated.View
             style={[
-              styles.responseModal,
-              { opacity: fadeAnim }
+              styles.logoWrapper,
+              { transform: [{ scale: logoPulseAnim }] }
             ]}
           >
-            <Text style={styles.responseText}>{responseText}</Text>
+            <Image
+              source={require('../../assets/images/dracne-logo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Animated.View 
+              style={[
+                styles.logoGlowRing,
+                { opacity: logoGlowAnim }
+              ]}
+            />
           </Animated.View>
         </View>
-      </Modal>
+
+        {/* Hero Section with Color Accent */}
+        <View style={styles.heroSection}>
+          <Text style={styles.mainTitle}>
+            Welcome to{'\n'}
+            <Text style={styles.brandHighlight}>Dr. Acne</Text>
+          </Text>
+          <Text style={styles.subtitle}>
+            Your AI-powered skincare companion for clear, healthy skin
+          </Text>
+        </View>
+
+        {/* Animated Feature Highlights */}
+        <View style={styles.featuresGrid}>
+          <Animated.View 
+            style={[
+              styles.featureCard, 
+              styles.featureCard1,
+              { transform: [{ scale: card1Anim }] }
+            ]}
+          >
+            <View style={styles.featureIconContainer}>
+              <Image
+                source={require('../../assets/images/robot.png')}
+                style={styles.featureIcon}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.featureTitle}>AI Analysis</Text>
+          </Animated.View>
+
+          <Animated.View 
+            style={[
+              styles.featureCard, 
+              styles.featureCard2,
+              { transform: [{ scale: card2Anim }] }
+            ]}
+          >
+            <View style={styles.featureIconContainer}>
+              <Image
+                source={require('../../assets/images/check.png')}
+                style={styles.featureIcon}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.featureTitle}>Personalized</Text>
+          </Animated.View>
+
+          <Animated.View 
+            style={[
+              styles.featureCard, 
+              styles.featureCard3,
+              { transform: [{ scale: card3Anim }] }
+            ]}
+          >
+            <View style={styles.featureIconContainer}>
+              <Image
+                source={require('../../assets/images/thunder.png')}
+                style={styles.featureIcon}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.featureTitle}>Fast Results</Text>
+          </Animated.View>
+        </View>
+
+        {/* Trust Badge */}
+        <View style={styles.trustBadge}>
+          <Text style={styles.trustText}>Trusted by thousands worldwide</Text>
+        </View>
+      </Animated.View>
+
+      {/* Bottom Section */}
+      <View style={styles.bottomSection}>
+        <TouchableOpacity 
+          style={styles.continueButton}
+          onPress={handleGetStarted}
+        >
+          <Text style={styles.continueButtonText}>Get Started</Text>
+        </TouchableOpacity>
+        
+        <Text style={styles.helperText}>Takes less than 2 minutes</Text>
+      </View>
     </View>
   );
 }
@@ -148,129 +268,146 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: 'transparent', // ✓ ADDED
+    backgroundColor: 'transparent',
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 60,
+    justifyContent: 'flex-start',
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  logoWrapper: {
+    position: 'relative',
+    alignItems: 'center',
     justifyContent: 'center',
+  },
+  logo: {
+    width: 120,
+    height: 120,
+  },
+  logoGlowRing: {
+    position: 'absolute',
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    borderWidth: 2,
+    borderColor: BRAND_COLORS.primary,
+    backgroundColor: 'transparent',
   },
   heroSection: {
     alignItems: 'center',
-    marginTop: 40,
     marginBottom: 50,
   },
-  welcomeTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  mainTitle: {
+    fontSize: 32,
+    fontWeight: '700',
     color: BRAND_COLORS.black,
     textAlign: 'center',
-    marginBottom: 12,
-    lineHeight: 30,
+    marginBottom: 16,
+    lineHeight: 40,
   },
-  welcomeSubtitle: {
-    fontSize: 16,
-    color: BRAND_COLORS.gray,
+  brandHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
+  },
+  subtitle: {
+    fontSize: 17,
+    color: '#666',
     textAlign: 'center',
-    lineHeight: 22,
-    fontWeight: 'normal',
-  },
-  valueSection: {
-    marginBottom: 40,
-  },
-  valueItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
+    lineHeight: 26,
     paddingHorizontal: 10,
   },
-  valueIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: BRAND_COLORS.cream,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
+  featuresGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 40,
+    paddingHorizontal: 5,
   },
-  iconImage: {
-    width: 24,
-    height: 24,
-  },
-  valueText: {
-    fontSize: 16,
-    color: BRAND_COLORS.black,
+  featureCard: {
     flex: 1,
-    lineHeight: 22,
-    fontWeight: 'normal',
-  },
-  questionSection: {
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 20,
     alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-    marginTop: 60,
+    marginHorizontal: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  questionText: {
-    fontSize: 17,
+  featureCard1: {
+    borderTopWidth: 3,
+    borderTopColor: BRAND_COLORS.primary,
+  },
+  featureCard2: {
+    borderTopWidth: 3,
+    borderTopColor: '#4A90E2',
+  },
+  featureCard3: {
+    borderTopWidth: 3,
+    borderTopColor: BRAND_COLORS.secondary,
+  },
+  featureIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F8F9FA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  featureIcon: {
+    width: 28,
+    height: 28,
+    tintColor: BRAND_COLORS.black,
+  },
+  featureTitle: {
+    fontSize: 13,
+    fontWeight: '600',
     color: BRAND_COLORS.black,
     textAlign: 'center',
-    lineHeight: 24,
-    fontWeight: 'normal',
+  },
+  trustBadge: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  trustText: {
+    fontSize: 14,
+    color: BRAND_COLORS.primary,
+    fontWeight: '500',
   },
   bottomSection: {
     paddingHorizontal: 20,
     paddingBottom: 40,
     paddingTop: 20,
-    backgroundColor: 'transparent', // ✓ CHANGED from BRAND_COLORS.white - THIS WAS THE ISSUE!
+    backgroundColor: 'transparent',
     alignItems: 'center',
   },
-  getStartedButton: {
+  continueButton: {
     backgroundColor: BRAND_COLORS.primary,
     paddingVertical: 16,
     paddingHorizontal: 50,
     borderRadius: 25,
     marginBottom: 12,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
     width: '100%',
     maxWidth: 300,
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  getStartedButtonText: {
+  continueButtonText: {
     color: BRAND_COLORS.white,
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
     textAlign: 'center',
   },
-  timeText: {
+  helperText: {
     fontSize: 13,
-    color: BRAND_COLORS.gray,
+    color: '#666',
     textAlign: 'center',
-    fontWeight: 'normal',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  responseModal: {
-    backgroundColor: '#8BA365',
-    paddingVertical: 20,
-    paddingHorizontal: 30,
-    borderRadius: 15,
-    maxWidth: width * 0.8,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-  },
-  responseText: {
-    color: BRAND_COLORS.white,
-    fontSize: 16,
-    fontWeight: '500',
-    textAlign: 'center',
-    lineHeight: 22,
   },
 });

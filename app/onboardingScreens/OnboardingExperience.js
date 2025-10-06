@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import {
   Animated,
   Dimensions,
+  Image,
   Modal,
   StyleSheet,
   Text,
@@ -22,6 +23,30 @@ const BRAND_COLORS = {
   darkGray: '#666666',
   lightGray: '#E5E5E5',
 };
+
+const EXPERIENCE_OPTIONS = [
+  { 
+    id: 'yes_many', 
+    label: 'Yes, many',
+    description: "I've tried several apps",
+    icon: require('../../assets/images/check.png'),
+    color: '#9B59B6',
+  },
+  { 
+    id: 'yes_few', 
+    label: 'Yes, a few',
+    description: "I've tested some options",
+    icon: require('../../assets/images/check.png'),
+    color: '#4A90E2',
+  },
+  { 
+    id: 'no_first', 
+    label: 'No, this is my first time',
+    description: "I'm just starting out",
+    icon: require('../../assets/images/check.png'),
+    color: BRAND_COLORS.primary,
+  },
+];
 
 const responses = {
   'yes_many': "Been there! Most apps just throw products at you without really understanding your skin, but not us :)",
@@ -72,50 +97,78 @@ export default function OnboardingExperience({ onNext }) {
     <View style={styles.container}>
       {/* Main Content */}
       <View style={styles.content}>
-        <View style={styles.heroSection}>
-          <Text style={styles.questionTitle}>Have you tried other skincare apps before?</Text>
-          <Text style={styles.questionSubtitle}>
-            Your experience helps us understand where you're coming from
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            What's your <Text style={styles.titleHighlight}>skincare experience?</Text>
+          </Text>
+          <Text style={styles.subtitle}>
+            This helps us personalize your journey
           </Text>
         </View>
 
-        <View style={styles.optionsSection}>
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'yes_many' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('yes_many')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'yes_many' && styles.selectedOptionText]}>Yes, many</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'yes_few' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('yes_few')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'yes_few' && styles.selectedOptionText]}>Yes, a few</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.optionButton, selectedOption === 'no_first' && styles.selectedOption]}
-            onPress={() => handleOptionSelect('no_first')}
-          >
-            <Text style={[styles.optionText, selectedOption === 'no_first' && styles.selectedOptionText]}>No, this is my first time</Text>
-          </TouchableOpacity>
+        <View style={styles.optionsContainer}>
+          {EXPERIENCE_OPTIONS.map((option) => {
+            const isSelected = selectedOption === option.id;
+            return (
+              <TouchableOpacity
+                key={option.id}
+                style={[
+                  styles.optionCard,
+                  isSelected && {
+                    borderColor: option.color,
+                    borderWidth: 2,
+                    backgroundColor: `${option.color}10`,
+                  }
+                ]}
+                onPress={() => handleOptionSelect(option.id)}
+              >
+                <View style={[
+                  styles.iconContainer,
+                  { backgroundColor: isSelected ? option.color : '#F5F5F5' }
+                ]}>
+                  <Image
+                    source={option.icon}
+                    style={[
+                      styles.icon,
+                      { tintColor: isSelected ? BRAND_COLORS.white : '#999' }
+                    ]}
+                    resizeMode="contain"
+                  />
+                </View>
+                <View style={styles.textContainer}>
+                  <Text style={[
+                    styles.optionLabel,
+                    isSelected && { color: option.color, fontWeight: '600' }
+                  ]}>
+                    {option.label}
+                  </Text>
+                  <Text style={styles.optionDescription}>{option.description}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </View>
 
       {/* Fixed Bottom Section */}
       <View style={styles.bottomSection}>
         <TouchableOpacity 
-          style={[styles.continueButton, !selectedOption && styles.continueButtonDisabled]}
+          style={[
+            styles.continueButton,
+            !selectedOption && styles.continueButtonDisabled
+          ]}
           onPress={handleContinue}
           disabled={!selectedOption}
         >
-          <Text style={[styles.continueButtonText, !selectedOption && styles.continueButtonTextDisabled]}>
+          <Text style={[
+            styles.continueButtonText,
+            !selectedOption && styles.continueButtonTextDisabled
+          ]}>
             Continue
           </Text>
         </TouchableOpacity>
         
-        <Text style={styles.helperText}>Select one option above</Text>
+        <Text style={styles.helperText}>Select your experience level</Text>
       </View>
 
       {/* Response Modal */}
@@ -142,55 +195,80 @@ export default function OnboardingExperience({ onNext }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent', // ✓ CHANGED from white
+    backgroundColor: 'transparent',
   },
   content: {
     flex: 1,
-    backgroundColor: 'transparent', // ✓ ADDED
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    paddingBottom: 140,
+    justifyContent: 'flex-start',
   },
-  heroSection: {
+  header: {
     alignItems: 'center',
-    marginBottom: 50,
-  },
-  questionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: BRAND_COLORS.black,
-    textAlign: 'center',
-    marginBottom: 12,
-    lineHeight: 30,
-  },
-  questionSubtitle: {
-    fontSize: 16,
-    color: BRAND_COLORS.gray,
-    textAlign: 'center',
-    lineHeight: 22,
-    fontWeight: 'normal',
-  },
-  optionsSection: {
     marginBottom: 40,
   },
-  optionButton: {
-    backgroundColor: '#E6E6E6',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    marginBottom: 12,
-    alignItems: 'center',
-  },
-  selectedOption: {
-    backgroundColor: BRAND_COLORS.primary,
-  },
-  optionText: {
-    fontSize: 16,
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
     color: BRAND_COLORS.black,
-    fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: 12,
+    lineHeight: 34,
   },
-  selectedOptionText: {
-    color: BRAND_COLORS.white,
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  optionsContainer: {
+    marginBottom: 20,
+  },
+  optionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 14,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  icon: {
+    width: 24,
+    height: 24,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  optionLabel: {
+    fontSize: 17,
+    color: BRAND_COLORS.black,
+    marginBottom: 4,
+  },
+  optionDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 19,
   },
   bottomSection: {
     paddingHorizontal: 20,
@@ -202,14 +280,19 @@ const styles = StyleSheet.create({
   continueButton: {
     backgroundColor: BRAND_COLORS.primary,
     paddingVertical: 16,
-    paddingHorizontal: 50,
     borderRadius: 25,
     marginBottom: 12,
     width: '100%',
-    maxWidth: 300,
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   continueButtonDisabled: {
-    backgroundColor: BRAND_COLORS.lightGray,
+    backgroundColor: '#E5E5E5',
+    shadowOpacity: 0,
+    elevation: 0,
   },
   continueButtonText: {
     color: BRAND_COLORS.white,
@@ -218,13 +301,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   continueButtonTextDisabled: {
-    color: BRAND_COLORS.gray,
+    color: '#999',
   },
   helperText: {
     fontSize: 13,
-    color: BRAND_COLORS.gray,
+    color: '#666',
     textAlign: 'center',
-    fontWeight: 'normal',
   },
   modalOverlay: {
     flex: 1,

@@ -106,20 +106,24 @@ export default function OnboardingReminders({ onNext }) {
   return (
     <View style={styles.container}>
       <View style={styles.mainContent}>
-        {/* Header */}
+        {/* ✓ UPDATED: Modern Header with highlighted word */}
         <View style={styles.header}>
-          <Text style={styles.title}>Reach your goals with</Text>
-          <Text style={styles.titleBold}>notifications</Text>
+          <Text style={styles.title}>
+            Stay on <Text style={styles.titleHighlight}>track</Text>
+          </Text>
+          <Text style={styles.subtitle}>
+            Get gentle reminders for your skincare routine
+          </Text>
         </View>
 
-        {/* Instruction Text */}
+        {/* ✓ KEPT: Instruction Text */}
         <View style={styles.instructionContainer}>
           <Text style={styles.instructionText}>
             Tap "Continue" and allow notifications to stay on track
           </Text>
         </View>
 
-        {/* Simple Notification Dialog */}
+        {/* ✓ KEPT: Simple Notification Dialog */}
         <View style={styles.mockDialogContainer}>
           <View style={styles.mockDialog}>
             <View style={styles.mockDialogContent}>
@@ -148,7 +152,7 @@ export default function OnboardingReminders({ onNext }) {
             </View>
           </View>
 
-          {/* Animated Pointing Hand */}
+          {/* ✓ KEPT: Animated Pointing Hand */}
           <Animated.View 
             style={[
               styles.pointingImageContainer,
@@ -165,7 +169,7 @@ export default function OnboardingReminders({ onNext }) {
           </Animated.View>
         </View>
 
-        {/* Why This Helps Section */}
+        {/* ✓ KEPT: Why This Helps Section */}
         <View style={styles.benefitsContainer}>
           <Text style={styles.benefitsTitle}>Why this helps:</Text>
           <Text style={styles.benefitItem}>• Consistency is the key to clear skin</Text>
@@ -174,7 +178,7 @@ export default function OnboardingReminders({ onNext }) {
         </View>
       </View>
 
-      {/* Fixed Bottom Section */}
+      {/* ✓ KEPT: Fixed Bottom Section */}
       <View style={styles.bottomSection}>
         {/* Skip Option */}
         <TouchableOpacity onPress={handleSkip} style={styles.skipContainer}>
@@ -201,7 +205,7 @@ const styles = StyleSheet.create({
   },
   mainContent: {
     flex: 1,
-    backgroundColor: 'transparent', // ✓ ADDED
+    backgroundColor: 'transparent',
     paddingTop: 40,
   },
   header: {
@@ -209,19 +213,26 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     alignItems: 'center',
   },
+  // ✓ UPDATED: Modern title style
   title: {
-    fontSize: 26,
-    fontWeight: '400',
-    color: BRAND_COLORS.black,
-    textAlign: 'center',
-    lineHeight: 32,
-  },
-  titleBold: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: '700',
     color: BRAND_COLORS.black,
     textAlign: 'center',
-    lineHeight: 32,
+    marginBottom: 12,
+    lineHeight: 34,
+  },
+  // ✓ ADDED: Highlight style for green word
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
+  },
+  // ✓ ADDED: Modern subtitle style
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 24,
   },
   instructionContainer: {
     paddingHorizontal: 20,
@@ -316,7 +327,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 40,
     paddingTop: 16,
-    backgroundColor: 'transparent', // ✓ CHANGED from BRAND_COLORS.white
+    backgroundColor: 'transparent',
   },
   skipContainer: {
     alignItems: 'center',

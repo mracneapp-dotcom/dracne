@@ -1,15 +1,10 @@
-// app/onboardingScreens/OnboardingRating.js
-import React, { useEffect, useRef, useState } from 'react';
+// app/onboardingScreens/OnboardingReady.js
+import React, { useEffect, useRef } from 'react';
 import {
-  Alert,
   Animated,
   Image,
-  Linking,
-  Modal,
-  Platform,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { DrAcneButton } from '../../components/ui/DrAcneButton';
@@ -20,282 +15,193 @@ const BRAND_COLORS = {
   cream: '#FDF5E6',
   black: '#000000',
   white: '#FFFFFF',
+  gray: '#999999',
+  darkGray: '#666666',
+  lightGray: '#E5E5E5',
 };
 
-const TESTIMONIALS = [
-  {
-    name: 'Sarah',
-    text: 'Dr. Acne helped me understand my skin better. My routine is finally working!',
-    isRight: true,
-  },
-  {
-    name: 'Mike',
-    text: 'The AI analysis was spot-on. I wish I had this app years ago when I struggled with acne.',
-    isRight: false,
-  },
-  {
-    name: 'Emma',
-    text: 'Finally, a skincare app that actually knows what it\'s talking about. My skin has never looked better.',
-    isRight: true,
-  },
-];
-
-export default function OnboardingRating({ onNext }) {
-  const [showPopup, setShowPopup] = useState(false);
-  const [userRating, setUserRating] = useState(0);
-  
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const testimonialsAnim = useRef(TESTIMONIALS.map(() => new Animated.Value(0))).current;
+export default function OnboardingReady({ onNext }) {
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const glowAnim = useRef(new Animated.Value(0.3)).current;
+  const scaleAnim = useRef(new Animated.Value(0.95)).current;
 
   useEffect(() => {
-    const animations = [
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      ...testimonialsAnim.map((anim, index) =>
-        Animated.timing(anim, {
-          toValue: 1,
-          duration: 600,
-          delay: 400 + (index * 200),
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      tension: 100,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
+
+    const pulseAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 2000,
           useNativeDriver: true,
-        })
-      ),
-    ];
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
 
-    Animated.parallel(animations).start();
+    const glowAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, {
+          toValue: 0.8,
+          duration: 1500,
+          useNativeDriver: false,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 0.3,
+          duration: 1500,
+          useNativeDriver: false,
+        }),
+      ])
+    );
 
-    const timer = setTimeout(() => {
-      setShowPopup(true);
-    }, 2500);
+    pulseAnimation.start();
+    glowAnimation.start();
 
-    return () => clearTimeout(timer);
+    return () => {
+      pulseAnimation.stop();
+      glowAnimation.stop();
+    };
   }, []);
 
-  const handleStarPress = async (rating) => {
-    setUserRating(rating);
-    setShowPopup(false);
-    
-    Alert.alert(
-      'Thank you for rating!',
-      `You selected ${rating} star${rating > 1 ? 's' : ''}. Would you like to leave a review in the ${Platform.OS === 'ios' ? 'App Store' : 'Play Store'}?`,
-      [
-        {
-          text: 'Not Now',
-          style: 'cancel',
-          onPress: () => {
-            onNext('onboardingSaveProgress', {
-              rating: rating,
-              ratedInStore: false,
-              ratingCompleted: true,
-            });
-          }
-        },
-        {
-          text: 'Yes, Review',
-          onPress: async () => {
-            const storeUrl = Platform.select({
-              ios: 'itms-apps://itunes.apple.com/app/id6741170145',
-              android: 'market://details?id=com.dracne.app',
-            });
-
-            try {
-              const canOpen = await Linking.canOpenURL(storeUrl);
-              if (canOpen) {
-                await Linking.openURL(storeUrl);
-              } else {
-                throw new Error('Store app not available');
-              }
-            } catch {
-              const webUrl = Platform.select({
-                ios: 'https://apps.apple.com/app/id6741170145',
-                android: 'https://play.google.com/store/apps/details?id=com.dracne.app',
-              });
-              
-              try {
-                await Linking.openURL(webUrl);
-              } catch {
-                Alert.alert(
-                  'Store Not Available',
-                  'Unable to open the app store. Please search for "Dr. Acne" in your app store manually.',
-                  [{ text: 'OK' }]
-                );
-              }
-            }
-            
-            onNext('onboardingSaveProgress', {
-              rating: rating,
-              ratedInStore: true,
-              ratingCompleted: true,
-            });
-          }
-        }
-      ]
-    );
+  const handleGetStarted = () => {
+    onNext('onboardingPrivacy', { ready: true }); // ✓ UPDATED to follow correct flow
   };
-
-  const handleNotNow = () => {
-    setShowPopup(false);
-    onNext('onboardingSaveProgress', {
-      rating: 0,
-      ratedInStore: false,
-      ratingSkipped: true,
-    });
-  };
-
-  const handleContinue = () => {
-    onNext('onboardingSaveProgress', {
-      rating: 0,
-      ratedInStore: false,
-      ratingSkipped: true,
-    });
-  };
-
-  const closePopup = () => {
-    setShowPopup(false);
-  };
-
-  const renderStars = (interactive = false, size = 14) => {
-    return (
-      <View style={styles.starsContainer}>
-        {Array.from({ length: 5 }).map((_, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={interactive ? () => handleStarPress(index + 1) : undefined}
-            disabled={!interactive}
-            style={interactive ? styles.interactiveStarButton : undefined}
-          >
-            <Text style={[
-              styles.star,
-              { fontSize: size },
-              interactive ? styles.starInteractive : styles.starFilled
-            ]}>
-              {interactive ? '☆' : '★'}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    );
-  };
-
-  const renderTestimonial = (testimonial, index) => (
-    <Animated.View
-      key={testimonial.name}
-      style={[
-        styles.testimonial,
-        { opacity: testimonialsAnim[index] }
-      ]}
-    >
-      {testimonial.isRight ? (
-        <>
-          <View style={styles.avatarCircle}>
-            <Text style={styles.avatarText}>{testimonial.name[0]}</Text>
-          </View>
-          <View style={[styles.testimonialBox, styles.testimonialBoxRight]}>
-            <View style={styles.nameContainer}>
-              <Text style={styles.name}>{testimonial.name}</Text>
-              {renderStars(false, 12)}
-            </View>
-            <Text style={styles.testimonialText}>{testimonial.text}</Text>
-          </View>
-        </>
-      ) : (
-        <>
-          <View style={[styles.testimonialBox, styles.testimonialBoxLeft]}>
-            <View style={styles.nameContainer}>
-              <Text style={styles.name}>{testimonial.name}</Text>
-              {renderStars(false, 12)}
-            </View>
-            <Text style={styles.testimonialText}>{testimonial.text}</Text>
-          </View>
-          <View style={styles.avatarCircle}>
-            <Text style={styles.avatarText}>{testimonial.name[0]}</Text>
-          </View>
-        </>
-      )}
-    </Animated.View>
-  );
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
-        <Text style={styles.title}>Give us a rating</Text>
-      </Animated.View>
-
-      {/* Social Proof */}
-      <Animated.View style={[styles.socialProofContainer, { opacity: fadeAnim }]}>
-        <Text style={styles.socialProofTitle}>Dr. Acne was made for people like you</Text>
-        <View style={styles.usersContainer}>
-          <View style={styles.userAvatarsContainer}>
-            {Array.from({ length: 3 }).map((_, index) => (
-              <View key={index} style={[styles.userAvatar, { marginLeft: index > 0 ? -10 : 0 }]}>
-                <Text style={styles.userAvatarText}>U</Text>
-              </View>
-            ))}
+      <Animated.View 
+        style={[
+          styles.content,
+          { transform: [{ scale: scaleAnim }] }
+        ]}
+      >
+        {/* AI Brain Icon */}
+        <Animated.View 
+          style={[
+            styles.aiIconContainer,
+            { transform: [{ scale: pulseAnim }] }
+          ]}
+        >
+          <View style={styles.aiIcon}>
+            <Image 
+              source={require('../../assets/images/brain.png')} 
+              style={styles.brainImage}
+              resizeMode="contain"
+            />
+            <Animated.View 
+              style={[
+                styles.glowRing,
+                { opacity: glowAnim }
+              ]}
+            />
           </View>
-          <Text style={styles.usersCount}>Dr. Acne Users</Text>
+        </Animated.View>
+
+        {/* Hero Section */}
+        <View style={styles.heroSection}>
+          <Text style={styles.questionTitle}>
+            Ready to unlock your skin's{'\n'}
+            <Text style={styles.aiHighlight}>AI insights?</Text>
+          </Text>
+          <Text style={styles.questionSubtitle}>
+            Our advanced AI will analyze your skin and create a personalized routine just for you
+          </Text>
+        </View>
+
+        {/* Enhanced Features Grid */}
+        <View style={styles.featuresGrid}>
+          <Animated.View 
+            style={[
+              styles.featureCard,
+              styles.featureCard1,
+              { transform: [{ scale: pulseAnim }] }
+            ]}
+          >
+            <View style={styles.featureIcon}>
+              <Image 
+                source={require('../../assets/images/robot.png')} 
+                style={styles.iconImage}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.featureTitle}>AI Detection</Text>
+            <Text style={styles.featureDesc}>Advanced computer vision</Text>
+          </Animated.View>
+
+          <View style={[styles.featureCard, styles.featureCard2]}>
+            <View style={styles.featureIcon}>
+              <Image 
+                source={require('../../assets/images/thunder.png')} 
+                style={styles.iconImage}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.featureTitle}>Instant Results</Text>
+            <Text style={styles.featureDesc}>Analysis in seconds</Text>
+          </View>
+
+          <View style={[styles.featureCard, styles.featureCard3]}>
+            <View style={styles.featureIcon}>
+              <Image 
+                source={require('../../assets/images/gift.png')} 
+                style={styles.iconImage}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.featureTitle}>Personalized</Text>
+            <Text style={styles.featureDesc}>Tailored just for you</Text>
+          </View>
+        </View>
+
+        {/* AI Processing Preview */}
+        <View style={styles.processingPreview}>
+          <Text style={styles.processingText}>AI Processing Preview:</Text>
+          <View style={styles.processingSteps}>
+            <View style={styles.processingStep}>
+              <Animated.View 
+                style={[
+                  styles.processingDot,
+                  styles.activeDot,
+                  { opacity: glowAnim }
+                ]}
+              />
+              <Text style={styles.stepText}>Scan</Text>
+            </View>
+            <View style={styles.processingArrow} />
+            <View style={styles.processingStep}>
+              <View style={[styles.processingDot, styles.activeDot]} />
+              <Text style={styles.stepText}>Analyze</Text>
+            </View>
+            <View style={styles.processingArrow} />
+            <View style={styles.processingStep}>
+              <View style={styles.processingDot} />
+              <Text style={styles.stepText}>Recommend</Text>
+            </View>
+          </View>
         </View>
       </Animated.View>
 
-      {/* Testimonials */}
-      <View style={styles.testimonialsContainer}>
-        {TESTIMONIALS.map((testimonial, index) => renderTestimonial(testimonial, index))}
-      </View>
-
-      {/* Fixed Button at Bottom */}
-      <View style={styles.buttonContainer}>
+      {/* Enhanced Bottom Section */}
+      <View style={styles.bottomSection}>
         <DrAcneButton
-          title="Continue"
-          onPress={handleContinue}
-          style={styles.button}
+          title="I'm Ready!"
+          onPress={handleGetStarted}
+          style={styles.getStartedButton}
         />
+        
+        <Text style={styles.helperText}>
+          Takes less than 30 seconds • 100% Private
+        </Text>
       </View>
-
-      {/* Native iOS Style Rating Popup */}
-      {showPopup && (
-        <Modal transparent={true} animationType="fade">
-          <TouchableOpacity
-            style={styles.overlay}
-            activeOpacity={1}
-            onPress={closePopup}
-          >
-            <TouchableOpacity
-              style={styles.popupContainer}
-              activeOpacity={1}
-              onPress={() => {}}
-            >
-              <View style={styles.appIconContainer}>
-                <View style={styles.appIcon}>
-                  <Image
-                    source={require('../../assets/images/dracne-logo.png')}
-                    style={styles.appIconImage}
-                    resizeMode="contain"
-                  />
-                </View>
-              </View>
-              
-              <Text style={styles.popupTitle}>Enjoying Dr. Acne?</Text>
-              <Text style={styles.popupSubtitle}>
-                Tap a star to rate it on the{'\n'}{Platform.OS === 'ios' ? 'App Store' : 'Play Store'}.
-              </Text>
-              
-              <View style={styles.separator} />
-              
-              <View style={styles.popupStarsContainer}>
-                {renderStars(true, 24)}
-              </View>
-              
-              <View style={styles.separator} />
-              
-              <TouchableOpacity style={styles.notNowButton} onPress={handleNotNow}>
-                <Text style={styles.notNowButtonText}>Not Now</Text>
-              </TouchableOpacity>
-            </TouchableOpacity>
-          </TouchableOpacity>
-        </Modal>
-      )}
     </View>
   );
 }
@@ -304,211 +210,182 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'transparent',
+  },
+  content: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    paddingHorizontal: 20,
     paddingTop: 40,
+    justifyContent: 'center',
   },
-  header: {
-    paddingHorizontal: 24,
-    paddingBottom: 32,
+  aiIconContainer: {
     alignItems: 'center',
+    marginBottom: 30,
   },
-  title: {
+  aiIcon: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  brainImage: {
+    width: 60,
+    height: 60,
+    tintColor: BRAND_COLORS.primary,
+  },
+  glowRing: {
+    position: 'absolute',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: BRAND_COLORS.primary,
+    backgroundColor: 'transparent',
+  },
+  heroSection: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  questionTitle: {
     fontSize: 28,
     fontWeight: '700',
     color: BRAND_COLORS.black,
     textAlign: 'center',
+    marginBottom: 12,
+    lineHeight: 34,
   },
-  socialProofContainer: {
-    paddingHorizontal: 24,
-    paddingVertical: 24,
-    alignItems: 'center',
+  aiHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
   },
-  socialProofTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: BRAND_COLORS.black,
+  questionSubtitle: {
+    fontSize: 16,
+    color: BRAND_COLORS.gray,
     textAlign: 'center',
-    marginBottom: 16,
+    lineHeight: 24,
+    fontWeight: '400',
+    paddingHorizontal: 10,
   },
-  usersContainer: {
-    alignItems: 'center',
-  },
-  userAvatarsContainer: {
+  featuresGrid: {
     flexDirection: 'row',
-    marginBottom: 8,
+    justifyContent: 'space-between',
+    marginBottom: 30,
+    paddingHorizontal: 5,
   },
-  userAvatar: {
+  featureCard: {
+    flex: 1,
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    marginHorizontal: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  featureCard1: {
+    borderTopWidth: 3,
+    borderTopColor: BRAND_COLORS.primary,
+  },
+  featureCard2: {
+    borderTopWidth: 3,
+    borderTopColor: '#4A90E2',
+  },
+  featureCard3: {
+    borderTopWidth: 3,
+    borderTopColor: BRAND_COLORS.secondary,
+  },
+  featureIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: BRAND_COLORS.primary,
+    backgroundColor: '#F8F9FA',
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: BRAND_COLORS.white,
-  },
-  userAvatarText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: BRAND_COLORS.white,
-  },
-  usersCount: {
-    fontSize: 14,
-    color: '#666',
-  },
-  testimonialsContainer: {
-    paddingHorizontal: 24,
-    flex: 1,
-  },
-  testimonial: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  avatarCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: BRAND_COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: BRAND_COLORS.white,
-  },
-  testimonialBox: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
-    padding: 16,
-  },
-  testimonialBoxRight: {
-    marginLeft: 12,
-  },
-  testimonialBoxLeft: {
-    marginRight: 12,
-  },
-  nameContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 8,
   },
-  name: {
-    fontSize: 16,
+  iconImage: {
+    width: 24,
+    height: 24,
+    tintColor: BRAND_COLORS.darkGray,
+  },
+  featureTitle: {
+    fontSize: 12,
     fontWeight: '600',
     color: BRAND_COLORS.black,
-    marginRight: 8,
+    textAlign: 'center',
+    marginBottom: 4,
   },
-  testimonialText: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
+  featureDesc: {
+    fontSize: 10,
+    color: BRAND_COLORS.gray,
+    textAlign: 'center',
+    lineHeight: 14,
   },
-  starsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  star: {
-    marginHorizontal: 1,
-  },
-  starFilled: {
-    color: '#FFD700',
-  },
-  starInteractive: {
-    color: '#007AFF',
-  },
-  interactiveStarButton: {
-    padding: 4,
-  },
-  buttonContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    paddingBottom: 32,
-    backgroundColor: 'transparent', // ✓ CHANGED from BRAND_COLORS.white
-  },
-  button: {
-    paddingVertical: 16,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  popupContainer: {
+  processingPreview: {
     backgroundColor: BRAND_COLORS.white,
-    borderRadius: 14,
-    alignItems: 'center',
-    width: 280,
-    maxWidth: 280,
-    minHeight: 280,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 10,
-    overflow: 'hidden',
-  },
-  appIconContainer: {
-    paddingTop: 24,
-    paddingBottom: 12,
-    alignItems: 'center',
-  },
-  appIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 14,
-    backgroundColor: BRAND_COLORS.white,
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     elevation: 3,
   },
-  appIconImage: {
-    width: 54,
-    height: 54,
-  },
-  popupTitle: {
-    fontSize: 17,
+  processingText: {
+    fontSize: 14,
     fontWeight: '600',
     color: BRAND_COLORS.black,
-    marginBottom: 6,
     textAlign: 'center',
-    paddingHorizontal: 20,
+    marginBottom: 16,
   },
-  popupSubtitle: {
+  processingSteps: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  processingStep: {
+    alignItems: 'center',
+  },
+  processingDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#E5E5E5',
+    marginBottom: 8,
+  },
+  activeDot: {
+    backgroundColor: BRAND_COLORS.primary,
+  },
+  stepText: {
+    fontSize: 12,
+    color: BRAND_COLORS.gray,
+    fontWeight: '500',
+  },
+  processingArrow: {
+    width: 20,
+    height: 2,
+    backgroundColor: '#E5E5E5',
+    marginHorizontal: 10,
+    marginBottom: 20,
+  },
+  bottomSection: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    paddingTop: 20,
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+  },
+  getStartedButton: {
+    marginBottom: 16,
+    width: '100%',
+  },
+  helperText: {
     fontSize: 13,
-    color: '#666',
+    color: BRAND_COLORS.gray,
     textAlign: 'center',
-    lineHeight: 17,
-    paddingHorizontal: 24,
-    paddingBottom: 16,
-  },
-  separator: {
-    height: 0.5,
-    width: '100%',
-    backgroundColor: '#C6C6C8',
-  },
-  popupStarsContainer: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  notNowButton: {
-    paddingVertical: 12,
-    alignItems: 'center',
-    width: '100%',
-    minHeight: 44,
-    justifyContent: 'center',
-  },
-  notNowButtonText: {
-    fontSize: 17,
-    color: '#007AFF',
+    fontWeight: '500',
   },
 });
