@@ -1,7 +1,8 @@
-// app/SkinTypeResultsScreen.js - Enhanced to handle manual skin type selections
+// app/SkinTypeResultsScreen.js - Modern Design with Logo & Consistent Styling
 import React, { useEffect, useRef } from 'react';
 import {
   Animated,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -95,7 +96,7 @@ export const SkinTypeResultsScreen = ({
           title: 'Dry',
           description: 'Reduced sebum and compromised barrier',
           signs: ['Tight sensation', 'Fine lines', 'Flaky patches'],
-          color: '#2196F3',
+          color: '#9B59B6',
           explanation: "Dry skin means your face tends to lose water throughout the day, which can leave it feeling tight or looking dull. Your barrier needs extra support to hold onto moisture.\n\nThe amazing thing about dry skin is how quickly it transforms with proper hydration. Within weeks, you'll notice smoother texture and that healthy glow returning.\n\nWe got you - let's build your most radiant skin!"
         };
       
@@ -104,7 +105,7 @@ export const SkinTypeResultsScreen = ({
           title: 'Oily',
           description: 'Excess sebum production throughout face',
           signs: ['Persistent shine', 'Enlarged pores', 'Acne-prone'],
-          color: '#FF9800',
+          color: '#F39C12',
           explanation: "You've won the anti-aging lottery! That natural oil is like having a built-in moisturizer working 24/7, protecting your skin from wrinkles.\n\nWhile others worry about aging, your oily skin is busy preventing it. Once you master this balance, you'll achieve that coveted healthy glow.\n\nWe got you - let's turn your oil into your beauty asset!"
         };
       
@@ -113,7 +114,7 @@ export const SkinTypeResultsScreen = ({
           title: 'Normal',
           description: 'Well-balanced sebum and moisture levels',
           signs: ['Comfortable feel', 'Fine pores', 'Even texture'],
-          color: '#4CAF50',
+          color: '#7CB342',
           explanation: "You have 'unicorn skin' - perfectly balanced and naturally resilient. Your skin maintains just the right amount of oil and moisture without you having to work for it.\n\nYour balanced skin gives you incredible flexibility to experiment with ingredients. You can focus on enhancement and protection, achieving that effortless, radiant look.\n\nWe got you - let's unlock your skin's full potential!"
         };
       
@@ -122,7 +123,7 @@ export const SkinTypeResultsScreen = ({
           title: 'Combination',
           description: 'Variable sebum production by facial zone',
           signs: ['Oily T-zone', 'Normal/dry cheeks', 'Mixed pore sizes'],
-          color: '#9C27B0',
+          color: '#4A90E2',
           explanation: "Your skin is smart enough to customize itself for different areas! This sophisticated behavior shows your skin actively responds to what each zone needs most.\n\nCombination skin is actually a strategic advantage once you understand it. You get anti-aging benefits where needed while maintaining smooth, refined areas elsewhere.\n\nWe got you - let's create your perfect routine!"
         };
       
@@ -140,7 +141,7 @@ export const SkinTypeResultsScreen = ({
           title: 'Your Skin Type',
           description: 'Unique characteristics',
           signs: ['Individual needs', 'Personal care', 'Custom approach'],
-          color: '#4CAF50',
+          color: '#7CB342',
           explanation: "Your skin has unique characteristics that don't fit traditional categories - and that's actually a superpower! This means you get a completely customized approach.\n\nUnique skin means unlimited potential for discovering what works specifically for you. This personalized approach often leads to remarkable transformations.\n\nWe got you - let's embrace your skin's uniqueness!"
         };
     }
@@ -173,7 +174,7 @@ export const SkinTypeResultsScreen = ({
       title: combinedTitle,
       description: `Combined ${combinedTitle.toLowerCase()} characteristics`,
       signs: uniqueSigns,
-      color: selectedTypes[0].color, // Use color from first selected type
+      color: selectedTypes[0].color,
       explanation: explanation
     };
   };
@@ -204,6 +205,12 @@ export const SkinTypeResultsScreen = ({
     return `You have ${titles} skin - a unique combination that gives you the characteristics of both types. This means your routine can be customized to address multiple skin needs simultaneously.\n\nCombination skin types often see the most dramatic improvements because they benefit from targeted approaches. Your personalized routine will address each aspect of your skin.\n\nWe got you - let's create your multi-benefit routine!`;
   };
 
+  const handleLogoPress = () => {
+    if (onGoHome) {
+      onGoHome();
+    }
+  };
+
   const testResult = Array.isArray(testResults) ? testResults[0] : testResults;
   
   // ENHANCED: Determine skin type based on whether it's manual selection or test-based
@@ -224,26 +231,53 @@ export const SkinTypeResultsScreen = ({
 
   return (
     <View style={[styles.container, style]}>
+      {/* Logo Header */}
+      <View style={styles.logoHeader}>
+        <TouchableOpacity 
+          onPress={handleLogoPress}
+          activeOpacity={0.7}
+        >
+          <Image 
+            source={require('../assets/images/dracne-logo.png')} 
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+      </View>
+
       <ScrollView 
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
         
-        <Text style={styles.title}>Your Skin Type Analysis</Text>
-        <Text style={styles.subtitle}>You have:</Text>
+        {/* Title with Highlight */}
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            Your Skin Type <Text style={styles.titleHighlight}>Analysis</Text>
+          </Text>
+          <Text style={styles.subtitle}>You have:</Text>
+        </View>
 
         {/* Animated skin type result card */}
         <Animated.View style={[
           styles.skinTypeCard,
           {
             opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }]
+            transform: [{ translateY: slideAnim }],
+            borderColor: skinData.color,
           }
         ]}>
           <View style={styles.cardContent}>
-            <View style={[styles.colorIndicator, { backgroundColor: skinData.color }]} />
+            <View style={[
+              styles.iconContainer,
+              { backgroundColor: skinData.color }
+            ]}>
+              <Text style={styles.iconText}>{skinData.title.charAt(0)}</Text>
+            </View>
             <View style={styles.cardInfo}>
-              <Text style={styles.skinTypeTitle}>{skinData.title}</Text>
+              <Text style={[styles.skinTypeTitle, { color: skinData.color }]}>
+                {skinData.title}
+              </Text>
               <Text style={styles.skinTypeDescription}>{skinData.description}</Text>
               <View style={styles.signsRow}>
                 <Text style={styles.signText}>{skinData.signs[0]}</Text>
@@ -253,13 +287,10 @@ export const SkinTypeResultsScreen = ({
                 <Text style={styles.signText}>{skinData.signs[2]}</Text>
               </View>
             </View>
-            <View style={styles.selectedIndicator}>
-              <Text style={styles.checkmark}>✓</Text>
-            </View>
           </View>
         </Animated.View>
 
-        {/* FIXED: Gray explanation box with proper height */}
+        {/* Explanation box */}
         <Animated.View style={[
           styles.explanationBox,
           {
@@ -273,7 +304,7 @@ export const SkinTypeResultsScreen = ({
           </Text>
         </Animated.View>
         
-        {/* Engaging green button - CONSISTENT FOR ALL SKIN TYPES */}
+        {/* Continue button */}
         <Animated.View style={[
           { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
         ]}>
@@ -284,7 +315,7 @@ export const SkinTypeResultsScreen = ({
           />
         </Animated.View>
 
-        {/* FIXED: Text link to go home - Now guaranteed to be visible */}
+        {/* Skip link */}
         <Animated.View style={[
           styles.skipAnimatedContainer,
           { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
@@ -302,102 +333,118 @@ export const SkinTypeResultsScreen = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: BRAND_COLORS.white,
+    backgroundColor: 'transparent',
+  },
+  logoHeader: {
+    paddingTop: 8,
+    paddingLeft: 20,
+    paddingBottom: 6,
+    backgroundColor: 'transparent',
+  },
+  logo: {
+    width: 60,
+    height: 42,
   },
   scrollContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 150, // INCREASED: Much more bottom padding to ensure hyperlink visibility
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 150,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 24,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 26,
+    fontWeight: '700',
     color: BRAND_COLORS.black,
     textAlign: 'center',
     marginBottom: 8,
+    lineHeight: 32,
+  },
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
   },
   subtitle: {
-    fontSize: 16,
-    color: BRAND_COLORS.gray,
+    fontSize: 15,
+    color: '#666',
     textAlign: 'center',
-    marginBottom: 30,
+    lineHeight: 22,
   },
   skinTypeCard: {
-    backgroundColor: BRAND_COLORS.cream,
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 24,
     borderWidth: 2,
-    borderColor: BRAND_COLORS.primary,
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 30,
-    elevation: 4,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.12,
-    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  colorIndicator: {
-    width: 4,
-    height: 45,
-    borderRadius: 2,
-    marginRight: 12,
+  iconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  iconText: {
+    color: BRAND_COLORS.white,
+    fontSize: 24,
+    fontWeight: '700',
   },
   cardInfo: {
     flex: 1,
   },
   skinTypeTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: BRAND_COLORS.primary,
-    marginBottom: 2,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 4,
   },
   skinTypeDescription: {
-    fontSize: 12,
-    color: BRAND_COLORS.gray,
-    marginBottom: 4,
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 6,
+    lineHeight: 18,
   },
   signsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
-    marginTop: 4,
   },
   signText: {
-    fontSize: 11,
-    color: BRAND_COLORS.gray,
+    fontSize: 12,
+    color: '#666',
   },
   signDot: {
-    fontSize: 11,
-    color: BRAND_COLORS.gray,
+    fontSize: 12,
+    color: '#666',
     marginHorizontal: 6,
   },
-  selectedIndicator: {
-    backgroundColor: BRAND_COLORS.primary,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkmark: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
   explanationBox: {
-    backgroundColor: BRAND_COLORS.lightGray,
-    borderRadius: 12,
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
     padding: 20,
-    marginBottom: 30, // INCREASED: More space before button
-    height: 300, // INCREASED: Space for 1 more line as requested
-    justifyContent: 'flex-start', // Align content to top for better readability
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   explanationTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 17,
+    fontWeight: '700',
     color: BRAND_COLORS.black,
     marginBottom: 12,
     textAlign: 'center',
@@ -405,26 +452,24 @@ const styles = StyleSheet.create({
   explanationText: {
     fontSize: 14,
     color: BRAND_COLORS.black,
-    lineHeight: 20,
+    lineHeight: 21,
     textAlign: 'center',
-    flex: 1, // Take remaining space in fixed height box
   },
   continueButton: {
     paddingVertical: 16,
-    marginBottom: 30, // INCREASED: More space before hyperlink
+    marginBottom: 3,
   },
   skipAnimatedContainer: {
-    // Container for the animated hyperlink
-    marginBottom: 40, // ADDED: Extra margin to ensure it's always visible
+    marginBottom: 40,
   },
   skipContainer: {
     alignItems: 'center',
-    paddingVertical: 15, // INCREASED: More touch area
+    paddingVertical: 12,
     paddingHorizontal: 20,
   },
   skipText: {
     fontSize: 14,
-    color: BRAND_COLORS.primary,
+    color: BRAND_COLORS.gray,
     textDecorationLine: 'underline',
   },
 });

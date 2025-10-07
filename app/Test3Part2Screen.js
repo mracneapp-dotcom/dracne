@@ -1,12 +1,11 @@
-// app/Test1Screen.js - End-of-Day Check Part 1 (Modern Design)
+// app/Test3Part2Screen.js - Overnight Assessment Part 2 (Properly Centered)
 import React, { useState } from 'react';
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -20,23 +19,24 @@ const BRAND_COLORS = {
   gray: '#999999',
 };
 
-export const Test1Screen = ({ 
+export const Test3Part2Screen = ({ 
   onBack, 
   onContinue,
   onNavigateHome,
+  firstAnswer,
   analysisData = null,
   style = {} 
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
 
   const question = {
-    id: 'oiliness',
-    question: 'How does your skin feel right now?',
+    id: 'morning_appearance',
+    question: 'How does your skin look in the mirror first thing in the morning?',
     options: [
-      { id: 'very_oily', text: 'Very oily and shiny', points: 4 },
-      { id: 'slightly_oily', text: 'Slightly oily', points: 3 },
-      { id: 'balanced', text: 'Comfortable and balanced', points: 2 },
-      { id: 'tight', text: 'Tight and dry', points: 1 }
+      { id: 'shiny_oily', text: 'Shiny and oily throughout', points: 4 },
+      { id: 'shiny_tzone', text: 'Shiny T-zone, normal cheeks', points: 3 },
+      { id: 'fresh_even', text: 'Fresh and even-toned', points: 2 },
+      { id: 'dull_tight', text: 'Dull, tight, or showing fine lines', points: 1 }
     ]
   };
 
@@ -54,13 +54,32 @@ export const Test1Screen = ({
 
   const handleContinue = () => {
     if (selectedAnswer && onContinue) {
-      onContinue(selectedAnswer);
+      const totalPoints = firstAnswer.points + selectedAnswer.points;
+      
+      const testResult = {
+        testName: 'Overnight Assessment',
+        testType: 'overnight_evaluation',
+        completedAt: new Date().toISOString(),
+        totalPoints: totalPoints,
+        maxPoints: 8,
+        answers: {
+          morning_feel: firstAnswer,
+          morning_appearance: selectedAnswer
+        },
+        metadata: {
+          questionsCount: 2,
+          answeredCount: 2,
+          averageScore: totalPoints / 2,
+          testDescription: 'Natural oil production assessment after overnight sleep'
+        }
+      };
+      
+      onContinue(testResult, analysisData);
     }
   };
 
   return (
     <View style={[styles.container, style]}>
-      {/* Logo - Top Left */}
       <View style={styles.logoHeader}>
         <TouchableOpacity 
           onPress={handleLogoPress}
@@ -74,31 +93,15 @@ export const Test1Screen = ({
         </TouchableOpacity>
       </View>
 
-      <ScrollView 
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <View style={styles.centerWrapper}>
         <View style={styles.content}>
-          {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>
-              End-of-Day <Text style={styles.titleHighlight}>Check</Text>
+              Morning <Text style={styles.titleHighlight}>Assessment</Text>
             </Text>
-            <Text style={styles.subtitle}>
-              Check your skin 2-3 hours after cleansing
-            </Text>
+            <Text style={styles.subtitle}>Question 2 of 2</Text>
           </View>
 
-          {/* Instructions Box */}
-          <View style={styles.instructionsBox}>
-            <Text style={styles.instructionsTitle}>How it works:</Text>
-            <Text style={styles.instructionsText}>
-              Cleanse your face normally, wait 2-3 hours without applying any products, then answer these questions.
-            </Text>
-          </View>
-
-          {/* Question Card */}
           <View style={styles.questionCard}>
             <Text style={styles.questionText}>{question.question}</Text>
             
@@ -129,17 +132,16 @@ export const Test1Screen = ({
             </View>
           </View>
 
-          {/* Continue Button */}
           <View style={styles.buttonContainer}>
             <DrAcneButton
-              title={selectedAnswer ? "Next Question (1/2)" : "Answer question (0/2)"}
+              title={selectedAnswer ? "Reveal My Skin Type (2/2)" : "Answer question (1/2)"}
               onPress={handleContinue}
               disabled={!selectedAnswer}
               style={styles.continueButton}
             />
           </View>
         </View>
-      </ScrollView>
+      </View>
     </View>
   );
 };
@@ -150,80 +152,54 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   logoHeader: {
-    paddingTop: 10,
+    paddingTop: 8,
     paddingLeft: 20,
-    paddingBottom: 10,
+    paddingBottom: 6,
     backgroundColor: 'transparent',
   },
   logo: {
-    width: 70,
-    height: 50,
+    width: 60,
+    height: 42,
   },
-  scrollView: {
+  centerWrapper: {
     flex: 1,
-    backgroundColor: 'transparent',
-  },
-  scrollContent: {
-    paddingBottom: 140,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 80,
   },
   content: {
-    flex: 1,
+    width: '100%',
     paddingHorizontal: 24,
-    paddingTop: 10,
     backgroundColor: 'transparent',
   },
   header: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   title: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '700',
     color: BRAND_COLORS.black,
     textAlign: 'center',
-    marginBottom: 10,
-    lineHeight: 32,
+    marginBottom: 6,
+    lineHeight: 30,
   },
   titleHighlight: {
     color: BRAND_COLORS.primary,
     fontWeight: '800',
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: 13,
     color: '#666',
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 18,
     paddingHorizontal: 10,
-  },
-  instructionsBox: {
-    backgroundColor: BRAND_COLORS.white,
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: '#F0F0F0',
-  },
-  instructionsTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: BRAND_COLORS.primary,
-    marginBottom: 8,
-  },
-  instructionsText: {
-    fontSize: 13,
-    color: BRAND_COLORS.black,
-    lineHeight: 19,
   },
   questionCard: {
     backgroundColor: BRAND_COLORS.white,
     borderRadius: 16,
-    padding: 18,
-    marginBottom: 24,
+    padding: 16,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -231,11 +207,11 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   questionText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: BRAND_COLORS.black,
-    marginBottom: 14,
-    lineHeight: 22,
+    marginBottom: 12,
+    lineHeight: 21,
   },
   optionsContainer: {
     gap: 10,
@@ -243,7 +219,7 @@ const styles = StyleSheet.create({
   optionButton: {
     backgroundColor: '#F5F5F5',
     borderRadius: 10,
-    padding: 14,
+    padding: 13,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -255,10 +231,10 @@ const styles = StyleSheet.create({
     borderColor: BRAND_COLORS.primary,
   },
   optionText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#666',
     flex: 1,
-    lineHeight: 20,
+    lineHeight: 19,
   },
   selectedOptionText: {
     color: BRAND_COLORS.black,
@@ -283,9 +259,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   buttonContainer: {
-    paddingVertical: 16,
+    paddingVertical: 12,
   },
   continueButton: {
-    paddingVertical: 16,
+    paddingVertical: 14,
   },
 });

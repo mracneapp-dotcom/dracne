@@ -1,9 +1,9 @@
-// components/home/WeeklyCalendar.js - Weekly Activity Calendar
+// components/home/WeeklyCalendar.js - Weekly Activity Calendar (Updated with Green)
 import React from 'react';
 import {
-    StyleSheet,
-    Text,
-    View,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 
 const BRAND_COLORS = {
@@ -54,31 +54,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 10, // Increased from 5 for more horizontal space
-    paddingVertical: 10, // Added vertical padding for height
+    paddingHorizontal: 10,
+    paddingVertical: 10,
   },
   dayContainer: {
     alignItems: 'center',
     position: 'relative',
-    marginHorizontal: 6, // Increased from 3 for more horizontal spacing
+    marginHorizontal: 6,
   },
   dayText: {
-    fontSize: 11, // Slightly increased from 10
+    fontSize: 11,
     color: BRAND_COLORS.gray,
-    marginBottom: 6, // Increased from 4 for more vertical space
+    marginBottom: 6,
     textAlign: 'center',
   },
   dateCircle: {
-    width: 28, // Increased from 24
-    height: 28, // Increased from 24
-    borderRadius: 14, // Adjusted for new size
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
   },
   activeCircle: {
-    backgroundColor: BRAND_COLORS.secondary,
-    borderColor: BRAND_COLORS.secondary,
+    backgroundColor: BRAND_COLORS.primary, // Changed from secondary to primary (green)
+    borderColor: BRAND_COLORS.primary, // Changed from secondary to primary (green)
   },
   inactiveCircle: {
     backgroundColor: BRAND_COLORS.white,
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     borderStyle: 'dotted',
   },
   dateText: {
-    fontSize: 12, // Increased from 11
+    fontSize: 12,
     fontWeight: '600',
   },
   activeDateText: {
@@ -97,14 +97,14 @@ const styles = StyleSheet.create({
   },
   connectionLine: {
     position: 'absolute',
-    top: 30, // Adjusted for new circle size (was 26)
-    left: 28, // Adjusted for new circle size (was 24)
-    width: 12, // Increased from 6 for longer connection lines
+    top: 30,
+    left: 28,
+    width: 12,
     height: 2,
     zIndex: -1,
   },
   activeLine: {
-    backgroundColor: BRAND_COLORS.secondary,
+    backgroundColor: BRAND_COLORS.primary, // Changed from secondary to primary (green)
   },
   inactiveLine: {
     backgroundColor: BRAND_COLORS.lightGray,

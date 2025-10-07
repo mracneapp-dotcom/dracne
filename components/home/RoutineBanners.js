@@ -1,10 +1,10 @@
-// components/home/RoutineBanners.js - Day and Night Routine Banners
+// components/home/RoutineBanners.js - Optimized with React.memo
 import React from 'react';
 import {
-    Image,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const BRAND_COLORS = {
@@ -15,9 +15,19 @@ const BRAND_COLORS = {
   white: '#FFFFFF',
 };
 
-export const RoutineBanners = ({ 
+// Preload images at module level
+const BANNER_IMAGES = {
+  dayRoutine: require('../../assets/images/Banner Day Routine 1.png'),
+  nightRoutine: require('../../assets/images/Banner Night Routine 1.png'),
+  skinTest: require('../../assets/images/Banner Skin Type Test.png'),
+  scanSkin: require('../../assets/images/Banner Scan My Skin.png'),
+};
+
+export const RoutineBanners = React.memo(({ 
   onDayRoutinePress,
-  onNightRoutinePress 
+  onNightRoutinePress,
+  onSkinTestPress,
+  onScanSkinPress 
 }) => {
   return (
     <View style={styles.container}>
@@ -28,9 +38,10 @@ export const RoutineBanners = ({
         activeOpacity={0.8}
       >
         <Image 
-          source={require('../../assets/images/Banner  Day Routine 1.png')} 
+          source={BANNER_IMAGES.dayRoutine}
           style={styles.bannerImage}
           resizeMode="cover"
+          fadeDuration={0}
         />
       </TouchableOpacity>
 
@@ -41,14 +52,45 @@ export const RoutineBanners = ({
         activeOpacity={0.8}
       >
         <Image 
-          source={require('../../assets/images/Banner  Night Routine 1.png')} 
+          source={BANNER_IMAGES.nightRoutine}
           style={styles.bannerImage}
           resizeMode="cover"
+          fadeDuration={0}
+        />
+      </TouchableOpacity>
+
+      {/* Skin Type Test Banner */}
+      <TouchableOpacity 
+        style={styles.bannerButton}
+        onPress={onSkinTestPress}
+        activeOpacity={0.8}
+      >
+        <Image 
+          source={BANNER_IMAGES.skinTest}
+          style={styles.bannerImage}
+          resizeMode="cover"
+          fadeDuration={0}
+        />
+      </TouchableOpacity>
+
+      {/* Scan My Skin Banner */}
+      <TouchableOpacity 
+        style={styles.bannerButton}
+        onPress={onScanSkinPress}
+        activeOpacity={0.8}
+      >
+        <Image 
+          source={BANNER_IMAGES.scanSkin}
+          style={styles.bannerImage}
+          resizeMode="cover"
+          fadeDuration={0}
         />
       </TouchableOpacity>
     </View>
   );
-};
+});
+
+RoutineBanners.displayName = 'RoutineBanners';
 
 const styles = StyleSheet.create({
   container: {
@@ -64,9 +106,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    backgroundColor: BRAND_COLORS.lightGray,
   },
   bannerImage: {
     width: '100%',
-    height: 95, // Increased from 80 to prevent image cropping
+    height: 95,
   },
 });

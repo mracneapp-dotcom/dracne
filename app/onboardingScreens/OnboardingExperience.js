@@ -1,10 +1,8 @@
 // app/onboardingScreens/OnboardingExperience.js
 import React, { useState } from 'react';
 import {
-  Animated,
   Dimensions,
   Image,
-  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -48,48 +46,16 @@ const EXPERIENCE_OPTIONS = [
   },
 ];
 
-const responses = {
-  'yes_many': "Been there! Most apps just throw products at you without really understanding your skin, but not us :)",
-  'yes_few': "We get it - finding the right guidance is tough, but that's why we are here :)",
-  'no_first': "Perfect! We love being part of your first skincare journey ♡ Let's make it great together :)"
-};
-
 export default function OnboardingExperience({ onNext }) {
   const [selectedOption, setSelectedOption] = useState(null);
-  const [showResponseModal, setShowResponseModal] = useState(false);
-  const [responseText, setResponseText] = useState('');
-  const [fadeAnim] = useState(new Animated.Value(0));
 
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
   };
 
-  const showResponse = (response) => {
-    setResponseText(response);
-    setShowResponseModal(true);
-    
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }).start(() => {
-          setShowResponseModal(false);
-          onNext('onboardingStruggle', { experience: selectedOption });
-        });
-      }, 2500);
-    });
-  };
-
   const handleContinue = () => {
     if (selectedOption) {
-      const response = responses[selectedOption];
-      showResponse(response);
+      onNext('onboardingStruggle', { experience: selectedOption });
     }
   };
 
@@ -170,24 +136,6 @@ export default function OnboardingExperience({ onNext }) {
         
         <Text style={styles.helperText}>Select your experience level</Text>
       </View>
-
-      {/* Response Modal */}
-      <Modal
-        transparent={true}
-        visible={showResponseModal}
-        animationType="none"
-      >
-        <View style={styles.modalOverlay}>
-          <Animated.View 
-            style={[
-              styles.responseModal,
-              { opacity: fadeAnim }
-            ]}
-          >
-            <Text style={styles.responseText}>{responseText}</Text>
-          </Animated.View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -307,30 +255,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#666',
     textAlign: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  responseModal: {
-    backgroundColor: '#8BA365',
-    paddingVertical: 20,
-    paddingHorizontal: 30,
-    borderRadius: 15,
-    maxWidth: width * 0.8,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-  },
-  responseText: {
-    color: BRAND_COLORS.white,
-    fontSize: 16,
-    fontWeight: '500',
-    textAlign: 'center',
-    lineHeight: 22,
   },
 });

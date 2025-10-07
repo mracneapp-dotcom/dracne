@@ -1,10 +1,8 @@
 // app/onboardingScreens/OnboardingStruggle.js
 import React, { useState } from 'react';
 import {
-  Animated,
   Dimensions,
   Image,
-  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -55,49 +53,16 @@ const STRUGGLE_OPTIONS = [
   },
 ];
 
-const responses = {
-  'breakouts': "Ugh, the worst feeling! But here's the thing - your skin is trying to tell you something and we're here to help decode it :)",
-  'nothing_works': "So frustrating! Most people are using the wrong approach for their specific skin, but don't worry, we got you :)",
-  'too_many_options': "Totally overwhelming! That's exactly why we built this app - to cut through the noise and find what works for you",
-  'dont_know': "The best place to start? Understanding what your skin actually needs - and that's where we come in :)"
-};
-
 export default function OnboardingStruggle({ onNext }) {
   const [selectedOption, setSelectedOption] = useState(null);
-  const [showResponseModal, setShowResponseModal] = useState(false);
-  const [responseText, setResponseText] = useState('');
-  const [fadeAnim] = useState(new Animated.Value(0));
 
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
   };
 
-  const showResponse = (response) => {
-    setResponseText(response);
-    setShowResponseModal(true);
-    
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }).start(() => {
-          setShowResponseModal(false);
-          onNext('onboardingBarrierHealth1', { struggle: selectedOption });
-        });
-      }, 3500);
-    });
-  };
-
   const handleContinue = () => {
     if (selectedOption) {
-      const response = responses[selectedOption];
-      showResponse(response);
+      onNext('onboardingBarrierHealth1', { struggle: selectedOption });
     }
   };
 
@@ -178,24 +143,6 @@ export default function OnboardingStruggle({ onNext }) {
         
         <Text style={styles.helperText}>Select your biggest frustration</Text>
       </View>
-
-      {/* Response Modal */}
-      <Modal
-        transparent={true}
-        visible={showResponseModal}
-        animationType="none"
-      >
-        <View style={styles.modalOverlay}>
-          <Animated.View 
-            style={[
-              styles.responseModal,
-              { opacity: fadeAnim }
-            ]}
-          >
-            <Text style={styles.responseText}>{responseText}</Text>
-          </Animated.View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -315,30 +262,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#666',
     textAlign: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  responseModal: {
-    backgroundColor: '#8BA365',
-    paddingVertical: 20,
-    paddingHorizontal: 30,
-    borderRadius: 15,
-    maxWidth: width * 0.8,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-  },
-  responseText: {
-    color: BRAND_COLORS.white,
-    fontSize: 16,
-    fontWeight: '500',
-    textAlign: 'center',
-    lineHeight: 22,
   },
 });

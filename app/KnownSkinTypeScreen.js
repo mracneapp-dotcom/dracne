@@ -1,6 +1,7 @@
-// app/KnownSkinTypeScreen.js - Updated to go to SkinTypeResultsScreen first
+// app/KnownSkinTypeScreen.js - Following AnalysisResults Design
 import React, { useState } from 'react';
 import {
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -20,7 +21,8 @@ const BRAND_COLORS = {
 
 export const KnownSkinTypeScreen = ({ 
   onBack, 
-  onContinueToResults, // CHANGED: Now goes to results first, not directly to profile creation
+  onContinueToResults,
+  onNavigateHome,
   style = {} 
 }) => {
   const [selectedSkinTypes, setSelectedSkinTypes] = useState([]);
@@ -30,90 +32,88 @@ export const KnownSkinTypeScreen = ({
       id: 'normal',
       title: 'Normal',
       description: 'Well-balanced with minimal concerns',
-      signs: ['Comfortable feel', 'Small pores', 'Even skin tone', 'Rarely sensitive'],
+      icon: require('../assets/images/check.png'),
       color: '#4CAF50'
     },
     {
       id: 'oily',
       title: 'Oily',
       description: 'Excess oil production, especially T-zone',
-      signs: ['Shiny appearance', 'Large pores', 'Prone to acne', 'Makeup slides off'],
+      icon: require('../assets/images/check.png'),
       color: '#FF9800'
     },
     {
       id: 'dry',
       title: 'Dry',
       description: 'Lacks moisture, may feel tight',
-      signs: ['Tight feeling', 'Flaky patches', 'Fine lines', 'Dull appearance'],
+      icon: require('../assets/images/check.png'),
       color: '#2196F3'
     },
     {
       id: 'combination',
       title: 'Combination',
       description: 'Mix of oily and dry areas',
-      signs: ['Oily T-zone', 'Dry cheeks', 'Mixed texture', 'Varies by season'],
+      icon: require('../assets/images/check.png'),
       color: '#9C27B0'
     },
     {
       id: 'sensitive',
       title: 'Sensitive',
       description: 'Easily irritated or reactive',
-      signs: ['Easily irritated', 'Redness prone', 'Product reactions', 'Tender skin'],
+      icon: require('../assets/images/check.png'),
       color: '#FF7A7A'
     }
   ];
+
+  const handleLogoPress = () => {
+    if (onNavigateHome) {
+      onNavigateHome();
+    } else {
+      console.log('Navigate to home screen');
+    }
+  };
 
   const handleSkinTypeSelect = (skinType) => {
     const isCurrentlySelected = selectedSkinTypes.some(type => type.id === skinType.id);
     
     if (isCurrentlySelected) {
-      // Deselect if already selected
       setSelectedSkinTypes(selectedSkinTypes.filter(type => type.id !== skinType.id));
     } else {
-      // Add to selection if less than 2 types selected
       if (selectedSkinTypes.length < 2) {
         setSelectedSkinTypes([...selectedSkinTypes, skinType]);
       }
     }
   };
 
-  // UPDATED: Create mock test result and go to SkinTypeResultsScreen first
   const handleContinue = () => {
     if (selectedSkinTypes.length > 0) {
-      // Create a mock test result based on selected skin type
-      const primarySkinType = selectedSkinTypes[0]; // Use first selected as primary
-      
-      // Create mock test result that will produce the correct skin type analysis
+      const primarySkinType = selectedSkinTypes[0];
       const mockTestResult = createMockTestResult(primarySkinType.id);
-      
-      // Pass both the mock test result and the original selection
       onContinueToResults(mockTestResult, selectedSkinTypes);
     }
   };
 
-  // Create mock test result with points that will analyze to the correct skin type
   const createMockTestResult = (skinTypeId) => {
     let totalPoints;
     
-    // Map skin types to point values that will produce correct analysis
     switch (skinTypeId) {
       case 'oily':
-        totalPoints = 8; // >= 7 = oily
+        totalPoints = 8;
         break;
       case 'combination': 
-        totalPoints = 5; // 5-6 = combination
+        totalPoints = 5;
         break;
       case 'normal':
-        totalPoints = 3; // 3-4 = normal
+        totalPoints = 3;
         break;
       case 'dry':
-        totalPoints = 2; // < 3 = dry
+        totalPoints = 2;
         break;
       case 'sensitive':
-        totalPoints = 3; // Default to normal points, will show as normal with sensitive traits
+        totalPoints = 3;
         break;
       default:
-        totalPoints = 3; // Default to normal
+        totalPoints = 3;
     }
 
     return {
@@ -147,68 +147,98 @@ export const KnownSkinTypeScreen = ({
 
   const getButtonText = () => {
     if (selectedSkinTypes.length === 0) {
-      return "Select at least 1 type";
+      return "You can select up to 2 skin types";
     }
     
     if (selectedSkinTypes.length === 1) {
-      return `Continue with My ${selectedSkinTypes[0].title} Skin`;
+      return `Continue with ${selectedSkinTypes[0].title}`;
     }
     
-    // For 2 selections, show both types
     const skinTypeNames = selectedSkinTypes.map(type => type.title).join(' + ');
-    return `Continue with My ${skinTypeNames} Skin`;
+    return `Continue with ${skinTypeNames}`;
   };
 
   return (
     <View style={[styles.container, style]}>
-      <View style={styles.content}>
-        <Text style={styles.mainTitle}>Select Your Skin Type</Text>
-        <Text style={styles.subtitle}>Choose 1 or 2 types that best describe your skin</Text>
-
-        <View style={styles.optionsContainer}>
-          {skinTypes.map((skinType) => (
-            <TouchableOpacity
-              key={skinType.id}
-              style={[
-                styles.skinTypeCard,
-                isSelected(skinType) && styles.selectedCard
-              ]}
-              onPress={() => handleSkinTypeSelect(skinType)}
-              activeOpacity={0.7}
-            >
-              <View style={styles.cardContent}>
-                <View style={[styles.colorIndicator, { backgroundColor: skinType.color }]} />
-                <View style={styles.cardInfo}>
-                  <Text style={styles.skinTypeTitle}>{skinType.title}</Text>
-                  <Text style={styles.skinTypeDescription}>{skinType.description}</Text>
-                  <View style={styles.signsRow}>
-                    <Text style={styles.signText}>{skinType.signs[0]}</Text>
-                    <Text style={styles.signDot}>•</Text>
-                    <Text style={styles.signText}>{skinType.signs[1]}</Text>
-                    <Text style={styles.signDot}>•</Text>
-                    <Text style={styles.signText}>{skinType.signs[2]}</Text>
-                    <Text style={styles.signDot}>•</Text>
-                    <Text style={styles.signText}>{skinType.signs[3]}</Text>
-                  </View>
-                </View>
-                {isSelected(skinType) && (
-                  <View style={styles.selectedIndicator}>
-                    <Text style={styles.checkmark}>✓</Text>
-                  </View>
-                )}
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <DrAcneButton
-            title={getButtonText()}
-            onPress={handleContinue}
-            disabled={selectedSkinTypes.length === 0}
-            style={styles.continueButton}
+      {/* Logo - Top Left */}
+      <View style={styles.logoHeader}>
+        <TouchableOpacity 
+          onPress={handleLogoPress}
+          activeOpacity={0.7}
+        >
+          <Image 
+            source={require('../assets/images/dracne-logo.png')} 
+            style={styles.logo}
+            resizeMode="contain"
           />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.content}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            Select Your <Text style={styles.titleHighlight}>Skin Type</Text>
+          </Text>
+          <Text style={styles.subtitle}>
+            Choose 1 or 2 types that best describe your skin
+          </Text>
         </View>
+
+        {/* Skin Type Options */}
+        <View style={styles.optionsContainer}>
+          {skinTypes.map((skinType) => {
+            const isCurrentlySelected = isSelected(skinType);
+            return (
+              <TouchableOpacity
+                key={skinType.id}
+                style={[
+                  styles.typeCard,
+                  isCurrentlySelected && {
+                    borderColor: skinType.color,
+                    borderWidth: 2,
+                    backgroundColor: `${skinType.color}10`,
+                  }
+                ]}
+                onPress={() => handleSkinTypeSelect(skinType)}
+                activeOpacity={0.7}
+              >
+                <View style={[
+                  styles.iconContainer,
+                  { backgroundColor: isCurrentlySelected ? skinType.color : '#F5F5F5' }
+                ]}>
+                  <Image
+                    source={skinType.icon}
+                    style={[
+                      styles.icon,
+                      { tintColor: isCurrentlySelected ? BRAND_COLORS.white : '#999' }
+                    ]}
+                    resizeMode="contain"
+                  />
+                </View>
+                <View style={styles.textContainer}>
+                  <Text style={[
+                    styles.typeLabel,
+                    isCurrentlySelected && { color: skinType.color, fontWeight: '600' }
+                  ]}>
+                    {skinType.title}
+                  </Text>
+                  <Text style={styles.typeDescription}>{skinType.description}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+
+      {/* Continue Button - Fixed at Bottom */}
+      <View style={styles.buttonContainer}>
+        <DrAcneButton
+          title={getButtonText()}
+          onPress={handleContinue}
+          disabled={selectedSkinTypes.length === 0}
+          style={styles.continueButton}
+        />
       </View>
     </View>
   );
@@ -217,102 +247,105 @@ export const KnownSkinTypeScreen = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: BRAND_COLORS.white,
+    backgroundColor: 'transparent',
+  },
+  logoHeader: {
+    paddingTop: 10,
+    paddingLeft: 20,
+    paddingBottom: 10,
+    backgroundColor: 'transparent',
+  },
+  logo: {
+    width: 70,
+    height: 50,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingTop: 10,
-    justifyContent: 'space-between',
   },
-  mainTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
+  header: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
     color: BRAND_COLORS.black,
     textAlign: 'center',
-    marginBottom: 5,
+    marginBottom: 8,
+    lineHeight: 34,
+  },
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
   },
   subtitle: {
-    fontSize: 13,
-    color: BRAND_COLORS.gray,
+    fontSize: 16,
+    color: '#666',
     textAlign: 'center',
-    marginBottom: 15,
+    lineHeight: 24,
   },
   optionsContainer: {
-    flex: 1,
-    gap: 10,
+    marginBottom: 20,
   },
-  skinTypeCard: {
-    backgroundColor: '#F8F8F8',
-    borderRadius: 12,
-    padding: 14,
-    elevation: 2,
+  typeCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
-    shadowRadius: 3,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  selectedCard: {
-    backgroundColor: '#E8F5E9',
-    elevation: 3,
-    shadowOpacity: 0.12,
-  },
-  cardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  colorIndicator: {
-    width: 4,
-    height: 45,
-    borderRadius: 2,
-    marginRight: 12,
-  },
-  cardInfo: {
-    flex: 1,
-  },
-  skinTypeTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: BRAND_COLORS.black,
-    marginBottom: 2,
-  },
-  skinTypeDescription: {
-    fontSize: 12,
-    color: BRAND_COLORS.gray,
-    marginBottom: 4,
-  },
-  signsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    marginTop: 4,
-  },
-  signText: {
-    fontSize: 11,
-    color: BRAND_COLORS.gray,
-  },
-  signDot: {
-    fontSize: 11,
-    color: BRAND_COLORS.gray,
-    marginHorizontals: 6,
-  },
-  selectedIndicator: {
-    backgroundColor: BRAND_COLORS.primary,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 16,
   },
-  checkmark: {
-    color: 'white',
+  icon: {
+    width: 24,
+    height: 24,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  typeLabel: {
+    fontSize: 17,
+    color: BRAND_COLORS.black,
+    marginBottom: 3,
+  },
+  typeDescription: {
     fontSize: 14,
-    fontWeight: 'bold',
+    color: '#666',
+    lineHeight: 19,
   },
   buttonContainer: {
-    paddingVertical: 12,
+    position: 'absolute',
+    bottom: 70,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    backgroundColor: 'transparent',
+    zIndex: 10,
   },
   continueButton: {
-    paddingVertical: 14,
+    width: '100%',
+    paddingVertical: 16,
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
 });

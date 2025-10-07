@@ -1,8 +1,9 @@
-// Test2Screen.js - Optimized with Fast Image Loading
+// app/Test2Screen.js - Blotting Paper Test Part 1 (SINGLE SCREEN FIT)
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -23,15 +24,15 @@ const BRAND_COLORS = {
 export const Test2Screen = ({ 
   onBack,
   onContinue,
+  onNavigateHome,
   analysisData = null,
   style = {} 
 }) => {
   const [currentScreen, setCurrentScreen] = useState('instructions');
-  const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [showPlaceholder, setShowPlaceholder] = useState(true);
 
-  // Preload image when component mounts
   useEffect(() => {
     const preloadImage = () => {
       const image = Image.resolveAssetSource(require('../assets/images/BlottingPapper.png'));
@@ -41,90 +42,50 @@ export const Test2Screen = ({
           setShowPlaceholder(false);
         })
         .catch(() => {
-          setImageLoaded(true); // Still hide placeholder even if preload fails
+          setImageLoaded(true);
           setShowPlaceholder(false);
         });
     };
 
-    // Small delay to prevent blocking UI
     const timer = setTimeout(preloadImage, 100);
-    
     return () => clearTimeout(timer);
   }, []);
 
-  const questions = [
-    {
-      id: 'tzone_results',
-      question: 'What does the blotting paper show in your T-zone (forehead, nose, chin)?',
-      options: [
-        { id: 'very_oily', text: 'Very oily - paper is soaked/transparent', points: 4 },
-        { id: 'moderately_oily', text: 'Moderately oily - clear oil spots', points: 3 },
-        { id: 'slight_oil', text: 'Slight oil - barely visible marks', points: 2 },
-        { id: 'no_oil', text: 'No oil - paper stays dry', points: 1 }
-      ]
-    },
-    {
-      id: 'cheeks_results',
-      question: 'What does the blotting paper show on your cheeks?',
-      options: [
-        { id: 'oily', text: 'Oily - clear oil absorption', points: 4 },
-        { id: 'some_oil', text: 'Some oil - light marks visible', points: 3 },
-        { id: 'very_little', text: 'Very little oil - faint marks', points: 2 },
-        { id: 'no_oil', text: 'No oil - completely dry', points: 1 }
-      ]
-    }
-  ];
+  const question = {
+    id: 'tzone_results',
+    question: 'What does the blotting paper show in your T-zone (forehead, nose, chin)?',
+    options: [
+      { id: 'very_oily', text: 'Very oily - paper is soaked/transparent', points: 4 },
+      { id: 'moderately_oily', text: 'Moderately oily - clear oil spots', points: 3 },
+      { id: 'slight_oil', text: 'Slight oil - barely visible marks', points: 2 },
+      { id: 'no_oil', text: 'No oil - paper stays dry', points: 1 }
+    ]
+  };
 
-  const handleAnswerSelect = (questionId, option) => {
-    setSelectedAnswers({
-      ...selectedAnswers,
-      [questionId]: option
-    });
+  const handleLogoPress = () => {
+    if (onNavigateHome) {
+      onNavigateHome();
+    } else {
+      console.log('Navigate to home screen');
+    }
+  };
+
+  const handleAnswerSelect = (option) => {
+    setSelectedAnswer(option);
   };
 
   const handleContinue = () => {
-    if (Object.keys(selectedAnswers).length === questions.length) {
-      const totalPoints = Object.values(selectedAnswers).reduce((sum, answer) => sum + answer.points, 0);
-      
-      const testResult = {
-        testName: 'Blotting Paper Test',
-        testType: 'oil_absorption',
-        completedAt: new Date().toISOString(),
-        totalPoints: totalPoints,
-        maxPoints: questions.length * 4,
-        answers: selectedAnswers,
-        questions: questions,
-        metadata: {
-          questionsCount: questions.length,
-          answeredCount: Object.keys(selectedAnswers).length,
-          averageScore: totalPoints / questions.length,
-          testDescription: 'Oil absorption analysis using blotting paper method'
-        }
-      };
-      
-      if (onContinue && typeof onContinue === 'function') {
-        onContinue(testResult, analysisData);
-      } else {
-        console.error('onContinue function not provided to Test2Screen');
-      }
+    if (selectedAnswer && onContinue) {
+      onContinue(selectedAnswer);
     }
   };
 
-  const isTestComplete = () => {
-    return Object.keys(selectedAnswers).length === questions.length;
-  };
-
-  // OPTIMIZED: Simple loader placeholder 
   const renderImagePlaceholder = () => (
     <View style={styles.imagePlaceholderContainer}>
-      <ActivityIndicator 
-        size="large" 
-        color={BRAND_COLORS.primary} 
-      />
+      <ActivityIndicator size="large" color={BRAND_COLORS.primary} />
     </View>
   );
 
-  // OPTIMIZED: Image with instant fallback
   const renderOptimizedImage = () => {
     if (showPlaceholder) {
       return renderImagePlaceholder();
@@ -138,10 +99,7 @@ export const Test2Screen = ({
           resizeMode="contain"
           fadeDuration={0}
           onLoad={() => setImageLoaded(true)}
-          onError={() => {
-            console.warn('BlottingPapper image failed to load');
-            setImageLoaded(true);
-          }}
+          onError={() => setImageLoaded(true)}
         />
         {!imageLoaded && (
           <View style={styles.imageOverlay}>
@@ -152,101 +110,121 @@ export const Test2Screen = ({
     );
   };
 
-  // Instructions Screen
   const renderInstructionsScreen = () => (
-    <View style={styles.instructionsScreenContainer}>
-      <Text style={styles.mainTitle}>Blotting Paper Test</Text>
-      <Text style={styles.subtitle}>Use blotting paper to determine your skin's oil production</Text>
+    <View style={styles.contentWrapper}>
+      <View style={styles.content}>
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            Blotting Paper <Text style={styles.titleHighlight}>Test</Text>
+          </Text>
+          <Text style={styles.subtitle}>
+            Use blotting paper to determine your skin's oil production
+          </Text>
+        </View>
 
-      {/* OPTIMIZED: Fast loading image with placeholder */}
-      {renderOptimizedImage()}
+        {renderOptimizedImage()}
 
-      <View style={styles.instructionsBox}>
-        <Text style={styles.instructionsTitle}>What is blotting paper?</Text>
-        <Text style={styles.instructionsText}>
-          Thin, absorbent paper sheets that soak up oil from your skin. You can find them at drugstores, beauty stores, or use clean tissue paper as an alternative.
-        </Text>
-        
-        <Text style={styles.instructionsTitle}>How to do this test:</Text>
-        <Text style={styles.instructionsText}>
-          1. Start with clean skin (wash your face){'\n'}
-          2. Wait 1-2 hours without applying products{'\n'}
-          3. Gently press blotting paper on different areas{'\n'}
-          4. Hold the paper up to light to see oil absorption{'\n\n'}
-          Complete these steps, then come back to record your results!
-        </Text>
-      </View>
+        <View style={styles.instructionsBox}>
+          <Text style={styles.instructionsTitle}>What is blotting paper?</Text>
+          <Text style={styles.instructionsText}>
+            Thin, absorbent paper sheets that soak up oil from your skin. You can find them at drugstores, beauty stores, or use clean tissue paper as an alternative.
+          </Text>
+          
+          <Text style={styles.instructionsTitle}>How to do this test:</Text>
+          <Text style={styles.instructionsText}>
+            1. Start with clean skin (wash your face){'\n'}
+            2. Wait 1-2 hours without applying products{'\n'}
+            3. Gently press blotting paper on different areas{'\n'}
+            4. Hold the paper up to light to see oil absorption{'\n\n'}
+            Complete these steps, then come back to record your results!
+          </Text>
+        </View>
 
-      <View style={styles.buttonContainer}>
-        <DrAcneButton
-          title="Record My Results"
-          onPress={() => setCurrentScreen('questions')}
-          style={styles.continueButton}
-        />
+        <View style={styles.buttonContainer}>
+          <DrAcneButton
+            title="Record My Results"
+            onPress={() => setCurrentScreen('question')}
+            style={styles.continueButton}
+          />
+        </View>
       </View>
     </View>
   );
 
-  // Questions Screen
-  const renderQuestionsScreen = () => (
-    <View style={styles.questionsScreenContainer}>
-      <Text style={styles.mainTitle}>Record Your Results</Text>
-      <Text style={styles.subtitle}>Based on your blotting paper test, answer these questions</Text>
+  const renderQuestionScreen = () => (
+    <ScrollView 
+      style={styles.scrollView}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContent}
+      bounces={true}
+    >
+      <View style={styles.content}>
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            Record Your <Text style={styles.titleHighlight}>Results</Text>
+          </Text>
+          <Text style={styles.subtitle}>Question 1 of 2</Text>
+        </View>
 
-      <View style={styles.questionsContainer}>
-        {questions.map((question) => (
-          <View key={question.id} style={styles.questionCard}>
-            <Text style={styles.questionText}>{question.question}</Text>
-            
-            <View style={styles.optionsContainer}>
-              {question.options.map((option) => {
-                const isSelected = selectedAnswers[question.id]?.id === option.id;
-                return (
-                  <TouchableOpacity
-                    key={option.id}
-                    style={[
-                      styles.optionButton,
-                      isSelected && styles.selectedOption
-                    ]}
-                    onPress={() => handleAnswerSelect(question.id, option)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={[
-                      styles.optionText,
-                      isSelected && styles.selectedOptionText
-                    ]}>
-                      {option.text}
-                    </Text>
-                    {isSelected && (
-                      <View style={styles.selectedIndicator}>
-                        <Text style={styles.checkmark}>✓</Text>
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+        <View style={styles.questionCard}>
+          <Text style={styles.questionText}>{question.question}</Text>
+          
+          <View style={styles.optionsContainer}>
+            {question.options.map((option) => (
+              <TouchableOpacity
+                key={option.id}
+                style={[
+                  styles.optionButton,
+                  selectedAnswer?.id === option.id && styles.selectedOption
+                ]}
+                onPress={() => handleAnswerSelect(option)}
+                activeOpacity={0.7}
+              >
+                <Text style={[
+                  styles.optionText,
+                  selectedAnswer?.id === option.id && styles.selectedOptionText
+                ]}>
+                  {option.text}
+                </Text>
+                {selectedAnswer?.id === option.id && (
+                  <View style={styles.selectedIndicator}>
+                    <Text style={styles.checkmark}>✓</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            ))}
           </View>
-        ))}
-      </View>
+        </View>
 
-      <View style={styles.buttonContainer}>
-        <DrAcneButton
-          title={isTestComplete() ? "Reveal My Skin Type" : `Answer all questions (${Object.keys(selectedAnswers).length}/${questions.length})`}
-          onPress={handleContinue}
-          disabled={!isTestComplete()}
-          style={styles.completeButton}
-        />
+        <View style={styles.buttonContainer}>
+          <DrAcneButton
+            title={selectedAnswer ? "Next Question (1/2)" : "Answer question (0/2)"}
+            onPress={handleContinue}
+            disabled={!selectedAnswer}
+            style={styles.continueButton}
+          />
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 
   return (
     <View style={[styles.container, style]}>
-      <View style={styles.content}>
-        {currentScreen === 'instructions' && renderInstructionsScreen()}
-        {currentScreen === 'questions' && renderQuestionsScreen()}
+      <View style={styles.logoHeader}>
+        <TouchableOpacity 
+          onPress={handleLogoPress}
+          activeOpacity={0.7}
+        >
+          <Image 
+            source={require('../assets/images/dracne-logo.png')} 
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
       </View>
+
+      {currentScreen === 'instructions' && renderInstructionsScreen()}
+      {currentScreen === 'question' && renderQuestionScreen()}
     </View>
   );
 };
@@ -254,27 +232,66 @@ export const Test2Screen = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: BRAND_COLORS.white,
+    backgroundColor: 'transparent',
+  },
+  logoHeader: {
+    paddingTop: 8,
+    paddingLeft: 20,
+    paddingBottom: 6,
+    backgroundColor: 'transparent',
+  },
+  logo: {
+    width: 60,
+    height: 42,
+  },
+  contentWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 140,
   },
   content: {
-    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 4,
+    backgroundColor: 'transparent',
   },
-  // Instructions Screen Styles
-  instructionsScreenContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    justifyContent: 'space-between',
+  header: {
+    alignItems: 'center',
+    marginBottom: 12,
   },
-  // OPTIMIZED: Image optimization styles
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+    textAlign: 'center',
+    marginBottom: 6,
+    lineHeight: 30,
+  },
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
+  },
+  subtitle: {
+    fontSize: 13,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 18,
+    paddingHorizontal: 10,
+  },
   imageContainer: {
     alignSelf: 'center',
-    marginVertical: 12,
+    marginVertical: 10,
     position: 'relative',
   },
   blottingPaperImage: {
-    width: 140,
-    height: 160,
+    width: 110,
+    height: 130,
   },
   imageOverlay: {
     position: 'absolute',
@@ -286,118 +303,106 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
   },
-  // OPTIMIZED: Simple placeholder styles
   imagePlaceholderContainer: {
-    width: 140,
-    height: 160,
+    width: 110,
+    height: 130,
     alignSelf: 'center',
-    marginVertical: 12,
+    marginVertical: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
   instructionsBox: {
-    backgroundColor: '#E6E6E6',
-    borderRadius: 8,
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 12,
     padding: 12,
-    marginBottom: 15,
-  },
-  // Questions Screen Styles  
-  questionsScreenContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 20,
-  },
-  mainTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: BRAND_COLORS.black,
-    textAlign: 'center',
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 13,
-    color: BRAND_COLORS.gray,
-    textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   instructionsTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: BRAND_COLORS.black,
+    fontSize: 13,
+    fontWeight: '600',
+    color: BRAND_COLORS.primary,
     marginBottom: 6,
   },
   instructionsText: {
     fontSize: 12,
-    color: BRAND_COLORS.gray,
-    lineHeight: 16,
-    marginBottom: 10,
-  },
-  questionsContainer: {
-    flex: 1,
-    gap: 12,
-    marginBottom: 20,
-    paddingBottom: 15,
+    color: BRAND_COLORS.black,
+    lineHeight: 17,
+    marginBottom: 8,
   },
   questionCard: {
-    backgroundColor: '#F8F8F8',
-    borderRadius: 10,
-    padding: 12,
-    elevation: 1,
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 24,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   questionText: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
     color: BRAND_COLORS.black,
-    marginBottom: 10,
+    marginBottom: 14,
+    lineHeight: 22,
   },
   optionsContainer: {
-    gap: 6,
+    gap: 10,
   },
   optionButton: {
-    backgroundColor: BRAND_COLORS.white,
-    borderRadius: 8,
-    padding: 10,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 10,
+    padding: 14,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
   selectedOption: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: `${BRAND_COLORS.primary}10`,
+    borderColor: BRAND_COLORS.primary,
   },
   optionText: {
-    fontSize: 12,
-    color: BRAND_COLORS.gray,
+    fontSize: 14,
+    color: '#666',
     flex: 1,
+    lineHeight: 20,
   },
   selectedOptionText: {
     color: BRAND_COLORS.black,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   selectedIndicator: {
     backgroundColor: BRAND_COLORS.primary,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 2,
   },
   checkmark: {
     color: 'white',
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   buttonContainer: {
     paddingVertical: 12,
   },
   continueButton: {
-    paddingVertical: 14,
-  },
-  completeButton: {
     paddingVertical: 14,
   },
 });

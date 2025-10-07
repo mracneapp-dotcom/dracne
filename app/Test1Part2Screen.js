@@ -1,12 +1,12 @@
-// app/Test1Screen.js - End-of-Day Check Part 1 (Modern Design)
+// app/Test1Part2Screen.js - End-of-Day Check Part 2 (Modern Design)
 import React, { useState } from 'react';
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -20,23 +20,24 @@ const BRAND_COLORS = {
   gray: '#999999',
 };
 
-export const Test1Screen = ({ 
+export const Test1Part2Screen = ({ 
   onBack, 
   onContinue,
   onNavigateHome,
+  firstAnswer,
   analysisData = null,
   style = {} 
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
 
   const question = {
-    id: 'oiliness',
-    question: 'How does your skin feel right now?',
+    id: 'appearance',
+    question: 'How does your skin look?',
     options: [
-      { id: 'very_oily', text: 'Very oily and shiny', points: 4 },
-      { id: 'slightly_oily', text: 'Slightly oily', points: 3 },
-      { id: 'balanced', text: 'Comfortable and balanced', points: 2 },
-      { id: 'tight', text: 'Tight and dry', points: 1 }
+      { id: 'very_shiny', text: 'Very shiny, especially T-zone', points: 4 },
+      { id: 'some_shine', text: 'Some shine on forehead/nose', points: 3 },
+      { id: 'matte', text: 'Matte and even', points: 2 },
+      { id: 'dull_flaky', text: 'Dull or flaky patches', points: 1 }
     ]
   };
 
@@ -54,7 +55,27 @@ export const Test1Screen = ({
 
   const handleContinue = () => {
     if (selectedAnswer && onContinue) {
-      onContinue(selectedAnswer);
+      // Combine both answers
+      const totalPoints = firstAnswer.points + selectedAnswer.points;
+      
+      const testResult = {
+        testName: 'End-of-Day Check',
+        testType: 'sebum_production',
+        completedAt: new Date().toISOString(),
+        totalPoints: totalPoints,
+        maxPoints: 8, // 2 questions × 4 points max each
+        answers: {
+          oiliness: firstAnswer,
+          appearance: selectedAnswer
+        },
+        metadata: {
+          questionsCount: 2,
+          answeredCount: 2,
+          averageScore: totalPoints / 2,
+        }
+      };
+      
+      onContinue(testResult, analysisData);
     }
   };
 
@@ -86,15 +107,7 @@ export const Test1Screen = ({
               End-of-Day <Text style={styles.titleHighlight}>Check</Text>
             </Text>
             <Text style={styles.subtitle}>
-              Check your skin 2-3 hours after cleansing
-            </Text>
-          </View>
-
-          {/* Instructions Box */}
-          <View style={styles.instructionsBox}>
-            <Text style={styles.instructionsTitle}>How it works:</Text>
-            <Text style={styles.instructionsText}>
-              Cleanse your face normally, wait 2-3 hours without applying any products, then answer these questions.
+              Question 2 of 2
             </Text>
           </View>
 
@@ -132,7 +145,7 @@ export const Test1Screen = ({
           {/* Continue Button */}
           <View style={styles.buttonContainer}>
             <DrAcneButton
-              title={selectedAnswer ? "Next Question (1/2)" : "Answer question (0/2)"}
+              title={selectedAnswer ? "Reveal My Skin Type (2/2)" : "Answer question (1/2)"}
               onPress={handleContinue}
               disabled={!selectedAnswer}
               style={styles.continueButton}
@@ -194,30 +207,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     paddingHorizontal: 10,
-  },
-  instructionsBox: {
-    backgroundColor: BRAND_COLORS.white,
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: '#F0F0F0',
-  },
-  instructionsTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: BRAND_COLORS.primary,
-    marginBottom: 8,
-  },
-  instructionsText: {
-    fontSize: 13,
-    color: BRAND_COLORS.black,
-    lineHeight: 19,
   },
   questionCard: {
     backgroundColor: BRAND_COLORS.white,

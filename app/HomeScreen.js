@@ -1,14 +1,13 @@
-// app/HomeScreen.js - Main Home Screen (Fixed - No BottomNavigation)
+// app/HomeScreen.js - Main Home Screen (With Global Background)
 import React from 'react';
 import {
-    Image,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    View
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  View
 } from 'react-native';
 import { RoutineBanners } from '../components/home/RoutineBanners';
-import { SkinTestButton } from '../components/home/SkinTestButton';
 import { StreakCounter } from '../components/home/StreakCounter';
 import { WeeklyCalendar } from '../components/home/WeeklyCalendar';
 
@@ -26,6 +25,7 @@ export const HomeScreen = ({
   onNavigateToSkinTest,
   onNavigateToDayRoutine,
   onNavigateToNightRoutine,
+  onNavigateToScanSkin,
   userStreak = 5,
   weeklyActivity = [],
   activeTab = 'routines',
@@ -71,6 +71,14 @@ export const HomeScreen = ({
     }
   };
 
+  const handleScanSkinPress = () => {
+    if (onNavigateToScanSkin) {
+      onNavigateToScanSkin();
+    } else {
+      console.log('Navigate to Scan Skin - placeholder');
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.container, style]}>
       <ScrollView 
@@ -91,14 +99,13 @@ export const HomeScreen = ({
           <WeeklyCalendar weeklyActivity={weeklyActivity.length > 0 ? weeklyActivity : defaultWeeklyActivity} />
         </View>
 
-        {/* Routine Banners */}
+        {/* All Banners (Day, Night, Skin Test, Scan Skin) */}
         <RoutineBanners 
           onDayRoutinePress={handleDayRoutinePress}
           onNightRoutinePress={handleNightRoutinePress}
+          onSkinTestPress={handleSkinTestPress}
+          onScanSkinPress={handleScanSkinPress}
         />
-
-        {/* Skin Test Button */}
-        <SkinTestButton onPress={handleSkinTestPress} />
 
         {/* Future Content Space */}
         <View style={styles.futureContentSpace} />
@@ -110,14 +117,15 @@ export const HomeScreen = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: BRAND_COLORS.white,
+    backgroundColor: 'transparent',
   },
   content: {
     flex: 1,
+    backgroundColor: 'transparent',
   },
   scrollContent: {
-    paddingBottom: 140, // Space for bottom navigation
-    paddingHorizontal: 0, // Remove any horizontal padding
+    paddingBottom: 140,
+    paddingHorizontal: 0,
   },
   logoCalendarSection: {
     flexDirection: 'row',

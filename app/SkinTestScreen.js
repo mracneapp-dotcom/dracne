@@ -1,4 +1,4 @@
-// SkinTestScreen.js - EXACT design from your image with ONLY green button added
+// SkinTestScreen.js - Single Screen Fit (No Scrolling)
 import React from 'react';
 import {
   Alert,
@@ -24,6 +24,7 @@ export const SkinTestScreen = ({
   onBack, 
   onContinueToTest, 
   onSkipToKnownSkinType,
+  onNavigateHome,
   style 
 }) => {
   const handleDoItLater = () => {
@@ -38,9 +39,11 @@ export const SkinTestScreen = ({
         {
           text: 'Continue Anyway',
           onPress: () => {
-            // Navigate to home - for now just log
-            console.log('Navigate to home screen');
-            // TODO: Add navigation to home screen when available
+            if (onNavigateHome) {
+              onNavigateHome();
+            } else {
+              console.log('Navigate to home screen');
+            }
           },
           style: 'destructive'
         }
@@ -49,14 +52,42 @@ export const SkinTestScreen = ({
     );
   };
 
+  const handleLogoPress = () => {
+    if (onNavigateHome) {
+      onNavigateHome();
+    } else {
+      console.log('Navigate to home screen');
+    }
+  };
+
   return (
     <View style={[styles.container, style]}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Discover Your Skin Type</Text>
-        <Text style={styles.subtitle}>
-          Take at least one test so we can recommend the perfect products
-        </Text>
+      {/* Logo - Top Left */}
+      <View style={styles.logoHeader}>
+        <TouchableOpacity 
+          onPress={handleLogoPress}
+          activeOpacity={0.7}
+        >
+          <Image 
+            source={require('../assets/images/dracne-logo.png')} 
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+      </View>
 
+      <View style={styles.content}>
+        {/* Header with Styled Title */}
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            Discover Your Skin <Text style={styles.titleHighlight}>Type</Text>
+          </Text>
+          <Text style={styles.subtitle}>
+            Take at least one test so we can recommend the perfect products
+          </Text>
+        </View>
+
+        {/* Info Box */}
         <View style={styles.infoBox}>
           <Text style={styles.infoText}>
             <Text style={styles.infoBold}>Why skin type matters:</Text>
@@ -64,10 +95,13 @@ export const SkinTestScreen = ({
           </Text>
         </View>
 
+        {/* Tests Container */}
         <View style={styles.testsContainer}>
+          {/* Test 1 */}
           <TouchableOpacity 
             style={styles.testCard}
             onPress={() => onContinueToTest('End-of-Day Check')}
+            activeOpacity={0.9}
           >
             <View style={styles.testNumberBadge}>
               <Text style={styles.testNumber}>Test 1</Text>
@@ -85,9 +119,11 @@ export const SkinTestScreen = ({
             </View>
           </TouchableOpacity>
 
+          {/* Test 2 */}
           <TouchableOpacity 
             style={styles.testCard}
             onPress={() => onContinueToTest('Blotting Paper Test')}
+            activeOpacity={0.9}
           >
             <View style={styles.testNumberBadge}>
               <Text style={styles.testNumber}>Test 2</Text>
@@ -111,9 +147,11 @@ export const SkinTestScreen = ({
             </View>
           </TouchableOpacity>
 
+          {/* Test 3 */}
           <TouchableOpacity 
             style={styles.testCard}
             onPress={() => onContinueToTest('Overnight Assessment')}
+            activeOpacity={0.9}
           >
             <View style={styles.testNumberBadge}>
               <Text style={styles.testNumber}>Test 3</Text>
@@ -132,11 +170,13 @@ export const SkinTestScreen = ({
           </TouchableOpacity>
         </View>
 
+        {/* Skip Section */}
         <View style={styles.skipSection}>
           <Text style={styles.skipTitle}>Already know your skin type?</Text>
           <TouchableOpacity 
             style={styles.skipButton}
             onPress={onSkipToKnownSkinType}
+            activeOpacity={0.8}
           >
             <Text style={styles.skipButtonText}>I Know My Skin Type</Text>
           </TouchableOpacity>
@@ -144,6 +184,7 @@ export const SkinTestScreen = ({
           <TouchableOpacity 
             style={styles.laterButton}
             onPress={handleDoItLater}
+            activeOpacity={0.7}
           >
             <Text style={styles.laterButtonText}>I'll do it later</Text>
           </TouchableOpacity>
@@ -156,142 +197,190 @@ export const SkinTestScreen = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: BRAND_COLORS.white,
+    backgroundColor: 'transparent',
+  },
+  logoHeader: {
+    paddingTop: 8,
+    paddingLeft: 20,
+    paddingBottom: 6,
+    backgroundColor: 'transparent',
+  },
+  logo: {
+    width: 60,
+    height: 42,
   },
   content: {
     flex: 1,
-    padding: 20,
-    paddingBottom: 10,
+    paddingHorizontal: 24,
+    paddingTop: 4,
+    paddingBottom: 100, // Space for bottom navigation
+    backgroundColor: 'transparent',
+    justifyContent: 'space-between',
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 10,
   },
   title: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: '700',
     color: BRAND_COLORS.black,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
+    lineHeight: 30,
+  },
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
   },
   subtitle: {
     fontSize: 13,
-    color: BRAND_COLORS.gray,
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  infoBox: {
-    backgroundColor: '#E6E6E6',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 15,
-  },
-  infoText: {
-    fontSize: 13,
-    color: BRAND_COLORS.black,
+    color: '#666',
     textAlign: 'center',
     lineHeight: 18,
+    paddingHorizontal: 10,
+  },
+  infoBox: {
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+  infoText: {
+    fontSize: 12,
+    color: BRAND_COLORS.black,
+    textAlign: 'center',
+    lineHeight: 17,
   },
   infoBold: {
     fontWeight: '600',
-    color: BRAND_COLORS.black,
+    color: BRAND_COLORS.primary,
   },
   testsContainer: {
-    marginBottom: 15,
+    marginBottom: 12,
     gap: 10,
   },
   testCard: {
-    backgroundColor: '#F5F5F5',
-    borderRadius: 10,
-    padding: 15,
-    elevation: 3,
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   testNumberBadge: {
-    backgroundColor: BRAND_COLORS.white,
+    backgroundColor: `${BRAND_COLORS.primary}15`,
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 5,
+    borderRadius: 8,
     alignSelf: 'flex-start',
-    marginBottom: 5,
+    marginBottom: 6,
   },
   testNumber: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
     color: BRAND_COLORS.primary,
   },
   testTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 15,
+    fontWeight: '600',
     color: BRAND_COLORS.black,
-    marginBottom: 5,
+    marginBottom: 8,
+    lineHeight: 20,
   },
   descriptionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
   },
   descriptionBadge: {
-    backgroundColor: '#E6E6E6',
+    backgroundColor: '#F5F5F5',
     paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 5,
+    paddingVertical: 5,
+    borderRadius: 8,
     flex: 1,
-    marginRight: 8,
   },
   testDescription: {
-    fontSize: 12,
-    color: BRAND_COLORS.black,
-    fontWeight: 'normal',
+    fontSize: 11,
+    color: '#666',
+    fontWeight: '500',
+    lineHeight: 14,
   },
   warningRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   warningIcon: {
-    width: 14,
-    height: 14,
-    marginRight: 5,
+    width: 12,
+    height: 12,
+    marginRight: 4,
   },
-  /* ONLY ADDITION: Small green "Start Test →" button for Test 1 */
   startTestButton: {
-    alignSelf: 'flex-end',
     backgroundColor: BRAND_COLORS.primary,
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
+    paddingVertical: 7,
+    borderRadius: 8,
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 2,
   },
   startTestText: {
-    color: 'white',
-    fontSize: 12,
+    color: BRAND_COLORS.white,
+    fontSize: 11,
     fontWeight: '600',
   },
   skipSection: {
-    backgroundColor: '#F5F5F5',
-    borderRadius: 10,
-    padding: 15,
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 14,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
   skipTitle: {
-    fontSize: 14,
-    color: BRAND_COLORS.gray,
+    fontSize: 13,
+    color: '#666',
     marginBottom: 10,
+    fontWeight: '500',
   },
   skipButton: {
     backgroundColor: BRAND_COLORS.white,
     paddingVertical: 10,
-    paddingHorizontal: 25,
-    borderRadius: 20,
+    paddingHorizontal: 28,
+    borderRadius: 25,
     borderWidth: 2,
     borderColor: BRAND_COLORS.primary,
     marginBottom: 10,
+    minWidth: 180,
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 2,
   },
   skipButtonText: {
     color: BRAND_COLORS.primary,
     fontSize: 14,
     fontWeight: '600',
+    textAlign: 'center',
   },
   laterButton: {
-    paddingVertical: 3,
+    paddingVertical: 4,
   },
   laterButtonText: {
     color: BRAND_COLORS.gray,

@@ -1,4 +1,4 @@
-// components/analysis/AnalysisResults.js - UPDATED with moved up title
+// components/analysis/AnalysisResults.js - FIXED VERSION
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -6,21 +6,22 @@ import {
   Image,
   StyleSheet,
   Text,
-  View,
+  View
 } from 'react-native';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const BRAND_COLORS = {
   primary: '#7CB342',
   secondary: '#FF7A7A',
   cream: '#FDF5E6',
   black: '#000000',
+  white: '#FFFFFF',
   lightGray: '#F5F5F5',
 };
 
 export const AnalysisResults = ({ 
   analysisData, 
-  annotatedImageBlob, 
+  annotatedImageBlob,
   style = {} 
 }) => {
   const [annotatedImageUri, setAnnotatedImageUri] = useState(null);
@@ -45,7 +46,7 @@ export const AnalysisResults = ({
     );
   }
 
-  const { success, predictions = [], total_found = 0, model_used = '', processing_time = 0 } = analysisData;
+  const { success, predictions = [], total_found = 0 } = analysisData;
   
   if (!success) {
     return (
@@ -79,62 +80,97 @@ export const AnalysisResults = ({
 
   return (
     <View style={[styles.container, style]}>
-      {/* MOVED UP: Main title section */}
-      <View style={styles.titleSection}>
-        <Text style={styles.mainTitle}>Your AI Analysis Results are Ready!</Text>
-        <Text style={styles.detectionCount}>
-          {total_found} detection{total_found !== 1 ? 's' : ''} found
+      {/* Logo - Top Left */}
+      <View style={styles.logoHeader}>
+        <Image 
+          source={require('../../assets/images/dracne-logo.png')} 
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      </View>
+
+      {/* Header Section */}
+      <View style={styles.header}>
+        <Text style={styles.title}>
+          Your <Text style={styles.titleHighlight}>AI Analysis</Text>
+        </Text>
+        <Text style={styles.subtitle}>
+          {total_found > 0 
+            ? `We detected ${total_found} spot${total_found !== 1 ? 's' : ''} on your skin`
+            : 'Your skin analysis is complete'
+          }
         </Text>
       </View>
 
-      {/* Prominent Image - no frame */}
+      {/* Annotated Image Section */}
       <View style={styles.imageSection}>
         {annotatedImageUri ? (
-          <Image 
-            source={{ uri: annotatedImageUri }}
-            style={styles.prominentImage}
-            resizeMode="contain"
-          />
+          <View style={styles.imageCard}>
+            <Image 
+              source={{ uri: annotatedImageUri }}
+              style={styles.prominentImage}
+              resizeMode="contain"
+            />
+          </View>
         ) : total_found > 0 ? (
-          <View style={[styles.prominentImage, styles.imageLoadingContainer]}>
+          <View style={[styles.imageCard, styles.imageLoadingContainer]}>
             <ActivityIndicator size="large" color={BRAND_COLORS.primary} />
             <Text style={styles.imageLoadingText}>Processing visual annotations...</Text>
           </View>
         ) : (
-          <View style={[styles.prominentImage, styles.noImageContainer]}>
+          <View style={[styles.imageCard, styles.noImageContainer]}>
+            <Text style={styles.noImageEmoji}>✨</Text>
             <Text style={styles.noImageText}>No detections to visualize</Text>
           </View>
         )}
       </View>
 
-      {/* Detection Results with Gray Background */}
+      {/* Detection Results */}
       {total_found > 0 ? (
-        <View style={styles.compactResults}>
-          {Object.entries(groupedPredictions).map(([type, detections]) => {
-            const typeInfo = acneTypes[type] || { 
-              color: '#999', 
-              name: type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' '),
-              emoji: '🎯'
-            };
-            
-            const avgConfidence = Math.round(
-              detections.reduce((sum, d) => sum + d.confidence, 0) / detections.length * 100
-            );
-            
-            return (
-              <View key={type} style={styles.detectionRow}>
-                <Text style={styles.detectionEmoji}>{typeInfo.emoji}</Text>
-                <Text style={styles.detectionName}>{typeInfo.name}</Text>
-                <Text style={styles.detectionCount}>×{detections.length}</Text>
-                <Text style={styles.detectionConfidence}>{avgConfidence}%</Text>
-              </View>
-            );
-          })}
+        <View style={styles.resultsSection}>
+          <Text style={styles.resultsTitle}>Detection Breakdown</Text>
+          <View style={styles.compactResults}>
+            {Object.entries(groupedPredictions).map(([type, detections], index) => {
+              const typeInfo = acneTypes[type] || { 
+                color: '#999', 
+                name: type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' '),
+                emoji: '🎯'
+              };
+              
+              const avgConfidence = Math.round(
+                detections.reduce((sum, d) => sum + d.confidence, 0) / detections.length * 100
+              );
+              
+              const isLast = index === Object.entries(groupedPredictions).length - 1;
+              
+              return (
+                <View 
+                  key={type} 
+                  style={[
+                    styles.detectionRow,
+                    isLast && styles.detectionRowLast
+                  ]}
+                >
+                  <Text style={styles.detectionEmoji}>{typeInfo.emoji}</Text>
+                  <Text style={styles.detectionName}>{typeInfo.name}</Text>
+                  <View style={styles.detectionStats}>
+                    <Text style={styles.detectionCount}>×{detections.length}</Text>
+                    <View style={styles.confidenceBadge}>
+                      <Text style={styles.detectionConfidence}>{avgConfidence}%</Text>
+                    </View>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
         </View>
       ) : (
         <View style={styles.successMessage}>
           <Text style={styles.successEmoji}>🎉</Text>
-          <Text style={styles.successText}>Great news! No visible acne detected.</Text>
+          <Text style={styles.successTitle}>Great News!</Text>
+          <Text style={styles.successText}>
+            No visible acne detected in your photo.
+          </Text>
         </View>
       )}
     </View>
@@ -144,77 +180,118 @@ export const AnalysisResults = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: BRAND_COLORS.white,
-    paddingHorizontal: 20,
-    paddingTop: 20, // ADDED: Move content up since header title is removed
+    backgroundColor: 'transparent',
   },
-  // Main title section - moved up
-  titleSection: {
+  logoHeader: {
+    paddingTop: 10,
+    paddingLeft: 20,
+    paddingBottom: 10,
+    backgroundColor: 'transparent',
+  },
+  logo: {
+    width: 70,
+    height: 50,
+  },
+  header: {
     alignItems: 'center',
-    marginBottom: 25, // INCREASED spacing after title
-    marginTop: 0, // REMOVED top margin since we're higher up now
+    marginBottom: 24,
+    paddingHorizontal: 24,
   },
-  mainTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
     color: BRAND_COLORS.black,
     textAlign: 'center',
-    marginBottom: 5,
+    marginBottom: 8,
+    lineHeight: 34,
   },
-  detectionCount: {
+  titleHighlight: {
+    color: BRAND_COLORS.primary,
+    fontWeight: '800',
+  },
+  subtitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: BRAND_COLORS.secondary,
+    color: '#666',
     textAlign: 'center',
+    lineHeight: 24,
   },
   imageSection: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
+    paddingHorizontal: 24,
+  },
+  imageCard: {
+    width: width - 48,
+    height: Math.min(width - 48, 280),
+    borderRadius: 16,
+    backgroundColor: BRAND_COLORS.white,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
   },
   prominentImage: {
-    width: width - 80,
-    height: Math.min(width - 80, 280), // SLIGHTLY reduced height to save space
-    borderRadius: 12,
+    width: '100%',
+    height: '100%',
   },
   imageLoadingContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f9f9f9',
   },
   imageLoadingText: {
-    marginTop: 10,
+    marginTop: 12,
     color: '#666',
     fontSize: 14,
+    fontWeight: '500',
   },
   noImageContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f9f9f9',
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: '#ccc',
+  },
+  noImageEmoji: {
+    fontSize: 48,
+    marginBottom: 12,
   },
   noImageText: {
     color: '#666',
     fontSize: 14,
     textAlign: 'center',
   },
-  compactResults: {
-    backgroundColor: BRAND_COLORS.lightGray,
-    borderRadius: 12,
-    padding: 15,
+  resultsSection: {
+    paddingHorizontal: 24,
     marginBottom: 20,
+  },
+  resultsTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+    marginBottom: 16,
+  },
+  compactResults: {
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
   detectionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: '#F0F0F0',
+  },
+  detectionRowLast: {
+    borderBottomWidth: 0,
   },
   detectionEmoji: {
-    fontSize: 20,
-    width: 30,
+    fontSize: 24,
+    width: 36,
   },
   detectionName: {
     flex: 1,
@@ -222,35 +299,55 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: BRAND_COLORS.black,
   },
+  detectionStats: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   detectionCount: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: BRAND_COLORS.primary,
-    marginRight: 15,
+  },
+  confidenceBadge: {
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   detectionConfidence: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: '#4CAF50',
-    width: 50,
-    textAlign: 'right',
   },
   successMessage: {
     alignItems: 'center',
-    backgroundColor: BRAND_COLORS.primary,
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 32,
+    marginHorizontal: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
   },
   successEmoji: {
-    fontSize: 32,
+    fontSize: 56,
+    marginBottom: 16,
+  },
+  successTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: BRAND_COLORS.primary,
     marginBottom: 8,
+    textAlign: 'center',
   },
   successText: {
     fontSize: 16,
-    color: 'white',
-    fontWeight: '600',
+    color: '#666',
     textAlign: 'center',
+    lineHeight: 24,
   },
   errorText: {
     fontSize: 16,

@@ -1,4 +1,4 @@
-// app/index.js - Global Background with Transparent Top Elements
+// app/index.js - Global Background with Bottom Nav on Multiple Screens
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -24,8 +24,11 @@ import { HomeScreen } from './HomeScreen';
 import { KnownSkinTypeScreen } from './KnownSkinTypeScreen';
 import { SkinTestScreen } from './SkinTestScreen';
 import { SkinTypeResultsScreen } from './SkinTypeResultsScreen';
+import { Test1Part2Screen } from './Test1Part2Screen';
 import { Test1Screen } from './Test1Screen';
+import { Test2Part2Screen } from './Test2Part2Screen';
 import { Test2Screen } from './Test2Screen';
+import { Test3Part2Screen } from './Test3Part2Screen';
 import { Test3Screen } from './Test3Screen';
 
 // Onboarding Screens - Import Order Matches Flow
@@ -81,8 +84,11 @@ export default function AIScannerScreen() {
   const [skinProfile, setSkinProfile] = useState({});
   const [selectedSkinType, setSelectedSkinType] = useState(null);
   const [test1Results, setTest1Results] = useState(null);
+  const [test1Part1Answer, setTest1Part1Answer] = useState(null);
   const [test2Results, setTest2Results] = useState(null);
+  const [test2Part1Answer, setTest2Part1Answer] = useState(null);
   const [test3Results, setTest3Results] = useState(null);
+  const [test3Part1Answer, setTest3Part1Answer] = useState(null);
   const [currentTestResult, setCurrentTestResult] = useState(null);
   const [manualSkinTypeSelection, setManualSkinTypeSelection] = useState(null);
   
@@ -113,90 +119,86 @@ export default function AIScannerScreen() {
 
   // ✓ CORRECT Onboarding Back Navigation Handler - Follows Exact Flow
   const handleOnboardingBack = () => {
-    // Flow: Welcome(1) → Discovery(2) → Experience(3) → Struggle(4) → BarrierHealth1(5) → 
-    //       BarrierHealth2(6) → SkinType(7) → Routine(8) → Goals(9) → Timeline(10) → 
-    //       ResultsTimeline(11) → Consistency(12) → Comparison(13) → Ready(14) → Privacy(15) → 
-    //       Generating(16) → PlanReady(17) → Reminders(18) → Rating(19) → SaveProgress(20) → Paywall(21)
-    
     if (currentOnboardingStep === 'onboardingWelcome') {
-      return; // First screen - no back
+      return;
     } else if (currentOnboardingStep === 'onboardingDiscovery') {
-      setCurrentOnboardingStep('onboardingWelcome'); // 2 → 1
+      setCurrentOnboardingStep('onboardingWelcome');
     } else if (currentOnboardingStep === 'onboardingExperience') {
-      setCurrentOnboardingStep('onboardingDiscovery'); // 3 → 2
+      setCurrentOnboardingStep('onboardingDiscovery');
     } else if (currentOnboardingStep === 'onboardingStruggle') {
-      setCurrentOnboardingStep('onboardingExperience'); // 4 → 3
+      setCurrentOnboardingStep('onboardingExperience');
     } else if (currentOnboardingStep === 'onboardingBarrierHealth1') {
-      setCurrentOnboardingStep('onboardingStruggle'); // 5 → 4
+      setCurrentOnboardingStep('onboardingStruggle');
     } else if (currentOnboardingStep === 'onboardingBarrierHealth2') {
-      setCurrentOnboardingStep('onboardingBarrierHealth1'); // 6 → 5
+      setCurrentOnboardingStep('onboardingBarrierHealth1');
     } else if (currentOnboardingStep === 'onboardingSkinType') {
-      setCurrentOnboardingStep('onboardingBarrierHealth2'); // 7 → 6
+      setCurrentOnboardingStep('onboardingBarrierHealth2');
     } else if (currentOnboardingStep === 'onboardingRoutine') {
-      setCurrentOnboardingStep('onboardingSkinType'); // 8 → 7
+      setCurrentOnboardingStep('onboardingSkinType');
     } else if (currentOnboardingStep === 'onboardingGoals') {
-      setCurrentOnboardingStep('onboardingRoutine'); // 9 → 8
+      setCurrentOnboardingStep('onboardingRoutine');
     } else if (currentOnboardingStep === 'onboardingTimeline') {
-      setCurrentOnboardingStep('onboardingGoals'); // 10 → 9
+      setCurrentOnboardingStep('onboardingGoals');
     } else if (currentOnboardingStep === 'onboardingResultsTimeline') {
-      setCurrentOnboardingStep('onboardingTimeline'); // 11 → 10
+      setCurrentOnboardingStep('onboardingTimeline');
     } else if (currentOnboardingStep === 'onboardingConsistency') {
-      setCurrentOnboardingStep('onboardingResultsTimeline'); // 12 → 11
+      setCurrentOnboardingStep('onboardingResultsTimeline');
     } else if (currentOnboardingStep === 'onboardingComparison') {
-      setCurrentOnboardingStep('onboardingConsistency'); // 13 → 12
+      setCurrentOnboardingStep('onboardingConsistency');
     } else if (currentOnboardingStep === 'onboardingReady') {
-      setCurrentOnboardingStep('onboardingComparison'); // 14 → 13 ✓ CORRECT
+      setCurrentOnboardingStep('onboardingComparison');
     } else if (currentOnboardingStep === 'onboardingPrivacy') {
-      setCurrentOnboardingStep('onboardingReady'); // 15 → 14 ✓ CORRECT
+      setCurrentOnboardingStep('onboardingReady');
     } else if (currentOnboardingStep === 'onboardingGenerating') {
-      setCurrentOnboardingStep('onboardingPrivacy'); // 16 → 15
+      setCurrentOnboardingStep('onboardingPrivacy');
     } else if (currentOnboardingStep === 'onboardingPlanReady') {
-      setCurrentOnboardingStep('onboardingGenerating'); // 17 → 16
+      setCurrentOnboardingStep('onboardingGenerating');
     } else if (currentOnboardingStep === 'onboardingReminders') {
-      setCurrentOnboardingStep('onboardingPlanReady'); // 18 → 17
+      setCurrentOnboardingStep('onboardingPlanReady');
     } else if (currentOnboardingStep === 'onboardingRating') {
-      setCurrentOnboardingStep('onboardingReminders'); // 19 → 18
+      setCurrentOnboardingStep('onboardingReminders');
     } else if (currentOnboardingStep === 'onboardingSaveProgress') {
-      setCurrentOnboardingStep('onboardingRating'); // 20 → 19
+      setCurrentOnboardingStep('onboardingRating');
     } else if (currentOnboardingStep === 'onboardingPaywall') {
-      setCurrentOnboardingStep('onboardingSaveProgress'); // 21 → 20
+      setCurrentOnboardingStep('onboardingSaveProgress');
     }
   };
 
   // ✓ CORRECT Progress Bar: 4.7% to 100% across 21 screens (4.76% per step)
   const getProgressPercentage = () => {
     const stepProgress = {
-      'onboardingWelcome': 4.7,           // Screen 1/21
-      'onboardingDiscovery': 9.5,         // Screen 2/21
-      'onboardingExperience': 14.2,       // Screen 3/21
-      'onboardingStruggle': 19.0,         // Screen 4/21
-      'onboardingBarrierHealth1': 23.8,   // Screen 5/21
-      'onboardingBarrierHealth2': 28.5,   // Screen 6/21
-      'onboardingSkinType': 33.3,         // Screen 7/21
-      'onboardingRoutine': 38.1,          // Screen 8/21
-      'onboardingGoals': 42.8,            // Screen 9/21
-      'onboardingTimeline': 47.6,         // Screen 10/21
-      'onboardingResultsTimeline': 52.4,  // Screen 11/21
-      'onboardingConsistency': 57.1,      // Screen 12/21
-      'onboardingComparison': 61.9,       // Screen 13/21
-      'onboardingReady': 66.6,            // Screen 14/21 ✓ CORRECT POSITION
-      'onboardingPrivacy': 71.4,          // Screen 15/21 ✓ CORRECT POSITION
-      'onboardingGenerating': 76.2,       // Screen 16/21
-      'onboardingPlanReady': 81.0,        // Screen 17/21
-      'onboardingReminders': 85.7,        // Screen 18/21
-      'onboardingRating': 90.5,           // Screen 19/21
-      'onboardingSaveProgress': 95.2,     // Screen 20/21
-      'onboardingPaywall': 100.0,         // Screen 21/21
-      
-      // Main App Flow: No progress bar shown
+      'onboardingWelcome': 4.7,
+      'onboardingDiscovery': 9.5,
+      'onboardingExperience': 14.2,
+      'onboardingStruggle': 19.0,
+      'onboardingBarrierHealth1': 23.8,
+      'onboardingBarrierHealth2': 28.5,
+      'onboardingSkinType': 33.3,
+      'onboardingRoutine': 38.1,
+      'onboardingGoals': 42.8,
+      'onboardingTimeline': 47.6,
+      'onboardingResultsTimeline': 52.4,
+      'onboardingConsistency': 57.1,
+      'onboardingComparison': 61.9,
+      'onboardingReady': 66.6,
+      'onboardingPrivacy': 71.4,
+      'onboardingGenerating': 76.2,
+      'onboardingPlanReady': 81.0,
+      'onboardingReminders': 85.7,
+      'onboardingRating': 90.5,
+      'onboardingSaveProgress': 95.2,
+      'onboardingPaywall': 100.0,
       'home': 0,
       'capture': 0,
       'analyzing': 0,
       'results': 0,
       'skinTest': 0,
       'test1': 0,
+      'test1Part2': 0,
       'test2': 0,
+      'test2Part2': 0,
       'test3': 0,
+      'test3Part2': 0,
       'skinTypeResults': 0,
       'knownSkinType': 0,
       'routine': 0
@@ -215,17 +217,23 @@ export default function AIScannerScreen() {
       setCurrentStep('results');
     } else if (currentStep === 'test1') {
       setCurrentStep('skinTest');
+    } else if (currentStep === 'test1Part2') {
+      setCurrentStep('test1');
     } else if (currentStep === 'test2') {
       setCurrentStep('skinTest');
+    } else if (currentStep === 'test2Part2') {
+      setCurrentStep('test2');
     } else if (currentStep === 'test3') {
       setCurrentStep('skinTest');
+    } else if (currentStep === 'test3Part2') {
+      setCurrentStep('test3');
     } else if (currentStep === 'skinTypeResults') {
       if (test1Results) {
-        setCurrentStep('test1');
+        setCurrentStep('test1Part2');
       } else if (test2Results) {
-        setCurrentStep('test2');
+        setCurrentStep('test2Part2');
       } else if (test3Results) {
-        setCurrentStep('test3');
+        setCurrentStep('test3Part2');
       } else {
         setCurrentStep('skinTest');
       }
@@ -267,6 +275,14 @@ export default function AIScannerScreen() {
   const handleNavigateToNightRoutine = () => {
     console.log('Navigate to Night Routine');
     Alert.alert('Coming Soon', 'Night routine feature will be available soon!');
+  };
+
+  const handleNavigateToScanSkin = () => {
+    setCurrentStep('capture');
+  };
+
+  const handleNavigateHomeFromCapture = () => {
+    setCurrentStep('home');
   };
 
   useEffect(() => {
@@ -430,6 +446,12 @@ export default function AIScannerScreen() {
     setCurrentStep('knownSkinType');
   };
 
+  const handleTest1Part1Complete = (answer) => {
+    console.log('Test1 Part 1 completed:', answer);
+    setTest1Part1Answer(answer);
+    setCurrentStep('test1Part2');
+  };
+
   const handleTest1Complete = (testResult, aiAnalysisData = null) => {
     console.log('Test1 completed with new format:', testResult);
     setTest1Results(testResult);
@@ -437,11 +459,23 @@ export default function AIScannerScreen() {
     setCurrentStep('skinTypeResults');
   };
 
+  const handleTest2Part1Complete = (answer) => {
+    console.log('Test2 Part 1 completed:', answer);
+    setTest2Part1Answer(answer);
+    setCurrentStep('test2Part2');
+  };
+
   const handleTest2Complete = (testResult, aiAnalysisData = null) => {
     console.log('Test2 completed with new format:', testResult);
     setTest2Results(testResult);
     setCurrentTestResult(testResult);
     setCurrentStep('skinTypeResults');
+  };
+
+  const handleTest3Part1Complete = (answer) => {
+    console.log('Test3 Part 1 completed:', answer);
+    setTest3Part1Answer(answer);
+    setCurrentStep('test3Part2');
   };
 
   const handleTest3Complete = (testResult, aiAnalysisData = null) => {
@@ -515,8 +549,11 @@ export default function AIScannerScreen() {
     setSkinProfile({});
     setSelectedSkinType(null);
     setTest1Results(null);
+    setTest1Part1Answer(null);
     setTest2Results(null);
+    setTest2Part1Answer(null);
     setTest3Results(null);
+    setTest3Part1Answer(null);
     setCurrentTestResult(null);
     
     const resetSteps = analysisSteps.map(step => ({ ...step, active: false }));
@@ -618,6 +655,7 @@ export default function AIScannerScreen() {
         onNavigateToSkinTest={handleNavigateToSkinTest}
         onNavigateToDayRoutine={handleNavigateToDayRoutine}
         onNavigateToNightRoutine={handleNavigateToNightRoutine}
+        onNavigateToScanSkin={handleNavigateToScanSkin}
         userStreak={userStreak}
         weeklyActivity={weeklyActivity}
         activeTab={activeTab}
@@ -661,6 +699,7 @@ export default function AIScannerScreen() {
     <View style={styles.captureContainer}>
       <PhotoCapture
         onPhotoSelected={handlePhotoSelected}
+        onNavigateHome={handleNavigateHomeFromCapture}
         style={styles.photoCapture}
       />
     </View>
@@ -715,6 +754,7 @@ export default function AIScannerScreen() {
         onBack={handleProgressBarBack}
         onContinueToTest={handleContinueToTest}
         onSkipToKnownSkinType={handleSkipToKnownSkinType}
+        onNavigateHome={() => setCurrentStep('home')}
         style={styles.screenContent}
       />
     </View>
@@ -724,7 +764,21 @@ export default function AIScannerScreen() {
     <View style={styles.screenContainer}>
       <Test1Screen
         onBack={handleProgressBarBack}
+        onContinue={handleTest1Part1Complete}
+        onNavigateHome={() => setCurrentStep('home')}
+        analysisData={analysisData}
+        style={styles.screenContent}
+      />
+    </View>
+  );
+
+  const renderTest1Part2 = () => (
+    <View style={styles.screenContainer}>
+      <Test1Part2Screen
+        onBack={() => setCurrentStep('test1')}
         onContinue={handleTest1Complete}
+        onNavigateHome={() => setCurrentStep('home')}
+        firstAnswer={test1Part1Answer}
         analysisData={analysisData}
         style={styles.screenContent}
       />
@@ -735,7 +789,21 @@ export default function AIScannerScreen() {
     <View style={styles.screenContainer}>
       <Test2Screen
         onBack={handleProgressBarBack}
+        onContinue={handleTest2Part1Complete}
+        onNavigateHome={() => setCurrentStep('home')}
+        analysisData={analysisData}
+        style={styles.screenContent}
+      />
+    </View>
+  );
+
+  const renderTest2Part2 = () => (
+    <View style={styles.screenContainer}>
+      <Test2Part2Screen
+        onBack={() => setCurrentStep('test2')}
         onContinue={handleTest2Complete}
+        onNavigateHome={() => setCurrentStep('home')}
+        firstAnswer={test2Part1Answer}
         analysisData={analysisData}
         style={styles.screenContent}
       />
@@ -746,7 +814,21 @@ export default function AIScannerScreen() {
     <View style={styles.screenContainer}>
       <Test3Screen
         onBack={handleProgressBarBack}
+        onContinue={handleTest3Part1Complete}
+        onNavigateHome={() => setCurrentStep('home')}
+        analysisData={analysisData}
+        style={styles.screenContent}
+      />
+    </View>
+  );
+
+  const renderTest3Part2 = () => (
+    <View style={styles.screenContainer}>
+      <Test3Part2Screen
+        onBack={() => setCurrentStep('test3')}
         onContinue={handleTest3Complete}
+        onNavigateHome={() => setCurrentStep('home')}
+        firstAnswer={test3Part1Answer}
         analysisData={analysisData}
         style={styles.screenContent}
       />
@@ -772,6 +854,7 @@ export default function AIScannerScreen() {
       <KnownSkinTypeScreen
         onBack={handleProgressBarBack}
         onContinueToResults={handleManualSkinTypeSelection}
+        onNavigateHome={() => setCurrentStep('home')}
         test1Results={test1Results}
         test2Results={test2Results}
         test3Results={test3Results}
@@ -832,13 +915,17 @@ export default function AIScannerScreen() {
         {isOnboardingComplete && currentStep === 'results' && renderResults()}
         {isOnboardingComplete && currentStep === 'skinTest' && renderSkinTest()}
         {isOnboardingComplete && currentStep === 'test1' && renderTest1()}
+        {isOnboardingComplete && currentStep === 'test1Part2' && renderTest1Part2()}
         {isOnboardingComplete && currentStep === 'test2' && renderTest2()}
+        {isOnboardingComplete && currentStep === 'test2Part2' && renderTest2Part2()}
         {isOnboardingComplete && currentStep === 'test3' && renderTest3()}
+        {isOnboardingComplete && currentStep === 'test3Part2' && renderTest3Part2()}
         {isOnboardingComplete && currentStep === 'skinTypeResults' && renderSkinTypeResults()}
         {isOnboardingComplete && currentStep === 'knownSkinType' && renderKnownSkinType()}
       </View>
 
-      {isOnboardingComplete && currentStep === 'home' && (
+      {/* Bottom Navigation - Shows on home, skinTest, and all test screens */}
+      {isOnboardingComplete && (currentStep === 'home' || currentStep === 'results' || currentStep === 'skinTest' || currentStep === 'knownSkinType' || currentStep === 'skinTypeResults' || currentStep === 'test1' || currentStep === 'test1Part2' || currentStep === 'test2' || currentStep === 'test2Part2' || currentStep === 'test3' || currentStep === 'test3Part2') && (
         <BottomNavigation
           activeTab={activeTab}
           onTabPress={handleTabPress}
@@ -1021,21 +1108,26 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.primary,
     fontWeight: '600',
   },
+  // ===== RESULTS SECTION - FIXED =====
   resultsContainer: {
     flex: 1,
     backgroundColor: 'transparent',
-    paddingBottom: 120,
     paddingTop: 20,
   },
   resultsContent: {
     flex: 1,
   },
   resultsActionsRow: {
+    position: 'absolute',
+    bottom: 90,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     paddingHorizontal: 20,
     paddingVertical: 15,
     backgroundColor: 'transparent',
     gap: 12,
+    zIndex: 10,
   },
   actionButtonLeft: {
     flex: 1,
@@ -1047,10 +1139,11 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginVertical: 0,
   },
+  // ===== END RESULTS SECTION =====
   screenContainer: {
     flex: 1,
     backgroundColor: 'transparent',
-    paddingBottom: 120,
+    paddingBottom: 40,
   },
   skinTypeResultsContainer: {
     flex: 1,
