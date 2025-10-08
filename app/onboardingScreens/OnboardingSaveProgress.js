@@ -106,6 +106,26 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
             onPress={handleContinue}
             style={styles.continueButton}
           />
+          
+          {/* ✓ NEW: Terms and Privacy Policy */}
+          <View style={styles.termsSection}>
+            <Text style={styles.termsText}>
+              By clicking continue, you agree to our{' '}
+              <Text 
+                style={styles.termsLink}
+                onPress={() => console.log('Navigate to Terms of Service')}
+              >
+                Terms of Service
+              </Text>
+              {' '}and{' '}
+              <Text 
+                style={styles.termsLink}
+                onPress={() => console.log('Navigate to Privacy Policy')}
+              >
+                Privacy Policy
+              </Text>
+            </Text>
+          </View>
         </View>
       </View>
     </View>
@@ -130,9 +150,8 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.black,
     textAlign: 'center',
     marginBottom: 16,
-    lineHeight: 34, // ✓ ADDED for consistency
+    lineHeight: 34,
   },
-  // ✓ ADDED: Highlight style for green word
   titleHighlight: {
     color: BRAND_COLORS.primary,
     fontWeight: '800',
@@ -225,5 +244,22 @@ const styles = StyleSheet.create({
   },
   continueButton: {
     paddingVertical: 18,
+  },
+  // ✓ NEW: Terms and Privacy Policy Styles
+  termsSection: {
+    marginTop: 16,
+    alignItems: 'center',
+    paddingHorizontal: 8,
+  },
+  termsText: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  termsLink: {
+    fontSize: 12,
+    color: BRAND_COLORS.primary,
+    fontWeight: '600',
   },
 });

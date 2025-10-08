@@ -1,4 +1,5 @@
 // app/onboardingScreens/OnboardingSkinType.js
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState } from 'react';
 import {
   Image,
@@ -61,8 +62,17 @@ export default function OnboardingSkinType({ onNext }) {
     setSelectedType(typeId);
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (selectedType) {
+      // Save skin type to AsyncStorage for easy access throughout the app
+      try {
+        await AsyncStorage.setItem('userSkinType', selectedType);
+        console.log('✅ Skin type saved:', selectedType);
+      } catch (error) {
+        console.error('Error saving skin type:', error);
+      }
+
+      // Pass to next screen with skin type data
       onNext('onboardingRoutine', { skinType: selectedType });
     }
   };
@@ -124,7 +134,9 @@ export default function OnboardingSkinType({ onNext }) {
 
         {selectedType && (
           <View style={styles.selectionInfo}>
-            <Text style={styles.selectionText}>Great choice!</Text>
+            <Text style={styles.selectionText}>
+              Perfect! We'll customize your routine for {SKIN_TYPES.find(t => t.id === selectedType)?.label.toLowerCase()} skin
+            </Text>
           </View>
         )}
       </View>
@@ -145,7 +157,9 @@ export default function OnboardingSkinType({ onNext }) {
             Continue
           </Text>
         </TouchableOpacity>
-        <Text style={styles.helperText}>Select your skin type</Text>
+        <Text style={styles.helperText}>
+          {selectedType ? 'Your personalized plan is ready!' : 'Select your skin type'}
+        </Text>
       </View>
     </View>
   );
@@ -231,11 +245,15 @@ const styles = StyleSheet.create({
   selectionInfo: {
     alignItems: 'center',
     marginTop: 10,
+    backgroundColor: '#E8F5E9',
+    borderRadius: 12,
+    padding: 16,
   },
   selectionText: {
     fontSize: 14,
     color: BRAND_COLORS.primary,
-    fontWeight: '500',
+    fontWeight: '600',
+    textAlign: 'center',
   },
   bottomSection: {
     paddingHorizontal: 20,

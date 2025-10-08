@@ -73,7 +73,8 @@ export default function OnboardingReady({ onNext }) {
   }, []);
 
   const handleGetStarted = () => {
-    onNext('onboardingPrivacy', { ready: true }); // ✓ UPDATED to follow correct flow
+    // Step 14 → Step 15
+    onNext('onboardingPrivacy', { ready: true });
   };
 
   return (

@@ -1,12 +1,17 @@
 // app/onboardingScreens/OnboardingPlanReady.js
-import React from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+  Animated,
   Image,
+  ScrollView,
   StyleSheet,
   Text,
-  View,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../../components/ui/DrAcneButton';
+import { getRoutinesForSkinType } from '../../constants/routinesData';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -14,104 +19,309 @@ const BRAND_COLORS = {
   cream: '#FDF5E6',
   black: '#000000',
   white: '#FFFFFF',
+  gray: '#999999',
+  darkGray: '#666666',
+  lightGray: '#E5E5E5',
 };
 
-const PLAN_FEATURES = [
-  {
-    icon: require('../../assets/images/check.png'),
-    title: 'Personalized skincare routine',
-    description: 'Morning & evening steps designed for you',
-    color: BRAND_COLORS.primary,
-  },
-  {
-    icon: require('../../assets/images/check.png'),
-    title: 'AI-powered skin analysis',
-    description: 'Track your progress with smart detection',
-    color: '#4A90E2',
-  },
-  {
-    icon: require('../../assets/images/check.png'),
-    title: 'Science-backed timeline',
-    description: 'Know exactly when to expect results',
-    color: '#9B59B6',
-  },
-  {
-    icon: require('../../assets/images/check.png'),
-    title: 'Expert recommendations',
-    description: 'Products and ingredients that work for you',
-    color: '#F39C12',
-  },
-];
+const SKIN_TYPE_INFO = {
+  oily: { image: require('../../assets/images/Oily.png'), color: '#4A90E2' },
+  dry: { image: require('../../assets/images/Dry.png'), color: '#F39C12' },
+  combination: { image: require('../../assets/images/Combination.png'), color: BRAND_COLORS.primary },
+  normal: { image: require('../../assets/images/Normal.png'), color: '#9B59B6' },
+  sensitive: { image: require('../../assets/images/Sensitive.png'), color: BRAND_COLORS.primary },
+};
 
 export default function OnboardingPlanReady({ onNext }) {
-  const handleContinue = () => {
-    onNext('onboardingReminders', { viewedPlanReady: true });
+  const [skinType, setSkinType] = useState('normal');
+  const [routineData, setRoutineData] = useState(null);
+  const [selectedLevel, setSelectedLevel] = useState('moderate');
+
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const glowAnim = useRef(new Animated.Value(0.3)).current;
+  const scaleAnim = useRef(new Animated.Value(0.95)).current;
+
+  useEffect(() => {
+    loadSkinType();
+
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      tension: 100,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
+
+    const pulseAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    const glowAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, {
+          toValue: 0.8,
+          duration: 1500,
+          useNativeDriver: false,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 0.3,
+          duration: 1500,
+          useNativeDriver: false,
+        }),
+      ])
+    );
+
+    pulseAnimation.start();
+    glowAnimation.start();
+
+    return () => {
+      pulseAnimation.stop();
+      glowAnimation.stop();
+    };
+  }, []);
+
+  const loadSkinType = async () => {
+    try {
+      const savedSkinType = await AsyncStorage.getItem('userSkinType');
+      if (savedSkinType) {
+        setSkinType(savedSkinType);
+        const routines = getRoutinesForSkinType(savedSkinType);
+        setRoutineData(routines);
+        console.log('✅ Loaded skin type:', savedSkinType);
+      }
+    } catch (error) {
+      console.error('Error loading skin type:', error);
+    }
   };
+
+  const handleGetStarted = async () => {
+    // Save the selected routine level
+    try {
+      await AsyncStorage.setItem('selectedRoutineLevel', selectedLevel);
+      console.log('✅ Saved routine level:', selectedLevel);
+    } catch (error) {
+      console.error('Error saving routine level:', error);
+    }
+    
+    onNext('onboardingReminders', { ready: true, routineLevel: selectedLevel });
+  };
+
+  const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
+
+  if (!routineData) {
+    return null; // Loading state
+  }
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
-        {/* Success Icon */}
-        <View style={styles.iconContainer}>
-          <View style={styles.successCircle}>
-            <Image
-              source={require('../../assets/images/check.png')}
-              style={styles.successIcon}
-              resizeMode="contain"
-            />
-          </View>
-        </View>
-
-        {/* Modern Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>
-            Your Plan is <Text style={styles.titleHighlight}>Ready!</Text>
-          </Text>
-          <Text style={styles.subtitle}>
-            We've created a personalized skincare journey based on your unique needs
-          </Text>
-        </View>
-
-        {/* Modern Features Cards */}
-        <View style={styles.featuresContainer}>
-          {PLAN_FEATURES.map((feature, index) => (
-            <View key={index} style={styles.featureCard}>
-              <View style={[
-                styles.featureIconContainer,
-                { backgroundColor: `${feature.color}15` }
-              ]}>
-                <Image
-                  source={feature.icon}
-                  style={[
-                    styles.featureIcon,
-                    { tintColor: feature.color }
-                  ]}
-                  resizeMode="contain"
-                />
-              </View>
-              <View style={styles.featureContent}>
-                <Text style={styles.featureTitle}>{feature.title}</Text>
-                <Text style={styles.featureDescription}>{feature.description}</Text>
-              </View>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <Animated.View 
+          style={[
+            styles.content,
+            { transform: [{ scale: scaleAnim }] }
+          ]}
+        >
+          {/* Skin Type Icon */}
+          <Animated.View 
+            style={[
+              styles.aiIconContainer,
+              { transform: [{ scale: pulseAnim }] }
+            ]}
+          >
+            <View style={styles.aiIcon}>
+              <Image 
+                source={skinTypeInfo.image}
+                style={styles.skinTypeImage}
+                resizeMode="contain"
+              />
+              <Animated.View 
+                style={[
+                  styles.glowRing,
+                  { 
+                    opacity: glowAnim,
+                    borderColor: skinTypeInfo.color 
+                  }
+                ]}
+              />
             </View>
-          ))}
-        </View>
+          </Animated.View>
 
-        {/* Excitement Text */}
-        <View style={styles.excitementContainer}>
-          <Text style={styles.excitementText}>
-            Ready to start your transformation?
-          </Text>
-        </View>
-      </View>
+          {/* Hero Section */}
+          <View style={styles.heroSection}>
+            <Text style={styles.questionTitle}>
+              Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
+                {routineData.name}
+              </Text>{'\n'}routine is ready!
+            </Text>
+            <Text style={styles.questionSubtitle}>
+              {routineData.description}
+            </Text>
+          </View>
 
-      {/* Fixed Button at Bottom */}
-      <View style={styles.buttonContainer}>
+          {/* Routine Level Selection */}
+          <View style={styles.routineLevelsContainer}>
+            <Text style={styles.sectionTitle}>Choose Your Starting Level</Text>
+            
+            {/* Basic Card */}
+            <TouchableOpacity
+              style={[
+                styles.routineCard,
+                selectedLevel === 'basic' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }]
+              ]}
+              onPress={() => setSelectedLevel('basic')}
+            >
+              <View style={styles.routineHeader}>
+                <View style={[styles.routineBadge, { backgroundColor: '#E8F5E9' }]}>
+                  <Text style={[styles.routineBadgeText, { color: BRAND_COLORS.primary }]}>
+                    BASIC
+                  </Text>
+                </View>
+                {selectedLevel === 'basic' && (
+                  <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
+                    <Text style={styles.selectedIndicatorText}>✓</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={styles.routineTitle}>{routineData.basic.title}</Text>
+              <Text style={styles.routineDescription}>{routineData.basic.description}</Text>
+              
+              <View style={styles.routineSteps}>
+                <Text style={styles.stepsTitle}>Morning:</Text>
+                {routineData.basic.steps.am.map((step, index) => (
+                  <Text key={index} style={styles.stepText}>• {step}</Text>
+                ))}
+              </View>
+
+              <View style={styles.benefitsContainer}>
+                {routineData.basic.keyBenefits.map((benefit, index) => (
+                  <View key={index} style={styles.benefitPill}>
+                    <Text style={styles.benefitText}>{benefit}</Text>
+                  </View>
+                ))}
+              </View>
+            </TouchableOpacity>
+
+            {/* Moderate Card */}
+            <TouchableOpacity
+              style={[
+                styles.routineCard,
+                selectedLevel === 'moderate' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }]
+              ]}
+              onPress={() => setSelectedLevel('moderate')}
+            >
+              <View style={styles.routineHeader}>
+                <View style={[styles.routineBadge, { backgroundColor: '#FFF4E5' }]}>
+                  <Text style={[styles.routineBadgeText, { color: '#F39C12' }]}>
+                    MODERATE
+                  </Text>
+                </View>
+                {selectedLevel === 'moderate' && (
+                  <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
+                    <Text style={styles.selectedIndicatorText}>✓</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={styles.routineTitle}>{routineData.moderate.title}</Text>
+              <Text style={styles.routineDescription}>{routineData.moderate.description}</Text>
+              
+              <View style={styles.routineSteps}>
+                <Text style={styles.stepsTitle}>Morning:</Text>
+                {routineData.moderate.steps.am.slice(0, 3).map((step, index) => (
+                  <Text key={index} style={styles.stepText}>• {step}</Text>
+                ))}
+                <Text style={styles.moreSteps}>+ evening routine</Text>
+              </View>
+
+              <View style={styles.benefitsContainer}>
+                {routineData.moderate.keyBenefits.map((benefit, index) => (
+                  <View key={index} style={styles.benefitPill}>
+                    <Text style={styles.benefitText}>{benefit}</Text>
+                  </View>
+                ))}
+              </View>
+            </TouchableOpacity>
+
+            {/* Comprehensive Card */}
+            <TouchableOpacity
+              style={[
+                styles.routineCard,
+                selectedLevel === 'comprehensive' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }]
+              ]}
+              onPress={() => setSelectedLevel('comprehensive')}
+            >
+              <View style={styles.routineHeader}>
+                <View style={[styles.routineBadge, { backgroundColor: '#F3E5F5' }]}>
+                  <Text style={[styles.routineBadgeText, { color: '#9B59B6' }]}>
+                    COMPREHENSIVE
+                  </Text>
+                </View>
+                {selectedLevel === 'comprehensive' && (
+                  <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
+                    <Text style={styles.selectedIndicatorText}>✓</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={styles.routineTitle}>{routineData.comprehensive.title}</Text>
+              <Text style={styles.routineDescription}>{routineData.comprehensive.description}</Text>
+              
+              <View style={styles.routineSteps}>
+                <Text style={styles.stepsTitle}>Full Treatment:</Text>
+                {routineData.comprehensive.steps.am.slice(0, 3).map((step, index) => (
+                  <Text key={index} style={styles.stepText}>• {step}</Text>
+                ))}
+                <Text style={styles.moreSteps}>+ advanced actives & more</Text>
+              </View>
+
+              <View style={styles.benefitsContainer}>
+                {routineData.comprehensive.keyBenefits.map((benefit, index) => (
+                  <View key={index} style={styles.benefitPill}>
+                    <Text style={styles.benefitText}>{benefit}</Text>
+                  </View>
+                ))}
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          {/* Trust Indicators */}
+          <View style={styles.trustSection}>
+            <View style={styles.trustItem}>
+              <Text style={styles.trustText}>• Science-backed formulations</Text>
+            </View>
+            <View style={styles.trustItem}>
+              <Text style={styles.trustText}>• Personalized for your skin</Text>
+            </View>
+            <View style={styles.trustItem}>
+              <Text style={styles.trustText}>• Results in 4-12 weeks</Text>
+            </View>
+          </View>
+        </Animated.View>
+      </ScrollView>
+
+      {/* Fixed Bottom Section */}
+      <View style={styles.bottomSection}>
         <DrAcneButton
-          title="Let's do this!"
-          onPress={handleContinue}
-          style={styles.button}
+          title="Let's Do This!"
+          onPress={handleGetStarted}
+          style={styles.getStartedButton}
         />
+        
+        <Text style={styles.helperText}>
+          You can change your routine level anytime
+        </Text>
       </View>
     </View>
   );
@@ -122,120 +332,194 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
   },
-  content: {
+  scrollView: {
     flex: 1,
-    backgroundColor: 'transparent',
-    paddingHorizontal: 24,
-    paddingTop: 50,
-    paddingBottom: 140,
-    justifyContent: 'flex-start',
   },
-  iconContainer: {
+  scrollContent: {
+    paddingBottom: 5,
+  },
+  content: {
+    paddingHorizontal: 20,
+    paddingTop: 12,
+  },
+  aiIconContainer: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 10,
   },
-  successCircle: {
+  aiIcon: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  skinTypeImage: {
+    width: 60,
+    height: 60,
+  },
+  glowRing: {
+    position: 'absolute',
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: BRAND_COLORS.primary,
-    justifyContent: 'center',
+    borderWidth: 2,
+    backgroundColor: 'transparent',
+  },
+  heroSection: {
     alignItems: 'center',
-    shadowColor: BRAND_COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    marginBottom: 14,
   },
-  successIcon: {
-    width: 40,
-    height: 40,
-    tintColor: BRAND_COLORS.white,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 28,
+  questionTitle: {
+    fontSize: 26,
     fontWeight: '700',
     color: BRAND_COLORS.black,
     textAlign: 'center',
-    marginBottom: 12,
-    lineHeight: 34,
+    marginBottom: 4,
+    lineHeight: 30,
   },
-  titleHighlight: {
-    color: BRAND_COLORS.primary,
+  aiHighlight: {
     fontWeight: '800',
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
+  questionSubtitle: {
+    fontSize: 14,
+    color: BRAND_COLORS.gray,
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 18,
+    fontWeight: '400',
     paddingHorizontal: 10,
   },
-  featuresContainer: {
-    marginBottom: 30,
+  routineLevelsContainer: {
+    marginBottom: 8,
   },
-  featureCard: {
-    flexDirection: 'row',
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  routineCard: {
     backgroundColor: BRAND_COLORS.white,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    alignItems: 'center',
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 6,
+    borderWidth: 2,
+    borderColor: 'transparent',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 2,
+    elevation: 3,
+    position: 'relative',
   },
-  featureIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  routineCardSelected: {
+    borderWidth: 3,
+    shadowOpacity: 0.2,
+    elevation: 5,
+  },
+  routineHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  routineBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  routineBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  selectedIndicator: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 14,
   },
-  featureIcon: {
-    width: 22,
-    height: 22,
+  selectedIndicatorText: {
+    color: BRAND_COLORS.white,
+    fontSize: 13,
+    fontWeight: '700',
   },
-  featureContent: {
-    flex: 1,
-  },
-  featureTitle: {
+  routineTitle: {
     fontSize: 16,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+    marginBottom: 2,
+  },
+  routineDescription: {
+    fontSize: 13,
+    color: BRAND_COLORS.darkGray,
+    lineHeight: 16,
+    marginBottom: 6,
+  },
+  routineSteps: {
+    marginBottom: 6,
+  },
+  stepsTitle: {
+    fontSize: 12,
     fontWeight: '600',
     color: BRAND_COLORS.black,
     marginBottom: 3,
-    lineHeight: 20,
   },
-  featureDescription: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 19,
+  stepText: {
+    fontSize: 12,
+    color: BRAND_COLORS.darkGray,
+    marginBottom: 2,
+    lineHeight: 15,
   },
-  excitementContainer: {
-    alignItems: 'center',
-    marginTop: 10,
+  moreSteps: {
+    fontSize: 11,
+    color: BRAND_COLORS.gray,
+    fontStyle: 'italic',
+    marginTop: 2,
   },
-  excitementText: {
-    fontSize: 16,
+  benefitsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+  },
+  benefitPill: {
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  benefitText: {
+    fontSize: 9,
+    color: BRAND_COLORS.darkGray,
     fontWeight: '500',
-    color: BRAND_COLORS.primary,
-    textAlign: 'center',
-    lineHeight: 22,
   },
-  buttonContainer: {
+  trustSection: {
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 12,
+    padding: 8,
+    marginBottom: 6,
+  },
+  trustItem: {
+    marginBottom: 2,
+  },
+  trustText: {
+    fontSize: 12,
+    color: BRAND_COLORS.darkGray,
+    lineHeight: 16,
+  },
+  bottomSection: {
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    paddingBottom: 32,
+    paddingBottom: 25,
+    paddingTop: 8,
     backgroundColor: 'transparent',
+    alignItems: 'center',
   },
-  button: {
-    paddingVertical: 16,
+  getStartedButton: {
+    marginBottom: 6,
+    width: '100%',
+  },
+  helperText: {
+    fontSize: 12,
+    color: BRAND_COLORS.gray,
+    textAlign: 'center',
+    fontWeight: '500',
   },
 });
