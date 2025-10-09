@@ -1,4 +1,4 @@
-// app/index.js - Global Background with Bottom Nav on Multiple Screens
+// app/index.js - Complete with Product Selection Screens
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -20,8 +20,13 @@ import { DrAcneButton } from '../components/ui/DrAcneButton';
 import { FeatureCards } from '../components/ui/FeatureCards';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { analyzeImageWithRoboflow, analyzeImageWithRoboflowVisual, handleAPIError } from '../services/RoboflowAPI';
+import BasicRoutineProductSelection from './BasicRoutineProductSelection';
+import BasicRoutineStep2Moisturizer from './BasicRoutineStep2Moisturizer';
+import BasicRoutineStep3Sunscreen from './BasicRoutineStep3Sunscreen';
+import DayRoutineScreen from './DayRoutineScreen';
 import { HomeScreen } from './HomeScreen';
 import { KnownSkinTypeScreen } from './KnownSkinTypeScreen';
+import NightRoutineScreen from './NightRoutineScreen';
 import { SkinTestScreen } from './SkinTestScreen';
 import { SkinTypeResultsScreen } from './SkinTypeResultsScreen';
 import { Test1Part2Screen } from './Test1Part2Screen';
@@ -91,6 +96,13 @@ export default function AIScannerScreen() {
   const [test3Part1Answer, setTest3Part1Answer] = useState(null);
   const [currentTestResult, setCurrentTestResult] = useState(null);
   const [manualSkinTypeSelection, setManualSkinTypeSelection] = useState(null);
+  
+  // 🆕 Product Selection State
+  const [selectedProducts, setSelectedProducts] = useState({
+    cleanser: null,
+    moisturizer: null,
+    sunscreen: null,
+  });
   
   // Home Screen State
   const [userStreak, setUserStreak] = useState(5);
@@ -189,6 +201,11 @@ export default function AIScannerScreen() {
       'onboardingSaveProgress': 95.2,
       'onboardingPaywall': 100.0,
       'home': 0,
+      'dayRoutine': 0,
+      'nightRoutine': 0,
+      'basicRoutineStep1': 0,
+      'basicRoutineStep2': 0,
+      'basicRoutineStep3': 0,
       'capture': 0,
       'analyzing': 0,
       'results': 0,
@@ -213,6 +230,16 @@ export default function AIScannerScreen() {
       return;
     } else if (currentStep === 'results') {
       setCurrentStep('capture');
+    } else if (currentStep === 'dayRoutine') {
+      setCurrentStep('home');
+    } else if (currentStep === 'nightRoutine') {
+      setCurrentStep('home');
+    } else if (currentStep === 'basicRoutineStep1') {
+      setCurrentStep('dayRoutine');
+    } else if (currentStep === 'basicRoutineStep2') {
+      setCurrentStep('basicRoutineStep1');
+    } else if (currentStep === 'basicRoutineStep3') {
+      setCurrentStep('basicRoutineStep2');
     } else if (currentStep === 'skinTest') {
       setCurrentStep('results');
     } else if (currentStep === 'test1') {
@@ -269,20 +296,76 @@ export default function AIScannerScreen() {
 
   const handleNavigateToDayRoutine = () => {
     console.log('Navigate to Day Routine');
-    Alert.alert('Coming Soon', 'Day routine feature will be available soon!');
+    setCurrentStep('dayRoutine');
   };
 
   const handleNavigateToNightRoutine = () => {
     console.log('Navigate to Night Routine');
-    Alert.alert('Coming Soon', 'Night routine feature will be available soon!');
+    setCurrentStep('nightRoutine');
   };
 
   const handleNavigateToScanSkin = () => {
     setCurrentStep('capture');
   };
 
+  const handleNavigateToMyJourney = () => {
+    console.log('Navigate to My Journey');
+    Alert.alert('Coming Soon', 'My Journey feature will be available soon!');
+  };
+
   const handleNavigateHomeFromCapture = () => {
     setCurrentStep('home');
+  };
+
+  // 🆕 Product Selection Handlers
+  const handleRoutineSelection = (level, timeOfDay, routineData) => {
+    console.log(`Selected ${level} ${timeOfDay} routine:`, routineData);
+    
+    // Navigate to product selection flow
+    if (level === 'basic') {
+      setCurrentStep('basicRoutineStep1');
+    } else {
+      // For moderate and comprehensive, we'll add those later
+      Alert.alert(
+        'Coming Soon',
+        `${level.charAt(0).toUpperCase() + level.slice(1)} routine product selection will be available soon!`,
+        [{ text: 'OK', onPress: () => setCurrentStep('home') }]
+      );
+    }
+  };
+
+  const handleCleanserSelected = (product) => {
+    console.log('Cleanser selected:', product);
+    setSelectedProducts(prev => ({ ...prev, cleanser: product }));
+    setCurrentStep('basicRoutineStep2');
+  };
+
+  const handleMoisturizerSelected = (product) => {
+    console.log('Moisturizer selected:', product);
+    setSelectedProducts(prev => ({ ...prev, moisturizer: product }));
+    setCurrentStep('basicRoutineStep3');
+  };
+
+  const handleSunscreenSelected = (product) => {
+    console.log('Sunscreen selected:', product);
+    setSelectedProducts(prev => ({ ...prev, sunscreen: product }));
+    
+    // Show success message with all selected products
+    Alert.alert(
+      '🎉 Routine Complete!',
+      `Your Basic Morning Routine:\n\n` +
+      `1️⃣ Cleanser: ${selectedProducts.cleanser?.name}\n` +
+      `2️⃣ Moisturizer: ${selectedProducts.moisturizer?.name}\n` +
+      `3️⃣ Sunscreen: ${product.name}\n\n` +
+      `Your personalized routine has been saved!`,
+      [{ 
+        text: 'View Routine', 
+        onPress: () => {
+          // TODO: Navigate to a routine summary screen
+          setCurrentStep('home');
+        }
+      }]
+    );
   };
 
   useEffect(() => {
@@ -656,6 +739,7 @@ export default function AIScannerScreen() {
         onNavigateToDayRoutine={handleNavigateToDayRoutine}
         onNavigateToNightRoutine={handleNavigateToNightRoutine}
         onNavigateToScanSkin={handleNavigateToScanSkin}
+        onNavigateToMyJourney={handleNavigateToMyJourney}
         userStreak={userStreak}
         weeklyActivity={weeklyActivity}
         activeTab={activeTab}
@@ -693,6 +777,58 @@ export default function AIScannerScreen() {
         />
       </View>
     </ScrollView>
+  );
+
+  const renderDayRoutine = () => (
+    <View style={styles.screenContainer}>
+      <DayRoutineScreen
+        onBack={() => setCurrentStep('home')}
+        onSelectRoutine={handleRoutineSelection}
+        onNavigateToSkinTest={handleNavigateToSkinTest}
+        style={styles.screenContent}
+      />
+    </View>
+  );
+
+  const renderNightRoutine = () => (
+    <View style={styles.screenContainer}>
+      <NightRoutineScreen
+        onBack={() => setCurrentStep('home')}
+        onSelectRoutine={handleRoutineSelection}
+        style={styles.screenContent}
+      />
+    </View>
+  );
+
+  // 🆕 BASIC ROUTINE PRODUCT SELECTION SCREENS
+  const renderBasicRoutineStep1 = () => (
+    <View style={styles.screenContainer}>
+      <BasicRoutineProductSelection
+        onBack={() => setCurrentStep('dayRoutine')}
+        onContinue={handleCleanserSelected}
+        style={styles.screenContent}
+      />
+    </View>
+  );
+
+  const renderBasicRoutineStep2 = () => (
+    <View style={styles.screenContainer}>
+      <BasicRoutineStep2Moisturizer
+        onBack={() => setCurrentStep('basicRoutineStep1')}
+        onContinue={handleMoisturizerSelected}
+        style={styles.screenContent}
+      />
+    </View>
+  );
+
+  const renderBasicRoutineStep3 = () => (
+    <View style={styles.screenContainer}>
+      <BasicRoutineStep3Sunscreen
+        onBack={() => setCurrentStep('basicRoutineStep2')}
+        onComplete={handleSunscreenSelected}
+        style={styles.screenContent}
+      />
+    </View>
   );
 
   const renderCapture = () => (
@@ -910,6 +1046,11 @@ export default function AIScannerScreen() {
         
         {/* Main App Flow */}
         {isOnboardingComplete && currentStep === 'home' && renderHomeScreen()}
+        {isOnboardingComplete && currentStep === 'dayRoutine' && renderDayRoutine()}
+        {isOnboardingComplete && currentStep === 'nightRoutine' && renderNightRoutine()}
+        {isOnboardingComplete && currentStep === 'basicRoutineStep1' && renderBasicRoutineStep1()}
+        {isOnboardingComplete && currentStep === 'basicRoutineStep2' && renderBasicRoutineStep2()}
+        {isOnboardingComplete && currentStep === 'basicRoutineStep3' && renderBasicRoutineStep3()}
         {isOnboardingComplete && currentStep === 'capture' && renderCapture()}
         {isOnboardingComplete && currentStep === 'analyzing' && renderAnalyzing()}
         {isOnboardingComplete && currentStep === 'results' && renderResults()}
@@ -924,8 +1065,22 @@ export default function AIScannerScreen() {
         {isOnboardingComplete && currentStep === 'knownSkinType' && renderKnownSkinType()}
       </View>
 
-      {/* Bottom Navigation - Shows on home, skinTest, and all test screens */}
-      {isOnboardingComplete && (currentStep === 'home' || currentStep === 'results' || currentStep === 'skinTest' || currentStep === 'knownSkinType' || currentStep === 'skinTypeResults' || currentStep === 'test1' || currentStep === 'test1Part2' || currentStep === 'test2' || currentStep === 'test2Part2' || currentStep === 'test3' || currentStep === 'test3Part2') && (
+      {/* Bottom Navigation - Shows on home, dayRoutine, nightRoutine, skinTest, and all test screens */}
+      {isOnboardingComplete && (
+        currentStep === 'home' || 
+        currentStep === 'results' || 
+        currentStep === 'dayRoutine' || 
+        currentStep === 'nightRoutine' || 
+        currentStep === 'skinTest' || 
+        currentStep === 'knownSkinType' || 
+        currentStep === 'skinTypeResults' || 
+        currentStep === 'test1' || 
+        currentStep === 'test1Part2' || 
+        currentStep === 'test2' || 
+        currentStep === 'test2Part2' || 
+        currentStep === 'test3' || 
+        currentStep === 'test3Part2'
+      ) && (
         <BottomNavigation
           activeTab={activeTab}
           onTabPress={handleTabPress}
@@ -1108,7 +1263,6 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.primary,
     fontWeight: '600',
   },
-  // ===== RESULTS SECTION - FIXED =====
   resultsContainer: {
     flex: 1,
     backgroundColor: 'transparent',
@@ -1139,11 +1293,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginVertical: 0,
   },
-  // ===== END RESULTS SECTION =====
   screenContainer: {
     flex: 1,
     backgroundColor: 'transparent',
-    paddingBottom: 40,
+    paddingBottom: 0,
   },
   skinTypeResultsContainer: {
     flex: 1,

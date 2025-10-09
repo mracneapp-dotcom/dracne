@@ -26,6 +26,7 @@ export const HomeScreen = ({
   onNavigateToDayRoutine,
   onNavigateToNightRoutine,
   onNavigateToScanSkin,
+  onNavigateToMyJourney, // NEW: Handler for My Journey
   userStreak = 5,
   weeklyActivity = [],
   activeTab = 'routines',
@@ -79,6 +80,15 @@ export const HomeScreen = ({
     }
   };
 
+  // NEW: Handler for My Journey banner
+  const handleMyJourneyPress = () => {
+    if (onNavigateToMyJourney) {
+      onNavigateToMyJourney();
+    } else {
+      console.log('Navigate to My Journey - placeholder');
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.container, style]}>
       <ScrollView 
@@ -99,12 +109,13 @@ export const HomeScreen = ({
           <WeeklyCalendar weeklyActivity={weeklyActivity.length > 0 ? weeklyActivity : defaultWeeklyActivity} />
         </View>
 
-        {/* All Banners (Day, Night, Skin Test, Scan Skin) */}
+        {/* All Banners (Day, Night, Skin Test, Scan Skin, My Journey) */}
         <RoutineBanners 
           onDayRoutinePress={handleDayRoutinePress}
           onNightRoutinePress={handleNightRoutinePress}
           onSkinTestPress={handleSkinTestPress}
           onScanSkinPress={handleScanSkinPress}
+          onMyJourneyPress={handleMyJourneyPress} // NEW: Pass My Journey handler
         />
 
         {/* Future Content Space */}
