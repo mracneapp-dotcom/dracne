@@ -1,13 +1,14 @@
 // app/NightRoutineScreen.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  PanResponder,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 import { getRoutinesForSkinType } from '../constants/routinesData';
@@ -31,10 +32,38 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary },
 };
 
-export default function NightRoutineScreen({ onBack, onSelectRoutine }) {
+export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigateToSkinTest }) {
   const [skinType, setSkinType] = useState('normal');
   const [routineData, setRoutineData] = useState(null);
   const [selectedLevel, setSelectedLevel] = useState('moderate');
+  const [currentView, setCurrentView] = useState('initial'); // 'initial' or 'createRoutine'
+
+  // Swipe gesture handler
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (evt, gestureState) => {
+        // Only activate if swiping from left edge and moving right
+        return gestureState.dx > 20 && Math.abs(gestureState.dy) < 80;
+      },
+      onPanResponderRelease: (evt, gestureState) => {
+        // If swiped right more than 50 pixels, go back
+        if (gestureState.dx > 50) {
+          handleSwipeBack();
+        }
+      },
+    })
+  ).current;
+
+  const handleSwipeBack = () => {
+    if (currentView === 'createRoutine') {
+      setCurrentView('initial');
+    } else if (currentView === 'initial') {
+      // Go back to previous screen (home)
+      if (onBack) {
+        onBack();
+      }
+    }
+  };
 
   useEffect(() => {
     loadSkinTypeAndRoutine();
@@ -89,8 +118,9 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine }) {
     return null;
   }
 
-  return (
-    <View style={styles.container}>
+  // INITIAL SCREEN - Choose between Create Routine or My Routine (NON-SCROLLABLE)
+  const renderInitialScreen = () => (
+    <View style={styles.container} {...panResponder.panHandlers}>
       {/* Top Navigation with Logo */}
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onBack} style={styles.logoButton}>
@@ -111,6 +141,101 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine }) {
         />
       </View>
 
+      {/* Content - NO ScrollView */}
+      <View style={styles.contentFixed}>
+        {/* Hero Section */}
+        <View style={styles.heroSection}>
+          <Text style={styles.questionTitle}>
+            Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
+              {routineData.name}
+            </Text>{'\n'}Evening Routine
+          </Text>
+          <Text style={styles.questionSubtitle}>
+            Build a personalized routine or view your saved routine
+          </Text>
+        </View>
+
+        {/* SKIN TEST REMINDER - NO EMOJI */}
+        <TouchableOpacity 
+          style={styles.skinTestReminder}
+          onPress={onNavigateToSkinTest}
+          activeOpacity={0.7}
+        >
+          <View style={styles.reminderIcon}>
+            <View style={styles.testTubeIcon}>
+              <View style={styles.testTubeTop} />
+              <View style={styles.testTubeBody} />
+            </View>
+          </View>
+          <View style={styles.reminderContent}>
+            <Text style={styles.reminderTitle}>Not sure about your skin type?</Text>
+            <Text style={styles.reminderSubtitle}>Take our quick skin test for accurate results</Text>
+          </View>
+          <Text style={styles.reminderArrow}>→</Text>
+        </TouchableOpacity>
+
+        {/* Banner Buttons */}
+        <View style={styles.bannerButtonsContainer}>
+          {/* Create Routine Banner Button */}
+          <TouchableOpacity
+            onPress={() => setCurrentView('createRoutine')}
+            activeOpacity={0.8}
+            style={styles.bannerButton}
+          >
+            <Image 
+              source={require('../assets/images/Banner Create Routine.png')}
+              style={styles.bannerButtonImage}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+          
+          {/* My Routine Banner Button */}
+          <TouchableOpacity
+            onPress={() => {
+              // TODO: Navigate to saved routine view
+              console.log('Navigate to My Routine - Night');
+            }}
+            activeOpacity={0.8}
+            style={styles.bannerButton}
+          >
+            <Image 
+              source={require('../assets/images/Banner My Routine.png')}
+              style={styles.bannerButtonImage}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+
+  // CREATE ROUTINE SCREEN - Existing content
+  const renderCreateRoutineScreen = () => (
+    <View style={styles.container} {...panResponder.panHandlers}>
+      {/* Top Navigation with Logo */}
+      <View style={styles.topNavigation}>
+        <TouchableOpacity onPress={() => setCurrentView('initial')} style={styles.logoButton}>
+          <Image 
+            source={require('../assets/images/dracne-logo.png')} 
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* Banner Image - NOW CLICKABLE TO GO BACK */}
+      <TouchableOpacity 
+        style={styles.bannerContainer}
+        onPress={() => setCurrentView('initial')}
+        activeOpacity={0.9}
+      >
+        <Image 
+          source={require('../assets/images/Banner Night Routine 1.png')}
+          style={styles.bannerImage}
+          resizeMode="cover"
+        />
+      </TouchableOpacity>
+
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -128,6 +253,25 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine }) {
               Choose the routine level that fits your skincare goals. You can upgrade anytime!
             </Text>
           </View>
+
+          {/* SKIN TEST REMINDER - NO EMOJI */}
+          <TouchableOpacity 
+            style={styles.skinTestReminder}
+            onPress={onNavigateToSkinTest}
+            activeOpacity={0.7}
+          >
+            <View style={styles.reminderIcon}>
+              <View style={styles.testTubeIcon}>
+                <View style={styles.testTubeTop} />
+                <View style={styles.testTubeBody} />
+              </View>
+            </View>
+            <View style={styles.reminderContent}>
+              <Text style={styles.reminderTitle}>Not sure about your skin type?</Text>
+              <Text style={styles.reminderSubtitle}>Take our quick skin test for accurate results</Text>
+            </View>
+            <Text style={styles.reminderArrow}>→</Text>
+          </TouchableOpacity>
 
           {/* Routine Level Selection */}
           <View style={styles.routineLevelsContainer}>
@@ -283,6 +427,9 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine }) {
       </View>
     </View>
   );
+
+  // Main render - switch between screens
+  return currentView === 'initial' ? renderInitialScreen() : renderCreateRoutineScreen();
 }
 
 const styles = StyleSheet.create({
@@ -318,13 +465,19 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 20,
   },
+  // NEW: Fixed content container (non-scrollable)
+  contentFixed: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 5,
+  },
   content: {
     paddingHorizontal: 20,
     paddingTop: 5,
   },
   heroSection: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 15,
   },
   questionTitle: {
     fontSize: 26,
@@ -344,6 +497,86 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     fontWeight: '400',
     paddingHorizontal: 10,
+  },
+  // SKIN TEST REMINDER - NO EMOJI
+  skinTestReminder: {
+    flexDirection: 'row',
+    backgroundColor: '#F0F8FF',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 15,
+    borderWidth: 1.5,
+    borderColor: '#B8D4E8',
+    alignItems: 'center',
+  },
+  reminderIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: BRAND_COLORS.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  testTubeIcon: {
+    width: 16,
+    height: 24,
+    alignItems: 'center',
+  },
+  testTubeTop: {
+    width: 14,
+    height: 6,
+    backgroundColor: '#4A90E2',
+    borderTopLeftRadius: 3,
+    borderTopRightRadius: 3,
+  },
+  testTubeBody: {
+    width: 10,
+    height: 14,
+    backgroundColor: '#4A90E2',
+    opacity: 0.6,
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
+  },
+  reminderContent: {
+    flex: 1,
+  },
+  reminderTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+    marginBottom: 2,
+  },
+  reminderSubtitle: {
+    fontSize: 11,
+    color: '#4A90E2',
+    fontWeight: '500',
+  },
+  reminderArrow: {
+    fontSize: 18,
+    color: '#4A90E2',
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  // BANNER BUTTONS STYLES
+  bannerButtonsContainer: {
+    marginTop: 5,
+    gap: 15,
+  },
+  bannerButton: {
+    width: '100%',
+    height: 140,
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  bannerButtonImage: {
+    width: '100%',
+    height: '100%',
   },
   routineLevelsContainer: {
     marginBottom: 8,
@@ -467,12 +700,9 @@ const styles = StyleSheet.create({
   bottomSpacing: {
     height: 160,
   },
-  // 👇 ADJUST THIS VALUE TO MOVE BUTTON UP OR DOWN
-  // Increase the number to move UP (e.g., 15, 20, 25)
-  // Decrease the number to move DOWN (e.g., 5, 3, 0)
   bottomSection: {
     position: 'absolute',
-    bottom: 27, // ⭐ MANUAL ADJUSTMENT HERE - Changed from 0 to 12
+    bottom: 27,
     left: 0,
     right: 0,
     paddingHorizontal: 20,

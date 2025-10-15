@@ -1,4 +1,4 @@
-// app/index.js - Complete with Product Selection Screens
+// app/index.js - UPDATED WITH MODERATE ROUTINE COMPLETE
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -20,12 +20,30 @@ import { DrAcneButton } from '../components/ui/DrAcneButton';
 import { FeatureCards } from '../components/ui/FeatureCards';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { analyzeImageWithRoboflow, analyzeImageWithRoboflowVisual, handleAPIError } from '../services/RoboflowAPI';
+
+// Basic Routine Screens
 import BasicRoutineProductSelection from './BasicRoutineProductSelection';
-import BasicRoutineStep2Moisturizer from './BasicRoutineStep2Moisturizer';
-import BasicRoutineStep3Sunscreen from './BasicRoutineStep3Sunscreen';
+import BasicRoutineStep1Info from './BasicRoutineStep1Info';
+import BasicRoutineStep2Info from './BasicRoutineStep2Info';
+import BasicRoutineStep2ProductSelection from './BasicRoutineStep2ProductSelection';
+import BasicRoutineStep3Info from './BasicRoutineStep3Info';
+import BasicRoutineStep3ProductSelection from './BasicRoutineStep3ProductSelection';
+
+// Moderate Routine Screens
+import ModerateRoutineStep1Info from './ModerateRoutineStep1Info';
+import ModerateRoutineStep1ProductSelection from './ModerateRoutineStep1ProductSelection';
+import ModerateRoutineStep2Info from './ModerateRoutineStep2Info';
+import ModerateRoutineStep2ProductSelection from './ModerateRoutineStep2ProductSelection';
+import ModerateRoutineStep3Info from './ModerateRoutineStep3Info';
+import ModerateRoutineStep3ProductSelection from './ModerateRoutineStep3ProductSelection';
+import ModerateRoutineStep4Info from './ModerateRoutineStep4Info';
+import ModerateRoutineStep4ProductSelection from './ModerateRoutineStep4ProductSelection';
+
+// Main App Screens
 import DayRoutineScreen from './DayRoutineScreen';
 import { HomeScreen } from './HomeScreen';
 import { KnownSkinTypeScreen } from './KnownSkinTypeScreen';
+import MyDayRoutine from './MyDayRoutine';
 import NightRoutineScreen from './NightRoutineScreen';
 import { SkinTestScreen } from './SkinTestScreen';
 import { SkinTypeResultsScreen } from './SkinTypeResultsScreen';
@@ -36,7 +54,7 @@ import { Test2Screen } from './Test2Screen';
 import { Test3Part2Screen } from './Test3Part2Screen';
 import { Test3Screen } from './Test3Screen';
 
-// Onboarding Screens - Import Order Matches Flow
+// Onboarding Screens
 import OnboardingBarrierHealth1 from './onboardingScreens/OnboardingBarrierHealth1';
 import OnboardingBarrierHealth2 from './onboardingScreens/OnboardingBarrierHealth2';
 import OnboardingComparison from './onboardingScreens/OnboardingComparison';
@@ -97,12 +115,23 @@ export default function AIScannerScreen() {
   const [currentTestResult, setCurrentTestResult] = useState(null);
   const [manualSkinTypeSelection, setManualSkinTypeSelection] = useState(null);
   
-  // 🆕 Product Selection State
+  // Product Selection State
   const [selectedProducts, setSelectedProducts] = useState({
-    cleanser: null,
-    moisturizer: null,
-    sunscreen: null,
+    cleansers: [],
+    moisturizers: [],
+    sunscreens: [],
   });
+  
+  // Basic Routine State
+  const [showProductSelection, setShowProductSelection] = useState(false);
+  const [showProductSelectionStep2, setShowProductSelectionStep2] = useState(false);
+  const [showProductSelectionStep3, setShowProductSelectionStep3] = useState(false);
+  
+  // Moderate Routine State
+  const [showModerateProductSelection, setShowModerateProductSelection] = useState(false);
+  const [showModerateProductSelectionStep2, setShowModerateProductSelectionStep2] = useState(false);
+  const [showModerateProductSelectionStep3, setShowModerateProductSelectionStep3] = useState(false);
+  const [showModerateProductSelectionStep4, setShowModerateProductSelectionStep4] = useState(false);
   
   // Home Screen State
   const [userStreak, setUserStreak] = useState(5);
@@ -129,7 +158,6 @@ export default function AIScannerScreen() {
     }
   };
 
-  // ✓ CORRECT Onboarding Back Navigation Handler - Follows Exact Flow
   const handleOnboardingBack = () => {
     if (currentOnboardingStep === 'onboardingWelcome') {
       return;
@@ -176,7 +204,6 @@ export default function AIScannerScreen() {
     }
   };
 
-  // ✓ CORRECT Progress Bar: 4.7% to 100% across 21 screens (4.76% per step)
   const getProgressPercentage = () => {
     const stepProgress = {
       'onboardingWelcome': 4.7,
@@ -203,9 +230,14 @@ export default function AIScannerScreen() {
       'home': 0,
       'dayRoutine': 0,
       'nightRoutine': 0,
+      'myDayRoutine': 0,
       'basicRoutineStep1': 0,
       'basicRoutineStep2': 0,
       'basicRoutineStep3': 0,
+      'moderateRoutineStep1': 0,
+      'moderateRoutineStep2': 0,
+      'moderateRoutineStep3': 0,
+      'moderateRoutineStep4': 0,
       'capture': 0,
       'analyzing': 0,
       'results': 0,
@@ -234,12 +266,29 @@ export default function AIScannerScreen() {
       setCurrentStep('home');
     } else if (currentStep === 'nightRoutine') {
       setCurrentStep('home');
+    } else if (currentStep === 'myDayRoutine') {
+      setCurrentStep('dayRoutine');
     } else if (currentStep === 'basicRoutineStep1') {
+      setShowProductSelection(false);
       setCurrentStep('dayRoutine');
     } else if (currentStep === 'basicRoutineStep2') {
+      setShowProductSelectionStep2(false);
       setCurrentStep('basicRoutineStep1');
     } else if (currentStep === 'basicRoutineStep3') {
+      setShowProductSelectionStep3(false);
       setCurrentStep('basicRoutineStep2');
+    } else if (currentStep === 'moderateRoutineStep1') {
+      setShowModerateProductSelection(false);
+      setCurrentStep('dayRoutine');
+    } else if (currentStep === 'moderateRoutineStep2') {
+      setShowModerateProductSelectionStep2(false);
+      setCurrentStep('moderateRoutineStep1');
+    } else if (currentStep === 'moderateRoutineStep3') {
+      setShowModerateProductSelectionStep3(false);
+      setCurrentStep('moderateRoutineStep2');
+    } else if (currentStep === 'moderateRoutineStep4') {
+      setShowModerateProductSelectionStep4(false);
+      setCurrentStep('moderateRoutineStep3');
     } else if (currentStep === 'skinTest') {
       setCurrentStep('results');
     } else if (currentStep === 'test1') {
@@ -317,15 +366,26 @@ export default function AIScannerScreen() {
     setCurrentStep('home');
   };
 
-  // 🆕 Product Selection Handlers
+  const handleNavigateToMyDayRoutine = () => {
+    console.log('Navigate to My Day Routine');
+    setCurrentStep('myDayRoutine');
+  };
+
   const handleRoutineSelection = (level, timeOfDay, routineData) => {
     console.log(`Selected ${level} ${timeOfDay} routine:`, routineData);
     
-    // Navigate to product selection flow
     if (level === 'basic') {
+      setShowProductSelection(false);
+      setShowProductSelectionStep2(false);
+      setShowProductSelectionStep3(false);
       setCurrentStep('basicRoutineStep1');
+    } else if (level === 'moderate') {
+      setShowModerateProductSelection(false);
+      setShowModerateProductSelectionStep2(false);
+      setShowModerateProductSelectionStep3(false);
+      setShowModerateProductSelectionStep4(false);
+      setCurrentStep('moderateRoutineStep1');
     } else {
-      // For moderate and comprehensive, we'll add those later
       Alert.alert(
         'Coming Soon',
         `${level.charAt(0).toUpperCase() + level.slice(1)} routine product selection will be available soon!`,
@@ -334,38 +394,51 @@ export default function AIScannerScreen() {
     }
   };
 
-  const handleCleanserSelected = (product) => {
-    console.log('Cleanser selected:', product);
-    setSelectedProducts(prev => ({ ...prev, cleanser: product }));
+  // Basic Routine Handlers
+  const handleCleanserSelected = (products) => {
+    console.log('Cleansers selected:', products);
+    setSelectedProducts(prev => ({ ...prev, cleansers: products }));
+    setShowProductSelectionStep2(false);
+    setShowProductSelectionStep3(false);
     setCurrentStep('basicRoutineStep2');
   };
 
-  const handleMoisturizerSelected = (product) => {
-    console.log('Moisturizer selected:', product);
-    setSelectedProducts(prev => ({ ...prev, moisturizer: product }));
+  const handleMoisturizerSelected = (products) => {
+    console.log('Moisturizers selected:', products);
+    setSelectedProducts(prev => ({ ...prev, moisturizers: products }));
+    setShowProductSelectionStep3(false);
     setCurrentStep('basicRoutineStep3');
   };
 
-  const handleSunscreenSelected = (product) => {
-    console.log('Sunscreen selected:', product);
-    setSelectedProducts(prev => ({ ...prev, sunscreen: product }));
-    
-    // Show success message with all selected products
-    Alert.alert(
-      '🎉 Routine Complete!',
-      `Your Basic Morning Routine:\n\n` +
-      `1️⃣ Cleanser: ${selectedProducts.cleanser?.name}\n` +
-      `2️⃣ Moisturizer: ${selectedProducts.moisturizer?.name}\n` +
-      `3️⃣ Sunscreen: ${product.name}\n\n` +
-      `Your personalized routine has been saved!`,
-      [{ 
-        text: 'View Routine', 
-        onPress: () => {
-          // TODO: Navigate to a routine summary screen
-          setCurrentStep('home');
-        }
-      }]
-    );
+  const handleSunscreenSelected = (products) => {
+    console.log('Sunscreens selected:', products);
+    setSelectedProducts(prev => ({ ...prev, sunscreens: products }));
+  };
+
+  // Moderate Routine Handlers
+  const handleModerateCleanserSelected = (products) => {
+    console.log('Moderate - Cleansers selected:', products);
+    setShowModerateProductSelectionStep2(false);
+    setShowModerateProductSelectionStep3(false);
+    setShowModerateProductSelectionStep4(false);
+    setCurrentStep('moderateRoutineStep2');
+  };
+
+  const handleModerateMoisturizerSelected = (products) => {
+    console.log('Moderate - Moisturizers selected:', products);
+    setShowModerateProductSelectionStep3(false);
+    setShowModerateProductSelectionStep4(false);
+    setCurrentStep('moderateRoutineStep3');
+  };
+
+  const handleModerateSpecializedSelected = (products) => {
+    console.log('Moderate - Specialized products selected:', products);
+    setShowModerateProductSelectionStep4(false);
+    setCurrentStep('moderateRoutineStep4');
+  };
+
+  const handleModerateSunscreenSelected = (products) => {
+    console.log('Moderate - Sunscreens selected:', products);
   };
 
   useEffect(() => {
@@ -638,6 +711,13 @@ export default function AIScannerScreen() {
     setTest3Results(null);
     setTest3Part1Answer(null);
     setCurrentTestResult(null);
+    setShowProductSelection(false);
+    setShowProductSelectionStep2(false);
+    setShowProductSelectionStep3(false);
+    setShowModerateProductSelection(false);
+    setShowModerateProductSelectionStep2(false);
+    setShowModerateProductSelectionStep3(false);
+    setShowModerateProductSelectionStep4(false);
     
     const resetSteps = analysisSteps.map(step => ({ ...step, active: false }));
     setAnalysisSteps(resetSteps);
@@ -782,9 +862,10 @@ export default function AIScannerScreen() {
   const renderDayRoutine = () => (
     <View style={styles.screenContainer}>
       <DayRoutineScreen
-        onBack={() => setCurrentStep('home')}
+        onNavigateHome={() => setCurrentStep('home')}
         onSelectRoutine={handleRoutineSelection}
         onNavigateToSkinTest={handleNavigateToSkinTest}
+        onNavigateToMyRoutine={handleNavigateToMyDayRoutine}
         style={styles.screenContent}
       />
     </View>
@@ -795,41 +876,275 @@ export default function AIScannerScreen() {
       <NightRoutineScreen
         onBack={() => setCurrentStep('home')}
         onSelectRoutine={handleRoutineSelection}
+        onNavigateToSkinTest={handleNavigateToSkinTest}
         style={styles.screenContent}
       />
     </View>
   );
 
-  // 🆕 BASIC ROUTINE PRODUCT SELECTION SCREENS
-  const renderBasicRoutineStep1 = () => (
+  const renderMyDayRoutine = () => (
     <View style={styles.screenContainer}>
-      <BasicRoutineProductSelection
+      <MyDayRoutine
+        onNavigateHome={() => setCurrentStep('home')}
+        onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+        onNavigateToBasicRoutine={() => {
+          setShowProductSelection(false);
+          setShowProductSelectionStep2(false);
+          setShowProductSelectionStep3(false);
+          setCurrentStep('basicRoutineStep1');
+        }}
         onBack={() => setCurrentStep('dayRoutine')}
-        onContinue={handleCleanserSelected}
         style={styles.screenContent}
       />
     </View>
   );
 
-  const renderBasicRoutineStep2 = () => (
-    <View style={styles.screenContainer}>
-      <BasicRoutineStep2Moisturizer
-        onBack={() => setCurrentStep('basicRoutineStep1')}
-        onContinue={handleMoisturizerSelected}
-        style={styles.screenContent}
-      />
-    </View>
-  );
+  // BASIC ROUTINE RENDERS
+  const renderBasicRoutineStep1 = () => {
+    if (!showProductSelection) {
+      return (
+        <View style={styles.screenContainer}>
+          <BasicRoutineStep1Info
+            onNavigateHome={() => setCurrentStep('home')}
+            onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+            onBack={() => {
+              setShowProductSelection(false);
+              setCurrentStep('dayRoutine');
+            }}
+            onContinue={() => setShowProductSelection(true)}
+            currentStep={1}
+            internalStep={1}
+            style={styles.screenContent}
+          />
+        </View>
+      );
+    }
+    
+    return (
+      <View style={styles.screenContainer}>
+        <BasicRoutineProductSelection
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+          onBack={() => setShowProductSelection(false)}
+          onContinue={handleCleanserSelected}
+          currentStep={1}
+          internalStep={2}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  };
 
-  const renderBasicRoutineStep3 = () => (
-    <View style={styles.screenContainer}>
-      <BasicRoutineStep3Sunscreen
-        onBack={() => setCurrentStep('basicRoutineStep2')}
-        onComplete={handleSunscreenSelected}
-        style={styles.screenContent}
-      />
-    </View>
-  );
+  const renderBasicRoutineStep2 = () => {
+    if (!showProductSelectionStep2) {
+      return (
+        <View style={styles.screenContainer}>
+          <BasicRoutineStep2Info
+            onNavigateHome={() => setCurrentStep('home')}
+            onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+            onBack={() => {
+              setShowProductSelectionStep2(false);
+              setCurrentStep('basicRoutineStep1');
+            }}
+            onContinue={() => setShowProductSelectionStep2(true)}
+            currentStep={2}
+            internalStep={3}
+            style={styles.screenContent}
+          />
+        </View>
+      );
+    }
+    
+    return (
+      <View style={styles.screenContainer}>
+        <BasicRoutineStep2ProductSelection
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+          onBack={() => setShowProductSelectionStep2(false)}
+          onContinue={handleMoisturizerSelected}
+          currentStep={2}
+          internalStep={4}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  };
+
+  const renderBasicRoutineStep3 = () => {
+    if (!showProductSelectionStep3) {
+      return (
+        <View style={styles.screenContainer}>
+          <BasicRoutineStep3Info
+            onNavigateHome={() => setCurrentStep('home')}
+            onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+            onBack={() => {
+              setShowProductSelectionStep3(false);
+              setCurrentStep('basicRoutineStep2');
+            }}
+            onContinue={() => setShowProductSelectionStep3(true)}
+            currentStep={3}
+            internalStep={5}
+            style={styles.screenContent}
+          />
+        </View>
+      );
+    }
+    
+    return (
+      <View style={styles.screenContainer}>
+        <BasicRoutineStep3ProductSelection
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+          onBack={() => setShowProductSelectionStep3(false)}
+          onComplete={handleSunscreenSelected}
+          currentStep={3}
+          internalStep={6}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  };
+
+  // MODERATE ROUTINE RENDERS
+  const renderModerateRoutineStep1 = () => {
+    if (!showModerateProductSelection) {
+      return (
+        <View style={styles.screenContainer}>
+          <ModerateRoutineStep1Info
+            onNavigateHome={() => setCurrentStep('home')}
+            onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+            onBack={() => {
+              setShowModerateProductSelection(false);
+              setCurrentStep('dayRoutine');
+            }}
+            onContinue={() => setShowModerateProductSelection(true)}
+            currentStep={1}
+            internalStep={1}
+            style={styles.screenContent}
+          />
+        </View>
+      );
+    }
+    
+    return (
+      <View style={styles.screenContainer}>
+        <ModerateRoutineStep1ProductSelection
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+          onBack={() => setShowModerateProductSelection(false)}
+          onContinue={handleModerateCleanserSelected}
+          currentStep={1}
+          internalStep={2}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  };
+
+  const renderModerateRoutineStep2 = () => {
+    if (!showModerateProductSelectionStep2) {
+      return (
+        <View style={styles.screenContainer}>
+          <ModerateRoutineStep2Info
+            onNavigateHome={() => setCurrentStep('home')}
+            onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+            onBack={() => {
+              setShowModerateProductSelectionStep2(false);
+              setCurrentStep('moderateRoutineStep1');
+            }}
+            onContinue={() => setShowModerateProductSelectionStep2(true)}
+            currentStep={2}
+            internalStep={3}
+            style={styles.screenContent}
+          />
+        </View>
+      );
+    }
+    
+    return (
+      <View style={styles.screenContainer}>
+        <ModerateRoutineStep2ProductSelection
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+          onBack={() => setShowModerateProductSelectionStep2(false)}
+          onContinue={handleModerateMoisturizerSelected}
+          currentStep={2}
+          internalStep={4}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  };
+
+  const renderModerateRoutineStep3 = () => {
+    if (!showModerateProductSelectionStep3) {
+      return (
+        <View style={styles.screenContainer}>
+          <ModerateRoutineStep3Info
+            onNavigateHome={() => setCurrentStep('home')}
+            onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+            onBack={() => {
+              setShowModerateProductSelectionStep3(false);
+              setCurrentStep('moderateRoutineStep2');
+            }}
+            onContinue={() => setShowModerateProductSelectionStep3(true)}
+            currentStep={3}
+            internalStep={5}
+            style={styles.screenContent}
+          />
+        </View>
+      );
+    }
+    
+    return (
+      <View style={styles.screenContainer}>
+        <ModerateRoutineStep3ProductSelection
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+          onBack={() => setShowModerateProductSelectionStep3(false)}
+          onContinue={handleModerateSpecializedSelected}
+          currentStep={3}
+          internalStep={6}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  };
+
+  const renderModerateRoutineStep4 = () => {
+    if (!showModerateProductSelectionStep4) {
+      return (
+        <View style={styles.screenContainer}>
+          <ModerateRoutineStep4Info
+            onNavigateHome={() => setCurrentStep('home')}
+            onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+            onBack={() => {
+              setShowModerateProductSelectionStep4(false);
+              setCurrentStep('moderateRoutineStep3');
+            }}
+            onContinue={() => setShowModerateProductSelectionStep4(true)}
+            currentStep={4}
+            internalStep={7}
+            style={styles.screenContent}
+          />
+        </View>
+      );
+    }
+    
+    return (
+      <View style={styles.screenContainer}>
+        <ModerateRoutineStep4ProductSelection
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+          onBack={() => setShowModerateProductSelectionStep4(false)}
+          onComplete={handleModerateSunscreenSelected}
+          currentStep={4}
+          internalStep={8}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  };
 
   const renderCapture = () => (
     <View style={styles.captureContainer}>
@@ -1003,7 +1318,6 @@ export default function AIScannerScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FAFBFC" translucent={false} />
       
-      {/* GLOBAL BACKGROUND WITH STATIC DECORATIVE DOTS */}
       <View style={styles.globalBackground}>
         <View style={styles.decorativeDot1} />
         <View style={styles.decorativeDot2} />
@@ -1021,7 +1335,7 @@ export default function AIScannerScreen() {
       )}
       
       <View style={styles.content} {...panResponder.panHandlers}>
-        {/* ✓ ONBOARDING FLOW - CORRECT ORDER (21 SCREENS) */}
+        {/* ONBOARDING FLOW */}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingWelcome' && renderOnboardingWelcome()}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingDiscovery' && renderOnboardingDiscovery()}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingExperience' && renderOnboardingExperience()}
@@ -1048,12 +1362,25 @@ export default function AIScannerScreen() {
         {isOnboardingComplete && currentStep === 'home' && renderHomeScreen()}
         {isOnboardingComplete && currentStep === 'dayRoutine' && renderDayRoutine()}
         {isOnboardingComplete && currentStep === 'nightRoutine' && renderNightRoutine()}
+        {isOnboardingComplete && currentStep === 'myDayRoutine' && renderMyDayRoutine()}
+        
+        {/* Basic Routine Flow */}
         {isOnboardingComplete && currentStep === 'basicRoutineStep1' && renderBasicRoutineStep1()}
         {isOnboardingComplete && currentStep === 'basicRoutineStep2' && renderBasicRoutineStep2()}
         {isOnboardingComplete && currentStep === 'basicRoutineStep3' && renderBasicRoutineStep3()}
+        
+        {/* Moderate Routine Flow */}
+        {isOnboardingComplete && currentStep === 'moderateRoutineStep1' && renderModerateRoutineStep1()}
+        {isOnboardingComplete && currentStep === 'moderateRoutineStep2' && renderModerateRoutineStep2()}
+        {isOnboardingComplete && currentStep === 'moderateRoutineStep3' && renderModerateRoutineStep3()}
+        {isOnboardingComplete && currentStep === 'moderateRoutineStep4' && renderModerateRoutineStep4()}
+        
+        {/* Analysis Flow */}
         {isOnboardingComplete && currentStep === 'capture' && renderCapture()}
         {isOnboardingComplete && currentStep === 'analyzing' && renderAnalyzing()}
         {isOnboardingComplete && currentStep === 'results' && renderResults()}
+        
+        {/* Skin Test Flow */}
         {isOnboardingComplete && currentStep === 'skinTest' && renderSkinTest()}
         {isOnboardingComplete && currentStep === 'test1' && renderTest1()}
         {isOnboardingComplete && currentStep === 'test1Part2' && renderTest1Part2()}
@@ -1065,12 +1392,20 @@ export default function AIScannerScreen() {
         {isOnboardingComplete && currentStep === 'knownSkinType' && renderKnownSkinType()}
       </View>
 
-      {/* Bottom Navigation - Shows on home, dayRoutine, nightRoutine, skinTest, and all test screens */}
+      {/* Bottom Navigation */}
       {isOnboardingComplete && (
         currentStep === 'home' || 
         currentStep === 'results' || 
         currentStep === 'dayRoutine' || 
-        currentStep === 'nightRoutine' || 
+        currentStep === 'nightRoutine' ||
+        currentStep === 'myDayRoutine' ||
+        currentStep === 'basicRoutineStep1' ||
+        currentStep === 'basicRoutineStep2' ||
+        currentStep === 'basicRoutineStep3' ||
+        currentStep === 'moderateRoutineStep1' ||
+        currentStep === 'moderateRoutineStep2' ||
+        currentStep === 'moderateRoutineStep3' ||
+        currentStep === 'moderateRoutineStep4' ||
         currentStep === 'skinTest' || 
         currentStep === 'knownSkinType' || 
         currentStep === 'skinTypeResults' || 

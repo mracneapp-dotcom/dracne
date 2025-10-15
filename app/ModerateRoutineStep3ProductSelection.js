@@ -1,4 +1,4 @@
-// app/BasicRoutineProductSelection.js
+// app/ModerateRoutineStep3ProductSelection.js - THE NEW SPECIALIZED PRODUCT SELECTION
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
@@ -30,176 +30,192 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
 };
 
-const CLEANSER_PRODUCTS = {
+const STEP_3_PRODUCTS = {
   oily: [
     {
-      id: 'cleanser_oily_1',
-      name: 'KraveBeauty Matcha Hemp',
-      description: 'Low-pH gel cleanser with matcha and hemp seed oil',
-      benefits: ['Gentle', 'Balancing', 'Non-stripping'],
+      id: 'porecare_oily_1',
+      name: 'COSRX BHA Power Liquid',
+      description: '4% betaine salicylate for gentle pore care',
+      benefits: ['BHA exfoliant', 'Pore clearing', 'Non-irritating'],
     },
     {
-      id: 'cleanser_oily_2',
-      name: 'COSRX Low pH Good Morning',
-      description: 'Mild gel cleanser with tea tree oil and BHA',
-      benefits: ['pH 5.0-6.0', 'Refreshing', 'Daily use'],
+      id: 'porecare_oily_2',
+      name: 'By Wishtrend Mandelic 5%',
+      description: 'Gentle mandelic acid for sensitive oily skin',
+      benefits: ['Large molecule', 'Less irritating', 'Pore care'],
     },
     {
-      id: 'cleanser_oily_3',
-      name: 'Round Lab 1025 Dokdo Cleanser',
-      description: 'Mineral-rich gel cleanser from deep sea water',
-      benefits: ['Hydrating', 'Soothing', 'K-Beauty'],
+      id: 'porecare_oily_3',
+      name: "Paula's Choice 2% BHA",
+      description: 'Cult-favorite salicylic acid treatment',
+      benefits: ['Classic formula', 'Effective', 'Well-tolerated'],
     },
     {
-      id: 'cleanser_oily_4',
-      name: 'La Roche-Posay Toleriane Purifying',
-      description: 'Foaming cleanser for sensitive oily skin',
-      benefits: ['Dermatologist-tested', 'Fragrance-free', 'Gentle'],
+      id: 'porecare_oily_4',
+      name: 'The Inkey List Beta Hydroxy Acid',
+      description: 'Affordable 2% salicylic acid serum',
+      benefits: ['Budget-friendly', 'Simple', 'Effective'],
     },
     {
-      id: 'cleanser_oily_5',
-      name: 'CeraVe Foaming',
-      description: 'Gentle foaming cleanser with ceramides',
-      benefits: ['Affordable', 'Ceramides', 'Non-comedogenic'],
+      id: 'porecare_oily_5',
+      name: 'Some By Mi AHA BHA PHA Toner',
+      description: 'Multi-acid toner with gentle exfoliation',
+      benefits: ['Triple action', 'Daily use', 'Balancing'],
     },
   ],
   dry: [
     {
-      id: 'cleanser_dry_1',
-      name: 'KraveBeauty Oat So Simple Cleanser',
-      description: 'Ultra-gentle cream cleanser with oat extract',
-      benefits: ['Nourishing', 'Calming', 'Creamy texture'],
+      id: 'essence_dry_1',
+      name: 'Round Lab Birch Juice Toner',
+      description: 'Hydrating essence with birch sap and hyaluronic acid',
+      benefits: ['Deep hydration', 'Soothing', 'Popular'],
     },
     {
-      id: 'cleanser_dry_2',
-      name: 'Etude SoonJung pH 6.5 Whip',
-      description: 'Whipped cream cleanser for sensitive dry skin',
-      benefits: ['pH 6.5', 'Hypoallergenic', 'Moisturizing'],
+      id: 'essence_dry_2',
+      name: 'Anua Heartleaf 77% Soothing Toner',
+      description: 'Calming essence for dry sensitive skin',
+      benefits: ['Heartleaf extract', 'Hydrating', 'Gentle'],
     },
     {
-      id: 'cleanser_dry_3',
-      name: 'Vanicream Gentle Cleanser',
-      description: 'Dermatologist-recommended gentle cleanser',
-      benefits: ['Fragrance-free', 'Dye-free', 'Non-irritating'],
+      id: 'essence_dry_3',
+      name: 'Isntree Hyaluronic Toner Plus',
+      description: 'Multi-molecular weight HA for deep hydration',
+      benefits: ['8 types HA', 'Plumping', 'Layerable'],
     },
     {
-      id: 'cleanser_dry_4',
-      name: 'Avene Tolerance',
-      description: 'Ultra-gentle cream cleanser for reactive skin',
-      benefits: ['Thermal water', 'Minimal ingredients', 'Soothing'],
+      id: 'essence_dry_4',
+      name: 'Klairs Supple Preparation Toner',
+      description: 'Classic hydrating toner with beta-glucan',
+      benefits: ['Gentle', 'Hydrating', 'Alcohol-free'],
     },
     {
-      id: 'cleanser_dry_5',
-      name: 'Cetaphil Gentle Cleanser',
-      description: 'Classic gentle cleanser for dry sensitive skin',
-      benefits: ['Budget-friendly', 'Soap-free', 'Mild'],
+      id: 'essence_dry_5',
+      name: 'Pyunkang Yul Essence Toner',
+      description: 'Minimalist essence with astragalus extract',
+      benefits: ['Simple formula', 'Hydrating', 'Safe'],
     },
   ],
   combination: [
     {
-      id: 'cleanser_combo_1',
-      name: 'KraveBeauty Matcha Hemp',
-      description: 'Balanced gel cleanser suitable for all zones',
-      benefits: ['Balancing', 'Gentle', 'Low pH'],
+      id: 'targeted_combo_1',
+      name: 'By Wishtrend Mandelic 5% (T-zone)',
+      description: 'Gentle acid for oily T-zone areas',
+      benefits: ['T-zone treatment', 'Gentle', 'Effective'],
     },
     {
-      id: 'cleanser_combo_2',
-      name: 'Etude SoonJung pH 6.5 Whip',
-      description: 'Gentle cleanser that respects skin barrier',
-      benefits: ['pH-balanced', 'Soft foam', 'Non-drying'],
+      id: 'targeted_combo_2',
+      name: 'COSRX BHA Power Liquid (T-zone)',
+      description: 'BHA treatment for T-zone congestion',
+      benefits: ['Pore clearing', 'Oil control', 'T-zone focused'],
     },
     {
-      id: 'cleanser_combo_3',
-      name: 'La Roche-Posay Toleriane Purifying',
-      description: 'Balanced cleansing for combination skin',
-      benefits: ['Purifying', 'Comfortable', 'Tested'],
+      id: 'targeted_combo_3',
+      name: 'Round Lab Birch Juice Toner (Cheeks)',
+      description: 'Hydrating essence for dry cheek areas',
+      benefits: ['Cheek hydration', 'Soothing', 'Balancing'],
     },
     {
-      id: 'cleanser_combo_4',
-      name: 'Round Lab Dokdo Cleanser',
-      description: 'Mineral-balanced gentle cleanser',
-      benefits: ['Hydrating', 'Fresh', 'K-Beauty'],
+      id: 'targeted_combo_4',
+      name: "Paula's Choice 2% BHA (T-zone)",
+      description: 'Classic BHA for combination T-zone',
+      benefits: ['Effective', 'T-zone care', 'Trusted'],
     },
     {
-      id: 'cleanser_combo_5',
-      name: 'Neutrogena Ultra Gentle',
-      description: 'Simple effective cleanser for daily use',
-      benefits: ['Affordable', 'Effective', 'Gentle'],
+      id: 'targeted_combo_5',
+      name: 'Isntree HA Toner (Cheeks)',
+      description: 'Lightweight hydration for cheeks',
+      benefits: ['Cheek care', 'Non-greasy', 'Hydrating'],
     },
   ],
   normal: [
     {
-      id: 'cleanser_normal_1',
-      name: 'KraveBeauty Matcha Hemp',
-      description: 'Perfect low-pH cleanser for healthy skin',
-      benefits: ['Maintains balance', 'Gentle', 'Daily use'],
+      id: 'antioxidant_normal_1',
+      name: 'Some By Mi Yuja Niacin Serum',
+      description: 'Brightening serum with niacinamide and vitamin C',
+      benefits: ['Brightening', 'Antioxidant', 'Gentle'],
     },
     {
-      id: 'cleanser_normal_2',
-      name: 'Round Lab Dokdo Cleanser',
-      description: 'Mineral-rich refreshing cleanser',
-      benefits: ['Hydrating', 'Clean finish', 'Popular'],
+      id: 'antioxidant_normal_2',
+      name: 'Dear, Klairs Freshly Juiced Vitamin Drop',
+      description: 'Gentle vitamin C serum for daily use',
+      benefits: ['5% Vitamin C', 'Gentle', 'Brightening'],
     },
     {
-      id: 'cleanser_normal_3',
-      name: 'Cetaphil Gentle Cleanser',
-      description: 'Classic gentle daily cleanser',
-      benefits: ['Simple', 'Reliable', 'Budget-friendly'],
+      id: 'antioxidant_normal_3',
+      name: 'Timeless CE Ferulic (alternative)',
+      description: 'Vitamin C, E, and ferulic acid combo',
+      benefits: ['Triple antioxidant', 'Professional', 'Effective'],
     },
     {
-      id: 'cleanser_normal_4',
-      name: 'La Roche-Posay Toleriane',
-      description: 'Dermatologist-recommended daily cleanser',
-      benefits: ['Professional', 'Gentle', 'Effective'],
+      id: 'antioxidant_normal_4',
+      name: 'Naturium Vitamin C Complex',
+      description: 'Stable vitamin C derivative serum',
+      benefits: ['Stable formula', 'Affordable', 'Effective'],
     },
     {
-      id: 'cleanser_normal_5',
-      name: 'COSRX Low pH Good Morning',
-      description: 'Refreshing morning cleanser',
-      benefits: ['Low pH', 'Energizing', 'Light'],
+      id: 'antioxidant_normal_5',
+      name: 'The Ordinary Niacinamide 10%',
+      description: 'High-strength niacinamide for brightness',
+      benefits: ['Budget-friendly', 'Brightening', 'Simple'],
     },
   ],
   sensitive: [
     {
-      id: 'cleanser_sens_1',
-      name: 'Avene Tolerance Extremely Gentle',
-      description: 'Ultra-gentle cream cleanser for reactive skin',
-      benefits: ['Minimal ingredients', 'Soothing', 'Safe'],
+      id: 'soothing_sens_1',
+      name: 'KraveBeauty Great Barrier Relief',
+      description: 'Barrier support serum with tamanu and ceramides',
+      benefits: ['Barrier repair', 'Calming', 'Safe'],
     },
     {
-      id: 'cleanser_sens_2',
-      name: 'Etude SoonJung pH 6.5 Whip',
-      description: 'Hypoallergenic whipped cleanser',
-      benefits: ['pH 6.5', 'Tested', 'Soft'],
+      id: 'soothing_sens_2',
+      name: 'Dr. Jart Cicapair Serum',
+      description: 'Centella-based soothing serum',
+      benefits: ['Centella asiatica', 'Redness relief', 'Gentle'],
     },
     {
-      id: 'cleanser_sens_3',
-      name: 'Vanicream Gentle Cleanser',
-      description: 'Free of common irritants',
-      benefits: ['Fragrance-free', 'Safe', 'Simple'],
+      id: 'soothing_sens_3',
+      name: "A'pieu Madecassoside Ampoule",
+      description: 'Pure madecassoside for calming',
+      benefits: ['Single ingredient', 'Calming', 'Safe'],
     },
     {
-      id: 'cleanser_sens_4',
-      name: 'La Roche-Posay Toleriane',
-      description: 'Dermatologist-recommended for sensitive skin',
-      benefits: ['Tested', 'Gentle', 'Reliable'],
+      id: 'soothing_sens_4',
+      name: 'La Roche-Posay Cicaplast B5 Serum',
+      description: 'Dermatologist-recommended soothing serum',
+      benefits: ['Panthenol B5', 'Professional', 'Gentle'],
     },
     {
-      id: 'cleanser_sens_5',
-      name: 'CeraVe Hydrating',
-      description: 'Gentle hydrating cleanser with ceramides',
-      benefits: ['Ceramides', 'Affordable', 'Non-irritating'],
+      id: 'soothing_sens_5',
+      name: 'Purito Centella Unscented Serum',
+      description: 'Pure centella serum for reactive skin',
+      benefits: ['Fragrance-free', 'Simple', 'Soothing'],
     },
   ],
 };
 
-export default function BasicRoutineProductSelection({ 
+const STEP_3_TITLES = {
+  oily: 'Pore Care Products',
+  dry: 'Hydrating Essences',
+  combination: 'Targeted Treatments',
+  normal: 'Antioxidant Serums',
+  sensitive: 'Soothing Serums',
+};
+
+const STEP_3_EXPLANATIONS = {
+  oily: 'Choose 1-2 pore care products to use 2-4 times per week in the evening. Start with 2x per week and increase gradually. These products help keep your pores clear and prevent breakouts.',
+  dry: 'Choose 1-2 hydrating essences to layer under your moisturizer morning and evening. Apply on damp skin for best results. These create a moisture sandwich that locks in hydration.',
+  combination: 'Choose 1 BHA/mandelic product for T-zone AND 1 hydrating essence for cheeks. Apply BHA only on T-zone 2-4x per week. Use essence on cheeks daily. This zone-specific approach balances your skin.',
+  normal: 'Choose 1 antioxidant serum to use in the morning before moisturizer. These protect from environmental damage and brighten your complexion. Always follow with sunscreen.',
+  sensitive: 'Choose 1-2 soothing serums to use morning and evening. These calm reactive skin and strengthen your barrier. Safe for twice-daily use with no irritation potential.',
+};
+
+export default function ModerateRoutineStep3ProductSelection({ 
   onNavigateHome,
   onNavigateToDayRoutine,
   onBack, 
   onContinue, 
-  currentStep = 1,      // Display step (1-3)
-  internalStep = 2      // Internal progress step (1-6)
+  currentStep = 3,
+  internalStep = 6
 }) {
   const [skinType, setSkinType] = useState('normal');
   const [selectedProducts, setSelectedProducts] = useState([]);
@@ -214,25 +230,27 @@ export default function BasicRoutineProductSelection({
       const savedSkinType = await AsyncStorage.getItem('userSkinType');
       if (savedSkinType) {
         setSkinType(savedSkinType);
-        setProducts(CLEANSER_PRODUCTS[savedSkinType] || CLEANSER_PRODUCTS.normal);
+        setProducts(STEP_3_PRODUCTS[savedSkinType] || STEP_3_PRODUCTS.normal);
       } else {
-        setProducts(CLEANSER_PRODUCTS.normal);
+        setProducts(STEP_3_PRODUCTS.normal);
       }
     } catch (error) {
       console.error('Error loading skin type:', error);
-      setProducts(CLEANSER_PRODUCTS.normal);
+      setProducts(STEP_3_PRODUCTS.normal);
     }
   };
 
   const toggleProductSelection = (product) => {
+    const maxSelections = skinType === 'combination' ? 2 : 2;
+    
     setSelectedProducts(prev => {
       const isSelected = prev.some(p => p.id === product.id);
       
       if (isSelected) {
         return prev.filter(p => p.id !== product.id);
       } else {
-        if (prev.length >= 2) {
-          return [prev[1], product];
+        if (prev.length >= maxSelections) {
+          return [prev[prev.length - 1], product];
         }
         return [...prev, product];
       }
@@ -242,16 +260,16 @@ export default function BasicRoutineProductSelection({
   const handleContinue = async () => {
     if (selectedProducts.length > 0 && onContinue) {
       try {
-        const routineData = await AsyncStorage.getItem('myDayRoutine');
+        const routineData = await AsyncStorage.getItem('myModerateRoutine');
         const currentRoutine = routineData ? JSON.parse(routineData) : {};
         
-        currentRoutine.cleansers = selectedProducts;
+        currentRoutine.specializedProducts = selectedProducts;
         currentRoutine.lastUpdated = new Date().toISOString();
         
-        await AsyncStorage.setItem('myDayRoutine', JSON.stringify(currentRoutine));
-        console.log('✅ Saved cleansers to My Day Routine:', selectedProducts);
+        await AsyncStorage.setItem('myModerateRoutine', JSON.stringify(currentRoutine));
+        console.log('Saved specialized products to Moderate Routine:', selectedProducts);
       } catch (error) {
-        console.error('Error saving to My Day Routine:', error);
+        console.error('Error saving to Moderate Routine:', error);
       }
       
       onContinue(selectedProducts);
@@ -271,23 +289,45 @@ export default function BasicRoutineProductSelection({
   };
 
   const getButtonText = () => {
+    const minRequired = skinType === 'combination' ? 2 : 1;
+    
     if (selectedProducts.length === 0) {
-      return 'Choose My Cleanser';
+      return skinType === 'combination' ? 'Choose 2 Products (1 for T-zone, 1 for cheeks)' : 'Choose My Product';
     } else if (selectedProducts.length === 1) {
-      return 'Continue with My Selection';
+      return skinType === 'combination' ? 'Choose 1 More Product' : 'Continue with My Selection';
     } else {
       return 'Continue with My Selections';
     }
   };
 
+  const getHelperText = () => {
+    if (skinType === 'combination') {
+      if (selectedProducts.length === 0) {
+        return 'Select 2 products: 1 BHA/Mandelic for T-zone + 1 Hydrating essence for cheeks';
+      } else if (selectedProducts.length === 1) {
+        return 'Select 1 more product to complete zone-specific care';
+      } else {
+        return 'Perfect! You have products for both zones';
+      }
+    } else {
+      if (selectedProducts.length === 0) {
+        return 'Select at least 1 product to continue';
+      } else if (selectedProducts.length === 1) {
+        return 'You can add 1 more product as an alternative';
+      } else {
+        return 'Maximum 2 products selected';
+      }
+    }
+  };
+
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const totalSteps = 3;  // Display: 3 steps total
-  const totalInternalSteps = 6;  // Internal: 6 stages for smooth progress
-  const canGoNext = selectedProducts.length > 0;
+  const totalSteps = 4;
+  const totalInternalSteps = 8;
+  const minRequired = skinType === 'combination' ? 2 : 1;
+  const canGoNext = selectedProducts.length >= minRequired;
 
   return (
     <View style={styles.container}>
-      {/* ✅ Logo - Always goes to Home */}
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
@@ -298,7 +338,6 @@ export default function BasicRoutineProductSelection({
         </TouchableOpacity>
       </View>
 
-      {/* ✅ Banner - Always goes to DayRoutine */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateToDayRoutine}
@@ -352,20 +391,23 @@ export default function BasicRoutineProductSelection({
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Product Recommendations</Text>
+          <Text style={styles.sectionTitle}>{STEP_3_TITLES[skinType]}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose 1-2 cleansers to give you options when shopping. Having alternatives helps you find what works best for your skin and budget. You can always swap products later.
+              {STEP_3_EXPLANATIONS[skinType]}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Select 1-2 Products {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
+              {skinType === 'combination' 
+                ? `Select 2 Products (${selectedProducts.length}/2 selected)`
+                : `Select 1-2 Products ${selectedProducts.length > 0 ? `(${selectedProducts.length} selected)` : ''}`
+              }
             </Text>
             
-            {products.map((product, index) => {
+            {products.map((product) => {
               const isSelected = selectedProducts.some(p => p.id === product.id);
               const selectionIndex = selectedProducts.findIndex(p => p.id === product.id);
               
@@ -403,17 +445,9 @@ export default function BasicRoutineProductSelection({
             })}
           </View>
 
-          {selectedProducts.length === 0 && (
-            <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select at least 1 product to continue</Text>
-            </View>
-          )}
-
-          {selectedProducts.length === 2 && (
-            <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Maximum 2 products selected</Text>
-            </View>
-          )}
+          <View style={styles.helperBox}>
+            <Text style={styles.helperText}>{getHelperText()}</Text>
+          </View>
 
           <View style={styles.bottomSpacing} />
         </View>
@@ -423,8 +457,8 @@ export default function BasicRoutineProductSelection({
         <DrAcneButton
           title={getButtonText()}
           onPress={handleContinue}
-          disabled={selectedProducts.length === 0}
-          style={[styles.continueButton, selectedProducts.length === 0 && styles.continueButtonDisabled]}
+          disabled={!canGoNext}
+          style={[styles.continueButton, !canGoNext && styles.continueButtonDisabled]}
         />
       </View>
     </View>
@@ -434,7 +468,7 @@ export default function BasicRoutineProductSelection({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',  // ✅ Transparent to show global decorative dots
+    backgroundColor: 'transparent',
   },
   topNavigation: {
     paddingHorizontal: 20,

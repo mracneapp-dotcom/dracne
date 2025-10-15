@@ -1,14 +1,15 @@
-// app/BasicRoutineProductSelection.js
+// app/BasicRoutineStep3ProductSelection.js - COMPLETE WITH ENHANCED MODAL
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
+import RoutineCompletionModal from '../components/modals/RoutineCompletionModal';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
 const BRAND_COLORS = {
@@ -30,180 +31,182 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
 };
 
-const CLEANSER_PRODUCTS = {
+const SUNSCREEN_PRODUCTS = {
   oily: [
     {
-      id: 'cleanser_oily_1',
-      name: 'KraveBeauty Matcha Hemp',
-      description: 'Low-pH gel cleanser with matcha and hemp seed oil',
-      benefits: ['Gentle', 'Balancing', 'Non-stripping'],
+      id: 'sunscreen_oily_1',
+      name: 'TIZO Mineral Sun Defense',
+      description: '100% mineral sunscreen with matte finish',
+      benefits: ['Matte finish', 'Mineral', 'SPF 50'],
     },
     {
-      id: 'cleanser_oily_2',
-      name: 'COSRX Low pH Good Morning',
-      description: 'Mild gel cleanser with tea tree oil and BHA',
-      benefits: ['pH 5.0-6.0', 'Refreshing', 'Daily use'],
+      id: 'sunscreen_oily_2',
+      name: 'Beauty of Joseon Relief Sun',
+      description: 'Lightweight new-gen chemical sunscreen',
+      benefits: ['Lightweight', 'No white cast', 'SPF 50+'],
     },
     {
-      id: 'cleanser_oily_3',
-      name: 'Round Lab 1025 Dokdo Cleanser',
-      description: 'Mineral-rich gel cleanser from deep sea water',
-      benefits: ['Hydrating', 'Soothing', 'K-Beauty'],
+      id: 'sunscreen_oily_3',
+      name: 'Isntree Hyaluronic Aqua Gel',
+      description: 'Water-based gel sunscreen',
+      benefits: ['Fresh finish', 'Hydrating', 'SPF 50+'],
     },
     {
-      id: 'cleanser_oily_4',
-      name: 'La Roche-Posay Toleriane Purifying',
-      description: 'Foaming cleanser for sensitive oily skin',
-      benefits: ['Dermatologist-tested', 'Fragrance-free', 'Gentle'],
+      id: 'sunscreen_oily_4',
+      name: 'EltaMD UV Clear',
+      description: 'Mineral sunscreen for acne-prone skin',
+      benefits: ['Oil-free', 'Niacinamide', 'SPF 46'],
     },
     {
-      id: 'cleanser_oily_5',
-      name: 'CeraVe Foaming',
-      description: 'Gentle foaming cleanser with ceramides',
-      benefits: ['Affordable', 'Ceramides', 'Non-comedogenic'],
+      id: 'sunscreen_oily_5',
+      name: 'La Roche-Posay Anthelios',
+      description: 'Dermatologist-recommended sunscreen',
+      benefits: ['Matte finish', 'Tested', 'SPF 50+'],
     },
   ],
   dry: [
     {
-      id: 'cleanser_dry_1',
-      name: 'KraveBeauty Oat So Simple Cleanser',
-      description: 'Ultra-gentle cream cleanser with oat extract',
-      benefits: ['Nourishing', 'Calming', 'Creamy texture'],
+      id: 'sunscreen_dry_1',
+      name: 'TIZO AM Replenish / Tinted',
+      description: 'Hydrating mineral sunscreen',
+      benefits: ['Moisturizing', 'Tinted option', 'SPF 40'],
     },
     {
-      id: 'cleanser_dry_2',
-      name: 'Etude SoonJung pH 6.5 Whip',
-      description: 'Whipped cream cleanser for sensitive dry skin',
-      benefits: ['pH 6.5', 'Hypoallergenic', 'Moisturizing'],
+      id: 'sunscreen_dry_2',
+      name: 'Avene Solaire Mineral',
+      description: 'Ultra-gentle mineral sunscreen',
+      benefits: ['Hydrating', 'Thermal water', 'SPF 50+'],
     },
     {
-      id: 'cleanser_dry_3',
-      name: 'Vanicream Gentle Cleanser',
-      description: 'Dermatologist-recommended gentle cleanser',
-      benefits: ['Fragrance-free', 'Dye-free', 'Non-irritating'],
+      id: 'sunscreen_dry_3',
+      name: 'Beauty of Joseon Relief Sun',
+      description: 'Hydrating chemical sunscreen',
+      benefits: ['Dewy finish', 'Comfortable', 'SPF 50+'],
     },
     {
-      id: 'cleanser_dry_4',
-      name: 'Avene Tolerance',
-      description: 'Ultra-gentle cream cleanser for reactive skin',
-      benefits: ['Thermal water', 'Minimal ingredients', 'Soothing'],
+      id: 'sunscreen_dry_4',
+      name: 'La Roche-Posay Anthelios',
+      description: 'Hydrating sunscreen for dry skin',
+      benefits: ['Moisturizing', 'Professional', 'SPF 50+'],
     },
     {
-      id: 'cleanser_dry_5',
-      name: 'Cetaphil Gentle Cleanser',
-      description: 'Classic gentle cleanser for dry sensitive skin',
-      benefits: ['Budget-friendly', 'Soap-free', 'Mild'],
+      id: 'sunscreen_dry_5',
+      name: 'CeraVe Hydrating Sunscreen',
+      description: 'Moisturizing sunscreen with ceramides',
+      benefits: ['Affordable', 'Ceramides', 'SPF 30'],
     },
   ],
   combination: [
     {
-      id: 'cleanser_combo_1',
-      name: 'KraveBeauty Matcha Hemp',
-      description: 'Balanced gel cleanser suitable for all zones',
-      benefits: ['Balancing', 'Gentle', 'Low pH'],
+      id: 'sunscreen_combo_1',
+      name: 'TIZO Mineral Sun Defense',
+      description: 'Balanced mineral sunscreen',
+      benefits: ['Versatile', 'Mineral', 'SPF 50'],
     },
     {
-      id: 'cleanser_combo_2',
-      name: 'Etude SoonJung pH 6.5 Whip',
-      description: 'Gentle cleanser that respects skin barrier',
-      benefits: ['pH-balanced', 'Soft foam', 'Non-drying'],
+      id: 'sunscreen_combo_2',
+      name: 'Beauty of Joseon Relief Sun',
+      description: 'Perfect for combination skin',
+      benefits: ['Balanced', 'Popular', 'SPF 50+'],
     },
     {
-      id: 'cleanser_combo_3',
-      name: 'La Roche-Posay Toleriane Purifying',
-      description: 'Balanced cleansing for combination skin',
-      benefits: ['Purifying', 'Comfortable', 'Tested'],
+      id: 'sunscreen_combo_3',
+      name: 'Isntree Watery Sun Gel',
+      description: 'Fresh lightweight sunscreen',
+      benefits: ['Light', 'Hydrating', 'SPF 50+'],
     },
     {
-      id: 'cleanser_combo_4',
-      name: 'Round Lab Dokdo Cleanser',
-      description: 'Mineral-balanced gentle cleanser',
-      benefits: ['Hydrating', 'Fresh', 'K-Beauty'],
+      id: 'sunscreen_combo_4',
+      name: 'EltaMD UV Clear',
+      description: 'Oil-free mineral sunscreen',
+      benefits: ['Balanced', 'Professional', 'SPF 46'],
     },
     {
-      id: 'cleanser_combo_5',
-      name: 'Neutrogena Ultra Gentle',
-      description: 'Simple effective cleanser for daily use',
-      benefits: ['Affordable', 'Effective', 'Gentle'],
+      id: 'sunscreen_combo_5',
+      name: 'La Roche-Posay Anthelios',
+      description: 'Dermatologist-recommended',
+      benefits: ['Reliable', 'Tested', 'SPF 50+'],
     },
   ],
   normal: [
     {
-      id: 'cleanser_normal_1',
-      name: 'KraveBeauty Matcha Hemp',
-      description: 'Perfect low-pH cleanser for healthy skin',
-      benefits: ['Maintains balance', 'Gentle', 'Daily use'],
+      id: 'sunscreen_normal_1',
+      name: 'TIZO Mineral Sun Defense',
+      description: 'Professional mineral sunscreen',
+      benefits: ['Reliable', 'Mineral', 'SPF 50'],
     },
     {
-      id: 'cleanser_normal_2',
-      name: 'Round Lab Dokdo Cleanser',
-      description: 'Mineral-rich refreshing cleanser',
-      benefits: ['Hydrating', 'Clean finish', 'Popular'],
+      id: 'sunscreen_normal_2',
+      name: 'Beauty of Joseon Relief Sun',
+      description: 'Perfect daily sunscreen',
+      benefits: ['Elegant', 'Comfortable', 'SPF 50+'],
     },
     {
-      id: 'cleanser_normal_3',
-      name: 'Cetaphil Gentle Cleanser',
-      description: 'Classic gentle daily cleanser',
-      benefits: ['Simple', 'Reliable', 'Budget-friendly'],
+      id: 'sunscreen_normal_3',
+      name: 'EltaMD UV Clear',
+      description: 'Professional daily sunscreen',
+      benefits: ['Professional', 'Clean', 'SPF 46'],
     },
     {
-      id: 'cleanser_normal_4',
-      name: 'La Roche-Posay Toleriane',
-      description: 'Dermatologist-recommended daily cleanser',
-      benefits: ['Professional', 'Gentle', 'Effective'],
+      id: 'sunscreen_normal_4',
+      name: 'La Roche-Posay Anthelios',
+      description: 'Dermatologist-recommended',
+      benefits: ['Tested', 'Reliable', 'SPF 50+'],
     },
     {
-      id: 'cleanser_normal_5',
-      name: 'COSRX Low pH Good Morning',
-      description: 'Refreshing morning cleanser',
-      benefits: ['Low pH', 'Energizing', 'Light'],
+      id: 'sunscreen_normal_5',
+      name: 'Isntree Watery Sun Gel',
+      description: 'Lightweight daily sunscreen',
+      benefits: ['Fresh', 'Hydrating', 'SPF 50+'],
     },
   ],
   sensitive: [
     {
-      id: 'cleanser_sens_1',
-      name: 'Avene Tolerance Extremely Gentle',
-      description: 'Ultra-gentle cream cleanser for reactive skin',
-      benefits: ['Minimal ingredients', 'Soothing', 'Safe'],
+      id: 'sunscreen_sens_1',
+      name: 'TIZO AM Replenish / Mineral Sun Defense',
+      description: 'Ultra-gentle mineral sunscreen',
+      benefits: ['100% mineral', 'Safe', 'SPF 40-50'],
     },
     {
-      id: 'cleanser_sens_2',
-      name: 'Etude SoonJung pH 6.5 Whip',
-      description: 'Hypoallergenic whipped cleanser',
-      benefits: ['pH 6.5', 'Tested', 'Soft'],
+      id: 'sunscreen_sens_2',
+      name: 'Avene Solaire Mineral',
+      description: 'Mineral sunscreen for reactive skin',
+      benefits: ['Thermal water', 'Gentle', 'SPF 50+'],
     },
     {
-      id: 'cleanser_sens_3',
-      name: 'Vanicream Gentle Cleanser',
-      description: 'Free of common irritants',
-      benefits: ['Fragrance-free', 'Safe', 'Simple'],
+      id: 'sunscreen_sens_3',
+      name: 'EltaMD UV Physical',
+      description: '100% mineral tinted sunscreen',
+      benefits: ['Physical only', 'Safe', 'SPF 41'],
     },
     {
-      id: 'cleanser_sens_4',
-      name: 'La Roche-Posay Toleriane',
-      description: 'Dermatologist-recommended for sensitive skin',
-      benefits: ['Tested', 'Gentle', 'Reliable'],
+      id: 'sunscreen_sens_4',
+      name: 'La Roche-Posay Anthelios Mineral',
+      description: 'Gentle mineral formula',
+      benefits: ['Tested', 'Fragrance-free', 'SPF 50'],
     },
     {
-      id: 'cleanser_sens_5',
-      name: 'CeraVe Hydrating',
-      description: 'Gentle hydrating cleanser with ceramides',
-      benefits: ['Ceramides', 'Affordable', 'Non-irritating'],
+      id: 'sunscreen_sens_5',
+      name: 'CeraVe Mineral Sunscreen',
+      description: 'Affordable gentle sunscreen',
+      benefits: ['Budget-friendly', 'Mineral', 'SPF 30'],
     },
   ],
 };
 
-export default function BasicRoutineProductSelection({ 
+export default function BasicRoutineStep3ProductSelection({ 
   onNavigateHome,
   onNavigateToDayRoutine,
   onBack, 
-  onContinue, 
-  currentStep = 1,      // Display step (1-3)
-  internalStep = 2      // Internal progress step (1-6)
+  onComplete, 
+  currentStep = 3,
+  internalStep = 6
 }) {
   const [skinType, setSkinType] = useState('normal');
-  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [products, setProducts] = useState([]);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [completeRoutineData, setCompleteRoutineData] = useState(null);
 
   useEffect(() => {
     loadSkinType();
@@ -214,47 +217,64 @@ export default function BasicRoutineProductSelection({
       const savedSkinType = await AsyncStorage.getItem('userSkinType');
       if (savedSkinType) {
         setSkinType(savedSkinType);
-        setProducts(CLEANSER_PRODUCTS[savedSkinType] || CLEANSER_PRODUCTS.normal);
+        setProducts(SUNSCREEN_PRODUCTS[savedSkinType] || SUNSCREEN_PRODUCTS.normal);
       } else {
-        setProducts(CLEANSER_PRODUCTS.normal);
+        setProducts(SUNSCREEN_PRODUCTS.normal);
       }
     } catch (error) {
       console.error('Error loading skin type:', error);
-      setProducts(CLEANSER_PRODUCTS.normal);
+      setProducts(SUNSCREEN_PRODUCTS.normal);
     }
   };
 
-  const toggleProductSelection = (product) => {
-    setSelectedProducts(prev => {
-      const isSelected = prev.some(p => p.id === product.id);
-      
-      if (isSelected) {
-        return prev.filter(p => p.id !== product.id);
-      } else {
-        if (prev.length >= 2) {
-          return [prev[1], product];
-        }
-        return [...prev, product];
-      }
-    });
-  };
-
-  const handleContinue = async () => {
-    if (selectedProducts.length > 0 && onContinue) {
+  const handleComplete = async () => {
+    if (selectedProduct) {
       try {
+        // Load existing routine data (should have cleanser and moisturizer from previous steps)
         const routineData = await AsyncStorage.getItem('myDayRoutine');
         const currentRoutine = routineData ? JSON.parse(routineData) : {};
         
-        currentRoutine.cleansers = selectedProducts;
+        // Add sunscreen to routine
+        currentRoutine.sunscreens = [selectedProduct];
         currentRoutine.lastUpdated = new Date().toISOString();
+        currentRoutine.completedAt = new Date().toISOString();
         
+        // Save complete routine
         await AsyncStorage.setItem('myDayRoutine', JSON.stringify(currentRoutine));
-        console.log('✅ Saved cleansers to My Day Routine:', selectedProducts);
+        
+        console.log('✅ Complete Routine Saved:', currentRoutine);
+        console.log('📦 Cleansers:', currentRoutine.cleansers);
+        console.log('📦 Moisturizers:', currentRoutine.moisturizers);
+        console.log('📦 Sunscreens:', currentRoutine.sunscreens);
+        
+        // Set complete routine data for modal display
+        setCompleteRoutineData(currentRoutine);
+        
+        // Show completion modal
+        setShowCompletionModal(true);
       } catch (error) {
-        console.error('Error saving to My Day Routine:', error);
+        console.error('❌ Error saving complete routine:', error);
       }
-      
-      onContinue(selectedProducts);
+    }
+  };
+
+  const handleModalClose = () => {
+    console.log('🏠 Modal closed - navigating to Home');
+    setShowCompletionModal(false);
+    if (onNavigateHome) {
+      setTimeout(() => {
+        onNavigateHome();
+      }, 300);
+    }
+  };
+
+  const handleViewRoutine = () => {
+    console.log('📋 Viewing Day Routine');
+    setShowCompletionModal(false);
+    if (onNavigateToDayRoutine) {
+      setTimeout(() => {
+        onNavigateToDayRoutine();
+      }, 300);
     }
   };
 
@@ -265,29 +285,26 @@ export default function BasicRoutineProductSelection({
   };
 
   const handleNextStep = () => {
-    if (selectedProducts.length > 0) {
-      handleContinue();
+    if (selectedProduct) {
+      handleComplete();
     }
   };
 
   const getButtonText = () => {
-    if (selectedProducts.length === 0) {
-      return 'Choose My Cleanser';
-    } else if (selectedProducts.length === 1) {
-      return 'Continue with My Selection';
-    } else {
-      return 'Continue with My Selections';
+    if (!selectedProduct) {
+      return 'Choose My Sunscreen';
     }
+    return 'Complete Basic Routine Setup';
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const totalSteps = 3;  // Display: 3 steps total
-  const totalInternalSteps = 6;  // Internal: 6 stages for smooth progress
-  const canGoNext = selectedProducts.length > 0;
+  const totalSteps = 3;
+  const totalInternalSteps = 6;
+  const canGoNext = !!selectedProduct;
 
   return (
     <View style={styles.container}>
-      {/* ✅ Logo - Always goes to Home */}
+      {/* Logo - Always goes to Home */}
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
@@ -298,7 +315,7 @@ export default function BasicRoutineProductSelection({
         </TouchableOpacity>
       </View>
 
-      {/* ✅ Banner - Always goes to DayRoutine */}
+      {/* Banner - Always goes to DayRoutine */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateToDayRoutine}
@@ -317,6 +334,7 @@ export default function BasicRoutineProductSelection({
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
+          {/* Progress Section */}
           <View style={styles.progressContainer}>
             <View style={styles.progressHeader}>
               <TouchableOpacity
@@ -346,6 +364,7 @@ export default function BasicRoutineProductSelection({
             </View>
           </View>
 
+          {/* Skin Type Badge */}
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
               For {skinTypeInfo.name}
@@ -354,20 +373,21 @@ export default function BasicRoutineProductSelection({
 
           <Text style={styles.sectionTitle}>Product Recommendations</Text>
 
+          {/* Explanation Box */}
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose 1-2 cleansers to give you options when shopping. Having alternatives helps you find what works best for your skin and budget. You can always swap products later.
+              Choose your sunscreen - the most important anti-aging step. All options are SPF 30+ and dermatologist-recommended for your skin type.
             </Text>
           </View>
 
+          {/* Product Selection */}
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Select 1-2 Products {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
+              Choose Your Product {selectedProduct && '(1 selected)'}
             </Text>
             
-            {products.map((product, index) => {
-              const isSelected = selectedProducts.some(p => p.id === product.id);
-              const selectionIndex = selectedProducts.findIndex(p => p.id === product.id);
+            {products.map((product) => {
+              const isSelected = selectedProduct?.id === product.id;
               
               return (
                 <TouchableOpacity
@@ -376,7 +396,7 @@ export default function BasicRoutineProductSelection({
                     styles.productCard,
                     isSelected && [styles.productCardSelected, { borderColor: skinTypeInfo.color }]
                   ]}
-                  onPress={() => toggleProductSelection(product)}
+                  onPress={() => setSelectedProduct(product)}
                   activeOpacity={0.7}
                 >
                   <View style={styles.productCardHeader}>
@@ -386,7 +406,7 @@ export default function BasicRoutineProductSelection({
                     </View>
                     {isSelected && (
                       <View style={[styles.checkmark, { backgroundColor: skinTypeInfo.color }]}>
-                        <Text style={styles.checkmarkText}>{selectionIndex + 1}</Text>
+                        <Text style={styles.checkmarkText}>✓</Text>
                       </View>
                     )}
                   </View>
@@ -403,15 +423,10 @@ export default function BasicRoutineProductSelection({
             })}
           </View>
 
-          {selectedProducts.length === 0 && (
+          {/* Helper Text */}
+          {!selectedProduct && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select at least 1 product to continue</Text>
-            </View>
-          )}
-
-          {selectedProducts.length === 2 && (
-            <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Maximum 2 products selected</Text>
+              <Text style={styles.helperText}>Select 1 sunscreen to complete your routine</Text>
             </View>
           )}
 
@@ -419,14 +434,23 @@ export default function BasicRoutineProductSelection({
         </View>
       </ScrollView>
 
+      {/* Bottom Button */}
       <View style={styles.bottomSection}>
         <DrAcneButton
           title={getButtonText()}
-          onPress={handleContinue}
-          disabled={selectedProducts.length === 0}
-          style={[styles.continueButton, selectedProducts.length === 0 && styles.continueButtonDisabled]}
+          onPress={handleComplete}
+          disabled={!selectedProduct}
+          style={[styles.continueButton, !selectedProduct && styles.continueButtonDisabled]}
         />
       </View>
+
+      {/* Completion Modal */}
+      <RoutineCompletionModal
+        visible={showCompletionModal}
+        onClose={handleModalClose}
+        onViewRoutine={handleViewRoutine}
+        routineData={completeRoutineData}
+      />
     </View>
   );
 }
@@ -434,7 +458,7 @@ export default function BasicRoutineProductSelection({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',  // ✅ Transparent to show global decorative dots
+    backgroundColor: 'transparent',
   },
   topNavigation: {
     paddingHorizontal: 20,
@@ -610,7 +634,7 @@ const styles = StyleSheet.create({
   },
   checkmarkText: {
     color: BRAND_COLORS.white,
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
   },
   benefitsRow: {

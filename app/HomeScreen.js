@@ -1,9 +1,8 @@
-// app/HomeScreen.js - Main Home Screen (With Global Background)
+// app/HomeScreen.js - Fixed Home Screen (Non-Scrollable)
 import React from 'react';
 import {
   Image,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
   View
 } from 'react-native';
@@ -26,7 +25,7 @@ export const HomeScreen = ({
   onNavigateToDayRoutine,
   onNavigateToNightRoutine,
   onNavigateToScanSkin,
-  onNavigateToMyJourney, // NEW: Handler for My Journey
+  onNavigateToMyJourney,
   userStreak = 5,
   weeklyActivity = [],
   activeTab = 'routines',
@@ -80,7 +79,6 @@ export const HomeScreen = ({
     }
   };
 
-  // NEW: Handler for My Journey banner
   const handleMyJourneyPress = () => {
     if (onNavigateToMyJourney) {
       onNavigateToMyJourney();
@@ -91,11 +89,7 @@ export const HomeScreen = ({
 
   return (
     <SafeAreaView style={[styles.container, style]}>
-      <ScrollView 
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <View style={styles.content}>
         {/* Streak Section */}
         <StreakCounter streak={userStreak} />
 
@@ -110,17 +104,16 @@ export const HomeScreen = ({
         </View>
 
         {/* All Banners (Day, Night, Skin Test, Scan Skin, My Journey) */}
-        <RoutineBanners 
-          onDayRoutinePress={handleDayRoutinePress}
-          onNightRoutinePress={handleNightRoutinePress}
-          onSkinTestPress={handleSkinTestPress}
-          onScanSkinPress={handleScanSkinPress}
-          onMyJourneyPress={handleMyJourneyPress} // NEW: Pass My Journey handler
-        />
-
-        {/* Future Content Space */}
-        <View style={styles.futureContentSpace} />
-      </ScrollView>
+        <View style={styles.bannersContainer}>
+          <RoutineBanners 
+            onDayRoutinePress={handleDayRoutinePress}
+            onNightRoutinePress={handleNightRoutinePress}
+            onSkinTestPress={handleSkinTestPress}
+            onScanSkinPress={handleScanSkinPress}
+            onMyJourneyPress={handleMyJourneyPress}
+          />
+        </View>
+      </View>
     </SafeAreaView>
   );
 };
@@ -133,9 +126,6 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     backgroundColor: 'transparent',
-  },
-  scrollContent: {
-    paddingBottom: 140,
     paddingHorizontal: 0,
   },
   logoCalendarSection: {
@@ -143,14 +133,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    marginBottom: 25,
+    marginBottom: 20,
   },
   logo: {
     width: 80,
     height: 60,
   },
-  futureContentSpace: {
-    height: 100,
-    marginTop: 20,
+  bannersContainer: {
+    flex: 1,
+    paddingBottom: 120,
   },
 });

@@ -1,13 +1,14 @@
-// app/DayRoutineScreen.js
+// app/DayRoutineScreen.js - UPDATED WITH MY ROUTINE NAVIGATION
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  PanResponder,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 import { getRoutinesForSkinType } from '../constants/routinesData';
@@ -31,10 +32,37 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary },
 };
 
-export default function DayRoutineScreen({ onBack, onSelectRoutine, onNavigateToSkinTest }) {
+export default function DayRoutineScreen({ 
+  onNavigateHome,
+  onSelectRoutine, 
+  onNavigateToSkinTest,
+  onNavigateToMyRoutine  // ✅ NEW PROP
+}) {
   const [skinType, setSkinType] = useState('normal');
   const [routineData, setRoutineData] = useState(null);
   const [selectedLevel, setSelectedLevel] = useState('moderate');
+  const [currentView, setCurrentView] = useState('initial');
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (evt, gestureState) => {
+        return gestureState.dx > 20 && Math.abs(gestureState.dy) < 80;
+      },
+      onPanResponderRelease: (evt, gestureState) => {
+        if (gestureState.dx > 50) {
+          handleSwipeBack();
+        }
+      },
+    })
+  ).current;
+
+  const handleSwipeBack = () => {
+    if (currentView === 'createRoutine') {
+      setCurrentView('initial');
+    } else if (currentView === 'initial' && onNavigateHome) {
+      onNavigateHome();
+    }
+  };
 
   useEffect(() => {
     loadSkinTypeAndRoutine();
@@ -69,10 +97,6 @@ export default function DayRoutineScreen({ onBack, onSelectRoutine, onNavigateTo
       if (onSelectRoutine) {
         onSelectRoutine(selectedLevel, 'morning', routineData[selectedLevel]);
       }
-      
-      if (onBack) {
-        onBack();
-      }
     } catch (error) {
       console.error('Error saving routine level:', error);
     }
@@ -89,11 +113,12 @@ export default function DayRoutineScreen({ onBack, onSelectRoutine, onNavigateTo
     return null;
   }
 
-  return (
-    <View style={styles.container}>
-      {/* Top Navigation with Logo */}
+  // INITIAL SCREEN
+  const renderInitialScreen = () => (
+    <View style={styles.container} {...panResponder.panHandlers}>
+      {/* ✅ Logo - Always goes to Home */}
       <View style={styles.topNavigation}>
-        <TouchableOpacity onPress={onBack} style={styles.logoButton}>
+        <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
             source={require('../assets/images/dracne-logo.png')} 
             style={styles.logoImage}
@@ -102,7 +127,7 @@ export default function DayRoutineScreen({ onBack, onSelectRoutine, onNavigateTo
         </TouchableOpacity>
       </View>
 
-      {/* Banner Image */}
+      {/* ✅ Banner - Stays on DayRoutine (no navigation since we're already here) */}
       <View style={styles.bannerContainer}>
         <Image 
           source={require('../assets/images/Banner Day Routine 1.png')}
@@ -111,13 +136,100 @@ export default function DayRoutineScreen({ onBack, onSelectRoutine, onNavigateTo
         />
       </View>
 
+      <View style={styles.contentFixed}>
+        <View style={styles.heroSection}>
+          <Text style={styles.questionTitle}>
+            Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
+              {routineData.name}
+            </Text>{'\n'}Morning Routine
+          </Text>
+          <Text style={styles.questionSubtitle}>
+            Build a personalized routine or view your saved routine
+          </Text>
+        </View>
+
+        <TouchableOpacity 
+          style={styles.skinTestReminder}
+          onPress={onNavigateToSkinTest}
+          activeOpacity={0.7}
+        >
+          <View style={styles.reminderIcon}>
+            <View style={styles.testTubeIcon}>
+              <View style={styles.testTubeTop} />
+              <View style={styles.testTubeBody} />
+            </View>
+          </View>
+          <View style={styles.reminderContent}>
+            <Text style={styles.reminderTitle}>Not sure about your skin type?</Text>
+            <Text style={styles.reminderSubtitle}>Take our quick skin test for accurate results</Text>
+          </View>
+          <Text style={styles.reminderArrow}>→</Text>
+        </TouchableOpacity>
+
+        <View style={styles.bannerButtonsContainer}>
+          {/* CREATE ROUTINE BUTTON */}
+          <TouchableOpacity
+            onPress={() => setCurrentView('createRoutine')}
+            activeOpacity={0.8}
+            style={styles.bannerButton}
+          >
+            <Image 
+              source={require('../assets/images/Banner Create Routine.png')}
+              style={styles.bannerButtonImage}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+          
+          {/* ✅ MY ROUTINE BUTTON - NOW WIRED UP! */}
+          <TouchableOpacity
+            onPress={onNavigateToMyRoutine}
+            activeOpacity={0.8}
+            style={styles.bannerButton}
+          >
+            <Image 
+              source={require('../assets/images/Banner My Routine.png')}
+              style={styles.bannerButtonImage}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+
+  // CREATE ROUTINE SCREEN
+  const renderCreateRoutineScreen = () => (
+    <View style={styles.container} {...panResponder.panHandlers}>
+      {/* ✅ Logo - Always goes to Home */}
+      <View style={styles.topNavigation}>
+        <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
+          <Image 
+            source={require('../assets/images/dracne-logo.png')} 
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* ✅ Banner - Goes back to initial view of DayRoutine */}
+      <TouchableOpacity 
+        style={styles.bannerContainer}
+        onPress={() => setCurrentView('initial')}
+        activeOpacity={0.9}
+      >
+        <Image 
+          source={require('../assets/images/Banner Day Routine 1.png')}
+          style={styles.bannerImage}
+          resizeMode="cover"
+        />
+      </TouchableOpacity>
+
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
-          {/* Hero Section */}
           <View style={styles.heroSection}>
             <Text style={styles.questionTitle}>
               Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
@@ -129,7 +241,6 @@ export default function DayRoutineScreen({ onBack, onSelectRoutine, onNavigateTo
             </Text>
           </View>
 
-          {/* SKIN TEST REMINDER - NO EMOJI */}
           <TouchableOpacity 
             style={styles.skinTestReminder}
             onPress={onNavigateToSkinTest}
@@ -148,7 +259,6 @@ export default function DayRoutineScreen({ onBack, onSelectRoutine, onNavigateTo
             <Text style={styles.reminderArrow}>→</Text>
           </TouchableOpacity>
 
-          {/* Routine Level Selection */}
           <View style={styles.routineLevelsContainer}>
             <Text style={styles.sectionTitle}>Choose Your Starting Level</Text>
             
@@ -272,7 +382,6 @@ export default function DayRoutineScreen({ onBack, onSelectRoutine, onNavigateTo
             </TouchableOpacity>
           </View>
 
-          {/* Trust Indicators */}
           <View style={styles.trustSection}>
             <View style={styles.trustItem}>
               <Text style={styles.trustText}>• Science-backed formulations</Text>
@@ -285,12 +394,10 @@ export default function DayRoutineScreen({ onBack, onSelectRoutine, onNavigateTo
             </View>
           </View>
 
-          {/* Bottom spacing before fixed button */}
           <View style={styles.bottomSpacing} />
         </View>
       </ScrollView>
 
-      {/* Fixed Bottom Section */}
       <View style={styles.bottomSection}>
         <DrAcneButton
           title={getButtonText()}
@@ -304,6 +411,8 @@ export default function DayRoutineScreen({ onBack, onSelectRoutine, onNavigateTo
       </View>
     </View>
   );
+
+  return currentView === 'initial' ? renderInitialScreen() : renderCreateRoutineScreen();
 }
 
 const styles = StyleSheet.create({
@@ -339,6 +448,11 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 20,
   },
+  contentFixed: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 5,
+  },
   content: {
     paddingHorizontal: 20,
     paddingTop: 5,
@@ -366,7 +480,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     paddingHorizontal: 10,
   },
-  // SKIN TEST REMINDER - NO EMOJI
   skinTestReminder: {
     flexDirection: 'row',
     backgroundColor: '#F0F8FF',
@@ -425,6 +538,25 @@ const styles = StyleSheet.create({
     color: '#4A90E2',
     fontWeight: '600',
     marginLeft: 8,
+  },
+  bannerButtonsContainer: {
+    marginTop: 5,
+    gap: 15,
+  },
+  bannerButton: {
+    width: '100%',
+    height: 140,
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  bannerButtonImage: {
+    width: '100%',
+    height: '100%',
   },
   routineLevelsContainer: {
     marginBottom: 8,
@@ -550,7 +682,7 @@ const styles = StyleSheet.create({
   },
   bottomSection: {
     position: 'absolute',
-    bottom: 12,
+    bottom: 27,
     left: 0,
     right: 0,
     paddingHorizontal: 20,

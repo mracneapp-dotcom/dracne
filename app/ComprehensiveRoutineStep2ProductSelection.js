@@ -1,4 +1,4 @@
-// app/BasicRoutineStep2Moisturizer.js
+// app/ComprehensiveRoutineStep2ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
@@ -30,7 +30,6 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
 };
 
-// Product data for each skin type - Step 2 (Moisturizer)
 const MOISTURIZER_PRODUCTS = {
   oily: [
     {
@@ -194,9 +193,16 @@ const MOISTURIZER_PRODUCTS = {
   ],
 };
 
-export default function BasicRoutineStep2Moisturizer({ onBack, onContinue }) {
+export default function ComprehensiveRoutineStep2ProductSelection({ 
+  onNavigateHome,
+  onNavigateToDayRoutine,
+  onBack, 
+  onContinue, 
+  currentStep = 2,
+  internalStep = 4
+}) {
   const [skinType, setSkinType] = useState('normal');
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -218,21 +224,71 @@ export default function BasicRoutineStep2Moisturizer({ onBack, onContinue }) {
     }
   };
 
-  const handleContinue = () => {
-    if (selectedProduct && onContinue) {
-      onContinue(selectedProduct);
+  const toggleProductSelection = (product) => {
+    setSelectedProducts(prev => {
+      const isSelected = prev.some(p => p.id === product.id);
+      
+      if (isSelected) {
+        return prev.filter(p => p.id !== product.id);
+      } else {
+        if (prev.length >= 2) {
+          return [prev[1], product];
+        }
+        return [...prev, product];
+      }
+    });
+  };
+
+  const handleContinue = async () => {
+    if (selectedProducts.length > 0 && onContinue) {
+      try {
+        const routineData = await AsyncStorage.getItem('myComprehensiveRoutine');
+        const currentRoutine = routineData ? JSON.parse(routineData) : {};
+        
+        currentRoutine.moisturizers = selectedProducts;
+        currentRoutine.lastUpdated = new Date().toISOString();
+        
+        await AsyncStorage.setItem('myComprehensiveRoutine', JSON.stringify(currentRoutine));
+        console.log('Saved moisturizers to Comprehensive Routine:', selectedProducts);
+      } catch (error) {
+        console.error('Error saving to Comprehensive Routine:', error);
+      }
+      
+      onContinue(selectedProducts);
+    }
+  };
+
+  const handlePreviousStep = () => {
+    if (onBack) {
+      onBack();
+    }
+  };
+
+  const handleNextStep = () => {
+    if (selectedProducts.length > 0) {
+      handleContinue();
+    }
+  };
+
+  const getButtonText = () => {
+    if (selectedProducts.length === 0) {
+      return 'Choose My Moisturizer';
+    } else if (selectedProducts.length === 1) {
+      return 'Continue with My Selection';
+    } else {
+      return 'Continue with My Selections';
     }
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const currentStep = 2;
-  const totalSteps = 3;
+  const totalSteps = 5;
+  const totalInternalSteps = 10;
+  const canGoNext = selectedProducts.length > 0;
 
   return (
     <View style={styles.container}>
-      {/* Top Navigation with Logo */}
       <View style={styles.topNavigation}>
-        <TouchableOpacity onPress={onBack} style={styles.logoButton}>
+        <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
             source={require('../assets/images/dracne-logo.png')} 
             style={styles.logoImage}
@@ -241,14 +297,17 @@ export default function BasicRoutineStep2Moisturizer({ onBack, onContinue }) {
         </TouchableOpacity>
       </View>
 
-      {/* Banner Image */}
-      <View style={styles.bannerContainer}>
+      <TouchableOpacity 
+        style={styles.bannerContainer}
+        onPress={onNavigateToDayRoutine}
+        activeOpacity={0.9}
+      >
         <Image 
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
         />
-      </View>
+      </TouchableOpacity>
 
       <ScrollView 
         style={styles.scrollView}
@@ -256,97 +315,114 @@ export default function BasicRoutineStep2Moisturizer({ onBack, onContinue }) {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
-          {/* Progress Indicator */}
           <View style={styles.progressContainer}>
-            <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+            <View style={styles.progressHeader}>
+              <TouchableOpacity
+                onPress={handlePreviousStep}
+                style={styles.arrowButton}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.arrowText}>‹</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+
+              <TouchableOpacity
+                onPress={handleNextStep}
+                disabled={!canGoNext}
+                style={[styles.arrowButton, !canGoNext && styles.arrowButtonDisabled]}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.arrowText, !canGoNext && styles.arrowTextDisabled]}>
+                  ›
+                </Text>
+              </TouchableOpacity>
+            </View>
+
             <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${(currentStep / totalSteps) * 100}%` }]} />
+              <View style={[styles.progressFill, { width: `${(internalStep / totalInternalSteps) * 100}%` }]} />
             </View>
           </View>
 
-          {/* Skin Type Badge */}
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
               For {skinTypeInfo.name}
             </Text>
           </View>
 
-          {/* Product Header */}
-          <View style={styles.productHeader}>
-            <View style={styles.productIconContainer}>
-              <Image 
-                source={require('../assets/images/jar cream.png')}
-                style={styles.productIcon}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.productTitle}>
-              {skinType === 'oily' ? 'Lightweight Gel-Cream' : skinType === 'dry' ? 'Rich Moisturizer' : 'Light/Medium Moisturizer'}
-            </Text>
-            <Text style={styles.productSubtitle}>Morning Step 2</Text>
-          </View>
+          <Text style={styles.sectionTitle}>Product Recommendations</Text>
 
-          {/* Explanation Box */}
           <View style={styles.explanationBox}>
-            <Text style={styles.explanationTitle}>Why this matters</Text>
             <Text style={styles.explanationText}>
-              {skinType === 'oily' 
-                ? 'Lightweight gel-creams provide essential hydration without adding excess oil. Look for humectants like hyaluronic acid and glycerin with light occlusives like dimethicone or squalane.'
-                : skinType === 'dry'
-                ? 'Rich moisturizers lock in hydration with nourishing ingredients. Look for ceramides, cholesterol, and richer occlusives like petrolatum or shea butter to strengthen your skin barrier.'
-                : 'A balanced moisturizer provides optimal hydration without being too heavy or too light. Look for versatile formulas that adapt to your skin\'s needs.'}
+              Choose 1-2 moisturizers to give you options when shopping. Having alternatives helps you find what works best for your skin and budget. You can always swap products later.
             </Text>
           </View>
 
-          {/* Product Selection */}
           <View style={styles.selectionContainer}>
-            <Text style={styles.selectionTitle}>Choose Your Product</Text>
+            <Text style={styles.selectionTitle}>
+              Select 1-2 Products {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
+            </Text>
             
-            {products.map((product, index) => (
-              <TouchableOpacity
-                key={product.id}
-                style={[
-                  styles.productCard,
-                  selectedProduct?.id === product.id && [styles.productCardSelected, { borderColor: skinTypeInfo.color }]
-                ]}
-                onPress={() => setSelectedProduct(product)}
-                activeOpacity={0.7}
-              >
-                <View style={styles.productCardHeader}>
-                  <View style={styles.productCardLeft}>
-                    <Text style={styles.productName}>{product.name}</Text>
-                    <Text style={styles.productDescription}>{product.description}</Text>
+            {products.map((product) => {
+              const isSelected = selectedProducts.some(p => p.id === product.id);
+              const selectionIndex = selectedProducts.findIndex(p => p.id === product.id);
+              
+              return (
+                <TouchableOpacity
+                  key={product.id}
+                  style={[
+                    styles.productCard,
+                    isSelected && [styles.productCardSelected, { borderColor: skinTypeInfo.color }]
+                  ]}
+                  onPress={() => toggleProductSelection(product)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.productCardHeader}>
+                    <View style={styles.productCardLeft}>
+                      <Text style={styles.productName}>{product.name}</Text>
+                      <Text style={styles.productDescription}>{product.description}</Text>
+                    </View>
+                    {isSelected && (
+                      <View style={[styles.checkmark, { backgroundColor: skinTypeInfo.color }]}>
+                        <Text style={styles.checkmarkText}>{selectionIndex + 1}</Text>
+                      </View>
+                    )}
                   </View>
-                  {selectedProduct?.id === product.id && (
-                    <View style={[styles.checkmark, { backgroundColor: skinTypeInfo.color }]}>
-                      <Text style={styles.checkmarkText}>✓</Text>
-                    </View>
-                  )}
-                </View>
-                
-                <View style={styles.benefitsRow}>
-                  {product.benefits.map((benefit, idx) => (
-                    <View key={idx} style={styles.benefitTag}>
-                      <Text style={styles.benefitTagText}>{benefit}</Text>
-                    </View>
-                  ))}
-                </View>
-              </TouchableOpacity>
-            ))}
+                  
+                  <View style={styles.benefitsRow}>
+                    {product.benefits.map((benefit, idx) => (
+                      <View key={idx} style={styles.benefitTag}>
+                        <Text style={styles.benefitTagText}>{benefit}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
-          {/* Bottom spacing */}
+          {selectedProducts.length === 0 && (
+            <View style={styles.helperBox}>
+              <Text style={styles.helperText}>Select at least 1 product to continue</Text>
+            </View>
+          )}
+
+          {selectedProducts.length === 2 && (
+            <View style={styles.helperBox}>
+              <Text style={styles.helperText}>Maximum 2 products selected</Text>
+            </View>
+          )}
+
           <View style={styles.bottomSpacing} />
         </View>
       </ScrollView>
 
-      {/* Fixed Bottom Button */}
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="Continue to Next Step"
+          title={getButtonText()}
           onPress={handleContinue}
-          disabled={!selectedProduct}
-          style={[styles.continueButton, !selectedProduct && styles.continueButtonDisabled]}
+          disabled={selectedProducts.length === 0}
+          style={[styles.continueButton, selectedProducts.length === 0 && styles.continueButtonDisabled]}
         />
       </View>
     </View>
@@ -356,7 +432,7 @@ export default function BasicRoutineStep2Moisturizer({ onBack, onContinue }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFBFC',
+    backgroundColor: 'transparent',
   },
   topNavigation: {
     paddingHorizontal: 20,
@@ -392,12 +468,46 @@ const styles = StyleSheet.create({
   progressContainer: {
     marginBottom: 15,
   },
+  progressHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  arrowButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: BRAND_COLORS.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  arrowButtonDisabled: {
+    backgroundColor: '#F5F5F5',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  arrowText: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: BRAND_COLORS.primary,
+    lineHeight: 28,
+  },
+  arrowTextDisabled: {
+    color: '#CCCCCC',
+  },
   progressText: {
     fontSize: 14,
     fontWeight: '600',
     color: BRAND_COLORS.darkGray,
-    marginBottom: 8,
     textAlign: 'center',
+    minWidth: 100,
   },
   progressBar: {
     height: 6,
@@ -421,56 +531,25 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
-  productHeader: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  productIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: BRAND_COLORS.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  productIcon: {
-    width: 50,
-    height: 50,
-  },
-  productTitle: {
-    fontSize: 24,
+  sectionTitle: {
+    fontSize: 22,
     fontWeight: '700',
     color: BRAND_COLORS.black,
-    marginBottom: 4,
     textAlign: 'center',
-  },
-  productSubtitle: {
-    fontSize: 14,
-    color: BRAND_COLORS.gray,
-    fontWeight: '500',
+    marginBottom: 12,
   },
   explanationBox: {
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
-  },
-  explanationTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: BRAND_COLORS.black,
-    marginBottom: 6,
+    backgroundColor: `${BRAND_COLORS.primary}10`,
+    borderLeftWidth: 4,
+    borderLeftColor: BRAND_COLORS.primary,
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 18,
   },
   explanationText: {
     fontSize: 13,
     color: BRAND_COLORS.darkGray,
-    lineHeight: 18,
+    lineHeight: 19,
   },
   selectionContainer: {
     marginBottom: 10,
@@ -521,15 +600,15 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   checkmark: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkmarkText: {
     color: BRAND_COLORS.white,
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
   },
   benefitsRow: {
@@ -548,16 +627,29 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.darkGray,
     fontWeight: '600',
   },
+  helperBox: {
+    backgroundColor: '#FFF9E6',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  helperText: {
+    fontSize: 13,
+    color: '#B8860B',
+    fontWeight: '600',
+    textAlign: 'center',
+  },
   bottomSpacing: {
-    height: 100,
+    height: 160,
   },
   bottomSection: {
     position: 'absolute',
-    bottom: 12,
+    bottom: 27,
     left: 0,
     right: 0,
     paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingTop: 15,
     paddingBottom: 90,
     backgroundColor: '#FAFBFC',
     alignItems: 'center',

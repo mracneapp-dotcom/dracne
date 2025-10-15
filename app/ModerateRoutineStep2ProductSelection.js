@@ -1,4 +1,4 @@
-// app/BasicRoutineProductSelection.js
+// app/ModerateRoutineStep2ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
@@ -30,176 +30,176 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
 };
 
-const CLEANSER_PRODUCTS = {
+const MOISTURIZER_PRODUCTS = {
   oily: [
     {
-      id: 'cleanser_oily_1',
-      name: 'KraveBeauty Matcha Hemp',
-      description: 'Low-pH gel cleanser with matcha and hemp seed oil',
-      benefits: ['Gentle', 'Balancing', 'Non-stripping'],
+      id: 'moisturizer_oily_1',
+      name: 'Beauty of Joseon Dynasty Cream Light',
+      description: 'Lightweight gel-cream with rice and probiotics',
+      benefits: ['Non-greasy', 'Hydrating', 'K-Beauty'],
     },
     {
-      id: 'cleanser_oily_2',
-      name: 'COSRX Low pH Good Morning',
-      description: 'Mild gel cleanser with tea tree oil and BHA',
-      benefits: ['pH 5.0-6.0', 'Refreshing', 'Daily use'],
+      id: 'moisturizer_oily_2',
+      name: 'Isntree Hyaluronic Aqua Gel Cream',
+      description: 'Water-based gel with 5 types of hyaluronic acid',
+      benefits: ['Lightweight', 'Plumping', 'Fresh finish'],
     },
     {
-      id: 'cleanser_oily_3',
-      name: 'Round Lab 1025 Dokdo Cleanser',
-      description: 'Mineral-rich gel cleanser from deep sea water',
-      benefits: ['Hydrating', 'Soothing', 'K-Beauty'],
+      id: 'moisturizer_oily_3',
+      name: 'Innisfree Green Tea Seed Cream',
+      description: 'Light gel-cream with green tea extract',
+      benefits: ['Oil-control', 'Antioxidant', 'Popular'],
     },
     {
-      id: 'cleanser_oily_4',
-      name: 'La Roche-Posay Toleriane Purifying',
-      description: 'Foaming cleanser for sensitive oily skin',
-      benefits: ['Dermatologist-tested', 'Fragrance-free', 'Gentle'],
+      id: 'moisturizer_oily_4',
+      name: 'Neutrogena Hydro Boost',
+      description: 'Gel-cream with hyaluronic acid',
+      benefits: ['Affordable', 'Oil-free', 'Hydrating'],
     },
     {
-      id: 'cleanser_oily_5',
-      name: 'CeraVe Foaming',
-      description: 'Gentle foaming cleanser with ceramides',
-      benefits: ['Affordable', 'Ceramides', 'Non-comedogenic'],
+      id: 'moisturizer_oily_5',
+      name: 'Clinique Dramatically Different Gel',
+      description: 'Classic lightweight moisturizing gel',
+      benefits: ['Oil-free', 'Trusted', 'Dermatologist-tested'],
     },
   ],
   dry: [
     {
-      id: 'cleanser_dry_1',
-      name: 'KraveBeauty Oat So Simple Cleanser',
-      description: 'Ultra-gentle cream cleanser with oat extract',
-      benefits: ['Nourishing', 'Calming', 'Creamy texture'],
+      id: 'moisturizer_dry_1',
+      name: 'COSRX Snail 92 All In One Cream',
+      description: 'Rich cream with 92% snail mucin',
+      benefits: ['Nourishing', 'Repairing', 'Hydrating'],
     },
     {
-      id: 'cleanser_dry_2',
-      name: 'Etude SoonJung pH 6.5 Whip',
-      description: 'Whipped cream cleanser for sensitive dry skin',
-      benefits: ['pH 6.5', 'Hypoallergenic', 'Moisturizing'],
+      id: 'moisturizer_dry_2',
+      name: 'Illiyoon Ceramide Ato Concentrate',
+      description: 'Intensive barrier cream with ceramides',
+      benefits: ['Rich', 'Barrier repair', 'K-Beauty favorite'],
     },
     {
-      id: 'cleanser_dry_3',
-      name: 'Vanicream Gentle Cleanser',
-      description: 'Dermatologist-recommended gentle cleanser',
-      benefits: ['Fragrance-free', 'Dye-free', 'Non-irritating'],
+      id: 'moisturizer_dry_3',
+      name: "Kiehl's Ultra Facial Cream",
+      description: 'Classic rich moisturizer with squalane',
+      benefits: ['24-hour hydration', 'Luxurious', 'Iconic'],
     },
     {
-      id: 'cleanser_dry_4',
-      name: 'Avene Tolerance',
-      description: 'Ultra-gentle cream cleanser for reactive skin',
-      benefits: ['Thermal water', 'Minimal ingredients', 'Soothing'],
+      id: 'moisturizer_dry_4',
+      name: 'CeraVe Moisturizing Cream',
+      description: 'Rich cream with ceramides and hyaluronic acid',
+      benefits: ['Affordable', 'Ceramides', 'Dermatologist-loved'],
     },
     {
-      id: 'cleanser_dry_5',
-      name: 'Cetaphil Gentle Cleanser',
-      description: 'Classic gentle cleanser for dry sensitive skin',
-      benefits: ['Budget-friendly', 'Soap-free', 'Mild'],
+      id: 'moisturizer_dry_5',
+      name: 'First Aid Beauty Ultra Repair',
+      description: 'Intensive cream with colloidal oatmeal',
+      benefits: ['Soothing', 'Rich', 'Fast-absorbing'],
     },
   ],
   combination: [
     {
-      id: 'cleanser_combo_1',
-      name: 'KraveBeauty Matcha Hemp',
-      description: 'Balanced gel cleanser suitable for all zones',
-      benefits: ['Balancing', 'Gentle', 'Low pH'],
+      id: 'moisturizer_combo_1',
+      name: 'Beauty of Joseon Dynasty Cream',
+      description: 'Balanced cream suitable for all zones',
+      benefits: ['Balanced', 'Versatile', 'Elegant'],
     },
     {
-      id: 'cleanser_combo_2',
-      name: 'Etude SoonJung pH 6.5 Whip',
-      description: 'Gentle cleanser that respects skin barrier',
-      benefits: ['pH-balanced', 'Soft foam', 'Non-drying'],
+      id: 'moisturizer_combo_2',
+      name: 'Isntree Aloe Soothing Gel',
+      description: 'Light gel with aloe and centella',
+      benefits: ['Soothing', 'Lightweight', 'Fresh'],
     },
     {
-      id: 'cleanser_combo_3',
-      name: 'La Roche-Posay Toleriane Purifying',
-      description: 'Balanced cleansing for combination skin',
-      benefits: ['Purifying', 'Comfortable', 'Tested'],
+      id: 'moisturizer_combo_3',
+      name: 'Clinique Moisture Surge',
+      description: 'Auto-replenishing hydration',
+      benefits: ['Oil-free', 'Hydrating', 'Balanced'],
     },
     {
-      id: 'cleanser_combo_4',
-      name: 'Round Lab Dokdo Cleanser',
-      description: 'Mineral-balanced gentle cleanser',
-      benefits: ['Hydrating', 'Fresh', 'K-Beauty'],
+      id: 'moisturizer_combo_4',
+      name: 'Neutrogena Hydro Boost',
+      description: 'Gel-cream for combination skin',
+      benefits: ['Versatile', 'Affordable', 'Effective'],
     },
     {
-      id: 'cleanser_combo_5',
-      name: 'Neutrogena Ultra Gentle',
-      description: 'Simple effective cleanser for daily use',
-      benefits: ['Affordable', 'Effective', 'Gentle'],
+      id: 'moisturizer_combo_5',
+      name: 'COSRX Snail 92',
+      description: 'Lightweight yet nourishing cream',
+      benefits: ['Adaptable', 'Repairing', 'Popular'],
     },
   ],
   normal: [
     {
-      id: 'cleanser_normal_1',
-      name: 'KraveBeauty Matcha Hemp',
-      description: 'Perfect low-pH cleanser for healthy skin',
-      benefits: ['Maintains balance', 'Gentle', 'Daily use'],
+      id: 'moisturizer_normal_1',
+      name: 'COSRX Snail 92 All In One Cream',
+      description: 'Perfect hydrating cream for balanced skin',
+      benefits: ['Balanced', 'Repairing', 'Versatile'],
     },
     {
-      id: 'cleanser_normal_2',
-      name: 'Round Lab Dokdo Cleanser',
-      description: 'Mineral-rich refreshing cleanser',
-      benefits: ['Hydrating', 'Clean finish', 'Popular'],
+      id: 'moisturizer_normal_2',
+      name: 'Beauty of Joseon Dynasty Cream',
+      description: 'Classic K-beauty moisturizer',
+      benefits: ['Elegant', 'Balanced', 'Popular'],
     },
     {
-      id: 'cleanser_normal_3',
-      name: 'Cetaphil Gentle Cleanser',
-      description: 'Classic gentle daily cleanser',
-      benefits: ['Simple', 'Reliable', 'Budget-friendly'],
+      id: 'moisturizer_normal_3',
+      name: 'Clinique Moisture Surge',
+      description: 'Auto-replenishing hydration',
+      benefits: ['Hydrating', 'Reliable', 'Oil-free'],
     },
     {
-      id: 'cleanser_normal_4',
-      name: 'La Roche-Posay Toleriane',
-      description: 'Dermatologist-recommended daily cleanser',
-      benefits: ['Professional', 'Gentle', 'Effective'],
+      id: 'moisturizer_normal_4',
+      name: 'Eucerin Lotion',
+      description: 'Simple effective daily moisturizer',
+      benefits: ['Lightweight', 'Budget-friendly', 'Gentle'],
     },
     {
-      id: 'cleanser_normal_5',
-      name: 'COSRX Low pH Good Morning',
-      description: 'Refreshing morning cleanser',
-      benefits: ['Low pH', 'Energizing', 'Light'],
+      id: 'moisturizer_normal_5',
+      name: 'Neutrogena Hydro Boost',
+      description: 'Gel-cream with hyaluronic acid',
+      benefits: ['Hydrating', 'Fresh', 'Affordable'],
     },
   ],
   sensitive: [
     {
-      id: 'cleanser_sens_1',
-      name: 'Avene Tolerance Extremely Gentle',
-      description: 'Ultra-gentle cream cleanser for reactive skin',
-      benefits: ['Minimal ingredients', 'Soothing', 'Safe'],
+      id: 'moisturizer_sens_1',
+      name: 'Illiyoon Ceramide Ato',
+      description: 'Gentle barrier repair cream',
+      benefits: ['Minimal ingredients', 'Ceramides', 'Safe'],
     },
     {
-      id: 'cleanser_sens_2',
-      name: 'Etude SoonJung pH 6.5 Whip',
-      description: 'Hypoallergenic whipped cleanser',
-      benefits: ['pH 6.5', 'Tested', 'Soft'],
+      id: 'moisturizer_sens_2',
+      name: 'La Roche-Posay Toleriane Dermallergo',
+      description: 'Ultra-gentle moisturizer for reactive skin',
+      benefits: ['Dermatologist-tested', 'Fragrance-free', 'Safe'],
     },
     {
-      id: 'cleanser_sens_3',
-      name: 'Vanicream Gentle Cleanser',
-      description: 'Free of common irritants',
-      benefits: ['Fragrance-free', 'Safe', 'Simple'],
+      id: 'moisturizer_sens_3',
+      name: 'CeraVe Moisturizing Cream',
+      description: 'Gentle ceramide cream',
+      benefits: ['Affordable', 'Ceramides', 'Non-irritating'],
     },
     {
-      id: 'cleanser_sens_4',
-      name: 'La Roche-Posay Toleriane',
-      description: 'Dermatologist-recommended for sensitive skin',
-      benefits: ['Tested', 'Gentle', 'Reliable'],
+      id: 'moisturizer_sens_4',
+      name: 'A-Derma Dermalibour',
+      description: 'Repairing cream for sensitive skin',
+      benefits: ['Soothing', 'Repairing', 'Gentle'],
     },
     {
-      id: 'cleanser_sens_5',
-      name: 'CeraVe Hydrating',
-      description: 'Gentle hydrating cleanser with ceramides',
-      benefits: ['Ceramides', 'Affordable', 'Non-irritating'],
+      id: 'moisturizer_sens_5',
+      name: 'First Aid Beauty Ultra Repair',
+      description: 'Gentle intensive moisturizer',
+      benefits: ['Colloidal oatmeal', 'Safe', 'Soothing'],
     },
   ],
 };
 
-export default function BasicRoutineProductSelection({ 
+export default function ModerateRoutineStep2ProductSelection({ 
   onNavigateHome,
   onNavigateToDayRoutine,
   onBack, 
   onContinue, 
-  currentStep = 1,      // Display step (1-3)
-  internalStep = 2      // Internal progress step (1-6)
+  currentStep = 2,
+  internalStep = 4
 }) {
   const [skinType, setSkinType] = useState('normal');
   const [selectedProducts, setSelectedProducts] = useState([]);
@@ -214,13 +214,13 @@ export default function BasicRoutineProductSelection({
       const savedSkinType = await AsyncStorage.getItem('userSkinType');
       if (savedSkinType) {
         setSkinType(savedSkinType);
-        setProducts(CLEANSER_PRODUCTS[savedSkinType] || CLEANSER_PRODUCTS.normal);
+        setProducts(MOISTURIZER_PRODUCTS[savedSkinType] || MOISTURIZER_PRODUCTS.normal);
       } else {
-        setProducts(CLEANSER_PRODUCTS.normal);
+        setProducts(MOISTURIZER_PRODUCTS.normal);
       }
     } catch (error) {
       console.error('Error loading skin type:', error);
-      setProducts(CLEANSER_PRODUCTS.normal);
+      setProducts(MOISTURIZER_PRODUCTS.normal);
     }
   };
 
@@ -242,16 +242,16 @@ export default function BasicRoutineProductSelection({
   const handleContinue = async () => {
     if (selectedProducts.length > 0 && onContinue) {
       try {
-        const routineData = await AsyncStorage.getItem('myDayRoutine');
+        const routineData = await AsyncStorage.getItem('myModerateRoutine');
         const currentRoutine = routineData ? JSON.parse(routineData) : {};
         
-        currentRoutine.cleansers = selectedProducts;
+        currentRoutine.moisturizers = selectedProducts;
         currentRoutine.lastUpdated = new Date().toISOString();
         
-        await AsyncStorage.setItem('myDayRoutine', JSON.stringify(currentRoutine));
-        console.log('✅ Saved cleansers to My Day Routine:', selectedProducts);
+        await AsyncStorage.setItem('myModerateRoutine', JSON.stringify(currentRoutine));
+        console.log('Saved moisturizers to Moderate Routine:', selectedProducts);
       } catch (error) {
-        console.error('Error saving to My Day Routine:', error);
+        console.error('Error saving to Moderate Routine:', error);
       }
       
       onContinue(selectedProducts);
@@ -272,7 +272,7 @@ export default function BasicRoutineProductSelection({
 
   const getButtonText = () => {
     if (selectedProducts.length === 0) {
-      return 'Choose My Cleanser';
+      return 'Choose My Moisturizer';
     } else if (selectedProducts.length === 1) {
       return 'Continue with My Selection';
     } else {
@@ -281,13 +281,12 @@ export default function BasicRoutineProductSelection({
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const totalSteps = 3;  // Display: 3 steps total
-  const totalInternalSteps = 6;  // Internal: 6 stages for smooth progress
+  const totalSteps = 4;
+  const totalInternalSteps = 8;
   const canGoNext = selectedProducts.length > 0;
 
   return (
     <View style={styles.container}>
-      {/* ✅ Logo - Always goes to Home */}
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
@@ -298,7 +297,6 @@ export default function BasicRoutineProductSelection({
         </TouchableOpacity>
       </View>
 
-      {/* ✅ Banner - Always goes to DayRoutine */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateToDayRoutine}
@@ -356,7 +354,7 @@ export default function BasicRoutineProductSelection({
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose 1-2 cleansers to give you options when shopping. Having alternatives helps you find what works best for your skin and budget. You can always swap products later.
+              Choose 1-2 moisturizers to give you options when shopping. Having alternatives helps you find what works best for your skin and budget. You can always swap products later.
             </Text>
           </View>
 
@@ -365,7 +363,7 @@ export default function BasicRoutineProductSelection({
               Select 1-2 Products {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
             </Text>
             
-            {products.map((product, index) => {
+            {products.map((product) => {
               const isSelected = selectedProducts.some(p => p.id === product.id);
               const selectionIndex = selectedProducts.findIndex(p => p.id === product.id);
               
@@ -434,7 +432,7 @@ export default function BasicRoutineProductSelection({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',  // ✅ Transparent to show global decorative dots
+    backgroundColor: 'transparent',
   },
   topNavigation: {
     paddingHorizontal: 20,

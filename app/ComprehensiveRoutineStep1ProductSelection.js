@@ -1,4 +1,4 @@
-// app/BasicRoutineProductSelection.js
+// app/ComprehensiveRoutineStep1ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
@@ -193,13 +193,13 @@ const CLEANSER_PRODUCTS = {
   ],
 };
 
-export default function BasicRoutineProductSelection({ 
+export default function ComprehensiveRoutineStep1ProductSelection({ 
   onNavigateHome,
   onNavigateToDayRoutine,
   onBack, 
   onContinue, 
-  currentStep = 1,      // Display step (1-3)
-  internalStep = 2      // Internal progress step (1-6)
+  currentStep = 1,
+  internalStep = 2
 }) {
   const [skinType, setSkinType] = useState('normal');
   const [selectedProducts, setSelectedProducts] = useState([]);
@@ -242,16 +242,16 @@ export default function BasicRoutineProductSelection({
   const handleContinue = async () => {
     if (selectedProducts.length > 0 && onContinue) {
       try {
-        const routineData = await AsyncStorage.getItem('myDayRoutine');
+        const routineData = await AsyncStorage.getItem('myComprehensiveRoutine');
         const currentRoutine = routineData ? JSON.parse(routineData) : {};
         
         currentRoutine.cleansers = selectedProducts;
         currentRoutine.lastUpdated = new Date().toISOString();
         
-        await AsyncStorage.setItem('myDayRoutine', JSON.stringify(currentRoutine));
-        console.log('✅ Saved cleansers to My Day Routine:', selectedProducts);
+        await AsyncStorage.setItem('myComprehensiveRoutine', JSON.stringify(currentRoutine));
+        console.log('Saved cleansers to Comprehensive Routine:', selectedProducts);
       } catch (error) {
-        console.error('Error saving to My Day Routine:', error);
+        console.error('Error saving to Comprehensive Routine:', error);
       }
       
       onContinue(selectedProducts);
@@ -281,13 +281,12 @@ export default function BasicRoutineProductSelection({
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const totalSteps = 3;  // Display: 3 steps total
-  const totalInternalSteps = 6;  // Internal: 6 stages for smooth progress
+  const totalSteps = 5;
+  const totalInternalSteps = 10;
   const canGoNext = selectedProducts.length > 0;
 
   return (
     <View style={styles.container}>
-      {/* ✅ Logo - Always goes to Home */}
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
@@ -298,7 +297,6 @@ export default function BasicRoutineProductSelection({
         </TouchableOpacity>
       </View>
 
-      {/* ✅ Banner - Always goes to DayRoutine */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateToDayRoutine}
@@ -365,7 +363,7 @@ export default function BasicRoutineProductSelection({
               Select 1-2 Products {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
             </Text>
             
-            {products.map((product, index) => {
+            {products.map((product) => {
               const isSelected = selectedProducts.some(p => p.id === product.id);
               const selectionIndex = selectedProducts.findIndex(p => p.id === product.id);
               
@@ -434,7 +432,7 @@ export default function BasicRoutineProductSelection({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',  // ✅ Transparent to show global decorative dots
+    backgroundColor: 'transparent',
   },
   topNavigation: {
     paddingHorizontal: 20,
