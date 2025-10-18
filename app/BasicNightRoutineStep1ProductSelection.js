@@ -1,13 +1,13 @@
-// app/ModerateNightRoutineStep2ProductSelection.js - CONTINUE TO STEP 3 (NO COMPLETION)
+// app/BasicNightRoutineStep1ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -30,179 +30,179 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
 };
 
-const MOISTURIZER_PRODUCTS = {
+const CLEANSER_PRODUCTS = {
   oily: [
     {
-      id: 'moisturizer_night_oily_1',
-      name: 'Beauty of Joseon Dynasty Cream Light',
-      description: 'Lightweight gel-cream with rice and probiotics',
-      benefits: ['Non-greasy', 'Hydrating', 'K-Beauty'],
+      id: 'cleanser_night_oily_1',
+      name: 'KraveBeauty Matcha Hemp',
+      description: 'Low-pH gel cleanser with matcha and hemp seed oil',
+      benefits: ['Gentle', 'Balancing', 'Non-stripping'],
     },
     {
-      id: 'moisturizer_night_oily_2',
-      name: 'Isntree Hyaluronic Aqua Gel Cream',
-      description: 'Water-based gel with 5 types of hyaluronic acid',
-      benefits: ['Lightweight', 'Plumping', 'Fresh finish'],
+      id: 'cleanser_night_oily_2',
+      name: 'COSRX Low pH Good Morning',
+      description: 'Mild gel cleanser with tea tree oil and BHA',
+      benefits: ['pH 5.0-6.0', 'Refreshing', 'Daily use'],
     },
     {
-      id: 'moisturizer_night_oily_3',
-      name: 'Innisfree Green Tea Seed Cream',
-      description: 'Light gel-cream with green tea extract',
-      benefits: ['Oil-control', 'Antioxidant', 'Popular'],
+      id: 'cleanser_night_oily_3',
+      name: 'Round Lab 1025 Dokdo Cleanser',
+      description: 'Mineral-rich gel cleanser from deep sea water',
+      benefits: ['Hydrating', 'Soothing', 'K-Beauty'],
     },
     {
-      id: 'moisturizer_night_oily_4',
-      name: 'Neutrogena Hydro Boost',
-      description: 'Gel-cream with hyaluronic acid',
-      benefits: ['Affordable', 'Oil-free', 'Hydrating'],
+      id: 'cleanser_night_oily_4',
+      name: 'La Roche-Posay Toleriane Purifying',
+      description: 'Foaming cleanser for sensitive oily skin',
+      benefits: ['Dermatologist-tested', 'Fragrance-free', 'Gentle'],
     },
     {
-      id: 'moisturizer_night_oily_5',
-      name: 'Clinique Dramatically Different Gel',
-      description: 'Classic lightweight moisturizing gel',
-      benefits: ['Oil-free', 'Trusted', 'Dermatologist-tested'],
+      id: 'cleanser_night_oily_5',
+      name: 'CeraVe Foaming',
+      description: 'Gentle foaming cleanser with ceramides',
+      benefits: ['Affordable', 'Ceramides', 'Non-comedogenic'],
     },
   ],
   dry: [
     {
-      id: 'moisturizer_night_dry_1',
-      name: 'COSRX Snail 92 All In One Cream',
-      description: 'Rich cream with 92% snail mucin',
-      benefits: ['Nourishing', 'Repairing', 'Hydrating'],
+      id: 'cleanser_night_dry_1',
+      name: 'KraveBeauty Oat So Simple Cleanser',
+      description: 'Ultra-gentle cream cleanser with oat extract',
+      benefits: ['Nourishing', 'Calming', 'Creamy texture'],
     },
     {
-      id: 'moisturizer_night_dry_2',
-      name: 'Illiyoon Ceramide Ato Concentrate',
-      description: 'Intensive barrier cream with ceramides',
-      benefits: ['Rich', 'Barrier repair', 'K-Beauty favorite'],
+      id: 'cleanser_night_dry_2',
+      name: 'Etude SoonJung pH 6.5 Whip',
+      description: 'Whipped cream cleanser for sensitive dry skin',
+      benefits: ['pH 6.5', 'Hypoallergenic', 'Moisturizing'],
     },
     {
-      id: 'moisturizer_night_dry_3',
-      name: "Kiehl's Ultra Facial Cream",
-      description: 'Classic rich moisturizer with squalane',
-      benefits: ['24-hour hydration', 'Luxurious', 'Iconic'],
+      id: 'cleanser_night_dry_3',
+      name: 'Vanicream Gentle Cleanser',
+      description: 'Dermatologist-recommended gentle cleanser',
+      benefits: ['Fragrance-free', 'Dye-free', 'Non-irritating'],
     },
     {
-      id: 'moisturizer_night_dry_4',
-      name: 'CeraVe Moisturizing Cream',
-      description: 'Rich cream with ceramides and hyaluronic acid',
-      benefits: ['Affordable', 'Ceramides', 'Dermatologist-loved'],
+      id: 'cleanser_night_dry_4',
+      name: 'Avene Tolerance',
+      description: 'Ultra-gentle cream cleanser for reactive skin',
+      benefits: ['Thermal water', 'Minimal ingredients', 'Soothing'],
     },
     {
-      id: 'moisturizer_night_dry_5',
-      name: 'First Aid Beauty Ultra Repair',
-      description: 'Intensive cream with colloidal oatmeal',
-      benefits: ['Soothing', 'Rich', 'Fast-absorbing'],
+      id: 'cleanser_night_dry_5',
+      name: 'Cetaphil Gentle Cleanser',
+      description: 'Classic gentle cleanser for dry sensitive skin',
+      benefits: ['Budget-friendly', 'Soap-free', 'Mild'],
     },
   ],
   combination: [
     {
-      id: 'moisturizer_night_combo_1',
-      name: 'Beauty of Joseon Dynasty Cream',
-      description: 'Balanced cream suitable for all zones',
-      benefits: ['Balanced', 'Versatile', 'Elegant'],
+      id: 'cleanser_night_combo_1',
+      name: 'KraveBeauty Matcha Hemp',
+      description: 'Balanced gel cleanser suitable for all zones',
+      benefits: ['Balancing', 'Gentle', 'Low pH'],
     },
     {
-      id: 'moisturizer_night_combo_2',
-      name: 'Isntree Aloe Soothing Gel',
-      description: 'Light gel with aloe and centella',
-      benefits: ['Soothing', 'Lightweight', 'Fresh'],
+      id: 'cleanser_night_combo_2',
+      name: 'Etude SoonJung pH 6.5 Whip',
+      description: 'Gentle cleanser that respects skin barrier',
+      benefits: ['pH-balanced', 'Soft foam', 'Non-drying'],
     },
     {
-      id: 'moisturizer_night_combo_3',
-      name: 'Clinique Moisture Surge',
-      description: 'Auto-replenishing hydration',
-      benefits: ['Oil-free', 'Hydrating', 'Balanced'],
+      id: 'cleanser_night_combo_3',
+      name: 'La Roche-Posay Toleriane Purifying',
+      description: 'Balanced cleansing for combination skin',
+      benefits: ['Purifying', 'Comfortable', 'Tested'],
     },
     {
-      id: 'moisturizer_night_combo_4',
-      name: 'Neutrogena Hydro Boost',
-      description: 'Gel-cream for combination skin',
-      benefits: ['Versatile', 'Affordable', 'Effective'],
+      id: 'cleanser_night_combo_4',
+      name: 'Round Lab Dokdo Cleanser',
+      description: 'Mineral-balanced gentle cleanser',
+      benefits: ['Hydrating', 'Fresh', 'K-Beauty'],
     },
     {
-      id: 'moisturizer_night_combo_5',
-      name: 'COSRX Snail 92',
-      description: 'Lightweight yet nourishing cream',
-      benefits: ['Adaptable', 'Repairing', 'Popular'],
+      id: 'cleanser_night_combo_5',
+      name: 'Neutrogena Ultra Gentle',
+      description: 'Simple effective cleanser for daily use',
+      benefits: ['Affordable', 'Effective', 'Gentle'],
     },
   ],
   normal: [
     {
-      id: 'moisturizer_night_normal_1',
-      name: 'COSRX Snail 92 All In One Cream',
-      description: 'Perfect hydrating cream for balanced skin',
-      benefits: ['Balanced', 'Repairing', 'Versatile'],
+      id: 'cleanser_night_normal_1',
+      name: 'KraveBeauty Matcha Hemp',
+      description: 'Perfect low-pH cleanser for healthy skin',
+      benefits: ['Maintains balance', 'Gentle', 'Daily use'],
     },
     {
-      id: 'moisturizer_night_normal_2',
-      name: 'Beauty of Joseon Dynasty Cream',
-      description: 'Classic K-beauty moisturizer',
-      benefits: ['Elegant', 'Balanced', 'Popular'],
+      id: 'cleanser_night_normal_2',
+      name: 'Round Lab Dokdo Cleanser',
+      description: 'Mineral-rich refreshing cleanser',
+      benefits: ['Hydrating', 'Clean finish', 'Popular'],
     },
     {
-      id: 'moisturizer_night_normal_3',
-      name: 'Clinique Moisture Surge',
-      description: 'Auto-replenishing hydration',
-      benefits: ['Hydrating', 'Reliable', 'Oil-free'],
+      id: 'cleanser_night_normal_3',
+      name: 'Cetaphil Gentle Cleanser',
+      description: 'Classic gentle daily cleanser',
+      benefits: ['Simple', 'Reliable', 'Budget-friendly'],
     },
     {
-      id: 'moisturizer_night_normal_4',
-      name: 'Eucerin Lotion',
-      description: 'Simple effective daily moisturizer',
-      benefits: ['Lightweight', 'Budget-friendly', 'Gentle'],
+      id: 'cleanser_night_normal_4',
+      name: 'La Roche-Posay Toleriane',
+      description: 'Dermatologist-recommended daily cleanser',
+      benefits: ['Professional', 'Gentle', 'Effective'],
     },
     {
-      id: 'moisturizer_night_normal_5',
-      name: 'Neutrogena Hydro Boost',
-      description: 'Gel-cream with hyaluronic acid',
-      benefits: ['Hydrating', 'Fresh', 'Affordable'],
+      id: 'cleanser_night_normal_5',
+      name: 'COSRX Low pH Good Morning',
+      description: 'Refreshing evening cleanser',
+      benefits: ['Low pH', 'Energizing', 'Light'],
     },
   ],
   sensitive: [
     {
-      id: 'moisturizer_night_sens_1',
-      name: 'Illiyoon Ceramide Ato',
-      description: 'Gentle barrier repair cream',
-      benefits: ['Minimal ingredients', 'Ceramides', 'Safe'],
+      id: 'cleanser_night_sens_1',
+      name: 'Avene Tolerance Extremely Gentle',
+      description: 'Ultra-gentle cream cleanser for reactive skin',
+      benefits: ['Minimal ingredients', 'Soothing', 'Safe'],
     },
     {
-      id: 'moisturizer_night_sens_2',
-      name: 'La Roche-Posay Toleriane Dermallergo',
-      description: 'Ultra-gentle moisturizer for reactive skin',
-      benefits: ['Dermatologist-tested', 'Fragrance-free', 'Safe'],
+      id: 'cleanser_night_sens_2',
+      name: 'Etude SoonJung pH 6.5 Whip',
+      description: 'Hypoallergenic whipped cleanser',
+      benefits: ['pH 6.5', 'Tested', 'Soft'],
     },
     {
-      id: 'moisturizer_night_sens_3',
-      name: 'CeraVe Moisturizing Cream',
-      description: 'Gentle ceramide cream',
-      benefits: ['Affordable', 'Ceramides', 'Non-irritating'],
+      id: 'cleanser_night_sens_3',
+      name: 'Vanicream Gentle Cleanser',
+      description: 'Free of common irritants',
+      benefits: ['Fragrance-free', 'Safe', 'Simple'],
     },
     {
-      id: 'moisturizer_night_sens_4',
-      name: 'A-Derma Dermalibour',
-      description: 'Repairing cream for sensitive skin',
-      benefits: ['Soothing', 'Repairing', 'Gentle'],
+      id: 'cleanser_night_sens_4',
+      name: 'La Roche-Posay Toleriane',
+      description: 'Dermatologist-recommended for sensitive skin',
+      benefits: ['Tested', 'Gentle', 'Reliable'],
     },
     {
-      id: 'moisturizer_night_sens_5',
-      name: 'First Aid Beauty Ultra Repair',
-      description: 'Gentle intensive moisturizer',
-      benefits: ['Colloidal oatmeal', 'Safe', 'Soothing'],
+      id: 'cleanser_night_sens_5',
+      name: 'CeraVe Hydrating',
+      description: 'Gentle hydrating cleanser with ceramides',
+      benefits: ['Ceramides', 'Affordable', 'Non-irritating'],
     },
   ],
 };
 
-export default function ModerateNightRoutineStep2ProductSelection({ 
+export default function BasicNightRoutineStep1ProductSelection({ 
   onNavigateHome,
   onNavigateToNightRoutine,
   onBack, 
-  onContinue,
-  currentStep = 2,
-  internalStep = 4
+  onContinue, 
+  currentStep = 1,
+  internalStep = 2
 }) {
   const [skinType, setSkinType] = useState('normal');
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -214,37 +214,47 @@ export default function ModerateNightRoutineStep2ProductSelection({
       const savedSkinType = await AsyncStorage.getItem('userSkinType');
       if (savedSkinType) {
         setSkinType(savedSkinType);
-        setProducts(MOISTURIZER_PRODUCTS[savedSkinType] || MOISTURIZER_PRODUCTS.normal);
+        setProducts(CLEANSER_PRODUCTS[savedSkinType] || CLEANSER_PRODUCTS.normal);
       } else {
-        setProducts(MOISTURIZER_PRODUCTS.normal);
+        setProducts(CLEANSER_PRODUCTS.normal);
       }
     } catch (error) {
       console.error('Error loading skin type:', error);
-      setProducts(MOISTURIZER_PRODUCTS.normal);
+      setProducts(CLEANSER_PRODUCTS.normal);
     }
   };
 
+  const toggleProductSelection = (product) => {
+    setSelectedProducts(prev => {
+      const isSelected = prev.some(p => p.id === product.id);
+      
+      if (isSelected) {
+        return prev.filter(p => p.id !== product.id);
+      } else {
+        if (prev.length >= 2) {
+          return [prev[1], product];
+        }
+        return [...prev, product];
+      }
+    });
+  };
+
   const handleContinue = async () => {
-    if (selectedProduct) {
+    if (selectedProducts.length > 0 && onContinue) {
       try {
-        const routineData = await AsyncStorage.getItem('myModerateNightRoutine');
+        const routineData = await AsyncStorage.getItem('myNightRoutine');
         const currentRoutine = routineData ? JSON.parse(routineData) : {};
         
-        currentRoutine.moisturizers = [selectedProduct];
+        currentRoutine.cleansers = selectedProducts;
         currentRoutine.lastUpdated = new Date().toISOString();
         
-        await AsyncStorage.setItem('myModerateNightRoutine', JSON.stringify(currentRoutine));
-        
-        console.log('Moderate Night Step 2 Saved:', currentRoutine);
-        console.log('Cleansers:', currentRoutine.cleansers);
-        console.log('Moisturizers:', currentRoutine.moisturizers);
-        
-        if (onContinue) {
-          onContinue([selectedProduct]);
-        }
+        await AsyncStorage.setItem('myNightRoutine', JSON.stringify(currentRoutine));
+        console.log('✅ Saved night cleansers to My Night Routine:', selectedProducts);
       } catch (error) {
-        console.error('Error saving Moderate Night routine step 2:', error);
+        console.error('Error saving to My Night Routine:', error);
       }
+      
+      onContinue(selectedProducts);
     }
   };
 
@@ -255,22 +265,25 @@ export default function ModerateNightRoutineStep2ProductSelection({
   };
 
   const handleNextStep = () => {
-    if (selectedProduct) {
+    if (selectedProducts.length > 0) {
       handleContinue();
     }
   };
 
   const getButtonText = () => {
-    if (!selectedProduct) {
-      return 'Choose My Moisturizer';
+    if (selectedProducts.length === 0) {
+      return 'Choose My Cleanser';
+    } else if (selectedProducts.length === 1) {
+      return 'Continue with My Selection';
+    } else {
+      return 'Continue with My Selections';
     }
-    return 'Continue to Step 3';
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const totalSteps = 3;
-  const totalInternalSteps = 6;
-  const canGoNext = !!selectedProduct;
+  const totalSteps = 2;
+  const totalInternalSteps = 4;
+  const canGoNext = selectedProducts.length > 0;
 
   return (
     <View style={styles.container}>
@@ -341,17 +354,18 @@ export default function ModerateNightRoutineStep2ProductSelection({
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose your evening moisturizer. This will support your skin's natural overnight repair process with enhanced hydration.
+              Choose 1-2 cleansers to give you options when shopping. Having alternatives helps you find what works best for your skin and budget. You can always swap products later.
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Choose Your Product {selectedProduct && '(1 selected)'}
+              Select 1-2 Products {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
             </Text>
             
-            {products.map((product) => {
-              const isSelected = selectedProduct?.id === product.id;
+            {products.map((product, index) => {
+              const isSelected = selectedProducts.some(p => p.id === product.id);
+              const selectionIndex = selectedProducts.findIndex(p => p.id === product.id);
               
               return (
                 <TouchableOpacity
@@ -360,7 +374,7 @@ export default function ModerateNightRoutineStep2ProductSelection({
                     styles.productCard,
                     isSelected && [styles.productCardSelected, { borderColor: skinTypeInfo.color }]
                   ]}
-                  onPress={() => setSelectedProduct(product)}
+                  onPress={() => toggleProductSelection(product)}
                   activeOpacity={0.7}
                 >
                   <View style={styles.productCardHeader}>
@@ -370,7 +384,7 @@ export default function ModerateNightRoutineStep2ProductSelection({
                     </View>
                     {isSelected && (
                       <View style={[styles.checkmark, { backgroundColor: skinTypeInfo.color }]}>
-                        <Text style={styles.checkmarkText}>✓</Text>
+                        <Text style={styles.checkmarkText}>{selectionIndex + 1}</Text>
                       </View>
                     )}
                   </View>
@@ -387,9 +401,15 @@ export default function ModerateNightRoutineStep2ProductSelection({
             })}
           </View>
 
-          {!selectedProduct && (
+          {selectedProducts.length === 0 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select 1 product to continue to Step 3</Text>
+              <Text style={styles.helperText}>Select at least 1 product to continue</Text>
+            </View>
+          )}
+
+          {selectedProducts.length === 2 && (
+            <View style={styles.helperBox}>
+              <Text style={styles.helperText}>Maximum 2 products selected</Text>
             </View>
           )}
 
@@ -401,8 +421,8 @@ export default function ModerateNightRoutineStep2ProductSelection({
         <DrAcneButton
           title={getButtonText()}
           onPress={handleContinue}
-          disabled={!selectedProduct}
-          style={[styles.continueButton, !selectedProduct && styles.continueButtonDisabled]}
+          disabled={selectedProducts.length === 0}
+          style={[styles.continueButton, selectedProducts.length === 0 && styles.continueButtonDisabled]}
         />
       </View>
     </View>
@@ -588,7 +608,7 @@ const styles = StyleSheet.create({
   },
   checkmarkText: {
     color: BRAND_COLORS.white,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
   },
   benefitsRow: {

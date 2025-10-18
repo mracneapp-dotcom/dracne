@@ -1,4 +1,4 @@
-// app/NightRoutineScreen.js
+// app/NightRoutineScreen.js - UPDATED WITH MODERATE NIGHT ROUTINE CONNECTION
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -32,21 +32,29 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary },
 };
 
-export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigateToSkinTest }) {
+export default function NightRoutineScreen({ 
+  onNavigateHome,
+  onSelectRoutine, 
+  onNavigateToSkinTest,
+  onNavigateToMyNightRoutine,
+  skinProfile = {}
+}) {
   const [skinType, setSkinType] = useState('normal');
   const [routineData, setRoutineData] = useState(null);
   const [selectedLevel, setSelectedLevel] = useState('moderate');
-  const [currentView, setCurrentView] = useState('initial'); // 'initial' or 'createRoutine'
+  const [currentView, setCurrentView] = useState('initial');
 
-  // Swipe gesture handler
+  const hasNightRoutine = skinProfile?.nightRoutine?.completedAt;
+  const savedRoutineLevel = skinProfile?.nightRoutine?.level || 'basic';
+  const productCount = (skinProfile?.nightRoutine?.products?.cleansers?.length || 0) + 
+                      (skinProfile?.nightRoutine?.products?.moisturizers?.length || 0);
+
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (evt, gestureState) => {
-        // Only activate if swiping from left edge and moving right
         return gestureState.dx > 20 && Math.abs(gestureState.dy) < 80;
       },
       onPanResponderRelease: (evt, gestureState) => {
-        // If swiped right more than 50 pixels, go back
         if (gestureState.dx > 50) {
           handleSwipeBack();
         }
@@ -57,11 +65,8 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
   const handleSwipeBack = () => {
     if (currentView === 'createRoutine') {
       setCurrentView('initial');
-    } else if (currentView === 'initial') {
-      // Go back to previous screen (home)
-      if (onBack) {
-        onBack();
-      }
+    } else if (currentView === 'initial' && onNavigateHome) {
+      onNavigateHome();
     }
   };
 
@@ -72,7 +77,7 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
   const loadSkinTypeAndRoutine = async () => {
     try {
       const savedSkinType = await AsyncStorage.getItem('userSkinType');
-      const savedRoutineLevel = await AsyncStorage.getItem('selectedRoutineLevel');
+      const savedRoutineLevel = await AsyncStorage.getItem('selectedNightRoutineLevel');
       
       if (savedSkinType) {
         setSkinType(savedSkinType);
@@ -83,7 +88,7 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
       
       if (savedRoutineLevel) {
         setSelectedLevel(savedRoutineLevel);
-        console.log('✅ Loaded saved routine level:', savedRoutineLevel);
+        console.log('✅ Loaded saved night routine level:', savedRoutineLevel);
       }
     } catch (error) {
       console.error('Error loading skin type:', error);
@@ -92,18 +97,14 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
 
   const handleSaveRoutine = async () => {
     try {
-      await AsyncStorage.setItem('selectedRoutineLevel', selectedLevel);
-      console.log('✅ Saved routine level:', selectedLevel);
+      await AsyncStorage.setItem('selectedNightRoutineLevel', selectedLevel);
+      console.log('✅ Saved night routine level:', selectedLevel);
       
       if (onSelectRoutine) {
         onSelectRoutine(selectedLevel, 'evening', routineData[selectedLevel]);
       }
-      
-      if (onBack) {
-        onBack();
-      }
     } catch (error) {
-      console.error('Error saving routine level:', error);
+      console.error('Error saving night routine level:', error);
     }
   };
 
@@ -118,12 +119,10 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
     return null;
   }
 
-  // INITIAL SCREEN - Choose between Create Routine or My Routine (NON-SCROLLABLE)
   const renderInitialScreen = () => (
     <View style={styles.container} {...panResponder.panHandlers}>
-      {/* Top Navigation with Logo */}
       <View style={styles.topNavigation}>
-        <TouchableOpacity onPress={onBack} style={styles.logoButton}>
+        <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
             source={require('../assets/images/dracne-logo.png')} 
             style={styles.logoImage}
@@ -132,7 +131,6 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
         </TouchableOpacity>
       </View>
 
-      {/* Banner Image */}
       <View style={styles.bannerContainer}>
         <Image 
           source={require('../assets/images/Banner Night Routine 1.png')}
@@ -141,9 +139,7 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
         />
       </View>
 
-      {/* Content - NO ScrollView */}
       <View style={styles.contentFixed}>
-        {/* Hero Section */}
         <View style={styles.heroSection}>
           <Text style={styles.questionTitle}>
             Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
@@ -155,7 +151,6 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
           </Text>
         </View>
 
-        {/* SKIN TEST REMINDER - NO EMOJI */}
         <TouchableOpacity 
           style={styles.skinTestReminder}
           onPress={onNavigateToSkinTest}
@@ -174,9 +169,7 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
           <Text style={styles.reminderArrow}>→</Text>
         </TouchableOpacity>
 
-        {/* Banner Buttons */}
         <View style={styles.bannerButtonsContainer}>
-          {/* Create Routine Banner Button */}
           <TouchableOpacity
             onPress={() => setCurrentView('createRoutine')}
             activeOpacity={0.8}
@@ -189,32 +182,41 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
             />
           </TouchableOpacity>
           
-          {/* My Routine Banner Button */}
           <TouchableOpacity
-            onPress={() => {
-              // TODO: Navigate to saved routine view
-              console.log('Navigate to My Routine - Night');
-            }}
+            onPress={onNavigateToMyNightRoutine}
             activeOpacity={0.8}
-            style={styles.bannerButton}
+            style={[
+              styles.bannerButton,
+              hasNightRoutine && styles.bannerButtonActive
+            ]}
           >
             <Image 
               source={require('../assets/images/Banner My Routine.png')}
               style={styles.bannerButtonImage}
               resizeMode="cover"
             />
+            {hasNightRoutine && (
+              <View style={styles.savedRoutineOverlay}>
+                <View style={styles.savedRoutineBadge}>
+                  <Text style={styles.savedRoutineText}>
+                    ✓ {savedRoutineLevel.charAt(0).toUpperCase() + savedRoutineLevel.slice(1)}
+                  </Text>
+                  <Text style={styles.savedRoutineProducts}>
+                    {productCount} product{productCount !== 1 ? 's' : ''}
+                  </Text>
+                </View>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
       </View>
     </View>
   );
 
-  // CREATE ROUTINE SCREEN - Existing content
   const renderCreateRoutineScreen = () => (
     <View style={styles.container} {...panResponder.panHandlers}>
-      {/* Top Navigation with Logo */}
       <View style={styles.topNavigation}>
-        <TouchableOpacity onPress={() => setCurrentView('initial')} style={styles.logoButton}>
+        <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
             source={require('../assets/images/dracne-logo.png')} 
             style={styles.logoImage}
@@ -223,7 +225,6 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
         </TouchableOpacity>
       </View>
 
-      {/* Banner Image - NOW CLICKABLE TO GO BACK */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={() => setCurrentView('initial')}
@@ -242,7 +243,6 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
-          {/* Hero Section */}
           <View style={styles.heroSection}>
             <Text style={styles.questionTitle}>
               Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
@@ -254,7 +254,6 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
             </Text>
           </View>
 
-          {/* SKIN TEST REMINDER - NO EMOJI */}
           <TouchableOpacity 
             style={styles.skinTestReminder}
             onPress={onNavigateToSkinTest}
@@ -273,7 +272,6 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
             <Text style={styles.reminderArrow}>→</Text>
           </TouchableOpacity>
 
-          {/* Routine Level Selection */}
           <View style={styles.routineLevelsContainer}>
             <Text style={styles.sectionTitle}>Choose Your Starting Level</Text>
             
@@ -281,7 +279,8 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
             <TouchableOpacity
               style={[
                 styles.routineCard,
-                selectedLevel === 'basic' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }]
+                selectedLevel === 'basic' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }],
+                hasNightRoutine && savedRoutineLevel === 'basic' && styles.routineCardSaved
               ]}
               onPress={() => setSelectedLevel('basic')}
             >
@@ -291,11 +290,18 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
                     BASIC
                   </Text>
                 </View>
-                {selectedLevel === 'basic' && (
-                  <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
-                    <Text style={styles.selectedIndicatorText}>✓</Text>
-                  </View>
-                )}
+                <View style={styles.routineHeaderRight}>
+                  {hasNightRoutine && savedRoutineLevel === 'basic' && (
+                    <View style={styles.savedBadge}>
+                      <Text style={styles.savedBadgeText}>SAVED</Text>
+                    </View>
+                  )}
+                  {selectedLevel === 'basic' && (
+                    <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
+                      <Text style={styles.selectedIndicatorText}>✓</Text>
+                    </View>
+                  )}
+                </View>
               </View>
               <Text style={styles.routineTitle}>{routineData.basic.title}</Text>
               <Text style={styles.routineDescription}>{routineData.basic.description}</Text>
@@ -320,7 +326,8 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
             <TouchableOpacity
               style={[
                 styles.routineCard,
-                selectedLevel === 'moderate' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }]
+                selectedLevel === 'moderate' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }],
+                hasNightRoutine && savedRoutineLevel === 'moderate' && styles.routineCardSaved
               ]}
               onPress={() => setSelectedLevel('moderate')}
             >
@@ -330,20 +337,28 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
                     MODERATE
                   </Text>
                 </View>
-                {selectedLevel === 'moderate' && (
-                  <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
-                    <Text style={styles.selectedIndicatorText}>✓</Text>
-                  </View>
-                )}
+                <View style={styles.routineHeaderRight}>
+                  {hasNightRoutine && savedRoutineLevel === 'moderate' && (
+                    <View style={styles.savedBadge}>
+                      <Text style={styles.savedBadgeText}>SAVED</Text>
+                    </View>
+                  )}
+                  {selectedLevel === 'moderate' && (
+                    <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
+                      <Text style={styles.selectedIndicatorText}>✓</Text>
+                    </View>
+                  )}
+                </View>
               </View>
               <Text style={styles.routineTitle}>{routineData.moderate.title}</Text>
               <Text style={styles.routineDescription}>{routineData.moderate.description}</Text>
               
               <View style={styles.routineSteps}>
                 <Text style={styles.stepsTitle}>Evening:</Text>
-                {routineData.moderate.steps.pm.map((step, index) => (
+                {routineData.moderate.steps.pm.slice(0, 3).map((step, index) => (
                   <Text key={index} style={styles.stepText}>• {step}</Text>
                 ))}
+                <Text style={styles.moreSteps}>+ additional steps</Text>
               </View>
 
               <View style={styles.benefitsContainer}>
@@ -359,7 +374,8 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
             <TouchableOpacity
               style={[
                 styles.routineCard,
-                selectedLevel === 'comprehensive' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }]
+                selectedLevel === 'comprehensive' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }],
+                hasNightRoutine && savedRoutineLevel === 'comprehensive' && styles.routineCardSaved
               ]}
               onPress={() => setSelectedLevel('comprehensive')}
             >
@@ -369,20 +385,28 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
                     COMPREHENSIVE
                   </Text>
                 </View>
-                {selectedLevel === 'comprehensive' && (
-                  <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
-                    <Text style={styles.selectedIndicatorText}>✓</Text>
-                  </View>
-                )}
+                <View style={styles.routineHeaderRight}>
+                  {hasNightRoutine && savedRoutineLevel === 'comprehensive' && (
+                    <View style={styles.savedBadge}>
+                      <Text style={styles.savedBadgeText}>SAVED</Text>
+                    </View>
+                  )}
+                  {selectedLevel === 'comprehensive' && (
+                    <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
+                      <Text style={styles.selectedIndicatorText}>✓</Text>
+                    </View>
+                  )}
+                </View>
               </View>
               <Text style={styles.routineTitle}>{routineData.comprehensive.title}</Text>
               <Text style={styles.routineDescription}>{routineData.comprehensive.description}</Text>
               
               <View style={styles.routineSteps}>
                 <Text style={styles.stepsTitle}>Full Treatment:</Text>
-                {routineData.comprehensive.steps.pm.map((step, index) => (
+                {routineData.comprehensive.steps.pm.slice(0, 3).map((step, index) => (
                   <Text key={index} style={styles.stepText}>• {step}</Text>
                 ))}
+                <Text style={styles.moreSteps}>+ advanced treatments & more</Text>
               </View>
 
               <View style={styles.benefitsContainer}>
@@ -395,7 +419,6 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
             </TouchableOpacity>
           </View>
 
-          {/* Trust Indicators */}
           <View style={styles.trustSection}>
             <View style={styles.trustItem}>
               <Text style={styles.trustText}>• Science-backed formulations</Text>
@@ -408,12 +431,10 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
             </View>
           </View>
 
-          {/* Bottom spacing before fixed button */}
           <View style={styles.bottomSpacing} />
         </View>
       </ScrollView>
 
-      {/* Fixed Bottom Section */}
       <View style={styles.bottomSection}>
         <DrAcneButton
           title={getButtonText()}
@@ -428,7 +449,6 @@ export default function NightRoutineScreen({ onBack, onSelectRoutine, onNavigate
     </View>
   );
 
-  // Main render - switch between screens
   return currentView === 'initial' ? renderInitialScreen() : renderCreateRoutineScreen();
 }
 
@@ -465,7 +485,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 20,
   },
-  // NEW: Fixed content container (non-scrollable)
   contentFixed: {
     flex: 1,
     paddingHorizontal: 20,
@@ -498,7 +517,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     paddingHorizontal: 10,
   },
-  // SKIN TEST REMINDER - NO EMOJI
   skinTestReminder: {
     flexDirection: 'row',
     backgroundColor: '#F0F8FF',
@@ -558,7 +576,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
   },
-  // BANNER BUTTONS STYLES
   bannerButtonsContainer: {
     marginTop: 5,
     gap: 15,
@@ -574,9 +591,38 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
+  bannerButtonActive: {
+    borderWidth: 3,
+    borderColor: BRAND_COLORS.primary,
+    shadowOpacity: 0.15,
+    elevation: 5,
+  },
   bannerButtonImage: {
     width: '100%',
     height: '100%',
+  },
+  savedRoutineOverlay: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  savedRoutineBadge: {
+    alignItems: 'center',
+  },
+  savedRoutineText: {
+    color: BRAND_COLORS.white,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  savedRoutineProducts: {
+    color: BRAND_COLORS.white,
+    fontSize: 10,
+    fontWeight: '500',
+    marginTop: 2,
   },
   routineLevelsContainer: {
     marginBottom: 8,
@@ -607,11 +653,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     elevation: 5,
   },
+  routineCardSaved: {
+    backgroundColor: '#F8FFF8',
+  },
   routineHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 4,
+  },
+  routineHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   routineBadge: {
     paddingHorizontal: 10,
@@ -620,6 +674,17 @@ const styles = StyleSheet.create({
   },
   routineBadgeText: {
     fontSize: 11,
+    fontWeight: '700',
+  },
+  savedBadge: {
+    backgroundColor: BRAND_COLORS.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  savedBadgeText: {
+    color: BRAND_COLORS.white,
+    fontSize: 10,
     fontWeight: '700',
   },
   selectedIndicator: {

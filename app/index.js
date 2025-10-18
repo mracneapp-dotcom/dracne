@@ -1,4 +1,4 @@
-// app/index.js - UPDATED WITH MODERATE ROUTINE COMPLETE
+// app/index.js - UPDATED WITH COMPREHENSIVE ROUTINE COMPLETE
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -39,11 +39,38 @@ import ModerateRoutineStep3ProductSelection from './ModerateRoutineStep3ProductS
 import ModerateRoutineStep4Info from './ModerateRoutineStep4Info';
 import ModerateRoutineStep4ProductSelection from './ModerateRoutineStep4ProductSelection';
 
+// Comprehensive Routine Screens
+import ComprehensiveRoutineStep1Info from './ComprehensiveRoutineStep1Info';
+import ComprehensiveRoutineStep1ProductSelection from './ComprehensiveRoutineStep1ProductSelection';
+import ComprehensiveRoutineStep2Info from './ComprehensiveRoutineStep2Info';
+import ComprehensiveRoutineStep2ProductSelection from './ComprehensiveRoutineStep2ProductSelection';
+import ComprehensiveRoutineStep3Info from './ComprehensiveRoutineStep3Info';
+import ComprehensiveRoutineStep3ProductSelection from './ComprehensiveRoutineStep3ProductSelection';
+import ComprehensiveRoutineStep4Info from './ComprehensiveRoutineStep4Info';
+import ComprehensiveRoutineStep4ProductSelection from './ComprehensiveRoutineStep4ProductSelection';
+import ComprehensiveRoutineStep5Info from './ComprehensiveRoutineStep5Info';
+import ComprehensiveRoutineStep5ProductSelection from './ComprehensiveRoutineStep5ProductSelection';
+
+// Basic Night Routine Screens
+import BasicNightRoutineStep1Info from './BasicNightRoutineStep1Info';
+import BasicNightRoutineStep1ProductSelection from './BasicNightRoutineStep1ProductSelection';
+import BasicNightRoutineStep2Info from './BasicNightRoutineStep2Info';
+import BasicNightRoutineStep2ProductSelection from './BasicNightRoutineStep2ProductSelection';
+
+// Moderate Night Routine Screens
+import ModerateNightRoutineStep1Info from './ModerateNightRoutineStep1Info';
+import ModerateNightRoutineStep1ProductSelection from './ModerateNightRoutineStep1ProductSelection';
+import ModerateNightRoutineStep2Info from './ModerateNightRoutineStep2Info';
+import ModerateNightRoutineStep2ProductSelection from './ModerateNightRoutineStep2ProductSelection';
+import ModerateNightRoutineStep3Info from './ModerateNightRoutineStep3Info';
+import ModerateNightRoutineStep3ProductSelection from './ModerateNightRoutineStep3ProductSelection';
+
 // Main App Screens
 import DayRoutineScreen from './DayRoutineScreen';
 import { HomeScreen } from './HomeScreen';
 import { KnownSkinTypeScreen } from './KnownSkinTypeScreen';
 import MyDayRoutine from './MyDayRoutine';
+import MyNightRoutine from './MyNightRoutine';
 import NightRoutineScreen from './NightRoutineScreen';
 import { SkinTestScreen } from './SkinTestScreen';
 import { SkinTypeResultsScreen } from './SkinTypeResultsScreen';
@@ -133,6 +160,22 @@ export default function AIScannerScreen() {
   const [showModerateProductSelectionStep3, setShowModerateProductSelectionStep3] = useState(false);
   const [showModerateProductSelectionStep4, setShowModerateProductSelectionStep4] = useState(false);
   
+  // Comprehensive Routine State
+  const [showComprehensiveProductSelection, setShowComprehensiveProductSelection] = useState(false);
+  const [showComprehensiveProductSelectionStep2, setShowComprehensiveProductSelectionStep2] = useState(false);
+  const [showComprehensiveProductSelectionStep3, setShowComprehensiveProductSelectionStep3] = useState(false);
+  const [showComprehensiveProductSelectionStep4, setShowComprehensiveProductSelectionStep4] = useState(false);
+  const [showComprehensiveProductSelectionStep5, setShowComprehensiveProductSelectionStep5] = useState(false);
+  
+  // Basic Night Routine State
+const [showNightProductSelection, setShowNightProductSelection] = useState(false);
+const [showNightProductSelectionStep2, setShowNightProductSelectionStep2] = useState(false);
+
+// Moderate Night Routine State
+const [showModerateNightProductSelection, setShowModerateNightProductSelection] = useState(false);
+const [showModerateNightProductSelectionStep2, setShowModerateNightProductSelectionStep2] = useState(false);
+const [showModerateNightProductSelectionStep3, setShowModerateNightProductSelectionStep3] = useState(false);
+
   // Home Screen State
   const [userStreak, setUserStreak] = useState(5);
   const [lastActiveDate, setLastActiveDate] = useState(new Date().toDateString());
@@ -231,6 +274,14 @@ export default function AIScannerScreen() {
       'dayRoutine': 0,
       'nightRoutine': 0,
       'myDayRoutine': 0,
+      'myNightRoutine': 0,
+      'basicNightRoutineStep1': 0,
+      'basicNightRoutineStep2': 0,
+      'basicNightRoutineStep2': 0,
+      'moderateNightRoutineStep1': 0,
+      'moderateNightRoutineStep2': 0,
+      'moderateNightRoutineStep3': 0,
+      'basicRoutineStep1': 0,
       'basicRoutineStep1': 0,
       'basicRoutineStep2': 0,
       'basicRoutineStep3': 0,
@@ -238,6 +289,11 @@ export default function AIScannerScreen() {
       'moderateRoutineStep2': 0,
       'moderateRoutineStep3': 0,
       'moderateRoutineStep4': 0,
+      'comprehensiveRoutineStep1': 0,
+      'comprehensiveRoutineStep2': 0,
+      'comprehensiveRoutineStep3': 0,
+      'comprehensiveRoutineStep4': 0,
+      'comprehensiveRoutineStep5': 0,
       'capture': 0,
       'analyzing': 0,
       'results': 0,
@@ -289,6 +345,38 @@ export default function AIScannerScreen() {
     } else if (currentStep === 'moderateRoutineStep4') {
       setShowModerateProductSelectionStep4(false);
       setCurrentStep('moderateRoutineStep3');
+    } else if (currentStep === 'comprehensiveRoutineStep1') {
+      setShowComprehensiveProductSelection(false);
+      setCurrentStep('dayRoutine');
+    } else if (currentStep === 'comprehensiveRoutineStep2') {
+      setShowComprehensiveProductSelectionStep2(false);
+      setCurrentStep('comprehensiveRoutineStep1');
+    } else if (currentStep === 'comprehensiveRoutineStep3') {
+      setShowComprehensiveProductSelectionStep3(false);
+      setCurrentStep('comprehensiveRoutineStep2');
+    } else if (currentStep === 'comprehensiveRoutineStep4') {
+      setShowComprehensiveProductSelectionStep4(false);
+      setCurrentStep('comprehensiveRoutineStep3');
+    } else if (currentStep === 'comprehensiveRoutineStep5') {
+      setShowComprehensiveProductSelectionStep5(false);
+      setCurrentStep('comprehensiveRoutineStep4');
+    } else if (currentStep === 'myNightRoutine') {
+      setCurrentStep('nightRoutine');
+    } else if (currentStep === 'basicNightRoutineStep1') {
+      setShowNightProductSelection(false);
+      setCurrentStep('nightRoutine');
+    } else if (currentStep === 'basicNightRoutineStep2') {
+      setShowNightProductSelectionStep2(false);
+      setCurrentStep('basicNightRoutineStep1');
+    } else if (currentStep === 'moderateNightRoutineStep1') {
+      setShowModerateNightProductSelection(false);
+      setCurrentStep('nightRoutine');
+    } else if (currentStep === 'moderateNightRoutineStep2') {
+      setShowModerateNightProductSelectionStep2(false);
+      setCurrentStep('moderateNightRoutineStep1');
+    } else if (currentStep === 'moderateNightRoutineStep3') {
+      setShowModerateNightProductSelectionStep3(false);
+      setCurrentStep('moderateNightRoutineStep2');
     } else if (currentStep === 'skinTest') {
       setCurrentStep('results');
     } else if (currentStep === 'test1') {
@@ -371,26 +459,53 @@ export default function AIScannerScreen() {
     setCurrentStep('myDayRoutine');
   };
 
+  const handleNavigateToMyNightRoutine = () => {
+    console.log('Navigate to My Night Routine');
+    setCurrentStep('myNightRoutine');
+  };
+
   const handleRoutineSelection = (level, timeOfDay, routineData) => {
     console.log(`Selected ${level} ${timeOfDay} routine:`, routineData);
     
-    if (level === 'basic') {
-      setShowProductSelection(false);
-      setShowProductSelectionStep2(false);
-      setShowProductSelectionStep3(false);
-      setCurrentStep('basicRoutineStep1');
-    } else if (level === 'moderate') {
-      setShowModerateProductSelection(false);
-      setShowModerateProductSelectionStep2(false);
-      setShowModerateProductSelectionStep3(false);
-      setShowModerateProductSelectionStep4(false);
-      setCurrentStep('moderateRoutineStep1');
+    if (timeOfDay === 'evening') {
+      // Night Routine Selection
+      if (level === 'basic') {
+        setShowNightProductSelection(false);
+        setShowNightProductSelectionStep2(false);
+        setCurrentStep('basicNightRoutineStep1');
+      } else if (level === 'moderate') {
+        setShowModerateNightProductSelection(false);
+        setShowModerateNightProductSelectionStep2(false);
+        setShowModerateNightProductSelectionStep3(false);
+        setCurrentStep('moderateNightRoutineStep1');
+      }
     } else {
-      Alert.alert(
-        'Coming Soon',
-        `${level.charAt(0).toUpperCase() + level.slice(1)} routine product selection will be available soon!`,
-        [{ text: 'OK', onPress: () => setCurrentStep('home') }]
-      );
+      // Day Routine Selection (existing code)
+      if (level === 'basic') {
+        setShowProductSelection(false);
+        setShowProductSelectionStep2(false);
+        setShowProductSelectionStep3(false);
+        setCurrentStep('basicRoutineStep1');
+      } else if (level === 'moderate') {
+        setShowModerateProductSelection(false);
+        setShowModerateProductSelectionStep2(false);
+        setShowModerateProductSelectionStep3(false);
+        setShowModerateProductSelectionStep4(false);
+        setCurrentStep('moderateRoutineStep1');
+      } else if (level === 'comprehensive' || level === 'intensive') {
+        setShowComprehensiveProductSelection(false);
+        setShowComprehensiveProductSelectionStep2(false);
+        setShowComprehensiveProductSelectionStep3(false);
+        setShowComprehensiveProductSelectionStep4(false);
+        setShowComprehensiveProductSelectionStep5(false);
+        setCurrentStep('comprehensiveRoutineStep1');
+      } else {
+        Alert.alert(
+          'Coming Soon',
+          `${level.charAt(0).toUpperCase() + level.slice(1)} routine will be available soon!`,
+          [{ text: 'OK', onPress: () => setCurrentStep('home') }]
+        );
+      }
     }
   };
 
@@ -414,6 +529,53 @@ export default function AIScannerScreen() {
     console.log('Sunscreens selected:', products);
     setSelectedProducts(prev => ({ ...prev, sunscreens: products }));
   };
+
+  // Basic Night Routine Handlers
+const handleNightCleanserSelected = (products) => {
+  console.log('Night - Cleansers selected:', products);
+
+  // Save cleanser selection to profile
+  setSkinProfile(prev => ({
+    ...prev,
+    nightRoutine: {
+      ...prev.nightRoutine,
+      level: 'basic',
+      timeOfDay: 'evening',
+      products: {
+        ...prev.nightRoutine?.products,
+        cleansers: products
+      }
+    }
+  }));
+  
+  setShowNightProductSelectionStep2(false);
+  setCurrentStep('basicNightRoutineStep2');
+};
+
+const handleNightMoisturizerSelected = (products) => {
+  console.log('Night - Moisturizers selected:', products);
+  
+  // Save the night routine to state
+  setSkinProfile(prev => ({
+    ...prev,
+    nightRoutine: {
+      level: 'basic',
+      timeOfDay: 'evening',
+      products: {
+        cleansers: prev.nightRoutine?.products?.cleansers || [],
+        moisturizers: products
+      },
+      completedAt: new Date().toISOString()
+    }
+  }));
+  
+  // Show success message
+  Alert.alert(
+    'Night Routine Saved!',
+    'Your basic night routine has been saved successfully.',
+    [{ text: 'OK', onPress: () => setCurrentStep('nightRoutine') }]
+  );
+};
 
   // Moderate Routine Handlers
   const handleModerateCleanserSelected = (products) => {
@@ -439,6 +601,41 @@ export default function AIScannerScreen() {
 
   const handleModerateSunscreenSelected = (products) => {
     console.log('Moderate - Sunscreens selected:', products);
+  };
+
+  // Comprehensive Routine Handlers
+  const handleComprehensiveCleanserSelected = (products) => {
+    console.log('Comprehensive - Cleansers selected:', products);
+    setShowComprehensiveProductSelectionStep2(false);
+    setShowComprehensiveProductSelectionStep3(false);
+    setShowComprehensiveProductSelectionStep4(false);
+    setShowComprehensiveProductSelectionStep5(false);
+    setCurrentStep('comprehensiveRoutineStep2');
+  };
+
+  const handleComprehensiveMoisturizerSelected = (products) => {
+    console.log('Comprehensive - Moisturizers selected:', products);
+    setShowComprehensiveProductSelectionStep3(false);
+    setShowComprehensiveProductSelectionStep4(false);
+    setShowComprehensiveProductSelectionStep5(false);
+    setCurrentStep('comprehensiveRoutineStep3');
+  };
+
+  const handleComprehensiveSpecializedSelected = (products) => {
+    console.log('Comprehensive - Specialized products selected:', products);
+    setShowComprehensiveProductSelectionStep4(false);
+    setShowComprehensiveProductSelectionStep5(false);
+    setCurrentStep('comprehensiveRoutineStep4');
+  };
+
+  const handleComprehensiveAdvancedSelected = (products) => {
+    console.log('Comprehensive - Advanced treatments selected:', products);
+    setShowComprehensiveProductSelectionStep5(false);
+    setCurrentStep('comprehensiveRoutineStep5');
+  };
+
+  const handleComprehensiveSunscreenSelected = (products) => {
+    console.log('Comprehensive - Sunscreens selected:', products);
   };
 
   useEffect(() => {
@@ -714,10 +911,17 @@ export default function AIScannerScreen() {
     setShowProductSelection(false);
     setShowProductSelectionStep2(false);
     setShowProductSelectionStep3(false);
+    setShowNightProductSelection(false);
+    setShowNightProductSelectionStep2(false);
     setShowModerateProductSelection(false);
     setShowModerateProductSelectionStep2(false);
     setShowModerateProductSelectionStep3(false);
     setShowModerateProductSelectionStep4(false);
+    setShowComprehensiveProductSelection(false);
+    setShowComprehensiveProductSelectionStep2(false);
+    setShowComprehensiveProductSelectionStep3(false);
+    setShowComprehensiveProductSelectionStep4(false);
+    setShowComprehensiveProductSelectionStep5(false);
     
     const resetSteps = analysisSteps.map(step => ({ ...step, active: false }));
     setAnalysisSteps(resetSteps);
@@ -874,9 +1078,11 @@ export default function AIScannerScreen() {
   const renderNightRoutine = () => (
     <View style={styles.screenContainer}>
       <NightRoutineScreen
-        onBack={() => setCurrentStep('home')}
+        onNavigateHome={() => setCurrentStep('home')}
         onSelectRoutine={handleRoutineSelection}
         onNavigateToSkinTest={handleNavigateToSkinTest}
+        onNavigateToMyNightRoutine={handleNavigateToMyNightRoutine}
+        skinProfile={skinProfile} // ADD THIS LINE
         style={styles.screenContent}
       />
     </View>
@@ -898,6 +1104,211 @@ export default function AIScannerScreen() {
       />
     </View>
   );
+
+  const renderMyNightRoutine = () => (
+    <View style={styles.screenContainer}>
+      <MyNightRoutine
+        onNavigateHome={() => setCurrentStep('home')}
+        onNavigateToNightRoutine={() => setCurrentStep('nightRoutine')}
+        onNavigateToBasicNightRoutine={() => {
+          setShowNightProductSelection(false);
+          setShowNightProductSelectionStep2(false);
+          setCurrentStep('basicNightRoutineStep1');
+        }}
+        onBack={() => setCurrentStep('nightRoutine')}
+        style={styles.screenContent}
+      />
+    </View>
+  );
+  
+  // BASIC NIGHT ROUTINE RENDERS
+  const renderBasicNightRoutineStep1 = () => {
+    if (!showNightProductSelection) {
+      return (
+        <View style={styles.screenContainer}>
+          <BasicNightRoutineStep1Info
+            onNavigateHome={() => setCurrentStep('home')}
+            onNavigateToNightRoutine={() => setCurrentStep('nightRoutine')}
+            onBack={() => {
+              setShowNightProductSelection(false);
+              setCurrentStep('nightRoutine');
+            }}
+            onContinue={() => setShowNightProductSelection(true)}
+            currentStep={1}
+            internalStep={1}
+            style={styles.screenContent}
+          />
+        </View>
+      );
+    }
+    
+    return (
+      <View style={styles.screenContainer}>
+        <BasicNightRoutineStep1ProductSelection
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToNightRoutine={() => setCurrentStep('nightRoutine')}
+          onBack={() => setShowNightProductSelection(false)}
+          onContinue={handleNightCleanserSelected}
+          currentStep={1}
+          internalStep={2}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  };
+  
+  const renderBasicNightRoutineStep2 = () => {
+    if (!showNightProductSelectionStep2) {
+      return (
+        <View style={styles.screenContainer}>
+          <BasicNightRoutineStep2Info
+            onNavigateHome={() => setCurrentStep('home')}
+            onNavigateToNightRoutine={() => setCurrentStep('nightRoutine')}
+            onBack={() => {
+              setShowNightProductSelectionStep2(false);
+              setCurrentStep('basicNightRoutineStep1');
+            }}
+            onContinue={() => setShowNightProductSelectionStep2(true)}
+            currentStep={2}
+            internalStep={3}
+            style={styles.screenContent}
+          />
+        </View>
+      );
+    }
+    
+    return (
+      <View style={styles.screenContainer}>
+        <BasicNightRoutineStep2ProductSelection
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToNightRoutine={() => setCurrentStep('nightRoutine')}
+          onBack={() => setShowNightProductSelectionStep2(false)}
+          onComplete={handleNightMoisturizerSelected}
+          currentStep={2}
+          internalStep={4}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  };
+
+  // MODERATE NIGHT ROUTINE RENDERS
+const renderModerateNightRoutineStep1 = () => {
+  if (!showModerateNightProductSelection) {
+    return (
+      <View style={styles.screenContainer}>
+        <ModerateNightRoutineStep1Info
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToNightRoutine={() => setCurrentStep('nightRoutine')}
+          onBack={() => {
+            setShowModerateNightProductSelection(false);
+            setCurrentStep('nightRoutine');
+          }}
+          onContinue={() => setShowModerateNightProductSelection(true)}
+          currentStep={1}
+          internalStep={1}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  }
+  
+  return (
+    <View style={styles.screenContainer}>
+      <ModerateNightRoutineStep1ProductSelection
+        onNavigateHome={() => setCurrentStep('home')}
+        onNavigateToNightRoutine={() => setCurrentStep('nightRoutine')}
+        onBack={() => setShowModerateNightProductSelection(false)}
+        onContinue={(products) => {  // ✅ FIXED: Changed from onComplete to onContinue
+          console.log('Moderate Night - Cleansers selected:', products);
+          setShowModerateNightProductSelectionStep2(false);
+          setShowModerateNightProductSelectionStep3(false);
+          setCurrentStep('moderateNightRoutineStep2');
+        }}
+        currentStep={1}
+        internalStep={2}
+        style={styles.screenContent}
+      />
+    </View>
+  );
+};
+
+const renderModerateNightRoutineStep2 = () => {
+  if (!showModerateNightProductSelectionStep2) {
+    return (
+      <View style={styles.screenContainer}>
+        <ModerateNightRoutineStep2Info
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToNightRoutine={() => setCurrentStep('nightRoutine')}
+          onBack={() => {
+            setShowModerateNightProductSelectionStep2(false);
+            setCurrentStep('moderateNightRoutineStep1');
+          }}
+          onContinue={() => setShowModerateNightProductSelectionStep2(true)}
+          currentStep={2}
+          internalStep={3}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  }
+  
+  return (
+    <View style={styles.screenContainer}>
+      <ModerateNightRoutineStep2ProductSelection
+        onNavigateHome={() => setCurrentStep('home')}
+        onNavigateToNightRoutine={() => setCurrentStep('nightRoutine')}
+        onBack={() => setShowModerateNightProductSelectionStep2(false)}
+        onContinue={(products) => {  // ✅ Make sure this says onContinue
+          console.log('Moderate Night - Moisturizers selected:', products);
+          setShowModerateNightProductSelectionStep3(false);
+          setCurrentStep('moderateNightRoutineStep3');
+        }}
+        currentStep={2}
+        internalStep={4}
+        style={styles.screenContent}
+      />
+    </View>
+  );
+};
+
+const renderModerateNightRoutineStep3 = () => {
+  if (!showModerateNightProductSelectionStep3) {
+    return (
+      <View style={styles.screenContainer}>
+        <ModerateNightRoutineStep3Info
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToNightRoutine={() => setCurrentStep('nightRoutine')}
+          onBack={() => {
+            setShowModerateNightProductSelectionStep3(false);
+            setCurrentStep('moderateNightRoutineStep2');
+          }}
+          onContinue={() => setShowModerateNightProductSelectionStep3(true)}
+          currentStep={3}
+          internalStep={5}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  }
+  
+  return (
+    <View style={styles.screenContainer}>
+      <ModerateNightRoutineStep3ProductSelection
+        onNavigateHome={() => setCurrentStep('home')}
+        onNavigateToNightRoutine={() => setCurrentStep('nightRoutine')}
+        onBack={() => setShowModerateNightProductSelectionStep3(false)}
+        onComplete={(products) => {  // ✅ Step 3 can use onComplete (final step)
+          console.log('Moderate Night - Pore Care selected:', products);
+          // This will show completion modal from within the component
+        }}
+        currentStep={3}
+        internalStep={6}
+        style={styles.screenContent}
+      />
+    </View>
+  );
+};
 
   // BASIC ROUTINE RENDERS
   const renderBasicRoutineStep1 = () => {
@@ -1146,6 +1557,182 @@ export default function AIScannerScreen() {
     );
   };
 
+  // COMPREHENSIVE ROUTINE RENDERS
+  const renderComprehensiveRoutineStep1 = () => {
+    if (!showComprehensiveProductSelection) {
+      return (
+        <View style={styles.screenContainer}>
+          <ComprehensiveRoutineStep1Info
+            onNavigateHome={() => setCurrentStep('home')}
+            onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+            onBack={() => {
+              setShowComprehensiveProductSelection(false);
+              setCurrentStep('dayRoutine');
+            }}
+            onContinue={() => setShowComprehensiveProductSelection(true)}
+            currentStep={1}
+            internalStep={1}
+            style={styles.screenContent}
+          />
+        </View>
+      );
+    }
+    
+    return (
+      <View style={styles.screenContainer}>
+        <ComprehensiveRoutineStep1ProductSelection
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+          onBack={() => setShowComprehensiveProductSelection(false)}
+          onContinue={handleComprehensiveCleanserSelected}
+          currentStep={1}
+          internalStep={2}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  };
+
+  const renderComprehensiveRoutineStep2 = () => {
+    if (!showComprehensiveProductSelectionStep2) {
+      return (
+        <View style={styles.screenContainer}>
+          <ComprehensiveRoutineStep2Info
+            onNavigateHome={() => setCurrentStep('home')}
+            onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+            onBack={() => {
+              setShowComprehensiveProductSelectionStep2(false);
+              setCurrentStep('comprehensiveRoutineStep1');
+            }}
+            onContinue={() => setShowComprehensiveProductSelectionStep2(true)}
+            currentStep={2}
+            internalStep={3}
+            style={styles.screenContent}
+          />
+        </View>
+      );
+    }
+    
+    return (
+      <View style={styles.screenContainer}>
+        <ComprehensiveRoutineStep2ProductSelection
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+          onBack={() => setShowComprehensiveProductSelectionStep2(false)}
+          onContinue={handleComprehensiveMoisturizerSelected}
+          currentStep={2}
+          internalStep={4}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  };
+
+  const renderComprehensiveRoutineStep3 = () => {
+    if (!showComprehensiveProductSelectionStep3) {
+      return (
+        <View style={styles.screenContainer}>
+          <ComprehensiveRoutineStep3Info
+            onNavigateHome={() => setCurrentStep('home')}
+            onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+            onBack={() => {
+              setShowComprehensiveProductSelectionStep3(false);
+              setCurrentStep('comprehensiveRoutineStep2');
+            }}
+            onContinue={() => setShowComprehensiveProductSelectionStep3(true)}
+            currentStep={3}
+            internalStep={5}
+            style={styles.screenContent}
+          />
+        </View>
+      );
+    }
+    
+    return (
+      <View style={styles.screenContainer}>
+        <ComprehensiveRoutineStep3ProductSelection
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+          onBack={() => setShowComprehensiveProductSelectionStep3(false)}
+          onContinue={handleComprehensiveSpecializedSelected}
+          currentStep={3}
+          internalStep={6}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  };
+
+  const renderComprehensiveRoutineStep4 = () => {
+    if (!showComprehensiveProductSelectionStep4) {
+      return (
+        <View style={styles.screenContainer}>
+          <ComprehensiveRoutineStep4Info
+            onNavigateHome={() => setCurrentStep('home')}
+            onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+            onBack={() => {
+              setShowComprehensiveProductSelectionStep4(false);
+              setCurrentStep('comprehensiveRoutineStep3');
+            }}
+            onContinue={() => setShowComprehensiveProductSelectionStep4(true)}
+            currentStep={4}
+            internalStep={7}
+            style={styles.screenContent}
+          />
+        </View>
+      );
+    }
+    
+    return (
+      <View style={styles.screenContainer}>
+        <ComprehensiveRoutineStep4ProductSelection
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+          onBack={() => setShowComprehensiveProductSelectionStep4(false)}
+          onContinue={handleComprehensiveAdvancedSelected}
+          currentStep={4}
+          internalStep={8}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  };
+
+  const renderComprehensiveRoutineStep5 = () => {
+    if (!showComprehensiveProductSelectionStep5) {
+      return (
+        <View style={styles.screenContainer}>
+          <ComprehensiveRoutineStep5Info
+            onNavigateHome={() => setCurrentStep('home')}
+            onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+            onBack={() => {
+              setShowComprehensiveProductSelectionStep5(false);
+              setCurrentStep('comprehensiveRoutineStep4');
+            }}
+            onContinue={() => setShowComprehensiveProductSelectionStep5(true)}
+            currentStep={5}
+            internalStep={9}
+            style={styles.screenContent}
+          />
+        </View>
+      );
+    }
+    
+    return (
+      <View style={styles.screenContainer}>
+        <ComprehensiveRoutineStep5ProductSelection
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToDayRoutine={() => setCurrentStep('dayRoutine')}
+          onBack={() => setShowComprehensiveProductSelectionStep5(false)}
+          onComplete={handleComprehensiveSunscreenSelected}
+          currentStep={5}
+          internalStep={10}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  };
+
   const renderCapture = () => (
     <View style={styles.captureContainer}>
       <PhotoCapture
@@ -1363,6 +1950,17 @@ export default function AIScannerScreen() {
         {isOnboardingComplete && currentStep === 'dayRoutine' && renderDayRoutine()}
         {isOnboardingComplete && currentStep === 'nightRoutine' && renderNightRoutine()}
         {isOnboardingComplete && currentStep === 'myDayRoutine' && renderMyDayRoutine()}
+        {isOnboardingComplete && currentStep === 'myNightRoutine' && renderMyNightRoutine()}
+
+        {/* Basic Night Routine Flow */}
+        {isOnboardingComplete && currentStep === 'basicNightRoutineStep1' && renderBasicNightRoutineStep1()}
+        {isOnboardingComplete && currentStep === 'basicNightRoutineStep2' && renderBasicNightRoutineStep2()}
+        {isOnboardingComplete && currentStep === 'basicNightRoutineStep2' && renderBasicNightRoutineStep2()}
+        
+        {/* Moderate Night Routine Flow */}
+        {isOnboardingComplete && currentStep === 'moderateNightRoutineStep1' && renderModerateNightRoutineStep1()}
+        {isOnboardingComplete && currentStep === 'moderateNightRoutineStep2' && renderModerateNightRoutineStep2()}
+        {isOnboardingComplete && currentStep === 'moderateNightRoutineStep3' && renderModerateNightRoutineStep3()}
         
         {/* Basic Routine Flow */}
         {isOnboardingComplete && currentStep === 'basicRoutineStep1' && renderBasicRoutineStep1()}
@@ -1374,6 +1972,13 @@ export default function AIScannerScreen() {
         {isOnboardingComplete && currentStep === 'moderateRoutineStep2' && renderModerateRoutineStep2()}
         {isOnboardingComplete && currentStep === 'moderateRoutineStep3' && renderModerateRoutineStep3()}
         {isOnboardingComplete && currentStep === 'moderateRoutineStep4' && renderModerateRoutineStep4()}
+        
+        {/* Comprehensive Routine Flow */}
+        {isOnboardingComplete && currentStep === 'comprehensiveRoutineStep1' && renderComprehensiveRoutineStep1()}
+        {isOnboardingComplete && currentStep === 'comprehensiveRoutineStep2' && renderComprehensiveRoutineStep2()}
+        {isOnboardingComplete && currentStep === 'comprehensiveRoutineStep3' && renderComprehensiveRoutineStep3()}
+        {isOnboardingComplete && currentStep === 'comprehensiveRoutineStep4' && renderComprehensiveRoutineStep4()}
+        {isOnboardingComplete && currentStep === 'comprehensiveRoutineStep5' && renderComprehensiveRoutineStep5()}
         
         {/* Analysis Flow */}
         {isOnboardingComplete && currentStep === 'capture' && renderCapture()}
@@ -1399,6 +2004,12 @@ export default function AIScannerScreen() {
         currentStep === 'dayRoutine' || 
         currentStep === 'nightRoutine' ||
         currentStep === 'myDayRoutine' ||
+        currentStep === 'myNightRoutine' ||
+        currentStep === 'basicNightRoutineStep1' ||
+        currentStep === 'basicNightRoutineStep2' ||
+        currentStep === 'moderateNightRoutineStep1' ||
+        currentStep === 'moderateNightRoutineStep2' ||
+        currentStep === 'moderateNightRoutineStep3' ||
         currentStep === 'basicRoutineStep1' ||
         currentStep === 'basicRoutineStep2' ||
         currentStep === 'basicRoutineStep3' ||
@@ -1406,6 +2017,11 @@ export default function AIScannerScreen() {
         currentStep === 'moderateRoutineStep2' ||
         currentStep === 'moderateRoutineStep3' ||
         currentStep === 'moderateRoutineStep4' ||
+        currentStep === 'comprehensiveRoutineStep1' ||
+        currentStep === 'comprehensiveRoutineStep2' ||
+        currentStep === 'comprehensiveRoutineStep3' ||
+        currentStep === 'comprehensiveRoutineStep4' ||
+        currentStep === 'comprehensiveRoutineStep5' ||
         currentStep === 'skinTest' || 
         currentStep === 'knownSkinType' || 
         currentStep === 'skinTypeResults' || 

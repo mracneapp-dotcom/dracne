@@ -1,4 +1,4 @@
-// app/ModerateNightRoutineStep2ProductSelection.js - CONTINUE TO STEP 3 (NO COMPLETION)
+// app/BasicNightRoutineStep2ProductSelection.js - FIXED COMPLETION MODAL
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import RoutineCompletionModal from '../components/modals/RoutineCompletionModal';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
 const BRAND_COLORS = {
@@ -193,17 +194,19 @@ const MOISTURIZER_PRODUCTS = {
   ],
 };
 
-export default function ModerateNightRoutineStep2ProductSelection({ 
+export default function BasicNightRoutineStep2ProductSelection({ 
   onNavigateHome,
   onNavigateToNightRoutine,
   onBack, 
-  onContinue,
+  onComplete, 
   currentStep = 2,
   internalStep = 4
 }) {
   const [skinType, setSkinType] = useState('normal');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [products, setProducts] = useState([]);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [completeRoutineData, setCompleteRoutineData] = useState(null);
 
   useEffect(() => {
     loadSkinType();
@@ -224,27 +227,47 @@ export default function ModerateNightRoutineStep2ProductSelection({
     }
   };
 
-  const handleContinue = async () => {
+  const handleComplete = async () => {
     if (selectedProduct) {
       try {
-        const routineData = await AsyncStorage.getItem('myModerateNightRoutine');
+        const routineData = await AsyncStorage.getItem('myNightRoutine');
         const currentRoutine = routineData ? JSON.parse(routineData) : {};
         
         currentRoutine.moisturizers = [selectedProduct];
         currentRoutine.lastUpdated = new Date().toISOString();
+        currentRoutine.completedAt = new Date().toISOString();
         
-        await AsyncStorage.setItem('myModerateNightRoutine', JSON.stringify(currentRoutine));
+        await AsyncStorage.setItem('myNightRoutine', JSON.stringify(currentRoutine));
         
-        console.log('Moderate Night Step 2 Saved:', currentRoutine);
-        console.log('Cleansers:', currentRoutine.cleansers);
-        console.log('Moisturizers:', currentRoutine.moisturizers);
+        console.log('✅ Complete Night Routine Saved:', currentRoutine);
+        console.log('📦 Cleansers:', currentRoutine.cleansers);
+        console.log('📦 Moisturizers:', currentRoutine.moisturizers);
         
-        if (onContinue) {
-          onContinue([selectedProduct]);
-        }
+        setCompleteRoutineData(currentRoutine);
+        setShowCompletionModal(true);
       } catch (error) {
-        console.error('Error saving Moderate Night routine step 2:', error);
+        console.error('❌ Error saving complete night routine:', error);
       }
+    }
+  };
+
+  const handleModalClose = () => {
+    console.log('🏠 Modal closed - navigating to Home');
+    setShowCompletionModal(false);
+    if (onNavigateHome) {
+      setTimeout(() => {
+        onNavigateHome();
+      }, 300);
+    }
+  };
+
+  const handleViewRoutine = () => {
+    console.log('📋 Viewing Night Routine');
+    setShowCompletionModal(false);
+    if (onNavigateToNightRoutine) {
+      setTimeout(() => {
+        onNavigateToNightRoutine();
+      }, 300);
     }
   };
 
@@ -256,7 +279,7 @@ export default function ModerateNightRoutineStep2ProductSelection({
 
   const handleNextStep = () => {
     if (selectedProduct) {
-      handleContinue();
+      handleComplete();
     }
   };
 
@@ -264,12 +287,12 @@ export default function ModerateNightRoutineStep2ProductSelection({
     if (!selectedProduct) {
       return 'Choose My Moisturizer';
     }
-    return 'Continue to Step 3';
+    return 'Complete Basic Night Routine';
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const totalSteps = 3;
-  const totalInternalSteps = 6;
+  const totalSteps = 2;
+  const totalInternalSteps = 4;
   const canGoNext = !!selectedProduct;
 
   return (
@@ -341,7 +364,7 @@ export default function ModerateNightRoutineStep2ProductSelection({
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose your evening moisturizer. This will support your skin's natural overnight repair process with enhanced hydration.
+              Choose your evening moisturizer to complete your basic night routine. This will support your skin's natural overnight repair process.
             </Text>
           </View>
 
@@ -389,7 +412,7 @@ export default function ModerateNightRoutineStep2ProductSelection({
 
           {!selectedProduct && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select 1 product to continue to Step 3</Text>
+              <Text style={styles.helperText}>Select 1 product to complete your routine</Text>
             </View>
           )}
 
@@ -400,11 +423,20 @@ export default function ModerateNightRoutineStep2ProductSelection({
       <View style={styles.bottomSection}>
         <DrAcneButton
           title={getButtonText()}
-          onPress={handleContinue}
+          onPress={handleComplete}
           disabled={!selectedProduct}
           style={[styles.continueButton, !selectedProduct && styles.continueButtonDisabled]}
         />
       </View>
+
+      <RoutineCompletionModal
+        visible={showCompletionModal}
+        onClose={handleModalClose}
+        onViewRoutine={handleViewRoutine}
+        routineData={completeRoutineData}
+        routineType="basic"
+        isNightRoutine={true}
+      />
     </View>
   );
 }

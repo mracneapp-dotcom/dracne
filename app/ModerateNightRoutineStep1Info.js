@@ -1,12 +1,12 @@
-// app/ModerateNightRoutineStep2Info.js - CORRECTED STEP COUNTS
+// app/ModerateNightRoutineStep1Info.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -29,13 +29,13 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
 };
 
-export default function ModerateNightRoutineStep2Info({ 
+export default function ModerateNightRoutineStep1Info({ 
   onNavigateHome,
   onNavigateToNightRoutine,
   onBack, 
   onContinue, 
-  currentStep = 2,
-  internalStep = 3
+  currentStep = 1,
+  internalStep = 1
 }) {
   const [skinType, setSkinType] = useState('normal');
 
@@ -64,22 +64,6 @@ export default function ModerateNightRoutineStep2Info({
     if (onContinue) {
       onContinue();
     }
-  };
-
-  const getProductTitle = () => {
-    if (skinType === 'oily') return 'Lightweight Gel-Cream';
-    if (skinType === 'dry') return 'Rich Night Moisturizer';
-    return 'Light/Medium Moisturizer';
-  };
-
-  const getExplanationText = () => {
-    if (skinType === 'oily') {
-      return 'Even oily skin needs hydration at night. Lightweight gel-creams provide essential moisture without adding excess oil, allowing your skin to repair overnight without clogging pores.';
-    }
-    if (skinType === 'dry') {
-      return 'Night is when your skin repairs itself. Rich moisturizers with ceramides and occlusives create a protective barrier, locking in hydration and strengthening your skin barrier while you sleep.';
-    }
-    return 'A balanced evening moisturizer provides optimal hydration to support your skin\'s natural overnight repair process. Choose formulas that feel comfortable without being too heavy or too light.';
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -146,28 +130,28 @@ export default function ModerateNightRoutineStep2Info({
         <View style={styles.productHeader}>
           <View style={styles.productIconContainer}>
             <Image 
-              source={require('../assets/images/jar cream.png')}
+              source={require('../assets/images/cream.png')}
               style={styles.productIcon}
               resizeMode="contain"
             />
           </View>
           <View style={styles.productTextContainer}>
-            <Text style={styles.productTitle}>{getProductTitle()}</Text>
-            <Text style={styles.productSubtitle}>Evening Step 2</Text>
+            <Text style={styles.productTitle}>Gentle Cleanser</Text>
+            <Text style={styles.productSubtitle}>Evening Step 1</Text>
           </View>
         </View>
 
         <View style={styles.introBox}>
           <Text style={styles.introTitle}>Curated for Your Skin</Text>
           <Text style={styles.introText}>
-            We've selected moisturizers specifically for {skinTypeInfo.name.toLowerCase()}. Each product is proven effective and dermatologist-recommended for overnight skin repair.
+            We've selected gentle cleansers specifically for {skinTypeInfo.name.toLowerCase()}. Each product is proven effective and dermatologist-recommended for your evening routine.
           </Text>
         </View>
 
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>Why this matters at night</Text>
+          <Text style={styles.explanationTitle}>Why this matters</Text>
           <Text style={styles.explanationText}>
-            {getExplanationText()}
+            A gentle evening cleanser removes the day's buildup without stripping your skin. Look for low-pH formulas that leave skin clean but never tight, preparing it for overnight repair.
           </Text>
         </View>
       </View>

@@ -1,13 +1,13 @@
-// app/ComprehensiveRoutineStep4Info.js - THE NEW INTENSIVE ADVANCED TREATMENT STEP
+// app/ModerateNightRoutineStep3Info.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -30,71 +30,13 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
 };
 
-const STEP_4_CONTENT = {
-  oily: {
-    title: 'High-Performance Actives',
-    subtitle: 'Evening Step 4 (2-4x per week)',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Intensive Oil Control & Refinement',
-    introText: 'High-concentration niacinamide (5-10%) and retinol products provide advanced pore refinement and oil control. This is your power step for transformative results.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply 2-4 times per week in the evening after specialized treatment. Start with 2x per week and increase gradually. These concentrated actives work synergistically with your pore care routine.',
-    warningTitle: 'Important Guidelines',
-    warningText: 'Start slowly (2x per week)\nUse in evening only\nMandatory sunscreen during the day\nDo not combine multiple high-strength actives initially',
-  },
-  dry: {
-    title: 'Deep Hydration Boosters',
-    subtitle: 'Morning & Evening Step 4',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Multi-Level Hydration System',
-    introText: 'Multi-molecular weight hyaluronic acid and peptide treatments penetrate different skin depths for comprehensive hydration. This intensive layer ensures lasting moisture.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply morning and evening after hydrating essence, before moisturizer. Layer peptides first, then HA serums. This creates a hydration reservoir that sustains your barrier throughout the day.',
-    warningTitle: 'Application Strategy',
-    warningText: 'Apply on slightly damp skin\nLayer from thinnest to thickest\nFollow with occlusive moisturizer\nPerfect for twice-daily intensive hydration',
-  },
-  combination: {
-    title: 'Balancing Multi-Actives',
-    subtitle: 'Evening Step 4',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Advanced Zone Balancing',
-    introText: 'Moderate-strength niacinamide (5%) and lightweight retinol alternatives provide balanced treatment without over-treating any zone. This sophisticated approach maintains equilibrium.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply niacinamide serum on entire face 2-3x per week. On alternate nights, use lightweight retinol alternative on T-zone only. This prevents both oil overproduction and dry patch development.',
-    warningTitle: 'Zone Application',
-    warningText: 'Niacinamide: Full face 2-3x/week\nRetinol alternative: T-zone only\nNever combine on same night initially\nAdjust based on zone response',
-  },
-  normal: {
-    title: 'Advanced Anti-Aging Serums',
-    subtitle: 'Morning & Evening Step 4',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Professional Collagen Stimulation',
-    introText: 'Advanced vitamin C formulations (morning) and retinol products (evening) provide professional-level anti-aging benefits. Your healthy skin can handle these powerful actives.',
-    explanationTitle: 'How to use',
-    explanationText: 'Morning: Apply advanced vitamin C after antioxidant serum. Evening: Apply retinol 2-4x per week, starting slowly. Always follow with appropriate moisturizer and mandatory morning sunscreen.',
-    warningTitle: 'Professional Protocol',
-    warningText: 'AM: Vitamin C advanced formulations\nPM: Retinol 2-4x per week\nAlways use sunscreen (mandatory)\nResults visible after 12+ weeks',
-  },
-  sensitive: {
-    title: 'Intensive Barrier Support',
-    subtitle: 'Morning & Evening Step 4',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Deep Barrier Fortification',
-    introText: 'Concentrated centella asiatica and barrier repair ampoules provide intensive support for reactive skin. These gentle yet powerful ingredients strengthen your defense system.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply morning and evening after soothing serum, before moisturizer. Centella concentrates calm inflammation while barrier ampoules rebuild lipid structure. Safe for twice-daily intensive care.',
-    warningTitle: 'Gentle Intensive Care',
-    warningText: 'Safe for daily use\nNo irritation potential\nComplements all other steps\nIdeal for reactive skin strengthening',
-  },
-};
-
-function ComprehensiveRoutineStep4Info({ 
+export default function ModerateNightRoutineStep3Info({ 
   onNavigateHome,
-  onNavigateToDayRoutine,
+  onNavigateToNightRoutine,
   onBack, 
   onContinue, 
-  currentStep = 4,
-  internalStep = 7
+  currentStep = 3,
+  internalStep = 5
 }) {
   const [skinType, setSkinType] = useState('normal');
 
@@ -126,9 +68,8 @@ function ComprehensiveRoutineStep4Info({
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const content = STEP_4_CONTENT[skinType] || STEP_4_CONTENT.normal;
-  const totalSteps = 5;
-  const totalInternalSteps = 10;
+  const totalSteps = 3;
+  const totalInternalSteps = 6;
 
   return (
     <View style={styles.container}>
@@ -144,11 +85,11 @@ function ComprehensiveRoutineStep4Info({
 
       <TouchableOpacity 
         style={styles.bannerContainer}
-        onPress={onNavigateToDayRoutine}
+        onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
         <Image 
-          source={require('../assets/images/Banner Day Routine 1.png')}
+          source={require('../assets/images/Banner Night Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
         />
@@ -195,30 +136,39 @@ function ComprehensiveRoutineStep4Info({
           <View style={styles.productHeader}>
             <View style={styles.productIconContainer}>
               <Image 
-                source={content.icon}
+                source={require('../assets/images/cream.png')}
                 style={styles.productIcon}
                 resizeMode="contain"
               />
             </View>
             <View style={styles.productTextContainer}>
-              <Text style={styles.productTitle}>{content.title}</Text>
-              <Text style={styles.productSubtitle}>{content.subtitle}</Text>
+              <Text style={styles.productTitle}>Pore Care Treatment</Text>
+              <Text style={styles.productSubtitle}>Evening Step 3 (2-4x per week)</Text>
             </View>
           </View>
 
           <View style={styles.introBox}>
-            <Text style={styles.introTitle}>{content.introTitle}</Text>
-            <Text style={styles.introText}>{content.introText}</Text>
+            <Text style={styles.introTitle}>Targeted Pore Management</Text>
+            <Text style={styles.introText}>
+              BHA (salicylic acid) or mandelic acid helps keep pores clear and prevents breakouts. This is your active treatment step for managing oil and preventing congestion in your T-zone or full face.
+            </Text>
           </View>
 
           <View style={styles.explanationBox}>
-            <Text style={styles.explanationTitle}>{content.explanationTitle}</Text>
-            <Text style={styles.explanationText}>{content.explanationText}</Text>
+            <Text style={styles.explanationTitle}>How to use</Text>
+            <Text style={styles.explanationText}>
+              Apply 2-4 times per week in the evening on T-zone or full face as tolerated. Start with 2x per week and increase gradually based on your skin's response. Always follow with moisturizer.
+            </Text>
           </View>
 
           <View style={styles.warningBox}>
-            <Text style={styles.warningTitle}>{content.warningTitle}</Text>
-            <Text style={styles.warningText}>{content.warningText}</Text>
+            <Text style={styles.warningTitle}>Important Guidelines</Text>
+            <Text style={styles.warningText}>
+              Start slowly (2x per week){'\n'}
+              Use in evening only{'\n'}
+              Always use sunscreen during the day{'\n'}
+              Skip if skin feels irritated
+            </Text>
           </View>
 
           <View style={styles.bottomSpacing} />
@@ -440,5 +390,3 @@ const styles = StyleSheet.create({
     width: '100%',
   },
 });
-
-export default ComprehensiveRoutineStep4Info;

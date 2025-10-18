@@ -1,14 +1,15 @@
-// app/ModerateNightRoutineStep2ProductSelection.js - CONTINUE TO STEP 3 (NO COMPLETION)
+// app/ModerateNightRoutineStep3ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
+import RoutineCompletionModal from '../components/modals/RoutineCompletionModal';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
 const BRAND_COLORS = {
@@ -30,180 +31,51 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
 };
 
-const MOISTURIZER_PRODUCTS = {
-  oily: [
-    {
-      id: 'moisturizer_night_oily_1',
-      name: 'Beauty of Joseon Dynasty Cream Light',
-      description: 'Lightweight gel-cream with rice and probiotics',
-      benefits: ['Non-greasy', 'Hydrating', 'K-Beauty'],
-    },
-    {
-      id: 'moisturizer_night_oily_2',
-      name: 'Isntree Hyaluronic Aqua Gel Cream',
-      description: 'Water-based gel with 5 types of hyaluronic acid',
-      benefits: ['Lightweight', 'Plumping', 'Fresh finish'],
-    },
-    {
-      id: 'moisturizer_night_oily_3',
-      name: 'Innisfree Green Tea Seed Cream',
-      description: 'Light gel-cream with green tea extract',
-      benefits: ['Oil-control', 'Antioxidant', 'Popular'],
-    },
-    {
-      id: 'moisturizer_night_oily_4',
-      name: 'Neutrogena Hydro Boost',
-      description: 'Gel-cream with hyaluronic acid',
-      benefits: ['Affordable', 'Oil-free', 'Hydrating'],
-    },
-    {
-      id: 'moisturizer_night_oily_5',
-      name: 'Clinique Dramatically Different Gel',
-      description: 'Classic lightweight moisturizing gel',
-      benefits: ['Oil-free', 'Trusted', 'Dermatologist-tested'],
-    },
-  ],
-  dry: [
-    {
-      id: 'moisturizer_night_dry_1',
-      name: 'COSRX Snail 92 All In One Cream',
-      description: 'Rich cream with 92% snail mucin',
-      benefits: ['Nourishing', 'Repairing', 'Hydrating'],
-    },
-    {
-      id: 'moisturizer_night_dry_2',
-      name: 'Illiyoon Ceramide Ato Concentrate',
-      description: 'Intensive barrier cream with ceramides',
-      benefits: ['Rich', 'Barrier repair', 'K-Beauty favorite'],
-    },
-    {
-      id: 'moisturizer_night_dry_3',
-      name: "Kiehl's Ultra Facial Cream",
-      description: 'Classic rich moisturizer with squalane',
-      benefits: ['24-hour hydration', 'Luxurious', 'Iconic'],
-    },
-    {
-      id: 'moisturizer_night_dry_4',
-      name: 'CeraVe Moisturizing Cream',
-      description: 'Rich cream with ceramides and hyaluronic acid',
-      benefits: ['Affordable', 'Ceramides', 'Dermatologist-loved'],
-    },
-    {
-      id: 'moisturizer_night_dry_5',
-      name: 'First Aid Beauty Ultra Repair',
-      description: 'Intensive cream with colloidal oatmeal',
-      benefits: ['Soothing', 'Rich', 'Fast-absorbing'],
-    },
-  ],
-  combination: [
-    {
-      id: 'moisturizer_night_combo_1',
-      name: 'Beauty of Joseon Dynasty Cream',
-      description: 'Balanced cream suitable for all zones',
-      benefits: ['Balanced', 'Versatile', 'Elegant'],
-    },
-    {
-      id: 'moisturizer_night_combo_2',
-      name: 'Isntree Aloe Soothing Gel',
-      description: 'Light gel with aloe and centella',
-      benefits: ['Soothing', 'Lightweight', 'Fresh'],
-    },
-    {
-      id: 'moisturizer_night_combo_3',
-      name: 'Clinique Moisture Surge',
-      description: 'Auto-replenishing hydration',
-      benefits: ['Oil-free', 'Hydrating', 'Balanced'],
-    },
-    {
-      id: 'moisturizer_night_combo_4',
-      name: 'Neutrogena Hydro Boost',
-      description: 'Gel-cream for combination skin',
-      benefits: ['Versatile', 'Affordable', 'Effective'],
-    },
-    {
-      id: 'moisturizer_night_combo_5',
-      name: 'COSRX Snail 92',
-      description: 'Lightweight yet nourishing cream',
-      benefits: ['Adaptable', 'Repairing', 'Popular'],
-    },
-  ],
-  normal: [
-    {
-      id: 'moisturizer_night_normal_1',
-      name: 'COSRX Snail 92 All In One Cream',
-      description: 'Perfect hydrating cream for balanced skin',
-      benefits: ['Balanced', 'Repairing', 'Versatile'],
-    },
-    {
-      id: 'moisturizer_night_normal_2',
-      name: 'Beauty of Joseon Dynasty Cream',
-      description: 'Classic K-beauty moisturizer',
-      benefits: ['Elegant', 'Balanced', 'Popular'],
-    },
-    {
-      id: 'moisturizer_night_normal_3',
-      name: 'Clinique Moisture Surge',
-      description: 'Auto-replenishing hydration',
-      benefits: ['Hydrating', 'Reliable', 'Oil-free'],
-    },
-    {
-      id: 'moisturizer_night_normal_4',
-      name: 'Eucerin Lotion',
-      description: 'Simple effective daily moisturizer',
-      benefits: ['Lightweight', 'Budget-friendly', 'Gentle'],
-    },
-    {
-      id: 'moisturizer_night_normal_5',
-      name: 'Neutrogena Hydro Boost',
-      description: 'Gel-cream with hyaluronic acid',
-      benefits: ['Hydrating', 'Fresh', 'Affordable'],
-    },
-  ],
-  sensitive: [
-    {
-      id: 'moisturizer_night_sens_1',
-      name: 'Illiyoon Ceramide Ato',
-      description: 'Gentle barrier repair cream',
-      benefits: ['Minimal ingredients', 'Ceramides', 'Safe'],
-    },
-    {
-      id: 'moisturizer_night_sens_2',
-      name: 'La Roche-Posay Toleriane Dermallergo',
-      description: 'Ultra-gentle moisturizer for reactive skin',
-      benefits: ['Dermatologist-tested', 'Fragrance-free', 'Safe'],
-    },
-    {
-      id: 'moisturizer_night_sens_3',
-      name: 'CeraVe Moisturizing Cream',
-      description: 'Gentle ceramide cream',
-      benefits: ['Affordable', 'Ceramides', 'Non-irritating'],
-    },
-    {
-      id: 'moisturizer_night_sens_4',
-      name: 'A-Derma Dermalibour',
-      description: 'Repairing cream for sensitive skin',
-      benefits: ['Soothing', 'Repairing', 'Gentle'],
-    },
-    {
-      id: 'moisturizer_night_sens_5',
-      name: 'First Aid Beauty Ultra Repair',
-      description: 'Gentle intensive moisturizer',
-      benefits: ['Colloidal oatmeal', 'Safe', 'Soothing'],
-    },
-  ],
-};
+const PORE_CARE_PRODUCTS = [
+  {
+    id: 'porecare_night_1',
+    name: 'COSRX BHA Power Liquid',
+    description: '4% betaine salicylate for gentle pore care',
+    benefits: ['BHA exfoliant', 'Pore clearing', 'Non-irritating'],
+  },
+  {
+    id: 'porecare_night_2',
+    name: 'By Wishtrend Mandelic 5%',
+    description: 'Gentle mandelic acid for sensitive skin',
+    benefits: ['Large molecule', 'Less irritating', 'Pore care'],
+  },
+  {
+    id: 'porecare_night_3',
+    name: "Paula's Choice 2% BHA",
+    description: 'Cult-favorite salicylic acid treatment',
+    benefits: ['Classic formula', 'Effective', 'Well-tolerated'],
+  },
+  {
+    id: 'porecare_night_4',
+    name: 'The Inkey List Beta Hydroxy Acid',
+    description: 'Affordable 2% salicylic acid serum',
+    benefits: ['Budget-friendly', 'Simple', 'Effective'],
+  },
+  {
+    id: 'porecare_night_5',
+    name: 'Some By Mi AHA BHA PHA Toner',
+    description: 'Multi-acid toner with gentle exfoliation',
+    benefits: ['Triple action', 'Daily use', 'Balancing'],
+  },
+];
 
-export default function ModerateNightRoutineStep2ProductSelection({ 
+export default function ModerateNightRoutineStep3ProductSelection({ 
   onNavigateHome,
   onNavigateToNightRoutine,
   onBack, 
-  onContinue,
-  currentStep = 2,
-  internalStep = 4
+  onComplete, 
+  currentStep = 3,
+  internalStep = 6
 }) {
   const [skinType, setSkinType] = useState('normal');
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [products, setProducts] = useState([]);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [completeRoutineData, setCompleteRoutineData] = useState(null);
 
   useEffect(() => {
     loadSkinType();
@@ -214,37 +86,54 @@ export default function ModerateNightRoutineStep2ProductSelection({
       const savedSkinType = await AsyncStorage.getItem('userSkinType');
       if (savedSkinType) {
         setSkinType(savedSkinType);
-        setProducts(MOISTURIZER_PRODUCTS[savedSkinType] || MOISTURIZER_PRODUCTS.normal);
-      } else {
-        setProducts(MOISTURIZER_PRODUCTS.normal);
       }
     } catch (error) {
       console.error('Error loading skin type:', error);
-      setProducts(MOISTURIZER_PRODUCTS.normal);
     }
   };
 
-  const handleContinue = async () => {
+  const handleComplete = async () => {
     if (selectedProduct) {
       try {
         const routineData = await AsyncStorage.getItem('myModerateNightRoutine');
         const currentRoutine = routineData ? JSON.parse(routineData) : {};
         
-        currentRoutine.moisturizers = [selectedProduct];
+        currentRoutine.poreCare = [selectedProduct];
         currentRoutine.lastUpdated = new Date().toISOString();
+        currentRoutine.completedAt = new Date().toISOString();
         
         await AsyncStorage.setItem('myModerateNightRoutine', JSON.stringify(currentRoutine));
         
-        console.log('Moderate Night Step 2 Saved:', currentRoutine);
+        console.log('Complete Moderate Night Routine Saved:', currentRoutine);
         console.log('Cleansers:', currentRoutine.cleansers);
         console.log('Moisturizers:', currentRoutine.moisturizers);
+        console.log('Pore Care:', currentRoutine.poreCare);
         
-        if (onContinue) {
-          onContinue([selectedProduct]);
-        }
+        setCompleteRoutineData(currentRoutine);
+        setShowCompletionModal(true);
       } catch (error) {
-        console.error('Error saving Moderate Night routine step 2:', error);
+        console.error('Error saving complete Moderate Night routine:', error);
       }
+    }
+  };
+
+  const handleModalClose = () => {
+    console.log('Modal closed - navigating to Home');
+    setShowCompletionModal(false);
+    if (onNavigateHome) {
+      setTimeout(() => {
+        onNavigateHome();
+      }, 300);
+    }
+  };
+
+  const handleViewRoutine = () => {
+    console.log('Viewing Moderate Night Routine');
+    setShowCompletionModal(false);
+    if (onNavigateToNightRoutine) {
+      setTimeout(() => {
+        onNavigateToNightRoutine();
+      }, 300);
     }
   };
 
@@ -256,15 +145,15 @@ export default function ModerateNightRoutineStep2ProductSelection({
 
   const handleNextStep = () => {
     if (selectedProduct) {
-      handleContinue();
+      handleComplete();
     }
   };
 
   const getButtonText = () => {
     if (!selectedProduct) {
-      return 'Choose My Moisturizer';
+      return 'Choose My Pore Care Treatment';
     }
-    return 'Continue to Step 3';
+    return 'Complete Moderate Night Routine';
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -341,7 +230,7 @@ export default function ModerateNightRoutineStep2ProductSelection({
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose your evening moisturizer. This will support your skin's natural overnight repair process with enhanced hydration.
+              Choose your pore care treatment to complete your moderate night routine. Use 2-4 times per week in the evening for clear, healthy pores. Start with 2x per week.
             </Text>
           </View>
 
@@ -350,7 +239,7 @@ export default function ModerateNightRoutineStep2ProductSelection({
               Choose Your Product {selectedProduct && '(1 selected)'}
             </Text>
             
-            {products.map((product) => {
+            {PORE_CARE_PRODUCTS.map((product) => {
               const isSelected = selectedProduct?.id === product.id;
               
               return (
@@ -389,7 +278,7 @@ export default function ModerateNightRoutineStep2ProductSelection({
 
           {!selectedProduct && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select 1 product to continue to Step 3</Text>
+              <Text style={styles.helperText}>Select 1 product to complete your routine</Text>
             </View>
           )}
 
@@ -400,11 +289,20 @@ export default function ModerateNightRoutineStep2ProductSelection({
       <View style={styles.bottomSection}>
         <DrAcneButton
           title={getButtonText()}
-          onPress={handleContinue}
+          onPress={handleComplete}
           disabled={!selectedProduct}
           style={[styles.continueButton, !selectedProduct && styles.continueButtonDisabled]}
         />
       </View>
+
+      <RoutineCompletionModal
+        visible={showCompletionModal}
+        onClose={handleModalClose}
+        onViewRoutine={handleViewRoutine}
+        routineData={completeRoutineData}
+        routineType="moderate"
+        isNightRoutine={true}
+      />
     </View>
   );
 }

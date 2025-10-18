@@ -1,4 +1,4 @@
-// components/modals/RoutineCompletionModal.js - WITH ROUTINE LEVEL BADGE
+// components/modals/RoutineCompletionModal.js - WITH MODERATE NIGHT STEP 3
 import React from 'react';
 import {
   Image,
@@ -22,12 +22,11 @@ const BRAND_COLORS = {
 };
 
 const ROUTINE_LEVEL_COLORS = {
-  basic: '#4A90E2',      // Blue
-  moderate: '#F39C12',   // Orange
-  intensive: '#E74C3C',  // Red
+  basic: '#4A90E2',
+  moderate: '#F39C12',
+  comprehensive: '#9B59B6',
 };
 
-// Decorative Dots Background Component
 const DecorativeDots = () => (
   <Svg 
     width="100%" 
@@ -49,23 +48,33 @@ export default function RoutineCompletionModal({
   onClose,
   onViewRoutine,
   routineData,
-  routineType = 'basic', // 'basic' or 'moderate'
+  routineType = 'basic',
+  isNightRoutine = false,
 }) {
   console.log('🎉 MODAL RENDERING - visible:', visible);
   console.log('🎉 MODAL routineData:', routineData);
   console.log('🎉 MODAL routineType:', routineType);
+  console.log('🎉 MODAL isNightRoutine:', isNightRoutine);
 
-  // Extract routine items
   const cleansers = routineData?.cleansers || [];
   const moisturizers = routineData?.moisturizers || [];
   const specializedProducts = routineData?.specializedProducts || [];
+  const advancedTreatments = routineData?.advancedTreatments || [];
   const sunscreens = routineData?.sunscreens || [];
+  const poreCare = routineData?.poreCare || [];
 
-  // Determine if moderate (has specialized products)
-  const isModerate = routineType === 'moderate' || specializedProducts.length > 0;
-  const stepCount = isModerate ? 4 : 3;
-  const levelColor = ROUTINE_LEVEL_COLORS[isModerate ? 'moderate' : 'basic'];
-  const levelText = isModerate ? 'Moderate' : 'Basic';
+  const isNight = isNightRoutine || (sunscreens.length === 0);
+  
+  const isComprehensive = routineType === 'comprehensive';
+  const isModerate = routineType === 'moderate';
+  const dayStepCount = isComprehensive ? 5 : (isModerate ? 4 : 3);
+  
+  const nightStepCount = isModerate ? 3 : 2;
+  
+  const stepCount = isNight ? nightStepCount : dayStepCount;
+  
+  const levelColor = ROUTINE_LEVEL_COLORS[routineType] || ROUTINE_LEVEL_COLORS.basic;
+  const levelText = isComprehensive ? 'Comprehensive' : (isModerate ? 'Moderate' : 'Basic');
 
   const handleClose = () => {
     console.log('🏠 Closing modal - navigating to HomeScreen');
@@ -79,24 +88,20 @@ export default function RoutineCompletionModal({
       animationType="fade"
       onRequestClose={handleClose}
     >
-      {/* Overlay - Tappable to Close and Go Home */}
       <TouchableOpacity 
         style={styles.overlay}
         activeOpacity={1}
         onPress={handleClose}
       >
-        {/* Modal Container - Prevent close when tapping inside */}
         <TouchableOpacity 
           activeOpacity={1} 
           onPress={(e) => e.stopPropagation()}
           style={styles.modalContainer}
         >
-          {/* Decorative Background */}
           <View style={styles.backgroundContainer}>
             <DecorativeDots />
           </View>
 
-          {/* Close Button - X */}
           <TouchableOpacity 
             style={styles.closeButton}
             onPress={handleClose}
@@ -105,7 +110,6 @@ export default function RoutineCompletionModal({
             <Text style={styles.closeButtonText}>✕</Text>
           </TouchableOpacity>
 
-          {/* Banner Party Image - Full Width */}
           <View style={styles.bannerContainer}>
             <Image
               source={require('../../assets/images/Banner Party.png')}
@@ -113,31 +117,35 @@ export default function RoutineCompletionModal({
               resizeMode="cover"
             />
             
-            {/* ✅ Routine Level Badge on Banner */}
             <View style={[styles.levelBadgeOnBanner, { backgroundColor: levelColor }]}>
               <Text style={styles.levelBadgeText}>{levelText} Routine</Text>
             </View>
           </View>
 
-          {/* Title with "Day" Emphasis */}
           <Text style={styles.title}>
-            Your <Text style={styles.titleEmphasis}>Day Routine</Text> is Ready!
+            Your <Text style={styles.titleEmphasis}>
+              {isNight ? 'Night Routine' : 'Day Routine'}
+            </Text> is Ready!
           </Text>
           
           <Text style={styles.subtitle}>
-            {isModerate 
-              ? "You're all set with your enhanced routine" 
-              : "You're all set for your skincare journey"
+            {isNight 
+              ? "You're all set with your evening routine"
+              : (isComprehensive 
+                ? "You're all set with your comprehensive routine"
+                : (isModerate 
+                  ? "You're all set with your enhanced routine" 
+                  : "You're all set for your skincare journey"
+                )
+              )
             }
           </Text>
 
-          {/* Routine Recap - Compact */}
           <View style={styles.recapContainer}>
             <Text style={styles.recapTitle}>
-              Your {stepCount}-Step Morning Routine:
+              Your {stepCount}-Step {isNight ? 'Evening' : 'Morning'} Routine:
             </Text>
 
-            {/* Step 1: Cleanser */}
             <View style={styles.stepCard}>
               <Text style={styles.stepTitle}>Step 1: Cleanser</Text>
               {cleansers.length > 0 ? (
@@ -150,9 +158,8 @@ export default function RoutineCompletionModal({
               )}
             </View>
 
-            {/* Step 2: Moisturizer */}
             <View style={styles.stepCard}>
-              <Text style={styles.stepTitle}>Step 2: Moisturizer</Text>
+              <Text style={styles.stepTitle}>Step 2: {isNight ? 'Night Moisturizer' : 'Moisturizer'}</Text>
               {moisturizers.length > 0 ? (
                 <View style={styles.productBox}>
                   <Text style={styles.productName}>{moisturizers[0].name}</Text>
@@ -163,8 +170,21 @@ export default function RoutineCompletionModal({
               )}
             </View>
 
-            {/* Step 3: Specialized Treatment (MODERATE ONLY) */}
-            {isModerate && (
+            {isNight && isModerate && (
+              <View style={styles.stepCard}>
+                <Text style={styles.stepTitle}>Step 3: Pore Care Treatment</Text>
+                {poreCare.length > 0 ? (
+                  <View style={styles.productBox}>
+                    <Text style={styles.productName}>{poreCare[0].name}</Text>
+                    <Text style={styles.productDescription}>{poreCare[0].description}</Text>
+                  </View>
+                ) : (
+                  <Text style={styles.emptyText}>No pore care product selected</Text>
+                )}
+              </View>
+            )}
+
+            {!isNight && (isModerate || isComprehensive) && (
               <View style={styles.stepCard}>
                 <Text style={styles.stepTitle}>Step 3: Specialized Treatment</Text>
                 {specializedProducts.length > 0 ? (
@@ -178,37 +198,52 @@ export default function RoutineCompletionModal({
               </View>
             )}
 
-            {/* Step 3/4: Sunscreen */}
-            <View style={styles.stepCard}>
-              <Text style={styles.stepTitle}>Step {isModerate ? '4' : '3'}: Sunscreen</Text>
-              {sunscreens.length > 0 ? (
-                <View style={styles.productBox}>
-                  <Text style={styles.productName}>{sunscreens[0].name}</Text>
-                  <Text style={styles.productDescription}>{sunscreens[0].description}</Text>
-                </View>
-              ) : (
-                <Text style={styles.emptyText}>No sunscreen selected</Text>
-              )}
-            </View>
+            {!isNight && isComprehensive && (
+              <View style={styles.stepCard}>
+                <Text style={styles.stepTitle}>Step 4: Advanced Treatment</Text>
+                {advancedTreatments.length > 0 ? (
+                  <View style={styles.productBox}>
+                    <Text style={styles.productName}>{advancedTreatments[0].name}</Text>
+                    <Text style={styles.productDescription}>{advancedTreatments[0].description}</Text>
+                  </View>
+                ) : (
+                  <Text style={styles.emptyText}>No advanced treatment selected</Text>
+                )}
+              </View>
+            )}
+
+            {!isNight && (
+              <View style={styles.stepCard}>
+                <Text style={styles.stepTitle}>Step {dayStepCount}: Sunscreen</Text>
+                {sunscreens.length > 0 ? (
+                  <View style={styles.productBox}>
+                    <Text style={styles.productName}>{sunscreens[0].name}</Text>
+                    <Text style={styles.productDescription}>{sunscreens[0].description}</Text>
+                  </View>
+                ) : (
+                  <Text style={styles.emptyText}>No sunscreen selected</Text>
+                )}
+              </View>
+            )}
           </View>
 
-          {/* Helper Text - Timeline Style */}
           <View style={styles.proofContainer}>
             <Text style={styles.proofText}>
-              You'll find your complete routine under "My Day Routine"
+              You'll find your complete routine under "{isNight ? 'My Night Routine' : 'My Day Routine'}"
             </Text>
             <Text style={styles.disclaimerText}>
               Access it anytime you need it!
             </Text>
           </View>
 
-          {/* Action Buttons */}
           <TouchableOpacity
             onPress={onViewRoutine}
             style={styles.primaryButton}
             activeOpacity={0.8}
           >
-            <Text style={styles.primaryButtonText}>View My Day Routine</Text>
+            <Text style={styles.primaryButtonText}>
+              View My {isNight ? 'Night' : 'Day'} Routine
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -297,7 +332,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  // ✅ NEW - Level Badge on Banner
   levelBadgeOnBanner: {
     position: 'absolute',
     top: 12,

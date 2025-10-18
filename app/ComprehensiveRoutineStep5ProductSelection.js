@@ -1,14 +1,15 @@
-// app/ModerateNightRoutineStep2ProductSelection.js - CONTINUE TO STEP 3 (NO COMPLETION)
+// app/ComprehensiveRoutineStep5ProductSelection.js - FIXED WITH DATA LOADING
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
+import RoutineCompletionModal from '../components/modals/RoutineCompletionModal';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
 const BRAND_COLORS = {
@@ -30,180 +31,182 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
 };
 
-const MOISTURIZER_PRODUCTS = {
+const SUNSCREEN_PRODUCTS = {
   oily: [
     {
-      id: 'moisturizer_night_oily_1',
-      name: 'Beauty of Joseon Dynasty Cream Light',
-      description: 'Lightweight gel-cream with rice and probiotics',
-      benefits: ['Non-greasy', 'Hydrating', 'K-Beauty'],
+      id: 'sunscreen_oily_1',
+      name: 'Beauty of Joseon Relief Sun',
+      description: 'Lightweight rice + probiotics SPF 50+ PA++++',
+      benefits: ['Non-greasy', 'No white cast', 'K-Beauty favorite'],
     },
     {
-      id: 'moisturizer_night_oily_2',
-      name: 'Isntree Hyaluronic Aqua Gel Cream',
-      description: 'Water-based gel with 5 types of hyaluronic acid',
-      benefits: ['Lightweight', 'Plumping', 'Fresh finish'],
+      id: 'sunscreen_oily_2',
+      name: 'Isntree Hyaluronic Acid Watery Sun',
+      description: 'Water-based SPF 50+ PA++++',
+      benefits: ['Ultra-light', 'Hydrating', 'Matte finish'],
     },
     {
-      id: 'moisturizer_night_oily_3',
-      name: 'Innisfree Green Tea Seed Cream',
-      description: 'Light gel-cream with green tea extract',
-      benefits: ['Oil-control', 'Antioxidant', 'Popular'],
+      id: 'sunscreen_oily_3',
+      name: 'La Roche-Posay Anthelios Oil Control',
+      description: 'Mattifying fluid SPF 50+',
+      benefits: ['Oil control', 'Non-comedogenic', 'Dermatologist-tested'],
     },
     {
-      id: 'moisturizer_night_oily_4',
-      name: 'Neutrogena Hydro Boost',
-      description: 'Gel-cream with hyaluronic acid',
-      benefits: ['Affordable', 'Oil-free', 'Hydrating'],
+      id: 'sunscreen_oily_4',
+      name: 'Supergoop Unseen Sunscreen',
+      description: 'Weightless gel SPF 40',
+      benefits: ['Invisible finish', 'Oil-free', 'Makeup-friendly'],
     },
     {
-      id: 'moisturizer_night_oily_5',
-      name: 'Clinique Dramatically Different Gel',
-      description: 'Classic lightweight moisturizing gel',
-      benefits: ['Oil-free', 'Trusted', 'Dermatologist-tested'],
+      id: 'sunscreen_oily_5',
+      name: 'COSRX Aloe Soothing Sun Cream',
+      description: 'Lightweight aloe SPF 50+ PA+++',
+      benefits: ['Soothing', 'Non-greasy', 'Affordable'],
     },
   ],
   dry: [
     {
-      id: 'moisturizer_night_dry_1',
-      name: 'COSRX Snail 92 All In One Cream',
-      description: 'Rich cream with 92% snail mucin',
-      benefits: ['Nourishing', 'Repairing', 'Hydrating'],
+      id: 'sunscreen_dry_1',
+      name: 'COSRX Aloe Soothing Sun Cream',
+      description: 'Hydrating cream SPF 50+ PA+++',
+      benefits: ['Moisturizing', 'Calming aloe', 'Nourishing'],
     },
     {
-      id: 'moisturizer_night_dry_2',
-      name: 'Illiyoon Ceramide Ato Concentrate',
-      description: 'Intensive barrier cream with ceramides',
-      benefits: ['Rich', 'Barrier repair', 'K-Beauty favorite'],
+      id: 'sunscreen_dry_2',
+      name: 'Purito Daily Go-To Sunscreen',
+      description: 'Hydrating essence SPF 50+ PA++++',
+      benefits: ['Ultra-hydrating', 'Dewy finish', 'Gentle'],
     },
     {
-      id: 'moisturizer_night_dry_3',
-      name: "Kiehl's Ultra Facial Cream",
-      description: 'Classic rich moisturizer with squalane',
-      benefits: ['24-hour hydration', 'Luxurious', 'Iconic'],
+      id: 'sunscreen_dry_3',
+      name: 'La Roche-Posay Anthelios Mineral',
+      description: '100% mineral SPF 50 tinted',
+      benefits: ['Mineral protection', 'Moisturizing', 'Tinted'],
     },
     {
-      id: 'moisturizer_night_dry_4',
-      name: 'CeraVe Moisturizing Cream',
-      description: 'Rich cream with ceramides and hyaluronic acid',
-      benefits: ['Affordable', 'Ceramides', 'Dermatologist-loved'],
+      id: 'sunscreen_dry_4',
+      name: 'Elta MD UV Daily',
+      description: 'Moisturizing SPF 40 tinted',
+      benefits: ['Hydrating', 'Sheer tint', 'Professional-grade'],
     },
     {
-      id: 'moisturizer_night_dry_5',
-      name: 'First Aid Beauty Ultra Repair',
-      description: 'Intensive cream with colloidal oatmeal',
-      benefits: ['Soothing', 'Rich', 'Fast-absorbing'],
+      id: 'sunscreen_dry_5',
+      name: 'Supergoop Glowscreen',
+      description: 'Illuminating primer SPF 40',
+      benefits: ['Dewy glow', 'Hydrating', 'Primer hybrid'],
     },
   ],
   combination: [
     {
-      id: 'moisturizer_night_combo_1',
-      name: 'Beauty of Joseon Dynasty Cream',
-      description: 'Balanced cream suitable for all zones',
-      benefits: ['Balanced', 'Versatile', 'Elegant'],
+      id: 'sunscreen_combo_1',
+      name: 'Beauty of Joseon Relief Sun',
+      description: 'Balanced protection SPF 50+ PA++++',
+      benefits: ['Versatile', 'Elegant finish', 'Popular'],
     },
     {
-      id: 'moisturizer_night_combo_2',
-      name: 'Isntree Aloe Soothing Gel',
-      description: 'Light gel with aloe and centella',
-      benefits: ['Soothing', 'Lightweight', 'Fresh'],
+      id: 'sunscreen_combo_2',
+      name: 'Isntree Hyaluronic Acid Watery Sun',
+      description: 'Lightweight hydration SPF 50+ PA++++',
+      benefits: ['Balanced', 'Fresh finish', 'Comfortable'],
     },
     {
-      id: 'moisturizer_night_combo_3',
-      name: 'Clinique Moisture Surge',
-      description: 'Auto-replenishing hydration',
-      benefits: ['Oil-free', 'Hydrating', 'Balanced'],
+      id: 'sunscreen_combo_3',
+      name: 'La Roche-Posay Anthelios Invisible Fluid',
+      description: 'Ultra-light fluid SPF 50+',
+      benefits: ['Invisible', 'Balanced', 'Professional'],
     },
     {
-      id: 'moisturizer_night_combo_4',
-      name: 'Neutrogena Hydro Boost',
-      description: 'Gel-cream for combination skin',
-      benefits: ['Versatile', 'Affordable', 'Effective'],
+      id: 'sunscreen_combo_4',
+      name: 'Neutrogena Hydro Boost Water Gel',
+      description: 'Gel-cream SPF 50',
+      benefits: ['Hydrating', 'Affordable', 'Non-greasy'],
     },
     {
-      id: 'moisturizer_night_combo_5',
-      name: 'COSRX Snail 92',
-      description: 'Lightweight yet nourishing cream',
-      benefits: ['Adaptable', 'Repairing', 'Popular'],
+      id: 'sunscreen_combo_5',
+      name: 'COSRX Aloe Soothing Sun Cream',
+      description: 'Versatile protection SPF 50+ PA+++',
+      benefits: ['Balanced', 'Soothing', 'Reliable'],
     },
   ],
   normal: [
     {
-      id: 'moisturizer_night_normal_1',
-      name: 'COSRX Snail 92 All In One Cream',
-      description: 'Perfect hydrating cream for balanced skin',
-      benefits: ['Balanced', 'Repairing', 'Versatile'],
+      id: 'sunscreen_normal_1',
+      name: 'Beauty of Joseon Relief Sun',
+      description: 'Perfect daily SPF 50+ PA++++',
+      benefits: ['Elegant', 'Comfortable', 'Reliable'],
     },
     {
-      id: 'moisturizer_night_normal_2',
-      name: 'Beauty of Joseon Dynasty Cream',
-      description: 'Classic K-beauty moisturizer',
-      benefits: ['Elegant', 'Balanced', 'Popular'],
+      id: 'sunscreen_normal_2',
+      name: 'Supergoop Unseen Sunscreen',
+      description: 'Invisible protection SPF 40',
+      benefits: ['Weightless', 'Invisible', 'Primer-like'],
     },
     {
-      id: 'moisturizer_night_normal_3',
-      name: 'Clinique Moisture Surge',
-      description: 'Auto-replenishing hydration',
-      benefits: ['Hydrating', 'Reliable', 'Oil-free'],
+      id: 'sunscreen_normal_3',
+      name: 'La Roche-Posay Anthelios Melt-In',
+      description: 'Lightweight milk SPF 60',
+      benefits: ['High protection', 'Comfortable', 'Professional'],
     },
     {
-      id: 'moisturizer_night_normal_4',
-      name: 'Eucerin Lotion',
-      description: 'Simple effective daily moisturizer',
-      benefits: ['Lightweight', 'Budget-friendly', 'Gentle'],
+      id: 'sunscreen_normal_4',
+      name: 'Elta MD UV Clear',
+      description: 'Lightweight SPF 46',
+      benefits: ['Professional-grade', 'Niacinamide', 'Clear'],
     },
     {
-      id: 'moisturizer_night_normal_5',
-      name: 'Neutrogena Hydro Boost',
-      description: 'Gel-cream with hyaluronic acid',
-      benefits: ['Hydrating', 'Fresh', 'Affordable'],
+      id: 'sunscreen_normal_5',
+      name: 'COSRX Aloe Soothing Sun Cream',
+      description: 'Daily essential SPF 50+ PA+++',
+      benefits: ['Reliable', 'Affordable', 'Gentle'],
     },
   ],
   sensitive: [
     {
-      id: 'moisturizer_night_sens_1',
-      name: 'Illiyoon Ceramide Ato',
-      description: 'Gentle barrier repair cream',
-      benefits: ['Minimal ingredients', 'Ceramides', 'Safe'],
+      id: 'sunscreen_sens_1',
+      name: 'La Roche-Posay Anthelios Mineral',
+      description: '100% mineral SPF 50 gentle formula',
+      benefits: ['Mineral only', 'Fragrance-free', 'Safe'],
     },
     {
-      id: 'moisturizer_night_sens_2',
-      name: 'La Roche-Posay Toleriane Dermallergo',
-      description: 'Ultra-gentle moisturizer for reactive skin',
-      benefits: ['Dermatologist-tested', 'Fragrance-free', 'Safe'],
+      id: 'sunscreen_sens_2',
+      name: 'Elta MD UV Physical',
+      description: '100% mineral tinted SPF 41',
+      benefits: ['Mineral protection', 'Gentle', 'Professional'],
     },
     {
-      id: 'moisturizer_night_sens_3',
-      name: 'CeraVe Moisturizing Cream',
-      description: 'Gentle ceramide cream',
-      benefits: ['Affordable', 'Ceramides', 'Non-irritating'],
+      id: 'sunscreen_sens_3',
+      name: 'Purito Daily Go-To Sunscreen',
+      description: 'Gentle essence SPF 50+ PA++++',
+      benefits: ['Minimal ingredients', 'Soothing', 'Safe'],
     },
     {
-      id: 'moisturizer_night_sens_4',
-      name: 'A-Derma Dermalibour',
-      description: 'Repairing cream for sensitive skin',
-      benefits: ['Soothing', 'Repairing', 'Gentle'],
+      id: 'sunscreen_sens_4',
+      name: 'Avene Mineral Fluid',
+      description: 'Ultra-gentle mineral SPF 50+',
+      benefits: ['Thermal water', 'Minimal formula', 'Safe'],
     },
     {
-      id: 'moisturizer_night_sens_5',
-      name: 'First Aid Beauty Ultra Repair',
-      description: 'Gentle intensive moisturizer',
-      benefits: ['Colloidal oatmeal', 'Safe', 'Soothing'],
+      id: 'sunscreen_sens_5',
+      name: 'COSRX Aloe Soothing Sun Cream',
+      description: 'Gentle daily protection SPF 50+ PA+++',
+      benefits: ['Soothing aloe', 'Gentle', 'Non-irritating'],
     },
   ],
 };
 
-export default function ModerateNightRoutineStep2ProductSelection({ 
+export default function ComprehensiveRoutineStep5ProductSelection({ 
   onNavigateHome,
-  onNavigateToNightRoutine,
+  onNavigateToDayRoutine,
   onBack, 
-  onContinue,
-  currentStep = 2,
-  internalStep = 4
+  onComplete,
+  currentStep = 5,
+  internalStep = 10
 }) {
   const [skinType, setSkinType] = useState('normal');
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const [products, setProducts] = useState([]);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [completeRoutineData, setCompleteRoutineData] = useState(null);
 
   useEffect(() => {
     loadSkinType();
@@ -214,37 +217,75 @@ export default function ModerateNightRoutineStep2ProductSelection({
       const savedSkinType = await AsyncStorage.getItem('userSkinType');
       if (savedSkinType) {
         setSkinType(savedSkinType);
-        setProducts(MOISTURIZER_PRODUCTS[savedSkinType] || MOISTURIZER_PRODUCTS.normal);
+        setProducts(SUNSCREEN_PRODUCTS[savedSkinType] || SUNSCREEN_PRODUCTS.normal);
       } else {
-        setProducts(MOISTURIZER_PRODUCTS.normal);
+        setProducts(SUNSCREEN_PRODUCTS.normal);
       }
     } catch (error) {
       console.error('Error loading skin type:', error);
-      setProducts(MOISTURIZER_PRODUCTS.normal);
+      setProducts(SUNSCREEN_PRODUCTS.normal);
     }
   };
 
-  const handleContinue = async () => {
-    if (selectedProduct) {
+  const toggleProductSelection = (product) => {
+    setSelectedProducts(prev => {
+      const isSelected = prev.some(p => p.id === product.id);
+      
+      if (isSelected) {
+        return prev.filter(p => p.id !== product.id);
+      } else {
+        if (prev.length >= 2) {
+          return [prev[1], product];
+        }
+        return [...prev, product];
+      }
+    });
+  };
+
+  const handleComplete = async () => {
+    if (selectedProducts.length > 0) {
       try {
-        const routineData = await AsyncStorage.getItem('myModerateNightRoutine');
+        const routineData = await AsyncStorage.getItem('myComprehensiveRoutine');
         const currentRoutine = routineData ? JSON.parse(routineData) : {};
         
-        currentRoutine.moisturizers = [selectedProduct];
+        currentRoutine.sunscreens = selectedProducts;
+        currentRoutine.completedAt = new Date().toISOString();
         currentRoutine.lastUpdated = new Date().toISOString();
         
-        await AsyncStorage.setItem('myModerateNightRoutine', JSON.stringify(currentRoutine));
+        await AsyncStorage.setItem('myComprehensiveRoutine', JSON.stringify(currentRoutine));
         
-        console.log('Moderate Night Step 2 Saved:', currentRoutine);
+        console.log('Complete Comprehensive Routine Saved:', currentRoutine);
         console.log('Cleansers:', currentRoutine.cleansers);
         console.log('Moisturizers:', currentRoutine.moisturizers);
+        console.log('Specialized Products:', currentRoutine.specializedProducts);
+        console.log('Advanced Treatments:', currentRoutine.advancedTreatments);
+        console.log('Sunscreens:', currentRoutine.sunscreens);
         
-        if (onContinue) {
-          onContinue([selectedProduct]);
-        }
+        setCompleteRoutineData(currentRoutine);
+        setShowCompletionModal(true);
       } catch (error) {
-        console.error('Error saving Moderate Night routine step 2:', error);
+        console.error('Error completing Comprehensive Routine:', error);
       }
+    }
+  };
+
+  const handleModalClose = () => {
+    console.log('Modal closed - navigating to Home');
+    setShowCompletionModal(false);
+    if (onNavigateHome) {
+      setTimeout(() => {
+        onNavigateHome();
+      }, 300);
+    }
+  };
+
+  const handleViewRoutine = () => {
+    console.log('Viewing Comprehensive Routine');
+    setShowCompletionModal(false);
+    if (onNavigateToDayRoutine) {
+      setTimeout(() => {
+        onNavigateToDayRoutine();
+      }, 300);
     }
   };
 
@@ -255,22 +296,25 @@ export default function ModerateNightRoutineStep2ProductSelection({
   };
 
   const handleNextStep = () => {
-    if (selectedProduct) {
-      handleContinue();
+    if (selectedProducts.length > 0) {
+      handleComplete();
     }
   };
 
   const getButtonText = () => {
-    if (!selectedProduct) {
-      return 'Choose My Moisturizer';
+    if (selectedProducts.length === 0) {
+      return 'Choose My Sunscreen';
+    } else if (selectedProducts.length === 1) {
+      return 'Complete My Comprehensive Routine';
+    } else {
+      return 'Complete My Comprehensive Routine';
     }
-    return 'Continue to Step 3';
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const totalSteps = 3;
-  const totalInternalSteps = 6;
-  const canGoNext = !!selectedProduct;
+  const totalSteps = 5;
+  const totalInternalSteps = 10;
+  const canGoNext = selectedProducts.length > 0;
 
   return (
     <View style={styles.container}>
@@ -286,11 +330,11 @@ export default function ModerateNightRoutineStep2ProductSelection({
 
       <TouchableOpacity 
         style={styles.bannerContainer}
-        onPress={onNavigateToNightRoutine}
+        onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
         <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
+          source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
         />
@@ -337,21 +381,22 @@ export default function ModerateNightRoutineStep2ProductSelection({
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Product Recommendations</Text>
+          <Text style={styles.sectionTitle}>Sunscreen Recommendations</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose your evening moisturizer. This will support your skin's natural overnight repair process with enhanced hydration.
+              Choose 1-2 sunscreens to give you options for different occasions. SPF 30+ is essential for daily protection, especially when using active treatments. Remember to reapply every 2 hours when outdoors.
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Choose Your Product {selectedProduct && '(1 selected)'}
+              Select 1-2 Products {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
             </Text>
             
             {products.map((product) => {
-              const isSelected = selectedProduct?.id === product.id;
+              const isSelected = selectedProducts.some(p => p.id === product.id);
+              const selectionIndex = selectedProducts.findIndex(p => p.id === product.id);
               
               return (
                 <TouchableOpacity
@@ -360,7 +405,7 @@ export default function ModerateNightRoutineStep2ProductSelection({
                     styles.productCard,
                     isSelected && [styles.productCardSelected, { borderColor: skinTypeInfo.color }]
                   ]}
-                  onPress={() => setSelectedProduct(product)}
+                  onPress={() => toggleProductSelection(product)}
                   activeOpacity={0.7}
                 >
                   <View style={styles.productCardHeader}>
@@ -370,7 +415,7 @@ export default function ModerateNightRoutineStep2ProductSelection({
                     </View>
                     {isSelected && (
                       <View style={[styles.checkmark, { backgroundColor: skinTypeInfo.color }]}>
-                        <Text style={styles.checkmarkText}>✓</Text>
+                        <Text style={styles.checkmarkText}>{selectionIndex + 1}</Text>
                       </View>
                     )}
                   </View>
@@ -387,9 +432,15 @@ export default function ModerateNightRoutineStep2ProductSelection({
             })}
           </View>
 
-          {!selectedProduct && (
+          {selectedProducts.length === 0 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select 1 product to continue to Step 3</Text>
+              <Text style={styles.helperText}>Select at least 1 product to complete your routine</Text>
+            </View>
+          )}
+
+          {selectedProducts.length === 2 && (
+            <View style={styles.helperBox}>
+              <Text style={styles.helperText}>Maximum 2 products selected</Text>
             </View>
           )}
 
@@ -400,11 +451,19 @@ export default function ModerateNightRoutineStep2ProductSelection({
       <View style={styles.bottomSection}>
         <DrAcneButton
           title={getButtonText()}
-          onPress={handleContinue}
-          disabled={!selectedProduct}
-          style={[styles.continueButton, !selectedProduct && styles.continueButtonDisabled]}
+          onPress={handleComplete}
+          disabled={selectedProducts.length === 0}
+          style={[styles.continueButton, selectedProducts.length === 0 && styles.continueButtonDisabled]}
         />
       </View>
+
+      <RoutineCompletionModal
+        visible={showCompletionModal}
+        onClose={handleModalClose}
+        onViewRoutine={handleViewRoutine}
+        routineData={completeRoutineData}
+        routineType="comprehensive"
+      />
     </View>
   );
 }
@@ -588,7 +647,7 @@ const styles = StyleSheet.create({
   },
   checkmarkText: {
     color: BRAND_COLORS.white,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
   },
   benefitsRow: {

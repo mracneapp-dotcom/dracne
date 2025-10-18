@@ -1,12 +1,12 @@
-// app/ModerateNightRoutineStep2Info.js - CORRECTED STEP COUNTS
+// app/ComprehensiveRoutineStep5Info.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -29,13 +29,13 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
 };
 
-export default function ModerateNightRoutineStep2Info({ 
+export default function ComprehensiveRoutineStep5Info({ 
   onNavigateHome,
-  onNavigateToNightRoutine,
+  onNavigateToDayRoutine,
   onBack, 
   onContinue, 
-  currentStep = 2,
-  internalStep = 3
+  currentStep = 5,
+  internalStep = 9
 }) {
   const [skinType, setSkinType] = useState('normal');
 
@@ -66,25 +66,9 @@ export default function ModerateNightRoutineStep2Info({
     }
   };
 
-  const getProductTitle = () => {
-    if (skinType === 'oily') return 'Lightweight Gel-Cream';
-    if (skinType === 'dry') return 'Rich Night Moisturizer';
-    return 'Light/Medium Moisturizer';
-  };
-
-  const getExplanationText = () => {
-    if (skinType === 'oily') {
-      return 'Even oily skin needs hydration at night. Lightweight gel-creams provide essential moisture without adding excess oil, allowing your skin to repair overnight without clogging pores.';
-    }
-    if (skinType === 'dry') {
-      return 'Night is when your skin repairs itself. Rich moisturizers with ceramides and occlusives create a protective barrier, locking in hydration and strengthening your skin barrier while you sleep.';
-    }
-    return 'A balanced evening moisturizer provides optimal hydration to support your skin\'s natural overnight repair process. Choose formulas that feel comfortable without being too heavy or too light.';
-  };
-
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const totalSteps = 3;
-  const totalInternalSteps = 6;
+  const totalSteps = 5;
+  const totalInternalSteps = 10;
 
   return (
     <View style={styles.container}>
@@ -100,11 +84,11 @@ export default function ModerateNightRoutineStep2Info({
 
       <TouchableOpacity 
         style={styles.bannerContainer}
-        onPress={onNavigateToNightRoutine}
+        onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
         <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
+          source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
         />
@@ -146,28 +130,35 @@ export default function ModerateNightRoutineStep2Info({
         <View style={styles.productHeader}>
           <View style={styles.productIconContainer}>
             <Image 
-              source={require('../assets/images/jar cream.png')}
+              source={require('../assets/images/sunscreen.png')}
               style={styles.productIcon}
               resizeMode="contain"
             />
           </View>
           <View style={styles.productTextContainer}>
-            <Text style={styles.productTitle}>{getProductTitle()}</Text>
-            <Text style={styles.productSubtitle}>Evening Step 2</Text>
+            <Text style={styles.productTitle}>Sunscreen (SPF 30+)</Text>
+            <Text style={styles.productSubtitle}>Final Morning Step</Text>
           </View>
         </View>
 
         <View style={styles.introBox}>
-          <Text style={styles.introTitle}>Curated for Your Skin</Text>
+          <Text style={styles.introTitle}>Essential Protection</Text>
           <Text style={styles.introText}>
-            We've selected moisturizers specifically for {skinTypeInfo.name.toLowerCase()}. Each product is proven effective and dermatologist-recommended for overnight skin repair.
+            Sunscreen is the most important anti-aging and skin protection product in your routine. It prevents UV damage, premature aging, and protects your skin while using active treatments.
           </Text>
         </View>
 
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>Why this matters at night</Text>
+          <Text style={styles.explanationTitle}>Why this matters</Text>
           <Text style={styles.explanationText}>
-            {getExplanationText()}
+            UV exposure is responsible for up to 80% of visible aging. When using active treatments like retinoids or acids, sunscreen becomes even more critical to prevent sensitivity and hyperpigmentation.
+          </Text>
+        </View>
+
+        <View style={styles.tipBox}>
+          <Text style={styles.tipTitle}>Application Tip</Text>
+          <Text style={styles.tipText}>
+            Use 2 fingers worth of sunscreen for your face and neck. Apply as the last step of your morning routine, 15 minutes before sun exposure. Reapply every 2 hours if outdoors.
           </Text>
         </View>
       </View>
@@ -333,6 +324,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
     borderRadius: 12,
     padding: 16,
+    marginBottom: 16,
   },
   explanationTitle: {
     fontSize: 15,
@@ -341,6 +333,24 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   explanationText: {
+    fontSize: 13,
+    color: BRAND_COLORS.darkGray,
+    lineHeight: 19,
+  },
+  tipBox: {
+    backgroundColor: '#E8F5E9',
+    borderLeftWidth: 4,
+    borderLeftColor: BRAND_COLORS.primary,
+    borderRadius: 8,
+    padding: 16,
+  },
+  tipTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+    marginBottom: 6,
+  },
+  tipText: {
     fontSize: 13,
     color: BRAND_COLORS.darkGray,
     lineHeight: 19,

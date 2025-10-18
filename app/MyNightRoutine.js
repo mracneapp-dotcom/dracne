@@ -1,4 +1,4 @@
-// app/MyDayRoutine.js - FIXED COLORS: BLUE/ORANGE/PURPLE
+// app/MyNightRoutine.js - UPDATED TO MATCH MY DAY ROUTINE STRUCTURE
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
@@ -35,20 +35,19 @@ const SKIN_TYPE_INFO = {
 const ROUTINE_LEVEL_COLORS = {
   basic: '#4A90E2',          // Blue
   moderate: '#F39C12',       // Orange
-  comprehensive: '#9B59B6',  // Purple
 };
 
 const STEP_ICONS = {
   cleanser: require('../assets/images/cream.png'),
   moisturizer: require('../assets/images/jar cream.png'),
-  sunscreen: require('../assets/images/sunscreen.png'),
 };
 
-export default function MyDayRoutine({ 
+export default function MyNightRoutine({
   onNavigateHome,
-  onNavigateToBasicRoutine,
-  onNavigateToDayRoutine,
-  onBack 
+  onNavigateToNightRoutine,
+  onNavigateToBasicNightRoutine,
+  onBack,
+  style = {}
 }) {
   const [routineData, setRoutineData] = useState(null);
   const [skinType, setSkinType] = useState('normal');
@@ -64,32 +63,21 @@ export default function MyDayRoutine({
     try {
       setLoading(true);
       
-      const basicRoutine = await AsyncStorage.getItem('myBasicRoutine');
-      const moderateRoutine = await AsyncStorage.getItem('myModerateRoutine');
-      const comprehensiveRoutine = await AsyncStorage.getItem('myComprehensiveRoutine');
+      const basicNightRoutine = await AsyncStorage.getItem('myBasicNightRoutine');
+      const moderateNightRoutine = await AsyncStorage.getItem('myModerateNightRoutine');
       const savedSkinType = await AsyncStorage.getItem('userSkinType');
       
       let selectedRoutine = null;
       let selectedLevel = null;
       
-      if (comprehensiveRoutine) {
-        const comprehensiveData = JSON.parse(comprehensiveRoutine);
-        selectedRoutine = comprehensiveData;
-        selectedLevel = 'comprehensive';
+      if (moderateNightRoutine) {
+        const moderateData = JSON.parse(moderateNightRoutine);
+        selectedRoutine = moderateData;
+        selectedLevel = 'moderate';
       }
       
-      if (moderateRoutine) {
-        const moderateData = JSON.parse(moderateRoutine);
-        if (!selectedRoutine || 
-            (moderateData.completedAt && selectedRoutine.completedAt && 
-             new Date(moderateData.completedAt) > new Date(selectedRoutine.completedAt))) {
-          selectedRoutine = moderateData;
-          selectedLevel = 'moderate';
-        }
-      }
-      
-      if (basicRoutine) {
-        const basicData = JSON.parse(basicRoutine);
+      if (basicNightRoutine) {
+        const basicData = JSON.parse(basicNightRoutine);
         if (!selectedRoutine || 
             (basicData.completedAt && selectedRoutine.completedAt && 
              new Date(basicData.completedAt) > new Date(selectedRoutine.completedAt))) {
@@ -99,7 +87,7 @@ export default function MyDayRoutine({
       }
       
       if (selectedRoutine) {
-        console.log(`Loaded ${selectedLevel} routine:`, selectedRoutine);
+        console.log(`Loaded ${selectedLevel} night routine:`, selectedRoutine);
         setRoutineData(selectedRoutine);
         setRoutineLevel(selectedLevel);
       }
@@ -108,7 +96,7 @@ export default function MyDayRoutine({
         setSkinType(savedSkinType);
       }
     } catch (error) {
-      console.error('Error loading routine:', error);
+      console.error('Error loading night routine:', error);
     } finally {
       setLoading(false);
     }
@@ -125,7 +113,7 @@ export default function MyDayRoutine({
     
     Alert.alert(
       'Clear Routine',
-      `Are you sure you want to clear your ${levelText} Routine? This cannot be undone.`,
+      `Are you sure you want to clear your ${levelText} Night Routine? This cannot be undone.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -134,15 +122,13 @@ export default function MyDayRoutine({
           onPress: async () => {
             try {
               if (routineLevel === 'basic') {
-                await AsyncStorage.removeItem('myBasicRoutine');
+                await AsyncStorage.removeItem('myBasicNightRoutine');
               } else if (routineLevel === 'moderate') {
-                await AsyncStorage.removeItem('myModerateRoutine');
-              } else if (routineLevel === 'comprehensive') {
-                await AsyncStorage.removeItem('myComprehensiveRoutine');
+                await AsyncStorage.removeItem('myModerateNightRoutine');
               }
               setRoutineData(null);
               setRoutineLevel(null);
-              console.log(`${levelText} routine cleared`);
+              console.log(`${levelText} night routine cleared`);
             } catch (error) {
               console.error('Error clearing routine:', error);
             }
@@ -202,14 +188,13 @@ export default function MyDayRoutine({
 
   const renderEmptyState = () => (
     <View style={styles.emptyStateContainer}>
-      <Text style={styles.emptyTitle}>No Routine Saved Yet</Text>
+      <Text style={styles.emptyTitle}>No Night Routine Yet</Text>
       <Text style={styles.emptyText}>
-        Complete the Basic Routine setup to create your personalized morning skincare routine.
+        Create your personalized evening skincare routine to start your journey
       </Text>
-      
       <DrAcneButton
-        title="Create My Routine"
-        onPress={onNavigateToBasicRoutine}
+        title="Create Night Routine"
+        onPress={onNavigateToBasicNightRoutine}
         style={styles.emptyButton}
       />
     </View>
@@ -220,16 +205,14 @@ export default function MyDayRoutine({
 
     const totalProducts = 
       (routineData.cleansers?.length || 0) + 
-      (routineData.moisturizers?.length || 0) + 
-      (routineData.specializedProducts?.length || 0) +
-      (routineData.advancedTreatments?.length || 0) +
-      (routineData.sunscreens?.length || 0);
+      (routineData.moisturizers?.length || 0) +
+      (routineData.poreCare?.length || 0);
 
-    const stepCount = routineLevel === 'comprehensive' ? 5 : (routineLevel === 'moderate' ? 4 : 3);
+    const stepCount = routineLevel === 'moderate' ? 3 : 2;
 
     return (
       <View style={styles.routineInfoBox}>
-        <Text style={styles.routineInfoTitle}>Your Morning Routine</Text>
+        <Text style={styles.routineInfoTitle}>Your Evening Routine</Text>
         <Text style={styles.routineInfoText}>
           {totalProducts} product{totalProducts !== 1 ? 's' : ''} selected • {stepCount} essential steps
         </Text>
@@ -246,7 +229,7 @@ export default function MyDayRoutine({
   const routineLevelColor = routineLevel ? ROUTINE_LEVEL_COLORS[routineLevel] : BRAND_COLORS.primary;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
@@ -259,11 +242,11 @@ export default function MyDayRoutine({
 
       <TouchableOpacity 
         style={styles.bannerContainer}
-        onPress={onNavigateToDayRoutine}
+        onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
         <Image 
-          source={require('../assets/images/Banner My Day Routine.png')}
+          source={require('../assets/images/Banner My Night Routine.png')}
           style={styles.bannerImage}
           resizeMode="cover"
         />
@@ -294,7 +277,7 @@ export default function MyDayRoutine({
             )}
           </View>
 
-          <Text style={styles.pageTitle}>My Day Routine</Text>
+          <Text style={styles.pageTitle}>My Night Routine</Text>
 
           {loading ? (
             <View style={styles.loadingContainer}>
@@ -315,43 +298,22 @@ export default function MyDayRoutine({
 
               {renderRoutineStep(
                 2,
-                'Moisturizer',
+                'Night Moisturizer',
                 STEP_ICONS.moisturizer,
                 routineData.moisturizers
               )}
 
               {routineLevel === 'moderate' && renderRoutineStep(
                 3,
-                'Specialized Treatment',
+                'Pore Care Treatment',
                 STEP_ICONS.moisturizer,
-                routineData.specializedProducts
-              )}
-
-              {routineLevel === 'comprehensive' && renderRoutineStep(
-                3,
-                'Specialized Treatment',
-                STEP_ICONS.moisturizer,
-                routineData.specializedProducts
-              )}
-
-              {routineLevel === 'comprehensive' && renderRoutineStep(
-                4,
-                'Advanced Treatment',
-                STEP_ICONS.moisturizer,
-                routineData.advancedTreatments
-              )}
-
-              {renderRoutineStep(
-                routineLevel === 'comprehensive' ? 5 : (routineLevel === 'moderate' ? 4 : 3),
-                'Sunscreen (SPF 30+)',
-                STEP_ICONS.sunscreen,
-                routineData.sunscreens
+                routineData.poreCare
               )}
 
               <View style={styles.actionsContainer}>
                 <DrAcneButton
                   title="Edit Routine"
-                  onPress={onNavigateToBasicRoutine}
+                  onPress={onNavigateToBasicNightRoutine}
                   style={styles.actionButton}
                 />
 
@@ -364,15 +326,13 @@ export default function MyDayRoutine({
               </View>
 
               <View style={styles.footerBox}>
-                <Text style={styles.footerTitle}>Using Your Routine</Text>
+                <Text style={styles.footerTitle}>Evening Routine Tips</Text>
                 <Text style={styles.footerText}>
-                  • Apply products in order: Cleanser → Moisturizer
-                  {routineLevel === 'moderate' && ' → Specialized Treatment'}
-                  {routineLevel === 'comprehensive' && ' → Specialized Treatment → Advanced Treatment'}
-                  {' → Sunscreen\n'}
-                  • Wait 1-2 minutes between steps for absorption{'\n'}
-                  • Use sunscreen as the final step - never mix with other products{'\n'}
-                  • Results typically appear after 8-12 weeks of consistent use
+                  • Remove all makeup and sunscreen thoroughly{'\n'}
+                  • Use lukewarm water, never hot{'\n'}
+                  • Pat skin dry gently{'\n'}
+                  • Apply moisturizer while skin is slightly damp{'\n'}
+                  • Allow skin to repair overnight
                 </Text>
               </View>
             </>
