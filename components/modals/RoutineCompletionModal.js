@@ -1,4 +1,4 @@
-// components/modals/RoutineCompletionModal.js - WITH MODERATE NIGHT STEP 3
+// components/modals/RoutineCompletionModal.js - COMPLETE WITH COMPREHENSIVE NIGHT SUPPORT
 import React from 'react';
 import {
   Image,
@@ -62,6 +62,7 @@ export default function RoutineCompletionModal({
   const advancedTreatments = routineData?.advancedTreatments || [];
   const sunscreens = routineData?.sunscreens || [];
   const poreCare = routineData?.poreCare || [];
+  const poreCareProducts = routineData?.poreCareProducts || [];
 
   const isNight = isNightRoutine || (sunscreens.length === 0);
   
@@ -69,7 +70,8 @@ export default function RoutineCompletionModal({
   const isModerate = routineType === 'moderate';
   const dayStepCount = isComprehensive ? 5 : (isModerate ? 4 : 3);
   
-  const nightStepCount = isModerate ? 3 : 2;
+  // ✅ FIXED: Night step count now handles comprehensive (4 steps)
+  const nightStepCount = isComprehensive ? 4 : (isModerate ? 3 : 2);
   
   const stepCount = isNight ? nightStepCount : dayStepCount;
   
@@ -130,7 +132,13 @@ export default function RoutineCompletionModal({
           
           <Text style={styles.subtitle}>
             {isNight 
-              ? "You're all set with your evening routine"
+              ? (isComprehensive 
+                ? "You're all set with your comprehensive night routine"
+                : (isModerate 
+                  ? "You're all set with your enhanced night routine"
+                  : "You're all set with your evening routine"
+                )
+              )
               : (isComprehensive 
                 ? "You're all set with your comprehensive routine"
                 : (isModerate 
@@ -146,6 +154,7 @@ export default function RoutineCompletionModal({
               Your {stepCount}-Step {isNight ? 'Evening' : 'Morning'} Routine:
             </Text>
 
+            {/* STEP 1: CLEANSER */}
             <View style={styles.stepCard}>
               <Text style={styles.stepTitle}>Step 1: Cleanser</Text>
               {cleansers.length > 0 ? (
@@ -158,6 +167,7 @@ export default function RoutineCompletionModal({
               )}
             </View>
 
+            {/* STEP 2: MOISTURIZER */}
             <View style={styles.stepCard}>
               <Text style={styles.stepTitle}>Step 2: {isNight ? 'Night Moisturizer' : 'Moisturizer'}</Text>
               {moisturizers.length > 0 ? (
@@ -170,13 +180,18 @@ export default function RoutineCompletionModal({
               )}
             </View>
 
-            {isNight && isModerate && (
+            {/* STEP 3: PORE CARE (NIGHT MODERATE/COMPREHENSIVE) OR SPECIALIZED (DAY MODERATE/COMPREHENSIVE) */}
+            {isNight && (isModerate || isComprehensive) && (
               <View style={styles.stepCard}>
                 <Text style={styles.stepTitle}>Step 3: Pore Care Treatment</Text>
-                {poreCare.length > 0 ? (
+                {(poreCareProducts.length > 0 || poreCare.length > 0) ? (
                   <View style={styles.productBox}>
-                    <Text style={styles.productName}>{poreCare[0].name}</Text>
-                    <Text style={styles.productDescription}>{poreCare[0].description}</Text>
+                    <Text style={styles.productName}>
+                      {poreCareProducts.length > 0 ? poreCareProducts[0].name : poreCare[0].name}
+                    </Text>
+                    <Text style={styles.productDescription}>
+                      {poreCareProducts.length > 0 ? poreCareProducts[0].description : poreCare[0].description}
+                    </Text>
                   </View>
                 ) : (
                   <Text style={styles.emptyText}>No pore care product selected</Text>
@@ -198,6 +213,21 @@ export default function RoutineCompletionModal({
               </View>
             )}
 
+            {/* STEP 4: ADVANCED TREATMENT (NIGHT COMPREHENSIVE OR DAY COMPREHENSIVE) */}
+            {isNight && isComprehensive && (
+              <View style={styles.stepCard}>
+                <Text style={styles.stepTitle}>Step 4: Advanced Night Treatment</Text>
+                {advancedTreatments.length > 0 ? (
+                  <View style={styles.productBox}>
+                    <Text style={styles.productName}>{advancedTreatments[0].name}</Text>
+                    <Text style={styles.productDescription}>{advancedTreatments[0].description}</Text>
+                  </View>
+                ) : (
+                  <Text style={styles.emptyText}>No advanced treatment selected</Text>
+                )}
+              </View>
+            )}
+
             {!isNight && isComprehensive && (
               <View style={styles.stepCard}>
                 <Text style={styles.stepTitle}>Step 4: Advanced Treatment</Text>
@@ -212,6 +242,7 @@ export default function RoutineCompletionModal({
               </View>
             )}
 
+            {/* FINAL STEP: SUNSCREEN (DAY ONLY) */}
             {!isNight && (
               <View style={styles.stepCard}>
                 <Text style={styles.stepTitle}>Step {dayStepCount}: Sunscreen</Text>
