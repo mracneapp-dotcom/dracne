@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { AnalysisResults } from '../components/analysis/AnalysisResults';
 import { PhotoCapture } from '../components/camera/PhotoCapture';
+import SmartRoutineSuggestionModal from '../components/modals/SmartRoutineSuggestionModal';
 import { BottomNavigation } from '../components/ui/BottomNavigation';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 import { FeatureCards } from '../components/ui/FeatureCards';
@@ -82,6 +83,7 @@ import { KnownSkinTypeScreen } from './KnownSkinTypeScreen';
 import MyDayRoutine from './MyDayRoutine';
 import MyNightRoutine from './MyNightRoutine';
 import NightRoutineScreen from './NightRoutineScreen';
+import RoutinesScreen from './RoutinesScreen';
 import { SkinTestScreen } from './SkinTestScreen';
 import { SkinTypeResultsScreen } from './SkinTypeResultsScreen';
 import { Test1Part2Screen } from './Test1Part2Screen';
@@ -113,6 +115,14 @@ import OnboardingSkinType from './onboardingScreens/OnboardingSkinType';
 import OnboardingStruggle from './onboardingScreens/OnboardingStruggle';
 import OnboardingTimeline from './onboardingScreens/OnboardingTimeline';
 import OnboardingWelcome from './onboardingScreens/OnboardingWelcome';
+
+// Smart Routine Screens
+import MySmartRoutine from './MySmartRoutine';
+import SmartRoutineHubScreen from './SmartRoutineHubScreen';
+import SmartRoutineIntroScreen from './SmartRoutineIntroScreen';
+import SmartRoutineProductSelectionDay from './SmartRoutineProductSelectionDay';
+import SmartRoutineProductSelectionNight from './SmartRoutineProductSelectionNight';
+import SmartRoutineScreen from './SmartRoutineScreen';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -152,6 +162,12 @@ export default function AIScannerScreen() {
   const [currentTestResult, setCurrentTestResult] = useState(null);
   const [manualSkinTypeSelection, setManualSkinTypeSelection] = useState(null);
   
+  // Smart Routine State
+  const [selectedSmartConcern, setSelectedSmartConcern] = useState(null);
+  const [smartRoutineDayProducts, setSmartRoutineDayProducts] = useState([]);
+  const [showSmartRoutineSuggestion, setShowSmartRoutineSuggestion] = useState(false);
+  const [confirmedConcern, setConfirmedConcern] = useState(null);
+
   // Product Selection State
   const [selectedProducts, setSelectedProducts] = useState({
     cleansers: [],
@@ -492,6 +508,74 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
     setCurrentStep('myNightRoutine');
   };
 
+ // Smart Routine Navigation Handlers
+const handleNavigateToSmartRoutineHub = () => {
+  console.log('📱 Navigating to Smart Routine Hub');
+  setCurrentStep('smartRoutineHub');
+};
+
+const handleNavigateToSmartRoutine = () => {
+  console.log('📱 Navigating to Smart Routine (Create)');
+  setCurrentStep('smartRoutine');
+};
+
+const handleNavigateToMySmartRoutine = () => {
+  console.log('📱 Navigating to My Smart Routine');
+  setCurrentStep('mySmartRoutine');
+};
+
+const handleNavigateToSmartRoutineIntro = (concernId) => {
+  console.log('📱 Navigating to Smart Routine Intro:', concernId);
+  setSelectedSmartConcern(concernId);
+  setCurrentStep('smartRoutineIntro');
+};
+
+const handleNavigateToSmartProductSelection = () => {
+  console.log('📱 Navigating to Smart Product Selection (Day)');
+  setSmartRoutineDayProducts([]);
+  setCurrentStep('smartRoutineProductSelectionDay');
+};
+
+const handleSmartRoutineDayComplete = (dayProducts) => {
+  console.log('📱 Day products selected:', dayProducts.length);
+  setSmartRoutineDayProducts(dayProducts);
+  setCurrentStep('smartRoutineProductSelectionNight');
+};
+
+const handleSmartRoutineBackToDay = () => {
+  console.log('📱 Going back to Day products');
+  setCurrentStep('smartRoutineProductSelectionDay');
+};
+
+const handleConcernConfirmed = (concernId) => {
+  console.log('✅ User confirmed concern:', concernId);
+  setConfirmedConcern(concernId);
+  setShowSmartRoutineSuggestion(true);
+};
+
+const handleCreateSmartRoutineFromAnalysis = () => {
+  console.log('📱 Creating Smart Routine from analysis with pre-selection:', confirmedConcern);
+  setShowSmartRoutineSuggestion(false);
+  setSelectedSmartConcern(confirmedConcern); // Pre-select the confirmed concern
+  setCurrentStep('smartRoutine'); // Go to list screen, not intro
+};
+
+const handleSkipSmartRoutine = () => {
+  console.log('⏭️ User skipped Smart Routine creation');
+  setShowSmartRoutineSuggestion(false);
+  setConfirmedConcern(null);
+};
+
+const handleNavigateBackToSmartRoutine = () => {
+  console.log('📱 Navigating back to Smart Routine');
+  setCurrentStep('smartRoutine');
+};
+
+const handleNavigateBackToSmartRoutineHub = () => {
+  console.log('📱 Navigating back to Smart Routine Hub');
+  setCurrentStep('smartRoutineHub');
+};
+  
   // ✅ NEW: Navigate to Comprehensive Night Routine for editing
   const handleNavigateToComprehensiveNightRoutine = () => {
     console.log('Navigate to Comprehensive Night Routine');
@@ -759,7 +843,7 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
     if (tabId === 'upload') {
       setCurrentStep('capture');
     } else if (tabId === 'routines') {
-      setCurrentStep('home');
+      setCurrentStep('routinesHub');
     } else {
       Alert.alert('Coming Soon', `${tabId} feature will be available soon!`);
     }
@@ -992,6 +1076,8 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
     setShowComprehensiveProductSelectionStep3(false);
     setShowComprehensiveProductSelectionStep4(false);
     setShowComprehensiveProductSelectionStep5(false);
+    setShowSmartRoutineSuggestion(false);
+    setConfirmedConcern(null);
     
     const resetSteps = analysisSteps.map(step => ({ ...step, active: false }));
     setAnalysisSteps(resetSteps);
@@ -1103,6 +1189,24 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
     </View>
   );
 
+  const renderRoutinesHub = () => {
+    console.log('📱 Rendering RoutinesHub screen');
+    return (
+      <View style={styles.screenContainer}>
+        <RoutinesScreen
+          onNavigateHome={() => setCurrentStep('home')}
+          onNavigateToMyDayRoutine={() => setCurrentStep('myDayRoutine')}
+          onNavigateToMyNightRoutine={() => setCurrentStep('myNightRoutine')}
+          onNavigateToSmartRoutineHub={() => {
+            console.log('🔵 onNavigateToSmartRoutineHub called from RoutinesScreen');
+            handleNavigateToSmartRoutineHub();
+          }}
+          style={styles.screenContent}
+        />
+      </View>
+    );
+  };
+
   const renderHome = () => (
     <ScrollView 
       style={styles.homeContainer} 
@@ -1197,6 +1301,77 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
       />
     </View>
   );
+
+ // SMART ROUTINE RENDERS
+const renderSmartRoutineHub = () => (
+  <View style={styles.screenContainer}>
+    <SmartRoutineHubScreen
+      onNavigateHome={() => setCurrentStep('home')}
+      onNavigateToCreate={handleNavigateToSmartRoutine}
+      onNavigateToMySmartRoutine={handleNavigateToMySmartRoutine}
+      style={styles.screenContent}
+    />
+  </View>
+);
+
+const renderSmartRoutine = () => (
+  <View style={styles.screenContainer}>
+    <SmartRoutineScreen
+      onNavigateHome={() => setCurrentStep('home')}
+      onNavigateToDetail={handleNavigateToSmartRoutineIntro}
+      preselectedConcern={selectedSmartConcern}
+      style={styles.screenContent}
+    />
+  </View>
+);
+
+const renderMySmartRoutine = () => (
+  <View style={styles.screenContainer}>
+    <MySmartRoutine
+      onNavigateHome={() => setCurrentStep('home')}
+      onNavigateToSmartRoutineHub={handleNavigateToSmartRoutineHub}
+      onNavigateToCreate={handleNavigateToSmartRoutine}
+      style={styles.screenContent}
+    />
+  </View>
+);
+
+const renderSmartRoutineIntro = () => (
+  <View style={styles.screenContainer}>
+    <SmartRoutineIntroScreen
+      onNavigateHome={() => setCurrentStep('home')}
+      onNavigateBack={handleNavigateBackToSmartRoutine}
+      onContinue={handleNavigateToSmartProductSelection}
+      concernId={selectedSmartConcern}
+      style={styles.screenContent}
+    />
+  </View>
+);
+
+const renderSmartRoutineProductSelectionDay = () => (
+  <View style={styles.screenContainer}>
+    <SmartRoutineProductSelectionDay
+      onNavigateHome={() => setCurrentStep('home')}
+      onNavigateBack={() => setCurrentStep('smartRoutineIntro')}
+      onContinueToNight={handleSmartRoutineDayComplete}
+      concernId={selectedSmartConcern}
+      style={styles.screenContent}
+    />
+  </View>
+);
+
+const renderSmartRoutineProductSelectionNight = () => (
+  <View style={styles.screenContainer}>
+    <SmartRoutineProductSelectionNight
+      onNavigateHome={() => setCurrentStep('home')}
+      onNavigateBack={handleSmartRoutineBackToDay}
+      onNavigateToSmartRoutineHub={handleNavigateToSmartRoutineHub}
+      concernId={selectedSmartConcern}
+      dayProducts={smartRoutineDayProducts}
+      style={styles.screenContent}
+    />
+  </View>
+);
   
   // BASIC NIGHT ROUTINE RENDERS
   const renderBasicNightRoutineStep1 = () => {
@@ -1980,29 +2155,71 @@ const renderComprehensiveNightRoutineStep4 = () => {
     </View>
   );
 
-  const renderResults = () => (
-    <View style={styles.resultsContainer}>
-      <AnalysisResults
-        analysisData={analysisData}
-        annotatedImageBlob={annotatedImageBlob}
-        style={styles.resultsContent}
-      />
+  const renderResults = () => {
+    const hasDetections = analysisData?.total_found > 0;
+    const isConfirmed = confirmedConcern !== null;
+    
+    const handleContinuePress = () => {
+      if (hasDetections && !isConfirmed) {
+        // Show gentle reminder popup
+        Alert.alert(
+          'Confirm Detection',
+          'Please confirm the detection breakdown to continue with your personalized routine.',
+          [{ text: 'OK', style: 'default' }]
+        );
+        return;
+      }
       
-      <View style={styles.resultsActionsRow}>
-        <DrAcneButton
-          title="New Analysis"
-          variant="outline"
-          onPress={resetToHome}
-          style={styles.actionButtonLeft}
+      if (isConfirmed) {
+        setShowSmartRoutineSuggestion(true);
+      } else {
+        handleContinueToSkinTest();
+      }
+    };
+  
+    const getButtonTitle = () => {
+      if (hasDetections && !isConfirmed) {
+        return 'Confirm';
+      }
+      return isConfirmed ? 'Create Routine' : 'Continue';
+    };
+  
+    return (
+      <View style={styles.resultsContainer}>
+        <AnalysisResults
+          analysisData={analysisData}
+          annotatedImageBlob={annotatedImageBlob}
+          onConfirmedConcern={handleConcernConfirmed}
+          style={styles.resultsContent}
         />
-        <DrAcneButton
-          title="Continue"
-          onPress={handleContinueToSkinTest}
-          style={styles.actionButtonRight}
+        
+        <View style={styles.resultsActionsRow}>
+          <DrAcneButton
+            title="New Analysis"
+            variant="outline"
+            onPress={resetToHome}
+            style={styles.actionButtonLeft}
+          />
+          <DrAcneButton
+            title={getButtonTitle()}
+            onPress={handleContinuePress}
+            disabled={hasDetections && !isConfirmed}
+            style={[
+              styles.actionButtonRight,
+              hasDetections && !isConfirmed && styles.actionButtonDisabled
+            ]}
+          />
+        </View>
+  
+        <SmartRoutineSuggestionModal
+          visible={showSmartRoutineSuggestion}
+          onClose={handleSkipSmartRoutine}
+          onCreateRoutine={handleCreateSmartRoutineFromAnalysis}
+          selectedConcern={confirmedConcern}
         />
       </View>
-    </View>
-  );
+    );
+  };
 
   const renderSkinTest = () => (
     <View style={styles.screenContainer}>
@@ -2165,10 +2382,19 @@ const renderComprehensiveNightRoutineStep4 = () => {
         
         {/* Main App Flow */}
         {isOnboardingComplete && currentStep === 'home' && renderHomeScreen()}
+        {isOnboardingComplete && currentStep === 'routinesHub' && renderRoutinesHub()}
         {isOnboardingComplete && currentStep === 'dayRoutine' && renderDayRoutine()}
         {isOnboardingComplete && currentStep === 'nightRoutine' && renderNightRoutine()}
         {isOnboardingComplete && currentStep === 'myDayRoutine' && renderMyDayRoutine()}
         {isOnboardingComplete && currentStep === 'myNightRoutine' && renderMyNightRoutine()}
+
+        {/* Smart Routine Flow */}
+        {isOnboardingComplete && currentStep === 'smartRoutineHub' && renderSmartRoutineHub()}
+        {isOnboardingComplete && currentStep === 'smartRoutine' && renderSmartRoutine()}
+        {isOnboardingComplete && currentStep === 'mySmartRoutine' && renderMySmartRoutine()}
+        {isOnboardingComplete && currentStep === 'smartRoutineIntro' && renderSmartRoutineIntro()}
+        {isOnboardingComplete && currentStep === 'smartRoutineProductSelectionDay' && renderSmartRoutineProductSelectionDay()}
+        {isOnboardingComplete && currentStep === 'smartRoutineProductSelectionNight' && renderSmartRoutineProductSelectionNight()}
 
         {/* Basic Night Routine Flow */}
         {isOnboardingComplete && currentStep === 'basicNightRoutineStep1' && renderBasicNightRoutineStep1()}
@@ -2223,12 +2449,22 @@ const renderComprehensiveNightRoutineStep4 = () => {
 
       {/* Bottom Navigation */}
       {isOnboardingComplete && (
-        currentStep === 'home' || 
+        currentStep === 'home' ||
+        currentStep === 'routinesHub' ||
+        currentStep === 'smartRoutine' ||
+        currentStep === 'smartRoutineHub' ||
+        currentStep === 'smartRoutine' ||
+        currentStep === 'mySmartRoutine' ||
+        currentStep === 'smartRoutineIntro' ||
+        currentStep === 'smartRoutineProductSelectionDay' ||
+        currentStep === 'smartRoutineProductSelectionNight' || 
         currentStep === 'results' || 
         currentStep === 'dayRoutine' || 
         currentStep === 'nightRoutine' ||
         currentStep === 'myDayRoutine' ||
         currentStep === 'myNightRoutine' ||
+        currentStep === 'smartRoutine' ||
+        currentStep === 'smartRoutineDetail' ||
         currentStep === 'basicNightRoutineStep1' ||
         currentStep === 'basicNightRoutineStep2' ||
         currentStep === 'moderateNightRoutineStep1' ||
@@ -2483,5 +2719,10 @@ const styles = StyleSheet.create({
   },
   screenContent: {
     flex: 1,
+  },
+  actionButtonRight: {
+    flex: 1,
+    paddingVertical: 12,
+    marginVertical: 0,
   },
 });

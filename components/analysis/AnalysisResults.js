@@ -1,4 +1,4 @@
-// components/analysis/AnalysisResults.js - FIXED VERSION
+// components/analysis/AnalysisResults.js - WITH BLOCKED BUTTON STATE
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -6,6 +6,7 @@ import {
   Image,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View
 } from 'react-native';
 
@@ -19,12 +20,31 @@ const BRAND_COLORS = {
   lightGray: '#F5F5F5',
 };
 
+// Map AI classes to Smart Routine concern IDs
+const AI_TO_CONCERN_MAP = {
+  'dark_spot': 'marks',
+  'dark spot': 'marks',
+  'dark_spots': 'marks',
+  'papules': 'papules',
+  'papule': 'papules',
+  'pustules': 'papules',
+  'pustule': 'papules',
+  'blackheads': 'blackheads',
+  'blackhead': 'blackheads',
+  'whiteheads': 'whiteheads',
+  'whitehead': 'whiteheads',
+  'nodules': 'nodules',
+  'nodule': 'nodules',
+};
+
 export const AnalysisResults = ({ 
   analysisData, 
   annotatedImageBlob,
+  onConfirmedConcern,
   style = {} 
 }) => {
   const [annotatedImageUri, setAnnotatedImageUri] = useState(null);
+  const [confirmedType, setConfirmedType] = useState(null);
 
   useEffect(() => {
     if (annotatedImageBlob) {
@@ -37,6 +57,22 @@ export const AnalysisResults = ({
       setAnnotatedImageUri(null);
     }
   }, [annotatedImageBlob]);
+
+  const handleConfirmSelection = (type) => {
+    // Toggle selection - if already selected, unselect it
+    const newSelection = confirmedType === type ? null : type;
+    setConfirmedType(newSelection);
+    
+    // Pass the concern ID to parent if selected
+    if (newSelection && onConfirmedConcern) {
+      const concernId = AI_TO_CONCERN_MAP[newSelection];
+      if (concernId) {
+        onConfirmedConcern(concernId);
+      }
+    } else if (onConfirmedConcern) {
+      onConfirmedConcern(null);
+    }
+  };
 
   if (!analysisData) {
     return (
@@ -125,10 +161,14 @@ export const AnalysisResults = ({
         )}
       </View>
 
-      {/* Detection Results */}
+      {/* Detection Results with Confirmation */}
       {total_found > 0 ? (
         <View style={styles.resultsSection}>
-          <Text style={styles.resultsTitle}>Detection Breakdown</Text>
+          <View style={styles.confirmHeader}>
+            <Text style={styles.resultsTitle}>Detection Breakdown</Text>
+            <Text style={styles.confirmTitle}>Confirm</Text>
+          </View>
+          
           <View style={styles.compactResults}>
             {Object.entries(groupedPredictions).map(([type, detections], index) => {
               const typeInfo = acneTypes[type] || { 
@@ -142,6 +182,7 @@ export const AnalysisResults = ({
               );
               
               const isLast = index === Object.entries(groupedPredictions).length - 1;
+              const isConfirmed = confirmedType === type;
               
               return (
                 <View 
@@ -159,6 +200,20 @@ export const AnalysisResults = ({
                       <Text style={styles.detectionConfidence}>{avgConfidence}%</Text>
                     </View>
                   </View>
+                  
+                  {/* Confirmation Circle */}
+                  <TouchableOpacity 
+                    style={[
+                      styles.confirmCircle,
+                      isConfirmed && styles.confirmCircleSelected
+                    ]}
+                    onPress={() => handleConfirmSelection(type)}
+                    activeOpacity={0.7}
+                  >
+                    {isConfirmed && (
+                      <Text style={styles.confirmCheckmark}>✓</Text>
+                    )}
+                  </TouchableOpacity>
                 </View>
               );
             })}
@@ -263,11 +318,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     marginBottom: 20,
   },
+  confirmHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   resultsTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: BRAND_COLORS.black,
-    marginBottom: 16,
+  },
+  confirmTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#999',
   },
   compactResults: {
     backgroundColor: BRAND_COLORS.white,
@@ -303,6 +368,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    marginRight: 12,
   },
   detectionCount: {
     fontSize: 16,
@@ -319,6 +385,25 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: '#4CAF50',
+  },
+  confirmCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#DDD',
+    backgroundColor: BRAND_COLORS.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  confirmCircleSelected: {
+    borderColor: BRAND_COLORS.primary,
+    backgroundColor: BRAND_COLORS.primary,
+  },
+  confirmCheckmark: {
+    color: BRAND_COLORS.white,
+    fontSize: 16,
+    fontWeight: '700',
   },
   successMessage: {
     alignItems: 'center',

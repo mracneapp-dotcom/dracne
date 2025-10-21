@@ -1,8 +1,9 @@
-// app/NightRoutineScreen.js - UPDATED WITH MODERATE NIGHT ROUTINE CONNECTION
+// app/NightRoutineScreen.js - UPDATED WITH LOCKING SYSTEM & IMAGE LOCK
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Image,
+  Modal,
   PanResponder,
   ScrollView,
   StyleSheet,
@@ -41,8 +42,14 @@ export default function NightRoutineScreen({
 }) {
   const [skinType, setSkinType] = useState('normal');
   const [routineData, setRoutineData] = useState(null);
-  const [selectedLevel, setSelectedLevel] = useState('moderate');
+  const [selectedLevel, setSelectedLevel] = useState('basic'); // ✅ CHANGED TO BASIC
   const [currentView, setCurrentView] = useState('initial');
+  const [showLockModal, setShowLockModal] = useState(false);
+  const [lockMessage, setLockMessage] = useState('');
+  const [routineCompletionDates, setRoutineCompletionDates] = useState({
+    basic: null,
+    moderate: null
+  });
 
   const hasNightRoutine = skinProfile?.nightRoutine?.completedAt;
   const savedRoutineLevel = skinProfile?.nightRoutine?.level || 'basic';
@@ -72,6 +79,7 @@ export default function NightRoutineScreen({
 
   useEffect(() => {
     loadSkinTypeAndRoutine();
+    loadRoutineCompletionDates();
   }, []);
 
   const loadSkinTypeAndRoutine = async () => {
@@ -95,9 +103,107 @@ export default function NightRoutineScreen({
     }
   };
 
+  const loadRoutineCompletionDates = async () => {
+    try {
+      const basicDate = await AsyncStorage.getItem('basicNightRoutineCompletionDate');
+      const moderateDate = await AsyncStorage.getItem('moderateNightRoutineCompletionDate');
+      
+      setRoutineCompletionDates({
+        basic: basicDate ? new Date(basicDate) : null,
+        moderate: moderateDate ? new Date(moderateDate) : null
+      });
+      
+      console.log('✅ Loaded night routine completion dates:', { basic: basicDate, moderate: moderateDate });
+    } catch (error) {
+      console.error('Error loading completion dates:', error);
+    }
+  };
+
+  const checkRoutineUnlock = (level) => {
+    const now = new Date();
+    
+    if (level === 'moderate') {
+      if (!routineCompletionDates.basic) {
+        setLockMessage(
+          'Start with the Basic Routine first!\n\n' +
+          'Building a solid foundation is essential. Your skin needs time to adjust and respond. ' +
+          'Complete the Basic Routine for at least 1 week before moving to Moderate.\n\n' +
+          'Remember: Skincare is a journey, not a race. Rushing into advanced routines can overwhelm ' +
+          'your skin and cause irritation. Let\'s build your routine thoughtfully!'
+        );
+        setShowLockModal(true);
+        return false;
+      }
+      
+      const daysSinceBasic = Math.floor((now - routineCompletionDates.basic) / (1000 * 60 * 60 * 24));
+      if (daysSinceBasic < 7) {
+        const daysRemaining = 7 - daysSinceBasic;
+        setLockMessage(
+          `Give your skin more time!\n\n` +
+          `You've been on the Basic Routine for ${daysSinceBasic} day${daysSinceBasic !== 1 ? 's' : ''}. ` +
+          `Complete at least 1 week (${daysRemaining} more day${daysRemaining !== 1 ? 's' : ''}) before upgrading.\n\n` +
+          `Your skin needs time to adjust and show you what it really needs. Patience prevents irritation and helps ` +
+          `you understand how your skin responds to each product.`
+        );
+        setShowLockModal(true);
+        return false;
+      }
+    }
+    
+    if (level === 'comprehensive') {
+      if (!routineCompletionDates.moderate) {
+        setLockMessage(
+          'Complete the Moderate Routine first!\n\n' +
+          'The Comprehensive Routine is powerful but demanding. Your skin barrier needs to be strong and ' +
+          'well-prepared before introducing multiple active ingredients.\n\n' +
+          'Progress through Moderate for at least 2 weeks to ensure your skin can handle advanced treatments ' +
+          'without irritation or damage.'
+        );
+        setShowLockModal(true);
+        return false;
+      }
+      
+      const daysSinceModerate = Math.floor((now - routineCompletionDates.moderate) / (1000 * 60 * 60 * 24));
+      if (daysSinceModerate < 14) {
+        const daysRemaining = 14 - daysSinceModerate;
+        setLockMessage(
+          `Your skin needs more time to adapt!\n\n` +
+          `You've been on the Moderate Routine for ${daysSinceModerate} day${daysSinceModerate !== 1 ? 's' : ''}. ` +
+          `Complete at least 2 weeks (${daysRemaining} more day${daysRemaining !== 1 ? 's' : ''}) before upgrading.\n\n` +
+          `The Comprehensive Routine uses powerful actives that can overwhelm unprepared skin. Let your barrier ` +
+          `strengthen first. Results take time - trust the process!`
+        );
+        setShowLockModal(true);
+        return false;
+      }
+    }
+    
+    return true;
+  };
+
+  const handleRoutineCardPress = (level) => {
+    if (level === 'basic') {
+      setSelectedLevel(level);
+    } else if (checkRoutineUnlock(level)) {
+      setSelectedLevel(level);
+    }
+  };
+
   const handleSaveRoutine = async () => {
     try {
       await AsyncStorage.setItem('selectedNightRoutineLevel', selectedLevel);
+      
+      // Save completion date if not already saved
+      if (selectedLevel === 'basic' && !routineCompletionDates.basic) {
+        const now = new Date().toISOString();
+        await AsyncStorage.setItem('basicNightRoutineCompletionDate', now);
+        setRoutineCompletionDates(prev => ({ ...prev, basic: new Date(now) }));
+      } else if (selectedLevel === 'moderate' && !routineCompletionDates.moderate) {
+        const now = new Date().toISOString();
+        await AsyncStorage.setItem('moderateNightRoutineCompletionDate', now);
+        setRoutineCompletionDates(prev => ({ ...prev, moderate: new Date(now) }));
+      }
+      
       console.log('✅ Saved night routine level:', selectedLevel);
       
       if (onSelectRoutine) {
@@ -118,6 +224,18 @@ export default function NightRoutineScreen({
   if (!routineData) {
     return null;
   }
+
+  const isModerateUnlocked = () => {
+    if (!routineCompletionDates.basic) return false;
+    const daysSinceBasic = Math.floor((new Date() - routineCompletionDates.basic) / (1000 * 60 * 60 * 24));
+    return daysSinceBasic >= 7;
+  };
+
+  const isComprehensiveUnlocked = () => {
+    if (!routineCompletionDates.moderate) return false;
+    const daysSinceModerate = Math.floor((new Date() - routineCompletionDates.moderate) / (1000 * 60 * 60 * 24));
+    return daysSinceModerate >= 14;
+  };
 
   const renderInitialScreen = () => (
     <View style={styles.container} {...panResponder.panHandlers}>
@@ -250,7 +368,7 @@ export default function NightRoutineScreen({
               </Text>{'\n'}Evening Routine
             </Text>
             <Text style={styles.questionSubtitle}>
-              Choose the routine level that fits your skincare goals. You can upgrade anytime!
+              Choose the routine level that fits your skincare goals. Build your foundation first!
             </Text>
           </View>
 
@@ -275,14 +393,14 @@ export default function NightRoutineScreen({
           <View style={styles.routineLevelsContainer}>
             <Text style={styles.sectionTitle}>Choose Your Starting Level</Text>
             
-            {/* Basic Card */}
+            {/* Basic Card - ALWAYS UNLOCKED */}
             <TouchableOpacity
               style={[
                 styles.routineCard,
                 selectedLevel === 'basic' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }],
                 hasNightRoutine && savedRoutineLevel === 'basic' && styles.routineCardSaved
               ]}
-              onPress={() => setSelectedLevel('basic')}
+              onPress={() => handleRoutineCardPress('basic')}
             >
               <View style={styles.routineHeader}>
                 <View style={[styles.routineBadge, { backgroundColor: '#E8F5E9' }]}>
@@ -322,14 +440,16 @@ export default function NightRoutineScreen({
               </View>
             </TouchableOpacity>
 
-            {/* Moderate Card */}
+            {/* Moderate Card - LOCKED UNTIL 1 WEEK */}
             <TouchableOpacity
               style={[
                 styles.routineCard,
                 selectedLevel === 'moderate' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }],
-                hasNightRoutine && savedRoutineLevel === 'moderate' && styles.routineCardSaved
+                hasNightRoutine && savedRoutineLevel === 'moderate' && styles.routineCardSaved,
+                !isModerateUnlocked() && styles.routineCardLocked
               ]}
-              onPress={() => setSelectedLevel('moderate')}
+              onPress={() => handleRoutineCardPress('moderate')}
+              activeOpacity={isModerateUnlocked() ? 0.7 : 1}
             >
               <View style={styles.routineHeader}>
                 <View style={[styles.routineBadge, { backgroundColor: '#FFF4E5' }]}>
@@ -338,12 +458,21 @@ export default function NightRoutineScreen({
                   </Text>
                 </View>
                 <View style={styles.routineHeaderRight}>
-                  {hasNightRoutine && savedRoutineLevel === 'moderate' && (
+                  {!isModerateUnlocked() && (
+                    <View style={styles.lockBadge}>
+                      <Image 
+                        source={require('../assets/images/lock1.png')} 
+                        style={styles.lockImage}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  )}
+                  {hasNightRoutine && savedRoutineLevel === 'moderate' && isModerateUnlocked() && (
                     <View style={styles.savedBadge}>
                       <Text style={styles.savedBadgeText}>SAVED</Text>
                     </View>
                   )}
-                  {selectedLevel === 'moderate' && (
+                  {selectedLevel === 'moderate' && isModerateUnlocked() && (
                     <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
                       <Text style={styles.selectedIndicatorText}>✓</Text>
                     </View>
@@ -368,16 +497,29 @@ export default function NightRoutineScreen({
                   </View>
                 ))}
               </View>
+
+              {!isModerateUnlocked() && (
+                <View style={styles.lockOverlay}>
+                  <Image 
+                    source={require('../assets/images/lock1.png')} 
+                    style={styles.lockOverlayImage}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.lockOverlayText}>Complete Basic Routine for 1 week to unlock</Text>
+                </View>
+              )}
             </TouchableOpacity>
 
-            {/* Comprehensive Card */}
+            {/* Comprehensive Card - LOCKED UNTIL 2 WEEKS */}
             <TouchableOpacity
               style={[
                 styles.routineCard,
                 selectedLevel === 'comprehensive' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }],
-                hasNightRoutine && savedRoutineLevel === 'comprehensive' && styles.routineCardSaved
+                hasNightRoutine && savedRoutineLevel === 'comprehensive' && styles.routineCardSaved,
+                !isComprehensiveUnlocked() && styles.routineCardLocked
               ]}
-              onPress={() => setSelectedLevel('comprehensive')}
+              onPress={() => handleRoutineCardPress('comprehensive')}
+              activeOpacity={isComprehensiveUnlocked() ? 0.7 : 1}
             >
               <View style={styles.routineHeader}>
                 <View style={[styles.routineBadge, { backgroundColor: '#F3E5F5' }]}>
@@ -386,12 +528,21 @@ export default function NightRoutineScreen({
                   </Text>
                 </View>
                 <View style={styles.routineHeaderRight}>
-                  {hasNightRoutine && savedRoutineLevel === 'comprehensive' && (
+                  {!isComprehensiveUnlocked() && (
+                    <View style={styles.lockBadge}>
+                      <Image 
+                        source={require('../assets/images/lock1.png')} 
+                        style={styles.lockImage}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  )}
+                  {hasNightRoutine && savedRoutineLevel === 'comprehensive' && isComprehensiveUnlocked() && (
                     <View style={styles.savedBadge}>
                       <Text style={styles.savedBadgeText}>SAVED</Text>
                     </View>
                   )}
-                  {selectedLevel === 'comprehensive' && (
+                  {selectedLevel === 'comprehensive' && isComprehensiveUnlocked() && (
                     <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
                       <Text style={styles.selectedIndicatorText}>✓</Text>
                     </View>
@@ -416,6 +567,17 @@ export default function NightRoutineScreen({
                   </View>
                 ))}
               </View>
+
+              {!isComprehensiveUnlocked() && (
+                <View style={styles.lockOverlay}>
+                  <Image 
+                    source={require('../assets/images/lock1.png')} 
+                    style={styles.lockOverlayImage}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.lockOverlayText}>Complete Moderate Routine for 2 weeks to unlock</Text>
+                </View>
+              )}
             </TouchableOpacity>
           </View>
 
@@ -443,9 +605,48 @@ export default function NightRoutineScreen({
         />
         
         <Text style={styles.helperText}>
-          You can change your routine level anytime
+          Build your routine progressively - your skin will thank you!
         </Text>
       </View>
+
+      {/* Lock Warning Modal - STYLED LIKE COMPLETION MODAL */}
+      <Modal
+        visible={showLockModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowLockModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalBannerContainer}>
+              <Image 
+                source={require('../assets/images/Banner Locked.png')}
+                style={styles.modalBanner}
+                resizeMode="cover"
+              />
+            </View>
+            
+            <View style={styles.modalBody}>
+              <View style={styles.modalLockIconContainer}>
+                <Image 
+                  source={require('../assets/images/lock1.png')} 
+                  style={styles.modalLockIcon}
+                  resizeMode="contain"
+                />
+              </View>
+              
+              <Text style={styles.modalTitle}>Routine Locked</Text>
+              <Text style={styles.modalMessage}>{lockMessage}</Text>
+              
+              <DrAcneButton
+                title="Got it!"
+                onPress={() => setShowLockModal(false)}
+                style={styles.modalButton}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 
@@ -656,6 +857,9 @@ const styles = StyleSheet.create({
   routineCardSaved: {
     backgroundColor: '#F8FFF8',
   },
+  routineCardLocked: {
+    opacity: 0.6,
+  },
   routineHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -675,6 +879,14 @@ const styles = StyleSheet.create({
   routineBadgeText: {
     fontSize: 11,
     fontWeight: '700',
+  },
+  lockBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  lockImage: {
+    width: 20,
+    height: 20,
   },
   savedBadge: {
     backgroundColor: BRAND_COLORS.primary,
@@ -748,6 +960,32 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.darkGray,
     fontWeight: '500',
   },
+  lockOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  lockOverlayImage: {
+    width: 16,
+    height: 16,
+    tintColor: BRAND_COLORS.white,
+  },
+  lockOverlayText: {
+    color: BRAND_COLORS.white,
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
   trustSection: {
     backgroundColor: BRAND_COLORS.white,
     borderRadius: 12,
@@ -785,5 +1023,68 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.gray,
     textAlign: 'center',
     fontWeight: '500',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 20,
+    width: '100%',
+    maxWidth: 400,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  modalBannerContainer: {
+    width: '100%',
+    height: 120,
+    overflow: 'hidden',
+  },
+  modalBanner: {
+    width: '100%',
+    height: '100%',
+  },
+  modalBody: {
+    padding: 25,
+    alignItems: 'center',
+  },
+  modalLockIconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#FFF3E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  modalLockIcon: {
+    width: 32,
+    height: 32,
+    tintColor: '#F39C12',
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  modalMessage: {
+    fontSize: 14,
+    color: BRAND_COLORS.darkGray,
+    lineHeight: 22,
+    marginBottom: 25,
+    textAlign: 'center',
+  },
+  modalButton: {
+    width: '100%',
   },
 });
