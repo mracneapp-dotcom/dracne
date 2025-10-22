@@ -117,6 +117,7 @@ import OnboardingTimeline from './onboardingScreens/OnboardingTimeline';
 import OnboardingWelcome from './onboardingScreens/OnboardingWelcome';
 
 // Smart Routine Screens
+import Calendar from './Calendar';
 import { LibraryScreen } from './LibraryScreen';
 import MySmartRoutine from './MySmartRoutine';
 import SmartRoutineHubScreen from './SmartRoutineHubScreen';
@@ -602,6 +603,11 @@ const handleNavigateToMySmartRoutine = () => {
   setCurrentStep('mySmartRoutine');
 };
 
+const handleNavigateToCalendar = () => {
+  setShowCalendar(true);
+  setShowHome(false);
+};
+
 const handleNavigateToSmartRoutineIntro = (concernId) => {
   console.log('📱 Navigating to Smart Routine Intro:', concernId);
   setSelectedSmartConcern(concernId);
@@ -926,6 +932,9 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
     } else if (tabId === 'library') {
       console.log('🔥 LIBRARY TAB DETECTED!');
       setCurrentStep('library');
+    } else if (tabId === 'calendar') {
+      console.log('🔥 CALENDAR TAB DETECTED!');
+      setCurrentStep('calendar');
     } else {
       console.log('🔥 WENT TO ELSE BLOCK FOR:', tabId);
       Alert.alert('Coming Soon', `${tabId} feature will be available soon!`);
@@ -1427,6 +1436,15 @@ const renderMySmartRoutine = () => (
       onNavigateHome={() => setCurrentStep('home')}
       onNavigateToSmartRoutineHub={handleNavigateToSmartRoutineHub}
       onNavigateToCreate={handleNavigateToSmartRoutine}
+      style={styles.screenContent}
+    />
+  </View>
+);
+
+const renderCalendar = () => (
+  <View style={styles.screenContainer}>
+    <Calendar
+      onNavigateHome={() => setCurrentStep('home')}
       style={styles.screenContent}
     />
   </View>
@@ -2492,6 +2510,7 @@ const renderComprehensiveNightRoutineStep4 = () => {
         {isOnboardingComplete && currentStep === 'smartRoutineIntro' && renderSmartRoutineIntro()}
         {isOnboardingComplete && currentStep === 'smartRoutineProductSelectionDay' && renderSmartRoutineProductSelectionDay()}
         {isOnboardingComplete && currentStep === 'smartRoutineProductSelectionNight' && renderSmartRoutineProductSelectionNight()}
+        {isOnboardingComplete && currentStep === 'calendar' && renderCalendar()}
 
         {/* Basic Night Routine Flow */}
         {isOnboardingComplete && currentStep === 'basicNightRoutineStep1' && renderBasicNightRoutineStep1()}
@@ -2555,7 +2574,8 @@ const renderComprehensiveNightRoutineStep4 = () => {
         currentStep === 'mySmartRoutine' ||
         currentStep === 'smartRoutineIntro' ||
         currentStep === 'smartRoutineProductSelectionDay' ||
-        currentStep === 'smartRoutineProductSelectionNight' || 
+        currentStep === 'smartRoutineProductSelectionNight' ||
+        currentStep === 'calendar' || 
         currentStep === 'results' || 
         currentStep === 'dayRoutine' || 
         currentStep === 'nightRoutine' ||
