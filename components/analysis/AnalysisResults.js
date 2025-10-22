@@ -1,7 +1,7 @@
-// components/analysis/AnalysisResults.js - WITH BLOCKED BUTTON STATE
-import React, { useEffect, useState } from 'react';
+// components/analysis/AnalysisResults.js - FINAL WITH BRAIN LOADER
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
+  Animated,
   Dimensions,
   Image,
   StyleSheet,
@@ -20,7 +20,82 @@ const BRAND_COLORS = {
   lightGray: '#F5F5F5',
 };
 
-// Map AI classes to Smart Routine concern IDs
+const BrainLoader = () => {
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const glowAnim = useRef(new Animated.Value(0.3)).current;
+
+  useEffect(() => {
+    const pulseAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    const glowAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, {
+          toValue: 0.8,
+          duration: 1500,
+          useNativeDriver: false,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 0.3,
+          duration: 1500,
+          useNativeDriver: false,
+        }),
+      ])
+    );
+
+    pulseAnimation.start();
+    glowAnimation.start();
+
+    return () => {
+      pulseAnimation.stop();
+      glowAnimation.stop();
+    };
+  }, []);
+
+  return (
+    <View style={styles.brainLoaderContainer}>
+      <Animated.View 
+        style={[
+          styles.brainIconContainer,
+          { transform: [{ scale: pulseAnim }] }
+        ]}
+      >
+        <View style={styles.brainIcon}>
+          <View style={styles.brainCircle}>
+            <Image 
+              source={require('../../assets/images/brain.png')} 
+              style={styles.brainImage}
+              resizeMode="contain"
+            />
+          </View>
+          
+          <Animated.View 
+            style={[
+              styles.glowRing,
+              { 
+                opacity: glowAnim,
+                borderColor: BRAND_COLORS.primary 
+              }
+            ]}
+          />
+        </View>
+      </Animated.View>
+    </View>
+  );
+};
+
 const AI_TO_CONCERN_MAP = {
   'dark_spot': 'marks',
   'dark spot': 'marks',
@@ -59,11 +134,9 @@ export const AnalysisResults = ({
   }, [annotatedImageBlob]);
 
   const handleConfirmSelection = (type) => {
-    // Toggle selection - if already selected, unselect it
     const newSelection = confirmedType === type ? null : type;
     setConfirmedType(newSelection);
     
-    // Pass the concern ID to parent if selected
     if (newSelection && onConfirmedConcern) {
       const concernId = AI_TO_CONCERN_MAP[newSelection];
       if (concernId) {
@@ -94,7 +167,6 @@ export const AnalysisResults = ({
     );
   }
 
-  // Group predictions by type for compact display
   const groupedPredictions = predictions.reduce((groups, prediction) => {
     const type = prediction.class.toLowerCase().replace(' ', '_');
     if (!groups[type]) {
@@ -105,18 +177,17 @@ export const AnalysisResults = ({
   }, {});
 
   const acneTypes = {
-    papules: { color: '#FF6B6B', name: 'Papules', emoji: '🔴' },
-    pustules: { color: '#4ECDC4', name: 'Pustules', emoji: '🟡' },
-    blackheads: { color: '#45B7D1', name: 'Blackheads', emoji: '⚫' },
-    whiteheads: { color: '#96CEB4', name: 'Whiteheads', emoji: '⚪' },
-    dark_spots: { color: '#FECA57', name: 'Dark Spots', emoji: '🔵' },
-    dark_spot: { color: '#FECA57', name: 'Dark Spots', emoji: '🔵' },
-    nodules: { color: '#FF6B6B', name: 'Nodules', emoji: '🔴' },
+    papules: { color: '#FF6B6B', name: 'Papules', indicator: '●' },
+    pustules: { color: '#4ECDC4', name: 'Pustules', indicator: '●' },
+    blackheads: { color: '#45B7D1', name: 'Blackheads', indicator: '●' },
+    whiteheads: { color: '#96CEB4', name: 'Whiteheads', indicator: '●' },
+    dark_spots: { color: '#FECA57', name: 'Dark Spots', indicator: '●' },
+    dark_spot: { color: '#FECA57', name: 'Dark Spots', indicator: '●' },
+    nodules: { color: '#FF6B6B', name: 'Nodules', indicator: '●' },
   };
 
   return (
     <View style={[styles.container, style]}>
-      {/* Logo - Top Left */}
       <View style={styles.logoHeader}>
         <Image 
           source={require('../../assets/images/dracne-logo.png')} 
@@ -125,7 +196,6 @@ export const AnalysisResults = ({
         />
       </View>
 
-      {/* Header Section */}
       <View style={styles.header}>
         <Text style={styles.title}>
           Your <Text style={styles.titleHighlight}>AI Analysis</Text>
@@ -138,7 +208,6 @@ export const AnalysisResults = ({
         </Text>
       </View>
 
-      {/* Annotated Image Section */}
       <View style={styles.imageSection}>
         {annotatedImageUri ? (
           <View style={styles.imageCard}>
@@ -150,18 +219,19 @@ export const AnalysisResults = ({
           </View>
         ) : total_found > 0 ? (
           <View style={[styles.imageCard, styles.imageLoadingContainer]}>
-            <ActivityIndicator size="large" color={BRAND_COLORS.primary} />
+            <BrainLoader />
             <Text style={styles.imageLoadingText}>Processing visual annotations...</Text>
           </View>
         ) : (
           <View style={[styles.imageCard, styles.noImageContainer]}>
-            <Text style={styles.noImageEmoji}>✨</Text>
+            <View style={styles.successIcon}>
+              <Text style={styles.checkmark}>✓</Text>
+            </View>
             <Text style={styles.noImageText}>No detections to visualize</Text>
           </View>
         )}
       </View>
 
-      {/* Detection Results with Confirmation */}
       {total_found > 0 ? (
         <View style={styles.resultsSection}>
           <View style={styles.confirmHeader}>
@@ -174,7 +244,7 @@ export const AnalysisResults = ({
               const typeInfo = acneTypes[type] || { 
                 color: '#999', 
                 name: type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' '),
-                emoji: '🎯'
+                indicator: '●'
               };
               
               const avgConfidence = Math.round(
@@ -192,7 +262,9 @@ export const AnalysisResults = ({
                     isLast && styles.detectionRowLast
                   ]}
                 >
-                  <Text style={styles.detectionEmoji}>{typeInfo.emoji}</Text>
+                  <Text style={[styles.detectionIndicator, { color: typeInfo.color }]}>
+                    {typeInfo.indicator}
+                  </Text>
                   <Text style={styles.detectionName}>{typeInfo.name}</Text>
                   <View style={styles.detectionStats}>
                     <Text style={styles.detectionCount}>×{detections.length}</Text>
@@ -201,7 +273,6 @@ export const AnalysisResults = ({
                     </View>
                   </View>
                   
-                  {/* Confirmation Circle */}
                   <TouchableOpacity 
                     style={[
                       styles.confirmCircle,
@@ -221,7 +292,9 @@ export const AnalysisResults = ({
         </View>
       ) : (
         <View style={styles.successMessage}>
-          <Text style={styles.successEmoji}>🎉</Text>
+          <View style={styles.successIconLarge}>
+            <Text style={styles.checkmarkLarge}>✓</Text>
+          </View>
           <Text style={styles.successTitle}>Great News!</Text>
           <Text style={styles.successText}>
             No visible acne detected in your photo.
@@ -296,18 +369,68 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imageLoadingText: {
-    marginTop: 12,
+    marginTop: 16,
     color: '#666',
     fontSize: 14,
     fontWeight: '500',
+  },
+  brainLoaderContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  brainIconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  brainIcon: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  brainCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: BRAND_COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  brainImage: {
+    width: 56,
+    height: 56,
+    tintColor: BRAND_COLORS.white,
+  },
+  glowRing: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    backgroundColor: 'transparent',
   },
   noImageContainer: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  noImageEmoji: {
-    fontSize: 48,
+  successIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: BRAND_COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 12,
+  },
+  checkmark: {
+    fontSize: 36,
+    color: BRAND_COLORS.white,
+    fontWeight: '700',
   },
   noImageText: {
     color: '#666',
@@ -354,9 +477,10 @@ const styles = StyleSheet.create({
   detectionRowLast: {
     borderBottomWidth: 0,
   },
-  detectionEmoji: {
-    fontSize: 24,
+  detectionIndicator: {
+    fontSize: 20,
     width: 36,
+    fontWeight: '700',
   },
   detectionName: {
     flex: 1,
@@ -417,9 +541,19 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 5,
   },
-  successEmoji: {
-    fontSize: 56,
+  successIconLarge: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: BRAND_COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 16,
+  },
+  checkmarkLarge: {
+    fontSize: 48,
+    color: BRAND_COLORS.white,
+    fontWeight: '700',
   },
   successTitle: {
     fontSize: 22,

@@ -1,8 +1,8 @@
 // app/index.js - UPDATED WITH COMPREHENSIVE ROUTINE COMPLETE
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
+  Animated, // ← ADD THIS LINE
   BackHandler,
   Image,
   PanResponder,
@@ -11,7 +11,7 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  View,
+  View
 } from 'react-native';
 import { AnalysisResults } from '../components/analysis/AnalysisResults';
 import { PhotoCapture } from '../components/camera/PhotoCapture';
@@ -117,6 +117,7 @@ import OnboardingTimeline from './onboardingScreens/OnboardingTimeline';
 import OnboardingWelcome from './onboardingScreens/OnboardingWelcome';
 
 // Smart Routine Screens
+import { LibraryScreen } from './LibraryScreen';
 import MySmartRoutine from './MySmartRoutine';
 import SmartRoutineHubScreen from './SmartRoutineHubScreen';
 import SmartRoutineIntroScreen from './SmartRoutineIntroScreen';
@@ -130,6 +131,83 @@ const BRAND_COLORS = {
   cream: '#FDF5E6',
   black: '#000000',
   white: '#FFFFFF',
+};
+
+// Professional Brain Loader Component
+const BrainLoader = () => {
+  const pulseAnim = React.useRef(new Animated.Value(1)).current;
+  const glowAnim = React.useRef(new Animated.Value(0.3)).current;
+
+  React.useEffect(() => {
+    const pulseAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    const glowAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, {
+          toValue: 0.8,
+          duration: 1500,
+          useNativeDriver: false,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 0.3,
+          duration: 1500,
+          useNativeDriver: false,
+        }),
+      ])
+    );
+
+    pulseAnimation.start();
+    glowAnimation.start();
+
+    return () => {
+      pulseAnimation.stop();
+      glowAnimation.stop();
+    };
+  }, []);
+
+  return (
+    <View style={styles.brainLoaderContainer}>
+      <Animated.View 
+        style={[
+          styles.brainIconContainer,
+          { transform: [{ scale: pulseAnim }] }
+        ]}
+      >
+        <View style={styles.brainIcon}>
+          <View style={styles.brainCircle}>
+            <Image 
+              source={require('../assets/images/brain.png')} 
+              style={styles.brainImage}
+              resizeMode="contain"
+            />
+          </View>
+          
+          <Animated.View 
+            style={[
+              styles.glowRing,
+              { 
+                opacity: glowAnim,
+                borderColor: BRAND_COLORS.primary 
+              }
+            ]}
+          />
+        </View>
+      </Animated.View>
+    </View>
+  );
 };
 
 export default function AIScannerScreen() {
@@ -839,12 +917,17 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
   };
 
   const handleTabPress = (tabId) => {
+    console.log('🔥 TAB PRESSED:', tabId);
     setActiveTab(tabId);
     if (tabId === 'upload') {
       setCurrentStep('capture');
     } else if (tabId === 'routines') {
       setCurrentStep('routinesHub');
+    } else if (tabId === 'library') {
+      console.log('🔥 LIBRARY TAB DETECTED!');
+      setCurrentStep('library');
     } else {
+      console.log('🔥 WENT TO ELSE BLOCK FOR:', tabId);
       Alert.alert('Coming Soon', `${tabId} feature will be available soon!`);
     }
   };
@@ -1202,6 +1285,19 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
             handleNavigateToSmartRoutineHub();
           }}
           style={styles.screenContent}
+        />
+      </View>
+    );
+  };
+  const renderLibrary = () => {
+    console.log('📱 Rendering Library screen');
+    return (
+      <View style={styles.screenContainer}>
+        <LibraryScreen 
+          onNavigateHome={() => {
+          setCurrentStep('home');
+          setActiveTab('home');  // THIS FIXES THE SELECTION ISSUE
+        }}
         />
       </View>
     );
@@ -2139,7 +2235,7 @@ const renderComprehensiveNightRoutineStep4 = () => {
   const renderAnalyzing = () => (
     <View style={styles.analyzingContainer}>
       <View style={styles.analyzingContent}>
-        <ActivityIndicator size="large" color={BRAND_COLORS.primary} />
+      <BrainLoader />
         
         <View style={styles.analysisStepsContainer}>
           {analysisSteps.map((step, index) => (
@@ -2387,6 +2483,7 @@ const renderComprehensiveNightRoutineStep4 = () => {
         {isOnboardingComplete && currentStep === 'nightRoutine' && renderNightRoutine()}
         {isOnboardingComplete && currentStep === 'myDayRoutine' && renderMyDayRoutine()}
         {isOnboardingComplete && currentStep === 'myNightRoutine' && renderMyNightRoutine()}
+        {isOnboardingComplete && currentStep === 'library' && renderLibrary()}
 
         {/* Smart Routine Flow */}
         {isOnboardingComplete && currentStep === 'smartRoutineHub' && renderSmartRoutineHub()}
@@ -2453,6 +2550,7 @@ const renderComprehensiveNightRoutineStep4 = () => {
         currentStep === 'routinesHub' ||
         currentStep === 'smartRoutine' ||
         currentStep === 'smartRoutineHub' ||
+        currentStep === 'library' ||
         currentStep === 'smartRoutine' ||
         currentStep === 'mySmartRoutine' ||
         currentStep === 'smartRoutineIntro' ||
@@ -2724,5 +2822,45 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     marginVertical: 0,
+  },
+  brainLoaderContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  brainIconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  brainIcon: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  brainCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: BRAND_COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  brainImage: {
+    width: 56,
+    height: 56,
+    tintColor: BRAND_COLORS.white,
+  },
+  glowRing: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    backgroundColor: 'transparent',
   },
 });
