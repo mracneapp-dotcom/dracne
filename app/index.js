@@ -1,4 +1,5 @@
 // app/index.js - UPDATED WITH COMPREHENSIVE ROUTINE COMPLETE
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
@@ -241,6 +242,7 @@ export default function AIScannerScreen() {
   const [currentTestResult, setCurrentTestResult] = useState(null);
   const [manualSkinTypeSelection, setManualSkinTypeSelection] = useState(null);
   
+  
   // Smart Routine State
   const [selectedSmartConcern, setSelectedSmartConcern] = useState(null);
   const [smartRoutineDayProducts, setSmartRoutineDayProducts] = useState([]);
@@ -299,6 +301,22 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
     { day: 'Sat', date: 10, active: false },
     { day: 'Sun', date: 11, active: false },
   ]);
+
+// Increment log count when user views results
+  useEffect(() => {
+    if (currentStep === 'results') {
+      const incrementCount = async () => {
+        try {
+          const count = await AsyncStorage.getItem('routineLogCount');
+          const newCount = count ? parseInt(count) + 1 : 1;
+          await AsyncStorage.setItem('routineLogCount', newCount.toString());
+        } catch (e) {
+          console.error('Error incrementing:', e);
+        }
+      };
+      incrementCount();
+    }
+  }, [currentStep]);
 
   // Onboarding Navigation Handler
   const handleOnboardingNext = (nextStep, data = {}) => {
@@ -420,6 +438,17 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
       'routine': 0
     };
     return stepProgress[isOnboardingComplete ? currentStep : currentOnboardingStep] || 0;
+  };
+
+  // ✅ NEW: Function to increment routine log count
+  const incrementLogCount = async () => {
+  try {
+    const count = await AsyncStorage.getItem('routineLogCount');
+    const newCount = count ? parseInt(count) + 1 : 1;
+    await AsyncStorage.setItem('routineLogCount', newCount.toString());
+  } catch (e) {
+    console.error('Error incrementing log count:', e);
+  }
   };
 
   const handleProgressBarBack = () => {
@@ -923,20 +952,16 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
   };
 
   const handleTabPress = (tabId) => {
-    console.log('🔥 TAB PRESSED:', tabId);
     setActiveTab(tabId);
     if (tabId === 'upload') {
       setCurrentStep('capture');
     } else if (tabId === 'routines') {
       setCurrentStep('routinesHub');
     } else if (tabId === 'library') {
-      console.log('🔥 LIBRARY TAB DETECTED!');
       setCurrentStep('library');
     } else if (tabId === 'calendar') {
-      console.log('🔥 CALENDAR TAB DETECTED!');
       setCurrentStep('calendar');
     } else {
-      console.log('🔥 WENT TO ELSE BLOCK FOR:', tabId);
       Alert.alert('Coming Soon', `${tabId} feature will be available soon!`);
     }
   };
@@ -1282,7 +1307,6 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
   );
 
   const renderRoutinesHub = () => {
-    console.log('📱 Rendering RoutinesHub screen');
     return (
       <View style={styles.screenContainer}>
         <RoutinesScreen
@@ -1290,7 +1314,6 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
           onNavigateToMyDayRoutine={() => setCurrentStep('myDayRoutine')}
           onNavigateToMyNightRoutine={() => setCurrentStep('myNightRoutine')}
           onNavigateToSmartRoutineHub={() => {
-            console.log('🔵 onNavigateToSmartRoutineHub called from RoutinesScreen');
             handleNavigateToSmartRoutineHub();
           }}
           style={styles.screenContent}
@@ -1299,7 +1322,6 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
     );
   };
   const renderLibrary = () => {
-    console.log('📱 Rendering Library screen');
     return (
       <View style={styles.screenContainer}>
         <LibraryScreen 
@@ -1446,6 +1468,17 @@ const renderCalendar = () => (
     <Calendar
       onNavigateHome={() => setCurrentStep('home')}
       style={styles.screenContent}
+    />
+  </View>
+);
+
+const renderCustomizeRoutine = () => (
+  <View style={styles.screenContainer}>
+    <CustomizeRoutineScreen 
+      navigation={{ 
+        navigate: (screen) => setCurrentStep(screen),
+        goBack: () => setCurrentStep('home')
+      }} 
     />
   </View>
 );
@@ -2299,13 +2332,16 @@ const renderComprehensiveNightRoutineStep4 = () => {
     };
   
     return (
-      <View style={styles.resultsContainer}>
-        <AnalysisResults
-          analysisData={analysisData}
-          annotatedImageBlob={annotatedImageBlob}
-          onConfirmedConcern={handleConcernConfirmed}
-          style={styles.resultsContent}
-        />
+        <View style={styles.resultsContainer}>
+          <ScrollView style={styles.resultsContent}>
+            <AnalysisResults
+              analysisData={analysisData}
+              annotatedImageBlob={annotatedImageBlob}
+              onConfirmedConcern={handleConcernConfirmed}
+            />
+            
+            <CustomizeButton navigation={{ navigate: (screen) => setCurrentStep(screen) }} />
+          </ScrollView>
         
         <View style={styles.resultsActionsRow}>
           <DrAcneButton
@@ -2511,10 +2547,10 @@ const renderComprehensiveNightRoutineStep4 = () => {
         {isOnboardingComplete && currentStep === 'smartRoutineProductSelectionDay' && renderSmartRoutineProductSelectionDay()}
         {isOnboardingComplete && currentStep === 'smartRoutineProductSelectionNight' && renderSmartRoutineProductSelectionNight()}
         {isOnboardingComplete && currentStep === 'calendar' && renderCalendar()}
+        {isOnboardingComplete && currentStep === 'customizeRoutine' && renderCustomizeRoutine()}
 
         {/* Basic Night Routine Flow */}
         {isOnboardingComplete && currentStep === 'basicNightRoutineStep1' && renderBasicNightRoutineStep1()}
-        {isOnboardingComplete && currentStep === 'basicNightRoutineStep2' && renderBasicNightRoutineStep2()}
         {isOnboardingComplete && currentStep === 'basicNightRoutineStep2' && renderBasicNightRoutineStep2()}
         
         {/* Moderate Night Routine Flow */}
@@ -2575,7 +2611,8 @@ const renderComprehensiveNightRoutineStep4 = () => {
         currentStep === 'smartRoutineIntro' ||
         currentStep === 'smartRoutineProductSelectionDay' ||
         currentStep === 'smartRoutineProductSelectionNight' ||
-        currentStep === 'calendar' || 
+        currentStep === 'calendar' ||
+        currentStep === 'customizeRoutine' || 
         currentStep === 'results' || 
         currentStep === 'dayRoutine' || 
         currentStep === 'nightRoutine' ||

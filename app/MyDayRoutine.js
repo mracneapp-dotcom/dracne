@@ -64,6 +64,9 @@ export default function MyDayRoutine({
     try {
       setLoading(true);
       
+      // CUSTOM ROUTINE FIRST
+      const customDayRoutine = await AsyncStorage.getItem('myDayRoutine');
+      
       const basicRoutine = await AsyncStorage.getItem('myBasicRoutine');
       const moderateRoutine = await AsyncStorage.getItem('myModerateRoutine');
       const comprehensiveRoutine = await AsyncStorage.getItem('myComprehensiveRoutine');
@@ -72,34 +75,66 @@ export default function MyDayRoutine({
       let selectedRoutine = null;
       let selectedLevel = null;
       
+      // CHECK CUSTOM FIRST
+      if (customDayRoutine) {
+        const customData = JSON.parse(customDayRoutine);
+        const hasProducts = (customData.cleansers?.length > 0) || 
+                            (customData.moisturizers?.length > 0) ||
+                            (customData.sunscreens?.length > 0);
+        const isUserCreated = customData.completedAt || customData.savedByUser === true;
+        if (hasProducts && isUserCreated) {
+          selectedRoutine = customData;
+          selectedLevel = 'custom';
+        }
+      }
+      
       if (comprehensiveRoutine) {
         const comprehensiveData = JSON.parse(comprehensiveRoutine);
-        selectedRoutine = comprehensiveData;
-        selectedLevel = 'comprehensive';
+        const hasProducts = (comprehensiveData.cleansers?.length > 0) ||
+                            (comprehensiveData.moisturizers?.length > 0) ||
+                            (comprehensiveData.sunscreens?.length > 0);
+        const isUserCreated = comprehensiveData.completedAt || comprehensiveData.savedByUser === true;
+        if (hasProducts && isUserCreated) {
+          selectedRoutine = comprehensiveData;
+          selectedLevel = 'comprehensive';
+        }
       }
       
       if (moderateRoutine) {
         const moderateData = JSON.parse(moderateRoutine);
-        if (!selectedRoutine || 
-            (moderateData.completedAt && selectedRoutine.completedAt && 
-             new Date(moderateData.completedAt) > new Date(selectedRoutine.completedAt))) {
-          selectedRoutine = moderateData;
-          selectedLevel = 'moderate';
+        const hasProducts = (moderateData.cleansers?.length > 0) ||
+                            (moderateData.moisturizers?.length > 0) ||
+                            (moderateData.sunscreens?.length > 0);
+        const isUserCreated = moderateData.completedAt || moderateData.savedByUser === true;
+        
+        if (hasProducts && isUserCreated) {
+          if (!selectedRoutine || 
+              (moderateData.completedAt && selectedRoutine.completedAt && 
+               new Date(moderateData.completedAt) > new Date(selectedRoutine.completedAt))) {
+            selectedRoutine = moderateData;
+            selectedLevel = 'moderate';
+          }
         }
       }
       
       if (basicRoutine) {
         const basicData = JSON.parse(basicRoutine);
-        if (!selectedRoutine || 
-            (basicData.completedAt && selectedRoutine.completedAt && 
-             new Date(basicData.completedAt) > new Date(selectedRoutine.completedAt))) {
-          selectedRoutine = basicData;
-          selectedLevel = 'basic';
+        const hasProducts = (basicData.cleansers?.length > 0) ||
+                            (basicData.moisturizers?.length > 0) ||
+                            (basicData.sunscreens?.length > 0);
+        const isUserCreated = basicData.completedAt || basicData.savedByUser === true;
+        
+        if (hasProducts && isUserCreated) {
+          if (!selectedRoutine || 
+              (basicData.completedAt && selectedRoutine.completedAt && 
+               new Date(basicData.completedAt) > new Date(selectedRoutine.completedAt))) {
+            selectedRoutine = basicData;
+            selectedLevel = 'basic';
+          }
         }
       }
       
       if (selectedRoutine) {
-        console.log(`Loaded ${selectedLevel} routine:`, selectedRoutine);
         setRoutineData(selectedRoutine);
         setRoutineLevel(selectedLevel);
       }
@@ -204,12 +239,12 @@ export default function MyDayRoutine({
     <View style={styles.emptyStateContainer}>
       <Text style={styles.emptyTitle}>No Routine Saved Yet</Text>
       <Text style={styles.emptyText}>
-        Complete the Basic Routine setup to create your personalized morning skincare routine.
+        Complete the Day Routine setup to create your personalized morning skincare routine.
       </Text>
       
       <DrAcneButton
         title="Create My Routine"
-        onPress={onNavigateToBasicRoutine}
+        onPress={onNavigateToDayRoutine}
         style={styles.emptyButton}
       />
     </View>
@@ -278,24 +313,6 @@ export default function MyDayRoutine({
         }
       >
         <View style={styles.content}>
-          <View style={styles.badgesRow}>
-            <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
-              <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-                {skinTypeInfo.name}
-              </Text>
-            </View>
-
-            {routineLevel && (
-              <View style={[styles.routineLevelBadge, { backgroundColor: `${routineLevelColor}15` }]}>
-                <Text style={[styles.routineLevelText, { color: routineLevelColor }]}>
-                  {routineLevel.charAt(0).toUpperCase() + routineLevel.slice(1)} Routine
-                </Text>
-              </View>
-            )}
-          </View>
-
-          <Text style={styles.pageTitle}>My Day Routine</Text>
-
           {loading ? (
             <View style={styles.loadingContainer}>
               <Text style={styles.loadingText}>Loading your routine...</Text>
@@ -304,11 +321,30 @@ export default function MyDayRoutine({
             renderEmptyState()
           ) : (
             <>
+              <View style={styles.badgesRow}>
+                <View style={[styles.skinTypeBadge, { backgroundColor: skinTypeInfo.color }]}>
+                  <Text style={[styles.skinTypeText, { color: BRAND_COLORS.white }]}>
+                    {skinTypeInfo.name}
+                  </Text>
+                </View>
+
+                {routineLevel && (
+                  <View style={[
+                    styles.routineLevelBadge, 
+                    { borderColor: routineLevelColor }
+                  ]}>
+                    <Text style={[styles.routineLevelText, { color: routineLevelColor }]}>
+                      {routineLevel.charAt(0).toUpperCase() + routineLevel.slice(1)} Routine
+                    </Text>
+                  </View>
+                )}
+              </View>
+
               {renderRoutineInfo()}
 
               {renderRoutineStep(
                 1,
-                'Gentle Cleanser',
+                'Cleanser',
                 STEP_ICONS.cleanser,
                 routineData.cleansers
               )}
@@ -327,23 +363,26 @@ export default function MyDayRoutine({
                 routineData.specializedProducts
               )}
 
-              {routineLevel === 'comprehensive' && renderRoutineStep(
-                3,
-                'Specialized Treatment',
-                STEP_ICONS.moisturizer,
-                routineData.specializedProducts
-              )}
-
-              {routineLevel === 'comprehensive' && renderRoutineStep(
-                4,
-                'Advanced Treatment',
-                STEP_ICONS.moisturizer,
-                routineData.advancedTreatments
+              {routineLevel === 'comprehensive' && (
+                <>
+                  {renderRoutineStep(
+                    3,
+                    'Specialized Treatment',
+                    STEP_ICONS.moisturizer,
+                    routineData.specializedProducts
+                  )}
+                  {renderRoutineStep(
+                    4,
+                    'Advanced Treatment',
+                    STEP_ICONS.moisturizer,
+                    routineData.advancedTreatments
+                  )}
+                </>
               )}
 
               {renderRoutineStep(
                 routineLevel === 'comprehensive' ? 5 : (routineLevel === 'moderate' ? 4 : 3),
-                'Sunscreen (SPF 30+)',
+                'Sunscreen',
                 STEP_ICONS.sunscreen,
                 routineData.sunscreens
               )}

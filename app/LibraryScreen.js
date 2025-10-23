@@ -233,7 +233,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'transparent',
-    paddingBottom: 100,
   },
   topNavigation: {
     paddingHorizontal: 20,
@@ -260,7 +259,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingBottom: 10,
   },
   headerTitle: {
     fontSize: 26,
@@ -281,7 +280,7 @@ const styles = StyleSheet.create({
   cardsContainer: {
     flexGrow: 1,
     paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingBottom: 20,
   },
   cardsGrid: {
     flexDirection: 'row',

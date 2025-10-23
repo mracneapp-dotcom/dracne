@@ -2,14 +2,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    Alert,
-    Image,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -67,21 +67,46 @@ export default function MySmartRoutine({
         const routineData = await AsyncStorage.getItem(storageKey);
         
         if (routineData) {
-          const parsed = JSON.parse(routineData);
-          routines.push({
-            ...parsed,
-            storageKey,
-          });
+          try {
+            const parsed = JSON.parse(routineData);
+            
+            // DEBUG: Log what we found
+            console.log(`📦 Found smart routine for ${concernId}:`, {
+              hasCompletedAt: !!parsed?.completedAt,
+              hasSavedByUser: parsed?.savedByUser,
+              dayProductsCount: parsed?.dayProducts?.length || 0,
+              nightProductsCount: parsed?.nightProducts?.length || 0,
+              concernName: parsed?.concernName
+            });
+            
+            // RELAXED VALIDATION: Only check if products exist
+            const hasProducts = (parsed?.dayProducts?.length > 0 || parsed?.nightProducts?.length > 0);
+            
+            if (hasProducts) {
+              routines.push({
+                ...parsed,
+                storageKey,
+              });
+              console.log(`✅ Added ${concernId} routine to display`);
+            } else {
+              console.log(`❌ Skipped ${concernId} - no products`);
+            }
+          } catch (e) {
+            console.error(`Error parsing smart routine ${concernId}:`, e);
+          }
         }
       }
       
-      // Sort by completion date (most recent first)
-      routines.sort((a, b) => 
-        new Date(b.completedAt) - new Date(a.completedAt)
-      );
+      console.log(`📊 Total smart routines loaded: ${routines.length}`);
+      
+      // Sort by completion date (most recent first) if completedAt exists
+      routines.sort((a, b) => {
+        const dateA = a.completedAt ? new Date(a.completedAt) : new Date(0);
+        const dateB = b.completedAt ? new Date(b.completedAt) : new Date(0);
+        return dateB - dateA;
+      });
       
       setSmartRoutines(routines);
-      console.log('✅ Loaded smart routines:', routines.length);
     } catch (error) {
       console.error('Error loading smart routines:', error);
     } finally {
@@ -108,7 +133,6 @@ export default function MySmartRoutine({
             try {
               await AsyncStorage.removeItem(routine.storageKey);
               await loadSmartRoutines();
-              console.log(`${routine.concernName} routine cleared`);
             } catch (error) {
               console.error('Error clearing routine:', error);
             }

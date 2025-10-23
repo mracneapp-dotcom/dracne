@@ -73,44 +73,73 @@ export default function MyNightRoutine({
       if (savedSkinType) {
         setSkinType(savedSkinType);
       }
+     // CHECK CUSTOM ROUTINE FIRST
+const customNightData = await AsyncStorage.getItem('myNightRoutine');
+if (customNightData) {
+  const parsed = JSON.parse(customNightData);
+  const hasProducts = (parsed.cleansers?.length > 0) || 
+                      (parsed.moisturizers?.length > 0);
+  const isUserCreated = parsed.completedAt || parsed.savedByUser === true;
 
-      // Check for Comprehensive first (most complete)
-      const comprehensiveData = await AsyncStorage.getItem('myComprehensiveNightRoutine');
-      if (comprehensiveData) {
-        const parsed = JSON.parse(comprehensiveData);
-        console.log('✅ Found Comprehensive Night Routine:', parsed);
-        setRoutineData(parsed);
-        setRoutineType('comprehensive');
-        setIsLoading(false);
-        return;
-      }
+  if (hasProducts && isUserCreated) {
+    setRoutineData(parsed);
+    setRoutineType('custom');
+    setIsLoading(false);
+    return;
+  }
+}
 
-      // Then check Moderate
-      const moderateData = await AsyncStorage.getItem('myModerateNightRoutine');
-      if (moderateData) {
-        const parsed = JSON.parse(moderateData);
-        console.log('✅ Found Moderate Night Routine:', parsed);
-        setRoutineData(parsed);
-        setRoutineType('moderate');
-        setIsLoading(false);
-        return;
-      }
+// Check for Comprehensive first (most complete)
+const comprehensiveData = await AsyncStorage.getItem('myComprehensiveNightRoutine');
+if (comprehensiveData) {
+  const parsed = JSON.parse(comprehensiveData);
+  const hasProducts = (parsed.cleansers?.length > 0) || 
+                      (parsed.moisturizers?.length > 0);
+  const isUserCreated = parsed.completedAt || parsed.savedByUser === true;
+  
+  if (hasProducts && isUserCreated) {
+    setRoutineData(parsed);
+    setRoutineType('comprehensive');
+    setIsLoading(false);
+    return;
+  }
+}
 
-      // Finally check Basic
-      const basicData = await AsyncStorage.getItem('myBasicNightRoutine');
-      if (basicData) {
-        const parsed = JSON.parse(basicData);
-        console.log('✅ Found Basic Night Routine:', parsed);
-        setRoutineData(parsed);
-        setRoutineType('basic');
-        setIsLoading(false);
-        return;
-      }
+// Then check Moderate
+const moderateData = await AsyncStorage.getItem('myModerateNightRoutine');
+if (moderateData) {
+  const parsed = JSON.parse(moderateData);
+  const hasProducts = (parsed.cleansers?.length > 0) || 
+                      (parsed.moisturizers?.length > 0);
+  const isUserCreated = parsed.completedAt || parsed.savedByUser === true;
+  
+  if (hasProducts && isUserCreated) {
+    setRoutineData(parsed);
+    setRoutineType('moderate');
+    setIsLoading(false);
+    return;
+  }
+}
 
-      // No routine found
-      console.log('❌ No Night Routine found');
-      setRoutineData(null);
-      setRoutineType(null);
+// Finally check Basic
+const basicData = await AsyncStorage.getItem('myBasicNightRoutine');
+if (basicData) {
+  const parsed = JSON.parse(basicData);
+  const hasProducts = (parsed.cleansers?.length > 0) || 
+                      (parsed.moisturizers?.length > 0);
+  const isUserCreated = parsed.completedAt || parsed.savedByUser === true;
+  
+  if (hasProducts && isUserCreated) {
+    setRoutineData(parsed);
+    setRoutineType('basic');
+    setIsLoading(false);
+    return;
+  }
+}
+
+// No routine found
+setRoutineData(null);
+setRoutineType(null); 
     } catch (error) {
       console.error('❌ Error loading Night Routine:', error);
     } finally {

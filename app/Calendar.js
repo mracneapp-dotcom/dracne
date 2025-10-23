@@ -2,15 +2,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    Alert,
-    Image,
-    Modal,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  Modal,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const BRAND_COLORS = {
@@ -47,27 +47,125 @@ export default function Calendar({ onNavigateHome }) {
     try {
       setLoading(true);
       
-      // Load Day Routine
-      const dayData = await AsyncStorage.getItem('myDayRoutine');
-      if (dayData) setDayRoutine(JSON.parse(dayData));
+      // Reset states first to avoid stale data
+      setDayRoutine(null);
+      setNightRoutine(null);
+      setSmartRoutines([]);
       
-      // Load Night Routine
-      const nightData = await AsyncStorage.getItem('myNightRoutine');
-      if (nightData) setNightRoutine(JSON.parse(nightData));
+      // Load Day Routine - check ALL possible storage keys
+const basicDay = await AsyncStorage.getItem('myBasicRoutine');
+const moderateDay = await AsyncStorage.getItem('myModerateRoutine');
+const comprehensiveDay = await AsyncStorage.getItem('myComprehensiveRoutine');
+const customDay = await AsyncStorage.getItem('myDayRoutine');
+
+// Priority: Custom > Comprehensive > Moderate > Basic (newest first)
+let selectedDayRoutine = null;
+
+if (customDay) {
+  const parsed = JSON.parse(customDay);
+  const hasProducts = (parsed.cleansers?.length > 0) || (parsed.moisturizers?.length > 0) || (parsed.sunscreens?.length > 0);
+  if (hasProducts && (parsed.completedAt || parsed.savedByUser)) {
+    selectedDayRoutine = parsed;
+  }
+}
+
+if (!selectedDayRoutine && comprehensiveDay) {
+  const parsed = JSON.parse(comprehensiveDay);
+  const hasProducts = (parsed.cleansers?.length > 0) || (parsed.moisturizers?.length > 0) || (parsed.sunscreens?.length > 0);
+  if (hasProducts && (parsed.completedAt || parsed.savedByUser)) {
+    selectedDayRoutine = parsed;
+  }
+}
+
+if (!selectedDayRoutine && moderateDay) {
+  const parsed = JSON.parse(moderateDay);
+  const hasProducts = (parsed.cleansers?.length > 0) || (parsed.moisturizers?.length > 0) || (parsed.sunscreens?.length > 0);
+  if (hasProducts && (parsed.completedAt || parsed.savedByUser)) {
+    selectedDayRoutine = parsed;
+  }
+}
+
+if (!selectedDayRoutine && basicDay) {
+  const parsed = JSON.parse(basicDay);
+  const hasProducts = (parsed.cleansers?.length > 0) || (parsed.moisturizers?.length > 0) || (parsed.sunscreens?.length > 0);
+  if (hasProducts && (parsed.completedAt || parsed.savedByUser)) {
+    selectedDayRoutine = parsed;
+  }
+}
+
+if (selectedDayRoutine) {
+  setDayRoutine(selectedDayRoutine);
+}     
+      // Load Night Routine - check ALL possible storage keys
+const basicNight = await AsyncStorage.getItem('myBasicNightRoutine');
+const moderateNight = await AsyncStorage.getItem('myModerateNightRoutine');
+const comprehensiveNight = await AsyncStorage.getItem('myComprehensiveNightRoutine');
+const customNight = await AsyncStorage.getItem('myNightRoutine');
+
+let selectedNightRoutine = null;
+
+if (customNight) {
+  const parsed = JSON.parse(customNight);
+  const hasProducts = (parsed.cleansers?.length > 0) || (parsed.moisturizers?.length > 0);
+  if (hasProducts && (parsed.completedAt || parsed.savedByUser)) {
+    selectedNightRoutine = parsed;
+  }
+}
+
+if (!selectedNightRoutine && comprehensiveNight) {
+  const parsed = JSON.parse(comprehensiveNight);
+  const hasProducts = (parsed.cleansers?.length > 0) || (parsed.moisturizers?.length > 0);
+  if (hasProducts && (parsed.completedAt || parsed.savedByUser)) {
+    selectedNightRoutine = parsed;
+  }
+}
+
+if (!selectedNightRoutine && moderateNight) {
+  const parsed = JSON.parse(moderateNight);
+  const hasProducts = (parsed.cleansers?.length > 0) || (parsed.moisturizers?.length > 0);
+  if (hasProducts && (parsed.completedAt || parsed.savedByUser)) {
+    selectedNightRoutine = parsed;
+  }
+}
+
+if (!selectedNightRoutine && basicNight) {
+  const parsed = JSON.parse(basicNight);
+  const hasProducts = (parsed.cleansers?.length > 0) || (parsed.moisturizers?.length > 0);
+  if (hasProducts && (parsed.completedAt || parsed.savedByUser)) {
+    selectedNightRoutine = parsed;
+  }
+}
+
+if (selectedNightRoutine) {
+  setNightRoutine(selectedNightRoutine);
+}
       
-      // Load Smart Routines
+      // Load Smart Routines - ONLY load user-created ones
       const smartRoutinesList = [];
       const concernIds = ['nodules', 'blackheads', 'whiteheads', 'papules', 'marks'];
       
       for (const concernId of concernIds) {
         const smartData = await AsyncStorage.getItem(`mySmartRoutine_${concernId}`);
         if (smartData) {
-          smartRoutinesList.push(JSON.parse(smartData));
+          try {
+            const parsed = JSON.parse(smartData);
+            // STRICT CHECK: Only add if:
+            // 1. Has actual products selected by user
+            // 2. Has createdAt timestamp (means user completed the flow)
+            // 3. OR has savedByUser flag set to true
+            const hasProducts = (parsed?.dayProducts?.length > 0 || parsed?.nightProducts?.length > 0);
+            const isUserCreated = parsed?.createdAt || parsed?.savedByUser === true;
+            
+            if (hasProducts && isUserCreated) {
+              smartRoutinesList.push(parsed);
+            }
+          } catch (e) {
+            console.error(`Error parsing smart routine ${concernId}:`, e);
+          }
         }
       }
       
       setSmartRoutines(smartRoutinesList);
-      console.log('✅ Calendar loaded all routines');
     } catch (error) {
       console.error('Error loading routines:', error);
     } finally {
@@ -90,49 +188,70 @@ export default function Calendar({ onNavigateHome }) {
     }));
 
     // Add Day Routine products (typically daily)
-    if (dayRoutine?.dayProducts?.length > 0) {
-      DAYS.forEach((_, index) => {
-        schedule[index].morning.push(...dayRoutine.dayProducts);
+if (dayRoutine) {
+  const dayProducts = [
+    ...(dayRoutine.cleansers || []),
+    ...(dayRoutine.moisturizers || []),
+    ...(dayRoutine.specializedProducts || []),
+    ...(dayRoutine.advancedTreatments || []),
+    ...(dayRoutine.sunscreens || [])
+  ];
+  
+  if (dayProducts.length > 0) {
+    DAYS.forEach((_, index) => {
+      schedule[index].morning.push(...dayProducts.map(p => ({...p})));
+    });
+  }
+}
+
+// Add Night Routine products (typically daily)
+if (nightRoutine) {
+  const nightProducts = [
+    ...(nightRoutine.cleansers || []),
+    ...(nightRoutine.moisturizers || []),
+    ...(nightRoutine.poreCare || []),
+    ...(nightRoutine.poreCareProducts || []),
+    ...(nightRoutine.advancedTreatments || [])
+  ];
+  
+  if (nightProducts.length > 0) {
+    DAYS.forEach((_, index) => {
+      schedule[index].evening.push(...nightProducts.map(p => ({...p})));
+    });
+  }
+}
+    // Add Smart Routines (2-3x per week, strategically spaced) - only if they exist
+    if (smartRoutines?.length > 0) {
+      smartRoutines.forEach(routine => {
+        // Distribute smart routines throughout the week
+        const daysToApply = [0, 2, 4]; // Mon, Wed, Fri
+        
+        daysToApply.forEach(dayIndex => {
+          if (routine.dayProducts?.length > 0) {
+            schedule[dayIndex].morning.push(...routine.dayProducts.map(p => ({
+              ...p,
+              isSmart: true,
+              concernName: routine.concernName
+            })));
+          }
+          if (routine.nightProducts?.length > 0) {
+            schedule[dayIndex].evening.push(...routine.nightProducts.map(p => ({
+              ...p,
+              isSmart: true,
+              concernName: routine.concernName
+            })));
+          }
+        });
+      });
+
+      // Mark rest days (days with no smart routine products) - only if smart routines exist
+      schedule.forEach((day) => {
+        const hasSmartProducts = [...day.morning, ...day.evening].some(p => p.isSmart);
+        if (!hasSmartProducts) {
+          day.isRestDay = true;
+        }
       });
     }
-
-    // Add Night Routine products (typically daily)
-    if (nightRoutine?.nightProducts?.length > 0) {
-      DAYS.forEach((_, index) => {
-        schedule[index].evening.push(...nightRoutine.nightProducts);
-      });
-    }
-
-    // Add Smart Routines (2-3x per week, strategically spaced)
-    smartRoutines.forEach(routine => {
-      // Distribute smart routines throughout the week
-      const daysToApply = [0, 2, 4]; // Mon, Wed, Fri
-      
-      daysToApply.forEach(dayIndex => {
-        if (routine.dayProducts?.length > 0) {
-          schedule[dayIndex].morning.push(...routine.dayProducts.map(p => ({
-            ...p,
-            isSmart: true,
-            concernName: routine.concernName
-          })));
-        }
-        if (routine.nightProducts?.length > 0) {
-          schedule[dayIndex].evening.push(...routine.nightProducts.map(p => ({
-            ...p,
-            isSmart: true,
-            concernName: routine.concernName
-          })));
-        }
-      });
-    });
-
-    // Mark rest days (days with no smart routine products)
-    schedule.forEach((day, index) => {
-      const hasSmartProducts = [...day.morning, ...day.evening].some(p => p.isSmart);
-      if (!hasSmartProducts && smartRoutines.length > 0) {
-        day.isRestDay = true;
-      }
-    });
 
     return schedule;
   };
@@ -154,7 +273,7 @@ export default function Calendar({ onNavigateHome }) {
 
   const showRestDayInfo = () => {
     Alert.alert(
-      '🌿 Rest Days',
+      'Rest Days',
       'Rest days are when you skip Smart Routine treatments to let your skin recover. You still follow your regular Day & Night routines.\n\nGiving your skin rest prevents irritation and helps treatments work better!',
       [{ text: 'Got it!' }]
     );
@@ -196,89 +315,79 @@ export default function Calendar({ onNavigateHome }) {
           ]}>
             {dayLabel}
           </Text>
-          {isToday && (
-            <View style={styles.todayBadge}>
-              <Text style={styles.todayBadgeText}>TODAY</Text>
-            </View>
-          )}
+          <View style={styles.dayHeaderBadges}>
+            {isToday && (
+              <View style={styles.todayBadge}>
+                <Text style={styles.todayBadgeText}>TODAY</Text>
+              </View>
+            )}
+            {isRestDay && (
+              <View style={styles.restDayBadge}>
+                <Text style={styles.restDayBadgeText}>Rest Day</Text>
+              </View>
+            )}
+          </View>
         </View>
 
-        {isRestDay ? (
-          <View style={styles.restDayContent}>
-            <Text style={styles.restDayIcon}>🌿</Text>
-            <Text style={styles.restDayText}>Rest Day</Text>
-            <Text style={styles.restDaySubtext}>Skip actives</Text>
+        {/* Morning Section */}
+        {dayData.morning.length > 0 && (
+          <View style={styles.timeSection}>
+            <View style={styles.timeSectionHeader}>
+              <Image 
+                source={require('../assets/images/sunscreen.png')}
+                style={styles.timeSectionIcon}
+                resizeMode="contain"
+              />
+              <Text style={styles.timeSectionLabel}>AM</Text>
+            </View>
+            <View style={styles.productsList}>
+              {dayData.morning.slice(0, 3).map((product, idx) => 
+                renderProductMini(product, idx)
+              )}
+              {dayData.morning.length > 3 && (
+                <Text style={styles.moreProducts}>
+                  +{dayData.morning.length - 3} more
+                </Text>
+              )}
+            </View>
           </View>
-        ) : (
-          <>
-            {/* Morning Section */}
-            {dayData.morning.length > 0 && (
-              <View style={styles.timeSection}>
-                <View style={styles.timeSectionHeader}>
-                  <Image 
-                    source={require('../assets/images/sunscreen.png')}
-                    style={styles.timeSectionIcon}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.timeSectionLabel}>AM</Text>
-                </View>
-                <View style={styles.productsList}>
-                  {dayData.morning.slice(0, 3).map((product, idx) => 
-                    renderProductMini(product, idx)
-                  )}
-                  {dayData.morning.length > 3 && (
-                    <Text style={styles.moreProducts}>
-                      +{dayData.morning.length - 3} more
-                    </Text>
-                  )}
-                </View>
-              </View>
-            )}
+        )}
 
-            {/* Evening Section */}
-            {dayData.evening.length > 0 && (
-              <View style={styles.timeSection}>
-                <View style={styles.timeSectionHeader}>
-                  <Image 
-                    source={require('../assets/images/jar cream.png')}
-                    style={styles.timeSectionIcon}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.timeSectionLabel}>PM</Text>
-                </View>
-                <View style={styles.productsList}>
-                  {dayData.evening.slice(0, 3).map((product, idx) => 
-                    renderProductMini(product, idx)
-                  )}
-                  {dayData.evening.length > 3 && (
-                    <Text style={styles.moreProducts}>
-                      +{dayData.evening.length - 3} more
-                    </Text>
-                  )}
-                </View>
-              </View>
-            )}
-          </>
+        {/* Evening Section */}
+        {dayData.evening.length > 0 && (
+          <View style={styles.timeSection}>
+            <View style={styles.timeSectionHeader}>
+              <Image 
+                source={require('../assets/images/jar cream.png')}
+                style={styles.timeSectionIcon}
+                resizeMode="contain"
+              />
+              <Text style={styles.timeSectionLabel}>PM</Text>
+            </View>
+            <View style={styles.productsList}>
+              {dayData.evening.slice(0, 3).map((product, idx) => 
+                renderProductMini(product, idx)
+              )}
+              {dayData.evening.length > 3 && (
+                <Text style={styles.moreProducts}>
+                  +{dayData.evening.length - 3} more
+                </Text>
+              )}
+            </View>
+          </View>
+        )}
+
+        {/* No Routines Message - only show if truly empty */}
+        {dayData.morning.length === 0 && dayData.evening.length === 0 && (
+          <View style={styles.noRoutinesContainer}>
+            <Text style={styles.noRoutinesText}>
+              Create your Day & Night routines to see them here
+            </Text>
+          </View>
         )}
       </TouchableOpacity>
     );
   };
-
-  const renderEmptyState = () => (
-    <View style={styles.emptyStateContainer}>
-      <View style={styles.emptyIconContainer}>
-        <Image 
-          source={require('../assets/images/calendar.png')}
-          style={styles.emptyIcon}
-          resizeMode="contain"
-        />
-      </View>
-      <Text style={styles.emptyTitle}>No Routines Yet</Text>
-      <Text style={styles.emptyText}>
-        Build your Day, Night, and Smart Routines first to see your personalized weekly calendar.
-      </Text>
-    </View>
-  );
 
   return (
     <View style={styles.container}>
@@ -316,20 +425,12 @@ export default function Calendar({ onNavigateHome }) {
             <Text style={styles.pageTitle}>
               Your <Text style={styles.pageTitleHighlight}>Weekly Calendar</Text>
             </Text>
-            <TouchableOpacity 
-              onPress={showRestDayInfo}
-              style={styles.infoButton}
-            >
-              <Text style={styles.infoButtonText}>ℹ️</Text>
-            </TouchableOpacity>
           </View>
 
           {loading ? (
             <View style={styles.loadingContainer}>
               <Text style={styles.loadingText}>Loading your calendar...</Text>
             </View>
-          ) : !dayRoutine && !nightRoutine && smartRoutines.length === 0 ? (
-            renderEmptyState()
           ) : (
             <>
               <View style={styles.legendContainer}>
@@ -347,8 +448,17 @@ export default function Calendar({ onNavigateHome }) {
                 {DAYS.map((day, index) => renderDayCard(day, index))}
               </View>
 
+              {smartRoutines.length === 0 && (dayRoutine || nightRoutine) && (
+                <View style={styles.smartRoutineSuggestion}>
+                  <Text style={styles.suggestionTitle}>Boost Your Results</Text>
+                  <Text style={styles.suggestionText}>
+                    Have specific skin concerns? Create Smart Routines for targeted treatments 2-3x per week.
+                  </Text>
+                </View>
+              )}
+
               <View style={styles.tipsContainer}>
-                <Text style={styles.tipsTitle}>💡 Quick Tips</Text>
+                <Text style={styles.tipsTitle}>Quick Tips</Text>
                 <Text style={styles.tipText}>• Tap any day to see full details</Text>
                 <Text style={styles.tipText}>• Green dots = regular routine</Text>
                 <Text style={styles.tipText}>• Blue dots = smart treatments (2-3x/week)</Text>
@@ -386,53 +496,52 @@ export default function Calendar({ onNavigateHome }) {
             </View>
 
             <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
-              {modalContent?.isRestDay ? (
-                <View style={styles.modalRestDay}>
-                  <Text style={styles.modalRestIcon}>🌿</Text>
-                  <Text style={styles.modalRestTitle}>Rest Day</Text>
-                  <Text style={styles.modalRestText}>
-                    Skip your Smart Routine treatments today. Continue with your regular Day & Night routines only.
+              {modalContent?.isRestDay && (
+                <View style={styles.modalRestDayNote}>
+                  <Text style={styles.modalRestNoteTitle}>Rest Day</Text>
+                  <Text style={styles.modalRestNoteText}>
+                    Skip your Smart Routine treatments today. Continue with your regular Day & Night routines below.
                   </Text>
                 </View>
-              ) : (
-                <>
-                  {/* Morning Products */}
-                  {modalContent?.morning?.length > 0 && (
-                    <View style={styles.modalSection}>
-                      <View style={styles.modalSectionHeader}>
-                        <Image 
-                          source={require('../assets/images/sunscreen.png')}
-                          style={styles.modalSectionIcon}
-                          resizeMode="contain"
-                        />
-                        <Text style={styles.modalSectionTitle}>Morning Routine</Text>
-                      </View>
-                      {modalContent.morning.map((product, idx) => (
-                        <View key={`morning-${idx}`} style={styles.modalProduct}>
-                          <View style={styles.modalProductHeader}>
-                            <Text style={styles.modalProductName}>{product.name}</Text>
-                            {product.isSmart && (
-                              <View style={styles.modalSmartBadge}>
-                                <Text style={styles.modalSmartText}>SMART</Text>
-                              </View>
-                            )}
+              )}
+              
+              {/* Morning Products */}
+              {modalContent?.morning?.length > 0 && (
+                <View style={styles.modalSection}>
+                  <View style={styles.modalSectionHeader}>
+                    <Image 
+                      source={require('../assets/images/sunscreen.png')}
+                      style={styles.modalSectionIcon}
+                      resizeMode="contain"
+                    />
+                    <Text style={styles.modalSectionTitle}>Morning Routine</Text>
+                  </View>
+                  {modalContent.morning.map((product, idx) => (
+                    <View key={`morning-${idx}`} style={styles.modalProduct}>
+                      <View style={styles.modalProductHeader}>
+                        <Text style={styles.modalProductName}>{product.name}</Text>
+                        {product.isSmart && (
+                          <View style={styles.modalSmartBadge}>
+                            <Text style={styles.modalSmartText}>SMART</Text>
                           </View>
-                          {product.description && (
-                            <Text style={styles.modalProductDesc}>{product.description}</Text>
-                          )}
-                          {product.benefits && (
-                            <View style={styles.modalBenefits}>
-                              {product.benefits.map((benefit, bIdx) => (
-                                <View key={bIdx} style={styles.modalBenefitTag}>
-                                  <Text style={styles.modalBenefitText}>{benefit}</Text>
-                                </View>
-                              ))}
+                        )}
+                      </View>
+                      {product.description && (
+                        <Text style={styles.modalProductDesc}>{product.description}</Text>
+                      )}
+                      {product.benefits && (
+                        <View style={styles.modalBenefits}>
+                          {product.benefits.map((benefit, bIdx) => (
+                            <View key={bIdx} style={styles.modalBenefitTag}>
+                              <Text style={styles.modalBenefitText}>{benefit}</Text>
                             </View>
-                          )}
+                          ))}
                         </View>
-                      ))}
+                      )}
                     </View>
-                  )}
+                  ))}
+                </View>
+              )}
 
                   {/* Evening Products */}
                   {modalContent?.evening?.length > 0 && (
@@ -471,8 +580,6 @@ export default function Calendar({ onNavigateHome }) {
                       ))}
                     </View>
                   )}
-                </>
-              )}
             </ScrollView>
           </View>
         </View>
@@ -533,18 +640,6 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.primary,
     fontWeight: '800',
   },
-  infoButton: {
-    marginLeft: 10,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: BRAND_COLORS.cream,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  infoButtonText: {
-    fontSize: 16,
-  },
   loadingContainer: {
     paddingVertical: 60,
     alignItems: 'center',
@@ -552,38 +647,6 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: BRAND_COLORS.gray,
-  },
-  emptyStateContainer: {
-    paddingVertical: 60,
-    paddingHorizontal: 30,
-    alignItems: 'center',
-  },
-  emptyIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#E8F5E9',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  emptyIcon: {
-    width: 40,
-    height: 40,
-    tintColor: BRAND_COLORS.primary,
-  },
-  emptyTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: BRAND_COLORS.black,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  emptyText: {
-    fontSize: 15,
-    color: BRAND_COLORS.darkGray,
-    textAlign: 'center',
-    lineHeight: 22,
   },
   legendContainer: {
     flexDirection: 'row',
@@ -632,8 +695,8 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   dayCardRest: {
-    backgroundColor: '#F5F5F5',
-    borderStyle: 'dashed',
+    borderColor: BRAND_COLORS.primary,
+    borderWidth: 2,
   },
   dayHeader: {
     flexDirection: 'row',
@@ -650,6 +713,11 @@ const styles = StyleSheet.create({
   dayLabelToday: {
     color: BRAND_COLORS.primary,
   },
+  dayHeaderBadges: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   todayBadge: {
     backgroundColor: BRAND_COLORS.primary,
     paddingHorizontal: 8,
@@ -662,23 +730,17 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.white,
     letterSpacing: 0.5,
   },
-  restDayContent: {
-    alignItems: 'center',
-    paddingVertical: 20,
+  restDayBadge: {
+    backgroundColor: BRAND_COLORS.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
   },
-  restDayIcon: {
-    fontSize: 32,
-    marginBottom: 8,
-  },
-  restDayText: {
-    fontSize: 14,
+  restDayBadgeText: {
+    fontSize: 9,
     fontWeight: '700',
-    color: BRAND_COLORS.darkGray,
-    marginBottom: 2,
-  },
-  restDaySubtext: {
-    fontSize: 11,
-    color: BRAND_COLORS.gray,
+    color: BRAND_COLORS.white,
+    letterSpacing: 0.3,
   },
   timeSection: {
     marginBottom: 12,
@@ -723,6 +785,36 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginTop: 2,
     marginLeft: 12,
+  },
+  noRoutinesContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+  },
+  noRoutinesText: {
+    fontSize: 12,
+    color: BRAND_COLORS.gray,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  smartRoutineSuggestion: {
+    backgroundColor: '#E3F2FD',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: BRAND_COLORS.smartBlue,
+  },
+  suggestionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+    marginBottom: 8,
+  },
+  suggestionText: {
+    fontSize: 12,
+    color: BRAND_COLORS.darkGray,
+    lineHeight: 18,
   },
   tipsContainer: {
     backgroundColor: '#E8F5E9',
@@ -800,26 +892,27 @@ const styles = StyleSheet.create({
   modalScroll: {
     maxHeight: '100%',
   },
-  modalRestDay: {
-    alignItems: 'center',
-    paddingVertical: 40,
-    paddingHorizontal: 30,
+  modalRestDayNote: {
+    backgroundColor: '#E8F5E9',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 10,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: BRAND_COLORS.primary,
   },
-  modalRestIcon: {
-    fontSize: 48,
-    marginBottom: 16,
-  },
-  modalRestTitle: {
-    fontSize: 20,
+  modalRestNoteTitle: {
+    fontSize: 16,
     fontWeight: '700',
-    color: BRAND_COLORS.darkGray,
-    marginBottom: 12,
+    color: BRAND_COLORS.primary,
+    marginBottom: 8,
   },
-  modalRestText: {
-    fontSize: 14,
-    color: BRAND_COLORS.gray,
-    textAlign: 'center',
-    lineHeight: 20,
+  modalRestNoteText: {
+    fontSize: 13,
+    color: BRAND_COLORS.darkGray,
+    lineHeight: 18,
   },
   modalSection: {
     padding: 20,
