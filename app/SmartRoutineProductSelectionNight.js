@@ -1,15 +1,15 @@
-// app/SmartRoutineProductSelectionNight.js - NIGHT PRODUCTS SELECTION
+// app/SmartRoutineProductSelectionNight.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import RoutineCompletionModal from '../components/modals/RoutineCompletionModal';
+import SmartRoutineCompletionModal from '../components/modals/SmartRoutineCompletionModal';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
 const BRAND_COLORS = {
@@ -20,179 +20,109 @@ const BRAND_COLORS = {
   white: '#FFFFFF',
   gray: '#999999',
   darkGray: '#666666',
-};
-
-const SKIN_TYPE_INFO = {
-  oily: { color: '#4A90E2', name: 'Oily Skin' },
-  dry: { color: '#F39C12', name: 'Dry Skin' },
-  combination: { color: BRAND_COLORS.primary, name: 'Combination Skin' },
-  normal: { color: '#9B59B6', name: 'Normal Skin' },
-  sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
+  lightGray: '#E5E5E5',
+  smartBlue: '#82b2df',
 };
 
 const CONCERN_INFO = {
-  nodules: { name: 'Inflamed Acne (Nodules)', color: '#FF7A7A', icon: require('../assets/images/Nodule.png') },
-  blackheads: { name: 'Blackheads', color: '#4A90E2', icon: require('../assets/images/Blackhead.png') },
-  whiteheads: { name: 'Whiteheads', color: '#7CB342', icon: require('../assets/images/Whitehead.png') },
-  papules: { name: 'Papules & Pustules', color: '#F39C12', icon: require('../assets/images/Papule.png') },
-  marks: { name: 'Post-Inflammatory Marks', color: '#9B59B6', icon: require('../assets/images/Mark.png') },
+  nodules: { name: 'Inflamed Acne', color: '#FF7A7A' },
+  papules: { name: 'Papules & Pustules', color: '#F39C12' },
+  blackheads: { name: 'Blackheads', color: '#4A90E2' },
+  whiteheads: { name: 'Whiteheads', color: '#7CB342' },
+  marks: { name: 'Dark Spots & Marks', color: '#9B59B6' },
 };
 
-const SMART_PRODUCTS = {
-  nodules: {
-    evening: [
-      { id: 'nod_pm_1', name: 'Differin Gel (Adapalene 0.1%)', description: 'OTC retinoid for acne and inflammation', benefits: ['Proven effective', 'Anti-inflammatory', 'Affordable'] },
-      { id: 'nod_pm_2', name: 'The Ordinary Azelaic Acid 10%', description: 'Multi-functional azelaic acid treatment', benefits: ['Calms redness', 'Fights bacteria', 'Gentle'] },
-      { id: 'nod_pm_3', name: 'Geek & Gorgeous A-Game 5', description: 'Gentle retinaldehyde treatment', benefits: ['Less irritating', 'Effective', 'Targeted'] },
-    ],
+const NIGHT_PRODUCTS = [
+  {
+    id: 'night1',
+    name: "Paula's Choice 2% BHA Liquid",
+    description: 'Salicylic acid exfoliant',
+    tags: ['Effective', 'Popular'],
   },
-  blackheads: {
-    evening: [
-      { id: 'bh_pm_1', name: 'Paula\'s Choice 2% BHA Liquid', description: 'Evening BHA treatment', benefits: ['Deep-cleaning', 'Proven', 'Gentle'] },
-      { id: 'bh_pm_2', name: 'COSRX BHA Blackhead Power Liquid', description: 'Nighttime pore treatment', benefits: ['Gentle', 'Effective', 'Popular'] },
-      { id: 'bh_pm_3', name: 'Some By Mi AHA BHA PHA Toner', description: 'Multi-acid gentle exfoliant', benefits: ['Triple action', 'Gentle', 'K-Beauty'] },
-    ],
+  {
+    id: 'night2',
+    name: 'The Ordinary Niacinamide 10% + Zinc 1%',
+    description: 'Reduces blemishes',
+    tags: ['Budget', 'Gentle'],
   },
-  whiteheads: {
-    evening: [
-      { id: 'wh_pm_1', name: 'Differin Gel (Adapalene 0.1%)', description: 'OTC retinoid for comedones', benefits: ['Proven effective', 'Prevents clogging', 'Affordable'] },
-      { id: 'wh_pm_2', name: 'Geek & Gorgeous A-Game 5', description: 'Gentle retinaldehyde treatment', benefits: ['Less irritating', 'Effective', 'Gentle'] },
-      { id: 'wh_pm_3', name: 'The Ordinary Granactive Retinoid 2%', description: 'Beginner-friendly retinoid', benefits: ['Gentle', 'Effective', 'Affordable'] },
-    ],
+  {
+    id: 'night3',
+    name: 'Some By Mi AHA BHA PHA Toner',
+    description: 'Multi-acid gentle exfoliant',
+    tags: ['Triple action', 'Gentle', 'K-Beauty'],
   },
-  papules: {
-    evening: [
-      { id: 'pap_pm_1', name: 'Paula\'s Choice CLEAR 2.5% Benzoyl Peroxide', description: 'Gentle BP treatment', benefits: ['Kills bacteria', 'Non-drying', 'Effective'] },
-      { id: 'pap_pm_2', name: 'La Roche-Posay Effaclar Duo+', description: 'BP and LHA combo treatment', benefits: ['Dual action', 'Gentle', 'Proven'] },
-      { id: 'pap_pm_3', name: 'CeraVe Acne Foaming Cream Cleanser 4% BP', description: 'BP wash for short-contact therapy', benefits: ['Gentle', 'Ceramides', 'Affordable'] },
-    ],
+  {
+    id: 'night4',
+    name: 'La Roche-Posay Effaclar Duo+',
+    description: 'Anti-blemish treatment',
+    tags: ['Dermatologist', 'Popular'],
   },
-  marks: {
-    evening: [
-      { id: 'marks_pm_1', name: 'The Ordinary Alpha Arbutin 2%', description: 'Gentle brightening treatment', benefits: ['Fades marks', 'Gentle', 'Affordable'] },
-      { id: 'marks_pm_2', name: 'Differin Gel (Adapalene 0.1%)', description: 'Retinoid for cell turnover', benefits: ['Fades marks', 'Prevents acne', 'Proven'] },
-      { id: 'marks_pm_3', name: 'Geek & Gorgeous A-Game 5', description: 'Gentle retinaldehyde for marks', benefits: ['Cell turnover', 'Gentle', 'Effective'] },
-    ],
-  },
-};
+];
 
 export default function SmartRoutineProductSelectionNight({ 
   onNavigateHome,
   onNavigateBack,
   onNavigateToSmartRoutineHub,
   concernId,
-  dayProducts
+  dayProducts = [],
 }) {
-  const [concernData, setConcernData] = useState(null);
-  const [skinType, setSkinType] = useState('normal');
-  const [selectedNightProducts, setSelectedNightProducts] = useState([]);
-  const [nightProducts, setNightProducts] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
-  const [completeRoutineData, setCompleteRoutineData] = useState(null);
+  const [routineCompletionData, setRoutineCompletionData] = useState(null);
 
   useEffect(() => {
-    loadData();
-  }, [concernId]);
+    console.log('=== NIGHT SCREEN LOADED ===');
+    console.log('concernId:', concernId);
+    console.log('dayProducts received:', dayProducts);
+    console.log('dayProducts length:', dayProducts?.length);
+  }, []);
 
-  const loadData = async () => {
-    if (concernId && CONCERN_INFO[concernId]) {
-      setConcernData(CONCERN_INFO[concernId]);
-      
-      const nightProductList = SMART_PRODUCTS[concernId]?.evening || [];
-      setNightProducts(nightProductList);
-    }
+  const concernData = concernId ? CONCERN_INFO[concernId] : null;
 
-    try {
-      const savedSkinType = await AsyncStorage.getItem('userSkinType');
-      if (savedSkinType) {
-        setSkinType(savedSkinType);
-      }
-    } catch (error) {
-      console.error('Error loading skin type:', error);
-    }
-  };
-
-  const toggleNightProductSelection = (product) => {
-    setSelectedNightProducts(prev => {
-      const isSelected = prev.some(p => p.id === product.id);
-      
+  const handleProductToggle = (product) => {
+    setSelectedProducts((prev) => {
+      const isSelected = prev.some((p) => p.id === product.id);
       if (isSelected) {
-        return prev.filter(p => p.id !== product.id);
+        return prev.filter((p) => p.id !== product.id);
       } else {
-        if (prev.length >= 2) {
-          return [prev[1], product];
-        }
         return [...prev, product];
       }
     });
   };
 
-  const handleComplete = async () => {
-    const totalSelected = dayProducts.length + selectedNightProducts.length;
-    
-    if (totalSelected > 0) {
-      try {
-        const routineData = {
-          concernId,
-          concernName: concernData.name,
-          concernColor: concernData.color,
-          dayProducts: dayProducts,
-          nightProducts: selectedNightProducts,
-          completedAt: new Date().toISOString(),
-        };
-        
-        // Save to AsyncStorage
-        const storageKey = `mySmartRoutine_${concernId}`;
-        await AsyncStorage.setItem(storageKey, JSON.stringify(routineData));
-        
-        console.log('✅ Smart Routine Saved:', routineData);
-        
-        setCompleteRoutineData(routineData);
-        setShowCompletionModal(true);
-      } catch (error) {
-        console.error('❌ Error saving smart routine:', error);
-      }
+  const handleSaveRoutine = async () => {
+    console.log('=== SAVING ROUTINE ===');
+    console.log('Day products:', dayProducts);
+    console.log('Night products:', selectedProducts);
+
+    const routineData = {
+      concernName: concernData?.name || 'Smart Routine',
+      concernColor: concernData?.color || '#82b2df',
+      dayProducts: dayProducts.map((product, index) => ({
+        id: product.id || `day-${index}`,
+        name: product.name,
+      })),
+      nightProducts: selectedProducts.map((product, index) => ({
+        id: product.id || `night-${index}`,
+        name: product.name,
+      })),
+    };
+
+    console.log('Final routineData:', JSON.stringify(routineData, null, 2));
+
+    try {
+      await AsyncStorage.setItem('smartRoutine', JSON.stringify(routineData));
+      console.log('✓ Saved to AsyncStorage');
+    } catch (error) {
+      console.error('Error saving routine:', error);
     }
+
+    setRoutineCompletionData(routineData);
+    setShowCompletionModal(true);
   };
 
-  const handleModalClose = () => {
-    console.log('🏠 Modal closed - navigating to Smart Routine Hub');
-    setShowCompletionModal(false);
-    if (onNavigateToSmartRoutineHub) {
-      setTimeout(() => {
-        onNavigateToSmartRoutineHub();
-      }, 300);
-    }
-  };
-
-  const handleViewRoutine = () => {
-    console.log('📋 Viewing Smart Routine Hub');
-    setShowCompletionModal(false);
-    if (onNavigateToSmartRoutineHub) {
-      setTimeout(() => {
-        onNavigateToSmartRoutineHub();
-      }, 300);
-    }
-  };
-
-  const getButtonText = () => {
-    const totalSelected = dayProducts.length + selectedNightProducts.length;
-    if (totalSelected === 0) {
-      return 'Skip - No Products Selected';
-    }
-    return 'Complete Smart Routine';
-  };
-
-  if (!concernData) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>Concern data not found</Text>
-      </View>
-    );
-  }
-
-  const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const totalSelected = dayProducts.length + selectedNightProducts.length;
+  const totalSteps = 2;
+  const currentStep = 2;
 
   return (
     <View style={styles.container}>
@@ -206,111 +136,102 @@ export default function SmartRoutineProductSelectionNight({
         </TouchableOpacity>
       </View>
 
+      <TouchableOpacity 
+        style={styles.bannerContainer}
+        onPress={onNavigateBack}
+        activeOpacity={0.9}
+      >
+        <Image 
+          source={require('../assets/images/Banner Smart Routine.png')}
+          style={styles.bannerImage}
+          resizeMode="cover"
+        />
+      </TouchableOpacity>
+
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
-          <View style={styles.header}>
-            <View style={[styles.concernIconContainer, { backgroundColor: `${concernData.color}15` }]}>
-              <Image 
-                source={concernData.icon}
-                style={[styles.concernIcon, { tintColor: concernData.color }]}
-                resizeMode="contain"
-              />
+          <View style={styles.progressContainer}>
+            <View style={styles.progressHeader}>
+              <TouchableOpacity
+                onPress={onNavigateBack}
+                style={styles.arrowButton}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.arrowText}>‹</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+
+              <View style={styles.arrowButton} />
             </View>
-            <Text style={styles.title}>
-              Night Routine <Text style={styles.titleHighlight}>Products</Text>
-            </Text>
-            <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
-              <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-                {skinTypeInfo.name}
-              </Text>
+
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, { width: `${(currentStep / totalSteps) * 100}%` }]} />
             </View>
           </View>
 
-          {dayProducts.length > 0 && (
-            <View style={styles.summaryBox}>
-              <Text style={styles.summaryTitle}>✓ Day Products Selected</Text>
-              <Text style={styles.summaryText}>
-                {dayProducts.length} product{dayProducts.length > 1 ? 's' : ''} added to your morning routine
-              </Text>
-            </View>
-          )}
-
-          <View style={styles.explanationBox}>
-            <Text style={styles.explanationText}>
-              Select 0-2 evening products for your {concernData.name.toLowerCase()} concern. These complement your basic night routine.
+          <View style={styles.infoBox}>
+            <Image 
+              source={require('../assets/images/check.png')}
+              style={styles.infoIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.infoText}>
+              Select evening products for your smart routine. You can choose multiple options to alternate between.
             </Text>
           </View>
 
-          <View style={styles.routineSection}>
-            <View style={styles.routineSectionHeader}>
-              <View style={styles.routineIconContainer}>
-                <Image 
-                  source={require('../assets/images/jar cream.png')}
-                  style={styles.routineIcon}
-                  resizeMode="contain"
-                />
-              </View>
-              <View style={styles.routineTitleContainer}>
-                <Text style={styles.routineSectionTitle}>Evening Application</Text>
-                <View style={[styles.timeBadge, { backgroundColor: '#E8EAF6' }]}>
-                  <Text style={[styles.timeBadgeText, { color: '#3F51B5' }]}>After cleansing</Text>
-                </View>
-              </View>
-            </View>
+          <View style={styles.sectionHeader}>
+            <Image 
+              source={require('../assets/images/jar cream.png')}
+              style={styles.sectionIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.sectionTitle}>
+              Evening Products ({selectedProducts.length} selected)
+            </Text>
+          </View>
 
-            <View style={styles.selectionContainer}>
-              <Text style={styles.selectionTitle}>
-                Select 0-2 Products {selectedNightProducts.length > 0 && `(${selectedNightProducts.length} selected)`}
-              </Text>
-              
-              {nightProducts.map((product) => {
-                const isSelected = selectedNightProducts.some(p => p.id === product.id);
-                const selectionIndex = selectedNightProducts.findIndex(p => p.id === product.id);
-                
-                return (
-                  <TouchableOpacity
-                    key={product.id}
+          {NIGHT_PRODUCTS.map((product) => {
+            const isSelected = selectedProducts.some((p) => p.id === product.id);
+            return (
+              <TouchableOpacity
+                key={product.id}
+                style={[
+                  styles.productCard,
+                  isSelected && styles.productCardSelected,
+                ]}
+                onPress={() => handleProductToggle(product)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.productHeader}>
+                  <View style={styles.productInfo}>
+                    <Text style={styles.productName}>{product.name}</Text>
+                    <Text style={styles.productDescription}>{product.description}</Text>
+                  </View>
+                  <View
                     style={[
-                      styles.productCard,
-                      isSelected && [styles.productCardSelected, { borderColor: concernData.color }]
+                      styles.checkbox,
+                      isSelected && styles.checkboxSelected,
                     ]}
-                    onPress={() => toggleNightProductSelection(product)}
-                    activeOpacity={0.7}
                   >
-                    <View style={styles.productCardHeader}>
-                      <View style={styles.productCardLeft}>
-                        <Text style={styles.productName}>{product.name}</Text>
-                        <Text style={styles.productDescription}>{product.description}</Text>
-                      </View>
-                      {isSelected && (
-                        <View style={[styles.checkmark, { backgroundColor: concernData.color }]}>
-                          <Text style={styles.checkmarkText}>{selectionIndex + 1}</Text>
-                        </View>
-                      )}
+                    {isSelected && <Text style={styles.checkmark}>✓</Text>}
+                  </View>
+                </View>
+                <View style={styles.tagsContainer}>
+                  {product.tags.map((tag, index) => (
+                    <View key={index} style={styles.tag}>
+                      <Text style={styles.tagText}>{tag}</Text>
                     </View>
-                    
-                    <View style={styles.benefitsRow}>
-                      {product.benefits.map((benefit, idx) => (
-                        <View key={idx} style={styles.benefitTag}>
-                          <Text style={styles.benefitTagText}>{benefit}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-
-          {totalSelected === 0 && (
-            <View style={styles.helperBox}>
-              <Text style={styles.helperText}>You can skip if you don't want night products</Text>
-            </View>
-          )}
+                  ))}
+                </View>
+              </TouchableOpacity>
+            );
+          })}
 
           <View style={styles.bottomSpacing} />
         </View>
@@ -318,23 +239,22 @@ export default function SmartRoutineProductSelectionNight({
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title={getButtonText()}
-          onPress={handleComplete}
-          disabled={totalSelected === 0}
-          style={[styles.continueButton, totalSelected === 0 && styles.continueButtonDisabled]}
+          title="Save Smart Routine"
+          onPress={handleSaveRoutine}
+          disabled={selectedProducts.length === 0}
+          style={styles.saveButton}
         />
-        <TouchableOpacity onPress={onNavigateBack} style={styles.backLink}>
-          <Text style={styles.backLinkText}>Back to Day Products</Text>
-        </TouchableOpacity>
       </View>
 
-      <RoutineCompletionModal
+      <SmartRoutineCompletionModal
         visible={showCompletionModal}
-        onClose={handleModalClose}
-        onViewRoutine={handleViewRoutine}
-        routineData={completeRoutineData}
-        routineType="smart"
-        isSmartRoutine={true}
+        onClose={() => {
+          setShowCompletionModal(false);
+          if (onNavigateToSmartRoutineHub) {
+            onNavigateToSmartRoutineHub();
+          }
+        }}
+        routineData={routineCompletionData}
       />
     </View>
   );
@@ -358,6 +278,15 @@ const styles = StyleSheet.create({
     width: 80,
     height: 50,
   },
+  bannerContainer: {
+    width: '100%',
+    height: 120,
+    marginBottom: 20,
+  },
+  bannerImage: {
+    width: '100%',
+    height: '100%',
+  },
   scrollView: {
     flex: 1,
   },
@@ -366,213 +295,167 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 20,
-    paddingTop: 10,
   },
-  header: {
-    alignItems: 'center',
+  progressContainer: {
     marginBottom: 20,
   },
-  concernIconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
+  progressHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    justifyContent: 'center',
+    marginBottom: 8,
   },
-  concernIcon: {
+  arrowButton: {
     width: 32,
     height: 32,
+    borderRadius: 16,
+    backgroundColor: BRAND_COLORS.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  title: {
+  arrowText: {
     fontSize: 24,
-    fontWeight: '700',
-    color: BRAND_COLORS.black,
+    fontWeight: '600',
+    color: BRAND_COLORS.smartBlue,
+    lineHeight: 28,
+  },
+  progressText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: BRAND_COLORS.darkGray,
     textAlign: 'center',
-    marginBottom: 12,
+    minWidth: 100,
   },
-  titleHighlight: {
-    color: BRAND_COLORS.primary,
-    fontWeight: '800',
+  progressBar: {
+    height: 6,
+    backgroundColor: BRAND_COLORS.lightGray,
+    borderRadius: 3,
+    overflow: 'hidden',
   },
-  skinTypeBadge: {
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 20,
+  progressFill: {
+    height: '100%',
+    backgroundColor: BRAND_COLORS.smartBlue,
+    borderRadius: 3,
   },
-  skinTypeText: {
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  summaryBox: {
-    backgroundColor: `${BRAND_COLORS.primary}15`,
+  infoBox: {
+    flexDirection: 'row',
+    backgroundColor: '#E3F2FD',
     borderRadius: 12,
     padding: 14,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: BRAND_COLORS.primary,
-  },
-  summaryTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: BRAND_COLORS.primary,
-    marginBottom: 4,
-  },
-  summaryText: {
-    fontSize: 12,
-    color: BRAND_COLORS.darkGray,
-    fontWeight: '500',
-  },
-  explanationBox: {
-    backgroundColor: `${BRAND_COLORS.primary}10`,
-    borderLeftWidth: 4,
-    borderLeftColor: BRAND_COLORS.primary,
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 24,
-  },
-  explanationText: {
-    fontSize: 13,
-    color: BRAND_COLORS.darkGray,
-    lineHeight: 19,
-  },
-  routineSection: {
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#BBDEFB',
     marginBottom: 20,
   },
-  routineSectionHeader: {
+  infoIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
+    tintColor: BRAND_COLORS.smartBlue,
+  },
+  infoText: {
+    flex: 1,
+    fontSize: 12,
+    color: BRAND_COLORS.darkGray,
+    lineHeight: 17,
+    fontWeight: '500',
+  },
+  sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
   },
-  routineIconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: BRAND_COLORS.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+  sectionIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 10,
   },
-  routineIcon: {
-    width: 28,
-    height: 28,
-    tintColor: BRAND_COLORS.primary,
-  },
-  routineTitleContainer: {
-    flex: 1,
-  },
-  routineSectionTitle: {
+  sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: BRAND_COLORS.black,
-    marginBottom: 6,
-  },
-  timeBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  timeBadgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  selectionContainer: {
-    marginBottom: 10,
-  },
-  selectionTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: BRAND_COLORS.black,
-    marginBottom: 12,
   },
   productCard: {
     backgroundColor: BRAND_COLORS.white,
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
     borderWidth: 2,
-    borderColor: 'transparent',
+    borderColor: BRAND_COLORS.lightGray,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
     elevation: 2,
   },
   productCardSelected: {
-    borderWidth: 2.5,
-    shadowOpacity: 0.15,
-    elevation: 4,
+    borderColor: BRAND_COLORS.smartBlue,
+    backgroundColor: '#F0F8FF',
   },
-  productCardHeader: {
+  productHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 10,
   },
-  productCardLeft: {
+  productInfo: {
     flex: 1,
-    marginRight: 10,
+    marginRight: 12,
   },
   productName: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
     color: BRAND_COLORS.black,
     marginBottom: 4,
   },
   productDescription: {
-    fontSize: 12,
-    color: BRAND_COLORS.darkGray,
-    lineHeight: 16,
+    fontSize: 13,
+    color: BRAND_COLORS.gray,
+    lineHeight: 18,
   },
-  checkmark: {
+  checkbox: {
     width: 28,
     height: 28,
     borderRadius: 14,
+    borderWidth: 2,
+    borderColor: BRAND_COLORS.lightGray,
+    backgroundColor: BRAND_COLORS.white,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkmarkText: {
+  checkboxSelected: {
+    backgroundColor: BRAND_COLORS.smartBlue,
+    borderColor: BRAND_COLORS.smartBlue,
+  },
+  checkmark: {
     color: BRAND_COLORS.white,
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
   },
-  benefitsRow: {
+  tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
   },
-  benefitTag: {
-    backgroundColor: '#F0F0F0',
+  tag: {
+    backgroundColor: BRAND_COLORS.cream,
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 12,
   },
-  benefitTagText: {
-    fontSize: 10,
+  tagText: {
+    fontSize: 11,
+    fontWeight: '600',
     color: BRAND_COLORS.darkGray,
-    fontWeight: '600',
-  },
-  helperBox: {
-    backgroundColor: '#FFF9E6',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 10,
-    alignItems: 'center',
-  },
-  helperText: {
-    fontSize: 13,
-    color: '#B8860B',
-    fontWeight: '600',
-    textAlign: 'center',
   },
   bottomSpacing: {
-    height: 160,
+    height: 100,
   },
   bottomSection: {
     position: 'absolute',
@@ -585,25 +468,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAFBFC',
     alignItems: 'center',
   },
-  continueButton: {
+  saveButton: {
     width: '100%',
-    marginBottom: 12,
-  },
-  continueButtonDisabled: {
-    opacity: 0.5,
-  },
-  backLink: {
-    paddingVertical: 8,
-  },
-  backLinkText: {
-    fontSize: 14,
-    color: BRAND_COLORS.primary,
-    fontWeight: '600',
-  },
-  errorText: {
-    fontSize: 16,
-    color: BRAND_COLORS.secondary,
-    textAlign: 'center',
-    marginTop: 100,
   },
 });

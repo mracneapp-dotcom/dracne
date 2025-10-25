@@ -25,7 +25,6 @@ export const HomeScreen = ({
   onNavigateToDayRoutine,
   onNavigateToNightRoutine,
   onNavigateToScanSkin,
-  onNavigateToMyJourney,
   userStreak = 5,
   weeklyActivity = [],
   activeTab = 'routines',
@@ -79,14 +78,6 @@ export const HomeScreen = ({
     }
   };
 
-  const handleMyJourneyPress = () => {
-    if (onNavigateToMyJourney) {
-      onNavigateToMyJourney();
-    } else {
-      console.log('Navigate to My Journey - placeholder');
-    }
-  };
-
   return (
     <SafeAreaView style={[styles.container, style]}>
       <View style={styles.content}>
@@ -103,14 +94,13 @@ export const HomeScreen = ({
           <WeeklyCalendar weeklyActivity={weeklyActivity.length > 0 ? weeklyActivity : defaultWeeklyActivity} />
         </View>
 
-        {/* All Banners (Day, Night, Skin Test, Scan Skin, My Journey) */}
+        {/* All Banners (Day, Night, Skin Test, Scan Skin) */}
         <View style={styles.bannersContainer}>
           <RoutineBanners 
             onDayRoutinePress={handleDayRoutinePress}
             onNightRoutinePress={handleNightRoutinePress}
             onSkinTestPress={handleSkinTestPress}
             onScanSkinPress={handleScanSkinPress}
-            onMyJourneyPress={handleMyJourneyPress}
           />
         </View>
       </View>
@@ -142,5 +132,6 @@ const styles = StyleSheet.create({
   bannersContainer: {
     flex: 1,
     paddingBottom: 120,
+    justifyContent: 'center',
   },
 });

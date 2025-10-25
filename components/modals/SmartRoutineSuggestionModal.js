@@ -1,12 +1,12 @@
 // components/modals/SmartRoutineSuggestionModal.js
 import React from 'react';
 import {
-    Image,
-    Modal,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const BRAND_COLORS = {
@@ -16,6 +16,8 @@ const BRAND_COLORS = {
   black: '#000000',
   white: '#FFFFFF',
   gray: '#999999',
+  darkGray: '#666666',
+  smartBlue: '#82b2df',
 };
 
 const CONCERN_INFO = {
@@ -43,62 +45,64 @@ export default function SmartRoutineSuggestionModal({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <TouchableOpacity 
-        style={styles.overlay} 
-        activeOpacity={1} 
-        onPress={onClose}
-      >
-        <View style={styles.modalContainer}>
-          <TouchableOpacity activeOpacity={1} style={styles.modalContent}>
-            <View style={styles.iconContainer}>
-              <View style={[styles.concernIconBg, { backgroundColor: `${concernData.color}20` }]}>
-                <Image 
-                  source={concernData.icon}
-                  style={[styles.concernIcon, { tintColor: concernData.color }]}
-                  resizeMode="contain"
-                />
-              </View>
+      <View style={styles.overlay}>
+        <View style={styles.modalContent}>
+          <TouchableOpacity 
+            style={styles.closeButton} 
+            onPress={onClose}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.closeText}>✕</Text>
+          </TouchableOpacity>
+
+          <View style={styles.iconContainer}>
+            <View style={[styles.concernIconBg, { backgroundColor: `${concernData.color}20` }]}>
+              <Image 
+                source={concernData.icon}
+                style={[styles.concernIcon, { tintColor: concernData.color }]}
+                resizeMode="contain"
+              />
             </View>
+          </View>
 
-            <Text style={styles.title}>Create Smart Routine?</Text>
-            
-            <Text style={styles.message}>
-              We can help you target your <Text style={[styles.concernName, { color: concernData.color }]}>{concernData.name}</Text> with personalized product recommendations.
-            </Text>
+          <Text style={styles.title}>Create Smart Routine?</Text>
+          
+          <Text style={styles.message}>
+            We can help you target your <Text style={[styles.concernName, { color: concernData.color }]}>{concernData.name}</Text> with personalized product recommendations.
+          </Text>
 
-            <View style={styles.benefitsContainer}>
-              <View style={styles.benefitRow}>
-                <Text style={styles.checkmark}>✓</Text>
-                <Text style={styles.benefitText}>Targeted treatments for your specific concern</Text>
-              </View>
-              <View style={styles.benefitRow}>
-                <Text style={styles.checkmark}>✓</Text>
-                <Text style={styles.benefitText}>Complements your existing routines</Text>
-              </View>
-              <View style={styles.benefitRow}>
-                <Text style={styles.checkmark}>✓</Text>
-                <Text style={styles.benefitText}>Day & night product options</Text>
-              </View>
+          <View style={styles.benefitsContainer}>
+            <View style={styles.benefitRow}>
+              <Text style={styles.checkmark}>✓</Text>
+              <Text style={styles.benefitText}>Targeted treatments for your specific concern</Text>
             </View>
+            <View style={styles.benefitRow}>
+              <Text style={styles.checkmark}>✓</Text>
+              <Text style={styles.benefitText}>Complements your existing routines</Text>
+            </View>
+            <View style={styles.benefitRow}>
+              <Text style={styles.checkmark}>✓</Text>
+              <Text style={styles.benefitText}>Day & night product options</Text>
+            </View>
+          </View>
 
-            <TouchableOpacity 
-              style={[styles.createButton, { backgroundColor: concernData.color }]}
-              onPress={onCreateRoutine}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.createButtonText}>Create Smart Routine</Text>
-            </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.createButton, { backgroundColor: concernData.color }]}
+            onPress={onCreateRoutine}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.createButtonText}>Create Smart Routine</Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={styles.skipButton}
-              onPress={onClose}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.skipButtonText}>Maybe Later</Text>
-            </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.skipButton}
+            onPress={onClose}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.skipButtonText}>Maybe Later</Text>
           </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     </Modal>
   );
 }
@@ -109,24 +113,42 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  modalContainer: {
-    width: '85%',
-    maxWidth: 380,
+    padding: 20,
   },
   modalContent: {
     backgroundColor: BRAND_COLORS.white,
     borderRadius: 20,
     padding: 24,
+    width: '100%',
+    maxWidth: 380,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 20,
     elevation: 10,
+    position: 'relative',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: BRAND_COLORS.cream,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  closeText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: BRAND_COLORS.darkGray,
   },
   iconContainer: {
     marginBottom: 16,
+    marginTop: 10,
   },
   concernIconBg: {
     width: 70,

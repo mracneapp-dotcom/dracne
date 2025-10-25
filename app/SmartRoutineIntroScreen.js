@@ -1,12 +1,12 @@
-// app/SmartRoutineIntroScreen.js - UPDATED WITH BOTTOM NAV
+// app/SmartRoutineIntroScreen.js - UPDATED
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -18,6 +18,8 @@ const BRAND_COLORS = {
   white: '#FFFFFF',
   gray: '#999999',
   darkGray: '#666666',
+  lightGray: '#E5E5E5',
+  smartBlue: '#82b2df',
 };
 
 const CONCERN_INFO = {
@@ -85,6 +87,11 @@ export default function SmartRoutineIntroScreen({
     );
   }
 
+  const totalSteps = 2;
+  const currentStep = 1;
+  const totalInternalSteps = 2;
+  const internalStep = 1;
+
   return (
     <View style={styles.container}>
       <View style={styles.topNavigation}>
@@ -97,12 +104,50 @@ export default function SmartRoutineIntroScreen({
         </TouchableOpacity>
       </View>
 
+      <TouchableOpacity 
+        style={styles.bannerContainer}
+        onPress={onNavigateBack}
+        activeOpacity={0.9}
+      >
+        <Image 
+          source={require('../assets/images/Banner Smart Routine.png')}
+          style={styles.bannerImage}
+          resizeMode="cover"
+        />
+      </TouchableOpacity>
+
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
+          <View style={styles.progressContainer}>
+            <View style={styles.progressHeader}>
+              <TouchableOpacity
+                onPress={onNavigateBack}
+                style={styles.arrowButton}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.arrowText}>‹</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+
+              <TouchableOpacity
+                onPress={onContinue}
+                style={styles.arrowButton}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.arrowText}>›</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, { width: `${(internalStep / totalInternalSteps) * 100}%` }]} />
+            </View>
+          </View>
+
           <View style={styles.header}>
             <View style={[styles.concernIconContainer, { backgroundColor: `${concernData.color}15` }]}>
               <Image 
@@ -151,9 +196,6 @@ export default function SmartRoutineIntroScreen({
           onPress={() => onContinue && onContinue()}
           style={styles.continueButton}
         />
-        <TouchableOpacity onPress={onNavigateBack} style={styles.backLink}>
-          <Text style={styles.backLinkText}>Back to Concerns</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -177,6 +219,15 @@ const styles = StyleSheet.create({
     width: 80,
     height: 50,
   },
+  bannerContainer: {
+    width: '100%',
+    height: 120,
+    marginBottom: 20,
+  },
+  bannerImage: {
+    width: '100%',
+    height: '100%',
+  },
   scrollView: {
     flex: 1,
   },
@@ -185,7 +236,53 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 20,
-    paddingTop: 20,
+  },
+  progressContainer: {
+    marginBottom: 20,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  arrowButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: BRAND_COLORS.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  arrowText: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: BRAND_COLORS.smartBlue,
+    lineHeight: 28,
+  },
+  progressText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: BRAND_COLORS.darkGray,
+    textAlign: 'center',
+    minWidth: 100,
+  },
+  progressBar: {
+    height: 6,
+    backgroundColor: BRAND_COLORS.lightGray,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: BRAND_COLORS.smartBlue,
+    borderRadius: 3,
   },
   header: {
     alignItems: 'center',
@@ -275,18 +372,18 @@ const styles = StyleSheet.create({
   },
   infoBox: {
     flexDirection: 'row',
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#E3F2FD',
     borderRadius: 12,
     padding: 14,
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#C8E6C9',
+    borderColor: '#BBDEFB',
   },
   infoIcon: {
     width: 24,
     height: 24,
     marginRight: 12,
-    tintColor: BRAND_COLORS.primary,
+    tintColor: BRAND_COLORS.smartBlue,
   },
   infoText: {
     flex: 1,
@@ -296,7 +393,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   bottomSpacing: {
-    height: 140,
+    height: 100,
   },
   bottomSection: {
     position: 'absolute',
@@ -311,15 +408,6 @@ const styles = StyleSheet.create({
   },
   continueButton: {
     width: '100%',
-    marginBottom: 12,
-  },
-  backLink: {
-    paddingVertical: 8,
-  },
-  backLinkText: {
-    fontSize: 14,
-    color: BRAND_COLORS.primary,
-    fontWeight: '600',
   },
   errorText: {
     fontSize: 16,

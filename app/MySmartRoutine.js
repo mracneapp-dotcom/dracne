@@ -57,10 +57,11 @@ export default function MySmartRoutine({
   const loadSmartRoutines = async () => {
     try {
       setLoading(true);
-      const routines = [];
       
-      // Load all possible smart routines
+      // Load ONLY the most recent smart routine (like MyDayRoutine does)
       const concernIds = ['nodules', 'blackheads', 'whiteheads', 'papules', 'marks'];
+      let mostRecentRoutine = null;
+      let mostRecentDate = null;
       
       for (const concernId of concernIds) {
         const storageKey = `mySmartRoutine_${concernId}`;
@@ -70,26 +71,17 @@ export default function MySmartRoutine({
           try {
             const parsed = JSON.parse(routineData);
             
-            // DEBUG: Log what we found
-            console.log(`📦 Found smart routine for ${concernId}:`, {
-              hasCompletedAt: !!parsed?.completedAt,
-              hasSavedByUser: parsed?.savedByUser,
-              dayProductsCount: parsed?.dayProducts?.length || 0,
-              nightProductsCount: parsed?.nightProducts?.length || 0,
-              concernName: parsed?.concernName
-            });
-            
-            // RELAXED VALIDATION: Only check if products exist
             const hasProducts = (parsed?.dayProducts?.length > 0 || parsed?.nightProducts?.length > 0);
-            
-            if (hasProducts) {
-              routines.push({
-                ...parsed,
-                storageKey,
-              });
-              console.log(`✅ Added ${concernId} routine to display`);
-            } else {
-              console.log(`❌ Skipped ${concernId} - no products`);
+            const isUserCreated = parsed?.completedAt || parsed?.createdAt || parsed?.savedByUser === true;
+
+            if (hasProducts && isUserCreated) {
+              const routineDate = new Date(parsed.createdAt || parsed.completedAt || 0);
+              
+              // Keep only the most recent smart routine
+              if (!mostRecentRoutine || routineDate > mostRecentDate) {
+                mostRecentRoutine = { ...parsed, storageKey };
+                mostRecentDate = routineDate;
+              }
             }
           } catch (e) {
             console.error(`Error parsing smart routine ${concernId}:`, e);
@@ -97,16 +89,9 @@ export default function MySmartRoutine({
         }
       }
       
-      console.log(`📊 Total smart routines loaded: ${routines.length}`);
+      // Set only the most recent routine (or empty array if none)
+      setSmartRoutines(mostRecentRoutine ? [mostRecentRoutine] : []);
       
-      // Sort by completion date (most recent first) if completedAt exists
-      routines.sort((a, b) => {
-        const dateA = a.completedAt ? new Date(a.completedAt) : new Date(0);
-        const dateB = b.completedAt ? new Date(b.completedAt) : new Date(0);
-        return dateB - dateA;
-      });
-      
-      setSmartRoutines(routines);
     } catch (error) {
       console.error('Error loading smart routines:', error);
     } finally {
@@ -205,9 +190,9 @@ export default function MySmartRoutine({
           </TouchableOpacity>
         </View>
 
-        {routine.completedAt && (
+        {(routine.createdAt || routine.completedAt) && (
           <Text style={styles.completedDate}>
-            Created {new Date(routine.completedAt).toLocaleDateString()}
+          Created {new Date(routine.createdAt || routine.completedAt).toLocaleDateString()}
           </Text>
         )}
 

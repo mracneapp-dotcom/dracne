@@ -21,7 +21,6 @@ const BANNER_IMAGES = {
   nightRoutine: require('../../assets/images/Banner Night Routine 1.png'),
   skinTest: require('../../assets/images/Banner Skin Type Test.png'),
   scanSkin: require('../../assets/images/Banner Scan My Skin.png'),
-  myJourney: require('../../assets/images/Banner My Journey.png'), // NEW
 };
 
 export const RoutineBanners = React.memo(({ 
@@ -29,7 +28,6 @@ export const RoutineBanners = React.memo(({
   onNightRoutinePress,
   onSkinTestPress,
   onScanSkinPress,
-  onMyJourneyPress // NEW
 }) => {
   return (
     <View style={styles.container}>
@@ -83,20 +81,6 @@ export const RoutineBanners = React.memo(({
       >
         <Image 
           source={BANNER_IMAGES.scanSkin}
-          style={styles.bannerImage}
-          resizeMode="cover"
-          fadeDuration={0}
-        />
-      </TouchableOpacity>
-
-      {/* My Journey Banner - NEW */}
-      <TouchableOpacity 
-        style={styles.bannerButton}
-        onPress={onMyJourneyPress}
-        activeOpacity={0.8}
-      >
-        <Image 
-          source={BANNER_IMAGES.myJourney}
           style={styles.bannerImage}
           resizeMode="cover"
           fadeDuration={0}

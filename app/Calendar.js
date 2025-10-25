@@ -140,29 +140,38 @@ if (selectedNightRoutine) {
   setNightRoutine(selectedNightRoutine);
 }
       
-      // Load Smart Routines - ONLY load user-created ones
+      // Load Smart Routines - ONLY load the MOST RECENT one (like Day/Night routines)
       const smartRoutinesList = [];
       const concernIds = ['nodules', 'blackheads', 'whiteheads', 'papules', 'marks'];
+      let mostRecentSmartRoutine = null;
+      let mostRecentDate = null;
       
       for (const concernId of concernIds) {
         const smartData = await AsyncStorage.getItem(`mySmartRoutine_${concernId}`);
         if (smartData) {
           try {
             const parsed = JSON.parse(smartData);
-            // STRICT CHECK: Only add if:
-            // 1. Has actual products selected by user
-            // 2. Has createdAt timestamp (means user completed the flow)
-            // 3. OR has savedByUser flag set to true
             const hasProducts = (parsed?.dayProducts?.length > 0 || parsed?.nightProducts?.length > 0);
-            const isUserCreated = parsed?.createdAt || parsed?.savedByUser === true;
+            const isUserCreated = parsed?.completedAt || parsed?.createdAt || parsed?.savedByUser === true;
             
             if (hasProducts && isUserCreated) {
-              smartRoutinesList.push(parsed);
+              const routineDate = new Date(parsed.createdAt || parsed.completedAt || 0);
+              
+              // Keep only the most recent smart routine
+              if (!mostRecentSmartRoutine || routineDate > mostRecentDate) {
+                mostRecentSmartRoutine = parsed;
+                mostRecentDate = routineDate;
+              }
             }
           } catch (e) {
             console.error(`Error parsing smart routine ${concernId}:`, e);
           }
         }
+      }
+      
+      // Only add the most recent smart routine to the list
+      if (mostRecentSmartRoutine) {
+        smartRoutinesList.push(mostRecentSmartRoutine);
       }
       
       setSmartRoutines(smartRoutinesList);

@@ -1,13 +1,13 @@
-// app/SmartRoutineProductSelectionDay.js - DAY PRODUCTS SELECTION
+// app/SmartRoutineProductSelectionDay.js - COMPLETE UPDATED
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -19,6 +19,8 @@ const BRAND_COLORS = {
   white: '#FFFFFF',
   gray: '#999999',
   darkGray: '#666666',
+  lightGray: '#E5E5E5',
+  smartBlue: '#82b2df',
 };
 
 const SKIN_TYPE_INFO = {
@@ -98,41 +100,27 @@ export default function SmartRoutineProductSelectionDay({
       setDayProducts(dayProductList);
     }
 
-    try {
-      const savedSkinType = await AsyncStorage.getItem('userSkinType');
-      if (savedSkinType) {
-        setSkinType(savedSkinType);
-      }
-    } catch (error) {
-      console.error('Error loading skin type:', error);
+    const savedSkinType = await AsyncStorage.getItem('userSkinType');
+    if (savedSkinType) {
+      setSkinType(savedSkinType);
     }
   };
 
-  const toggleDayProductSelection = (product) => {
+  const toggleProduct = (product) => {
     setSelectedDayProducts(prev => {
-      const isSelected = prev.some(p => p.id === product.id);
-      
-      if (isSelected) {
+      const exists = prev.find(p => p.id === product.id);
+      if (exists) {
         return prev.filter(p => p.id !== product.id);
       } else {
-        if (prev.length >= 2) {
-          return [prev[1], product];
-        }
         return [...prev, product];
       }
     });
   };
 
   const handleContinue = () => {
-    console.log('✅ Day products selected:', selectedDayProducts);
-    onContinueToNight(selectedDayProducts);
-  };
-
-  const getButtonText = () => {
-    if (selectedDayProducts.length === 0) {
-      return 'Skip to Night Products';
+    if (onContinueToNight) {
+      onContinueToNight(selectedDayProducts);
     }
-    return 'Continue to Night Products';
   };
 
   if (!concernData) {
@@ -144,6 +132,10 @@ export default function SmartRoutineProductSelectionDay({
   }
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
+  const totalSteps = 3;
+  const currentStep = 2;
+  const totalInternalSteps = 3;
+  const internalStep = 2;
 
   return (
     <View style={styles.container}>
@@ -157,95 +149,124 @@ export default function SmartRoutineProductSelectionDay({
         </TouchableOpacity>
       </View>
 
+      <TouchableOpacity 
+        style={styles.bannerContainer}
+        onPress={onNavigateBack}
+        activeOpacity={0.9}
+      >
+        <Image 
+          source={require('../assets/images/Banner Smart Routine.png')}
+          style={styles.bannerImage}
+          resizeMode="cover"
+        />
+      </TouchableOpacity>
+
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
-          <View style={styles.header}>
-            <View style={[styles.concernIconContainer, { backgroundColor: `${concernData.color}15` }]}>
+          <View style={styles.progressContainer}>
+            <View style={styles.progressHeader}>
+              <TouchableOpacity
+                onPress={onNavigateBack}
+                style={styles.arrowButton}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.arrowText}>‹</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+
+              <TouchableOpacity
+                onPress={handleContinue}
+                style={styles.arrowButton}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.arrowText}>›</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, { width: `${(internalStep / totalInternalSteps) * 100}%` }]} />
+            </View>
+          </View>
+
+          <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
+            <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
+              For {skinTypeInfo.name}
+            </Text>
+          </View>
+
+          <View style={styles.concernHeader}>
+            <View style={[styles.concernIconSmall, { backgroundColor: `${concernData.color}15` }]}>
               <Image 
                 source={concernData.icon}
-                style={[styles.concernIcon, { tintColor: concernData.color }]}
+                style={[styles.concernIconImage, { tintColor: concernData.color }]}
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.title}>
-              Day Routine <Text style={styles.titleHighlight}>Products</Text>
+            <Text style={styles.concernTitle}>{concernData.name}</Text>
+          </View>
+
+          <View style={styles.infoBox}>
+            <Image 
+              source={require('../assets/images/check.png')}
+              style={styles.infoIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.infoText}>
+              Select morning products for your smart routine. You can choose multiple options to alternate between.
             </Text>
-            <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
-              <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-                {skinTypeInfo.name}
+          </View>
+
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionHeader}>
+              <Image 
+                source={require('../assets/images/sunscreen.png')}
+                style={styles.sectionIcon}
+                resizeMode="contain"
+              />
+              <Text style={styles.sectionTitle}>
+                Morning Products {selectedDayProducts.length > 0 && `(${selectedDayProducts.length} selected)`}
               </Text>
             </View>
-          </View>
 
-          <View style={styles.explanationBox}>
-            <Text style={styles.explanationText}>
-              Select 0-2 morning products for your {concernData.name.toLowerCase()} concern. These complement your basic day routine.
-            </Text>
-          </View>
-
-          <View style={styles.routineSection}>
-            <View style={styles.routineSectionHeader}>
-              <View style={styles.routineIconContainer}>
-                <Image 
-                  source={require('../assets/images/sunscreen.png')}
-                  style={styles.routineIcon}
-                  resizeMode="contain"
-                />
-              </View>
-              <View style={styles.routineTitleContainer}>
-                <Text style={styles.routineSectionTitle}>Morning Application</Text>
-                <View style={[styles.timeBadge, { backgroundColor: '#FFF3E0' }]}>
-                  <Text style={[styles.timeBadgeText, { color: '#F57C00' }]}>After cleansing</Text>
+            {dayProducts.map((product) => (
+              <TouchableOpacity
+                key={product.id}
+                style={[
+                  styles.productCard,
+                  selectedDayProducts.find(p => p.id === product.id) && styles.productCardSelected
+                ]}
+                onPress={() => toggleProduct(product)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.productCardHeader}>
+                  <View style={styles.productCardLeft}>
+                    <Text style={styles.productName}>{product.name}</Text>
+                    <Text style={styles.productDescription}>{product.description}</Text>
+                  </View>
+                  <View style={[
+                    styles.checkbox,
+                    selectedDayProducts.find(p => p.id === product.id) && styles.checkboxSelected
+                  ]}>
+                    {selectedDayProducts.find(p => p.id === product.id) && (
+                      <Text style={styles.checkmark}>✓</Text>
+                    )}
+                  </View>
                 </View>
-              </View>
-            </View>
 
-            <View style={styles.selectionContainer}>
-              <Text style={styles.selectionTitle}>
-                Select 0-2 Products {selectedDayProducts.length > 0 && `(${selectedDayProducts.length} selected)`}
-              </Text>
-              
-              {dayProducts.map((product) => {
-                const isSelected = selectedDayProducts.some(p => p.id === product.id);
-                const selectionIndex = selectedDayProducts.findIndex(p => p.id === product.id);
-                
-                return (
-                  <TouchableOpacity
-                    key={product.id}
-                    style={[
-                      styles.productCard,
-                      isSelected && [styles.productCardSelected, { borderColor: concernData.color }]
-                    ]}
-                    onPress={() => toggleDayProductSelection(product)}
-                    activeOpacity={0.7}
-                  >
-                    <View style={styles.productCardHeader}>
-                      <View style={styles.productCardLeft}>
-                        <Text style={styles.productName}>{product.name}</Text>
-                        <Text style={styles.productDescription}>{product.description}</Text>
-                      </View>
-                      {isSelected && (
-                        <View style={[styles.checkmark, { backgroundColor: concernData.color }]}>
-                          <Text style={styles.checkmarkText}>{selectionIndex + 1}</Text>
-                        </View>
-                      )}
+                <View style={styles.benefitsRow}>
+                  {product.benefits.map((benefit, idx) => (
+                    <View key={idx} style={styles.benefitTag}>
+                      <Text style={styles.benefitText}>{benefit}</Text>
                     </View>
-                    
-                    <View style={styles.benefitsRow}>
-                      {product.benefits.map((benefit, idx) => (
-                        <View key={idx} style={styles.benefitTag}>
-                          <Text style={styles.benefitTagText}>{benefit}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+                  ))}
+                </View>
+              </TouchableOpacity>
+            ))}
           </View>
 
           <View style={styles.bottomSpacing} />
@@ -254,13 +275,10 @@ export default function SmartRoutineProductSelectionDay({
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title={getButtonText()}
+          title="Continue to Evening Products"
           onPress={handleContinue}
           style={styles.continueButton}
         />
-        <TouchableOpacity onPress={onNavigateBack} style={styles.backLink}>
-          <Text style={styles.backLinkText}>Back</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -284,6 +302,15 @@ const styles = StyleSheet.create({
     width: 80,
     height: 50,
   },
+  bannerContainer: {
+    width: '100%',
+    height: 120,
+    marginBottom: 20,
+  },
+  bannerImage: {
+    width: '100%',
+    height: '100%',
+  },
   scrollView: {
     flex: 1,
   },
@@ -292,129 +319,140 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 20,
-    paddingTop: 10,
   },
-  header: {
-    alignItems: 'center',
+  progressContainer: {
     marginBottom: 20,
   },
-  concernIconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
+  progressHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    justifyContent: 'center',
+    marginBottom: 8,
   },
-  concernIcon: {
+  arrowButton: {
     width: 32,
     height: 32,
+    borderRadius: 16,
+    backgroundColor: BRAND_COLORS.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  title: {
+  arrowText: {
     fontSize: 24,
-    fontWeight: '700',
-    color: BRAND_COLORS.black,
-    textAlign: 'center',
-    marginBottom: 12,
+    fontWeight: '600',
+    color: BRAND_COLORS.smartBlue,
+    lineHeight: 28,
   },
-  titleHighlight: {
-    color: BRAND_COLORS.primary,
-    fontWeight: '800',
+  progressText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: BRAND_COLORS.darkGray,
+    textAlign: 'center',
+    minWidth: 100,
+  },
+  progressBar: {
+    height: 6,
+    backgroundColor: BRAND_COLORS.lightGray,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: BRAND_COLORS.smartBlue,
+    borderRadius: 3,
   },
   skinTypeBadge: {
+    alignSelf: 'center',
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20,
+    marginBottom: 20,
   },
   skinTypeText: {
     fontSize: 13,
     fontWeight: '700',
   },
-  explanationBox: {
-    backgroundColor: `${BRAND_COLORS.primary}10`,
-    borderLeftWidth: 4,
-    borderLeftColor: BRAND_COLORS.primary,
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 24,
-  },
-  explanationText: {
-    fontSize: 13,
-    color: BRAND_COLORS.darkGray,
-    lineHeight: 19,
-  },
-  routineSection: {
-    marginBottom: 20,
-  },
-  routineSectionHeader: {
+  concernHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    justifyContent: 'center',
+    marginBottom: 20,
   },
-  routineIconContainer: {
+  concernIconSmall: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: BRAND_COLORS.white,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
-  routineIcon: {
+  concernIconImage: {
     width: 28,
     height: 28,
-    tintColor: BRAND_COLORS.primary,
   },
-  routineTitleContainer: {
+  concernTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+  },
+  infoBox: {
+    flexDirection: 'row',
+    backgroundColor: '#E3F2FD',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 25,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#BBDEFB',
+  },
+  infoIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
+    tintColor: BRAND_COLORS.smartBlue,
+  },
+  infoText: {
     flex: 1,
+    fontSize: 12,
+    color: BRAND_COLORS.darkGray,
+    lineHeight: 17,
+    fontWeight: '500',
   },
-  routineSectionTitle: {
+  sectionContainer: {
+    marginBottom: 30,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  sectionIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 10,
+  },
+  sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: BRAND_COLORS.black,
-    marginBottom: 6,
-  },
-  timeBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  timeBadgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  selectionContainer: {
-    marginBottom: 10,
-  },
-  selectionTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: BRAND_COLORS.black,
-    marginBottom: 12,
   },
   productCard: {
     backgroundColor: BRAND_COLORS.white,
     borderRadius: 12,
     padding: 14,
-    marginBottom: 10,
+    marginBottom: 12,
     borderWidth: 2,
-    borderColor: 'transparent',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 2,
+    borderColor: BRAND_COLORS.lightGray,
   },
   productCardSelected: {
-    borderWidth: 2.5,
-    shadowOpacity: 0.15,
-    elevation: 4,
+    borderColor: BRAND_COLORS.smartBlue,
+    backgroundColor: `${BRAND_COLORS.smartBlue}05`,
   },
   productCardHeader: {
     flexDirection: 'row',
@@ -427,27 +465,33 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   productName: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
     color: BRAND_COLORS.black,
     marginBottom: 4,
   },
   productDescription: {
-    fontSize: 12,
+    fontSize: 13,
     color: BRAND_COLORS.darkGray,
-    lineHeight: 16,
+    lineHeight: 18,
   },
-  checkmark: {
+  checkbox: {
     width: 28,
     height: 28,
     borderRadius: 14,
+    borderWidth: 2,
+    borderColor: BRAND_COLORS.lightGray,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkmarkText: {
-    color: BRAND_COLORS.white,
-    fontSize: 15,
+  checkboxSelected: {
+    backgroundColor: BRAND_COLORS.smartBlue,
+    borderColor: BRAND_COLORS.smartBlue,
+  },
+  checkmark: {
+    fontSize: 16,
     fontWeight: '700',
+    color: BRAND_COLORS.white,
   },
   benefitsRow: {
     flexDirection: 'row',
@@ -460,13 +504,13 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
   },
-  benefitTagText: {
+  benefitText: {
     fontSize: 10,
     color: BRAND_COLORS.darkGray,
     fontWeight: '600',
   },
   bottomSpacing: {
-    height: 160,
+    height: 120,
   },
   bottomSection: {
     position: 'absolute',
@@ -481,15 +525,6 @@ const styles = StyleSheet.create({
   },
   continueButton: {
     width: '100%',
-    marginBottom: 12,
-  },
-  backLink: {
-    paddingVertical: 8,
-  },
-  backLinkText: {
-    fontSize: 14,
-    color: BRAND_COLORS.primary,
-    fontWeight: '600',
   },
   errorText: {
     fontSize: 16,
