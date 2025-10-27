@@ -1,13 +1,13 @@
-// app/SmartRoutineProductSelectionScreen.js - REDESIGNED (Day + Night Combined)
+// app/SmartRoutineProductSelectionScreen.js - FIXED TO MATCH NIGHT ROUTINE STYLE
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import RoutineCompletionModal from '../components/modals/RoutineCompletionModal';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
@@ -38,7 +38,6 @@ const CONCERN_INFO = {
   marks: { name: 'Post-Inflammatory Marks', color: '#9B59B6', icon: require('../assets/images/Mark.png') },
 };
 
-// Product data organized by concern
 const SMART_PRODUCTS = {
   nodules: {
     morning: [
@@ -125,14 +124,12 @@ export default function SmartRoutineProductSelectionScreen({
     if (concernId && CONCERN_INFO[concernId]) {
       setConcernData(CONCERN_INFO[concernId]);
       
-      // Load products for this concern
       const dayProductList = SMART_PRODUCTS[concernId]?.morning || [];
       const nightProductList = SMART_PRODUCTS[concernId]?.evening || [];
       setDayProducts(dayProductList);
       setNightProducts(nightProductList);
     }
 
-    // Load skin type
     try {
       const savedSkinType = await AsyncStorage.getItem('userSkinType');
       if (savedSkinType) {
@@ -187,7 +184,6 @@ export default function SmartRoutineProductSelectionScreen({
           completedAt: new Date().toISOString(),
         };
         
-        // Save to AsyncStorage
         const storageKey = `mySmartRoutine_${concernId}`;
         await AsyncStorage.setItem(storageKey, JSON.stringify(routineData));
         
@@ -244,70 +240,45 @@ export default function SmartRoutineProductSelectionScreen({
     <View style={styles.container}>
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
-          <Image 
-            source={require('../assets/images/dracne-logo.png')} 
-            style={styles.logoImage}
-            resizeMode="contain"
-          />
+          <Image source={require('../assets/images/dracne-logo.png')} style={styles.logoImage} resizeMode="contain" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           <View style={styles.header}>
-            <View style={[styles.concernIconContainer, { backgroundColor: `${concernData.color}15` }]}>
-              <Image 
-                source={concernData.icon}
-                style={[styles.concernIcon, { tintColor: concernData.color }]}
-                resizeMode="contain"
-              />
+            <View style={[styles.concernIconContainer, { backgroundColor: `${concernData.color}20` }]}>
+              <Image source={concernData.icon} style={styles.concernIcon} resizeMode="contain" />
             </View>
             <Text style={styles.title}>
-              Select Your <Text style={styles.titleHighlight}>Treatment</Text>
+              Build Your <Text style={styles.titleHighlight}>Smart Routine</Text>
             </Text>
-            <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
-              <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-                {skinTypeInfo.name}
-              </Text>
+            <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}20` }]}>
+              <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>{skinTypeInfo.name}</Text>
             </View>
           </View>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose 1-2 products for day routine, night routine, or both. These complement your existing routines.
+              Select 1-2 products for morning and/or evening to target <Text style={{ fontWeight: '700' }}>{concernData.name}</Text>. 
+              Your routine will be saved in Smart Routine Hub.
             </Text>
           </View>
 
-          {/* DAY ROUTINE SECTION */}
           <View style={styles.routineSection}>
             <View style={styles.routineSectionHeader}>
-              <View style={styles.routineIconContainer}>
-                <Image 
-                  source={require('../assets/images/sunscreen.png')}
-                  style={styles.routineIcon}
-                  resizeMode="contain"
-                />
-              </View>
               <View style={styles.routineTitleContainer}>
-                <Text style={styles.routineSectionTitle}>Day Routine Products</Text>
-                <View style={[styles.timeBadge, { backgroundColor: '#FFF3E0' }]}>
-                  <Text style={[styles.timeBadgeText, { color: '#F57C00' }]}>Morning Application</Text>
+                <Text style={styles.routineSectionTitle}>Morning Products</Text>
+                <View style={[styles.timeBadge, { backgroundColor: '#FFF9E6' }]}>
+                  <Text style={[styles.timeBadgeText, { color: '#B8860B' }]}>AM • {dayProducts.length} Options</Text>
                 </View>
               </View>
             </View>
 
             <View style={styles.selectionContainer}>
-              <Text style={styles.selectionTitle}>
-                Select 0-2 Products {selectedDayProducts.length > 0 && `(${selectedDayProducts.length} selected)`}
-              </Text>
-              
+              <Text style={styles.selectionTitle}>Select 0-2 Morning Products (Optional)</Text>
               {dayProducts.map((product) => {
                 const isSelected = selectedDayProducts.some(p => p.id === product.id);
-                const selectionIndex = selectedDayProducts.findIndex(p => p.id === product.id);
                 
                 return (
                   <TouchableOpacity
@@ -326,11 +297,10 @@ export default function SmartRoutineProductSelectionScreen({
                       </View>
                       {isSelected && (
                         <View style={[styles.checkmark, { backgroundColor: concernData.color }]}>
-                          <Text style={styles.checkmarkText}>{selectionIndex + 1}</Text>
+                          <Text style={styles.checkmarkText}>✓</Text>
                         </View>
                       )}
                     </View>
-                    
                     <View style={styles.benefitsRow}>
                       {product.benefits.map((benefit, idx) => (
                         <View key={idx} style={styles.benefitTag}>
@@ -344,32 +314,20 @@ export default function SmartRoutineProductSelectionScreen({
             </View>
           </View>
 
-          {/* NIGHT ROUTINE SECTION */}
           <View style={styles.routineSection}>
             <View style={styles.routineSectionHeader}>
-              <View style={styles.routineIconContainer}>
-                <Image 
-                  source={require('../assets/images/jar cream.png')}
-                  style={styles.routineIcon}
-                  resizeMode="contain"
-                />
-              </View>
               <View style={styles.routineTitleContainer}>
-                <Text style={styles.routineSectionTitle}>Night Routine Products</Text>
-                <View style={[styles.timeBadge, { backgroundColor: '#E8EAF6' }]}>
-                  <Text style={[styles.timeBadgeText, { color: '#3F51B5' }]}>Evening Application</Text>
+                <Text style={styles.routineSectionTitle}>Evening Products</Text>
+                <View style={[styles.timeBadge, { backgroundColor: '#E8E9FF' }]}>
+                  <Text style={[styles.timeBadgeText, { color: '#5A5FCC' }]}>PM • {nightProducts.length} Options</Text>
                 </View>
               </View>
             </View>
 
             <View style={styles.selectionContainer}>
-              <Text style={styles.selectionTitle}>
-                Select 0-2 Products {selectedNightProducts.length > 0 && `(${selectedNightProducts.length} selected)`}
-              </Text>
-              
+              <Text style={styles.selectionTitle}>Select 0-2 Evening Products (Optional)</Text>
               {nightProducts.map((product) => {
                 const isSelected = selectedNightProducts.some(p => p.id === product.id);
-                const selectionIndex = selectedNightProducts.findIndex(p => p.id === product.id);
                 
                 return (
                   <TouchableOpacity
@@ -388,11 +346,10 @@ export default function SmartRoutineProductSelectionScreen({
                       </View>
                       {isSelected && (
                         <View style={[styles.checkmark, { backgroundColor: concernData.color }]}>
-                          <Text style={styles.checkmarkText}>{selectionIndex + 1}</Text>
+                          <Text style={styles.checkmarkText}>✓</Text>
                         </View>
                       )}
                     </View>
-                    
                     <View style={styles.benefitsRow}>
                       {product.benefits.map((benefit, idx) => (
                         <View key={idx} style={styles.benefitTag}>
@@ -408,7 +365,7 @@ export default function SmartRoutineProductSelectionScreen({
 
           {totalSelected === 0 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select at least 1 product to continue</Text>
+              <Text style={styles.helperText}>Select at least 1 product to complete your Smart Routine</Text>
             </View>
           )}
 
@@ -424,7 +381,7 @@ export default function SmartRoutineProductSelectionScreen({
           style={[styles.continueButton, totalSelected === 0 && styles.continueButtonDisabled]}
         />
         <TouchableOpacity onPress={onNavigateBack} style={styles.backLink}>
-          <Text style={styles.backLinkText}>Back</Text>
+          <Text style={styles.backLinkText}>← Back to Concern Selection</Text>
         </TouchableOpacity>
       </View>
 
@@ -434,7 +391,8 @@ export default function SmartRoutineProductSelectionScreen({
         onViewRoutine={handleViewRoutine}
         routineData={completeRoutineData}
         routineType="smart"
-        isSmartRoutine={true}
+        smartBlueColor="#82B2DF"
+        concernData={concernData}
       />
     </View>
   );
@@ -524,25 +482,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
-  },
-  routineIconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: BRAND_COLORS.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  routineIcon: {
-    width: 28,
-    height: 28,
-    tintColor: BRAND_COLORS.primary,
   },
   routineTitleContainer: {
     flex: 1,

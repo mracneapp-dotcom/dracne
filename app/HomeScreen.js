@@ -1,4 +1,4 @@
-// app/HomeScreen.js - Fixed Home Screen (Non-Scrollable)
+// app/HomeScreen.js - FULL UPDATED CODE (REMOVE DEMO STREAK)
 import React from 'react';
 import {
   Image,
@@ -25,23 +25,11 @@ export const HomeScreen = ({
   onNavigateToDayRoutine,
   onNavigateToNightRoutine,
   onNavigateToScanSkin,
-  userStreak = 5,
-  weeklyActivity = [],
+  weeklyActivity = null,
   activeTab = 'routines',
   onTabPress,
   style = {} 
 }) => {
-  // Default weekly activity if none provided
-  const defaultWeeklyActivity = [
-    { day: 'Mon', date: 5, active: true },
-    { day: 'Tue', date: 6, active: true },
-    { day: 'Wed', date: 7, active: true },
-    { day: 'Thu', date: 8, active: true },
-    { day: 'Fri', date: 9, active: true },
-    { day: 'Sat', date: 10, active: false },
-    { day: 'Sun', date: 11, active: false },
-  ];
-
   const handleTabPress = (tabId) => {
     if (onTabPress) {
       onTabPress(tabId);
@@ -81,8 +69,8 @@ export const HomeScreen = ({
   return (
     <SafeAreaView style={[styles.container, style]}>
       <View style={styles.content}>
-        {/* Streak Section */}
-        <StreakCounter streak={userStreak} />
+        {/* Streak Section - Now auto-updates */}
+        <StreakCounter />
 
         {/* Logo and Calendar Section */}
         <View style={styles.logoCalendarSection}>
@@ -91,7 +79,7 @@ export const HomeScreen = ({
             style={styles.logo}
             resizeMode="contain"
           />
-          <WeeklyCalendar weeklyActivity={weeklyActivity.length > 0 ? weeklyActivity : defaultWeeklyActivity} />
+          <WeeklyCalendar weeklyActivity={weeklyActivity} />
         </View>
 
         {/* All Banners (Day, Night, Skin Test, Scan Skin) */}

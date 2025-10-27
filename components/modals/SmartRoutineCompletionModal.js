@@ -1,132 +1,163 @@
-// components/modals/SmartRoutineCompletionModal.js
+// components/modals/SmartRoutineCompletionModal.js - UPDATED TO MATCH NIGHT ROUTINE STYLE
 import React from 'react';
 import {
   Image,
   Modal,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
   secondary: '#FF7A7A',
   cream: '#FDF5E6',
-  black: '#000000',
   white: '#FFFFFF',
-  gray: '#999999',
+  black: '#000000',
   darkGray: '#666666',
   lightGray: '#E5E5E5',
-  smartBlue: '#82b2df',
+  softBlue: '#E3F2FD',
+  smartBlue: '#82B2DF',
 };
 
-export default function SmartRoutineCompletionModal({ visible, onClose, routineData }) {
+const DecorativeDots = () => {
+  return (
+    <Svg 
+      width="100%" 
+      height="100%" 
+      style={styles.decorativeSvg}
+      preserveAspectRatio="none"
+    >
+      <Circle cx="20" cy="30" r="8" fill="#B3D9F2" opacity="0.3" />
+      <Circle cx="95%" cy="15%" r="12" fill="#A8D0E6" opacity="0.3" />
+      <Circle cx="10%" cy="85%" r="10" fill="#A8D0E6" opacity="0.3" />
+      <Circle cx="90%" cy="90%" r="8" fill="#B3D9F2" opacity="0.3" />
+      <Circle cx="50%" cy="5%" r="6" fill="#B3D9F2" opacity="0.3" />
+      <Circle cx="15%" cy="50%" r="6" fill="#A8D0E6" opacity="0.3" />
+    </Svg>
+  );
+};
+
+export default function SmartRoutineCompletionModal({ 
+  visible, 
+  onClose, 
+  onViewRoutine,
+  routineData 
+}) {
   if (!routineData) return null;
 
-  const { concernName, concernColor, dayProducts = [], nightProducts = [] } = routineData;
+  const { concernName, dayProducts = [], nightProducts = [] } = routineData;
+  const morningProductName = dayProducts[0]?.name || 'No product selected';
+  const eveningProductName = nightProducts[0]?.name || 'No product selected';
+
+  const handleClose = () => {
+    console.log('🏠 Closing smart routine modal');
+    onClose();
+  };
 
   return (
     <Modal
       visible={visible}
-      animationType="fade"
       transparent={true}
-      onRequestClose={onClose}
+      animationType="fade"
+      onRequestClose={handleClose}
     >
-      <View style={styles.overlay}>
-        <View style={styles.modal}>
-          <View style={styles.headerContainer}>
-            <Image 
-              source={require('../../assets/images/Banner Smart Routine.png')}
-              style={styles.banner}
+      <TouchableOpacity 
+        style={styles.overlay}
+        activeOpacity={1}
+        onPress={handleClose}
+      >
+        <TouchableOpacity 
+          activeOpacity={1} 
+          onPress={(e) => e.stopPropagation()}
+          style={styles.modalContainer}
+        >
+          <View style={styles.backgroundContainer}>
+            <DecorativeDots />
+          </View>
+
+          <TouchableOpacity 
+            style={styles.closeButton}
+            onPress={handleClose}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.closeButtonText}>✕</Text>
+          </TouchableOpacity>
+
+          <View style={styles.bannerContainer}>
+            <Image
+              source={require('../../assets/images/Banner Smart Party.png')}
+              style={styles.bannerImage}
               resizeMode="cover"
             />
-            <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-              <Text style={styles.closeTxt}>✕</Text>
-            </TouchableOpacity>
+            
+            <View style={[styles.levelBadgeOnBanner, { backgroundColor: BRAND_COLORS.smartBlue }]}>
+              <Text style={styles.levelBadgeText}>Smart Routine</Text>
+            </View>
           </View>
 
-          <View style={styles.contentContainer}>
-            <ScrollView 
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
-            >
-              <Text style={styles.mainTitle}>
-                Your <Text style={[styles.highlight, { color: concernColor }]}>Smart Routine</Text> is Ready!
+          <Text style={styles.title}>
+            Your <Text style={[styles.titleEmphasis, { color: BRAND_COLORS.smartBlue }]}>
+              Smart Routine
+            </Text> is Ready!
+          </Text>
+          
+          <Text style={styles.subtitle}>
+            You're all set with your routine
+          </Text>
+
+          <View style={styles.recapContainer}>
+            <Text style={styles.recapTitle}>
+              Your 2-Step Smart Routine:
+            </Text>
+
+            <View style={styles.stepCard}>
+              <Text style={styles.stepTitle}>Step 1: Morning</Text>
+              <Text style={[styles.productName, !dayProducts[0] && styles.emptyText]}>
+                {morningProductName}
               </Text>
+            </View>
 
-              <View style={[styles.badge, { backgroundColor: `${concernColor}20` }]}>
-                <Text style={[styles.badgeTxt, { color: concernColor }]}>
-                  {concernName}
-                </Text>
-              </View>
-
-              <Text style={styles.subtitle}>
-                Your personalized {concernName?.toLowerCase()} treatment routine
+            <View style={styles.stepCard}>
+              <Text style={styles.stepTitle}>Step 2: Evening</Text>
+              <Text style={[styles.productName, !nightProducts[0] && styles.emptyText]}>
+                {eveningProductName}
               </Text>
-
-              <Text style={styles.routineTitle}>
-                Your {dayProducts.length + nightProducts.length}-Step Routine:
-              </Text>
-
-              {dayProducts.length > 0 && (
-                <View style={styles.stepCard}>
-                  <View style={styles.stepHeader}>
-                    <Image
-                      source={require('../../assets/images/sunscreen.png')}
-                      style={styles.stepIcon}
-                      resizeMode="contain"
-                    />
-                    <Text style={styles.stepTitle}>Morning ({dayProducts.length})</Text>
-                  </View>
-                  {dayProducts.map((product, index) => (
-                    <View key={product.id || index} style={styles.productRow}>
-                      <View style={[styles.productDot, { backgroundColor: concernColor }]} />
-                      <Text style={styles.productName}>{product.name}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-
-              {nightProducts.length > 0 && (
-                <View style={styles.stepCard}>
-                  <View style={styles.stepHeader}>
-                    <Image
-                      source={require('../../assets/images/jar cream.png')}
-                      style={styles.stepIcon}
-                      resizeMode="contain"
-                    />
-                    <Text style={styles.stepTitle}>Evening ({nightProducts.length})</Text>
-                  </View>
-                  {nightProducts.map((product, index) => (
-                    <View key={product.id || index} style={styles.productRow}>
-                      <View style={[styles.productDot, { backgroundColor: concernColor }]} />
-                      <Text style={styles.productName}>{product.name}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-
-              <Text style={styles.infoMessage}>
-                You'll find your complete routine under "Smart Routine Hub"
-              </Text>
-              <Text style={styles.infoSubtext}>
-                Access it anytime you need it!
-              </Text>
-            </ScrollView>
+            </View>
           </View>
 
-          <View style={styles.footer}>
-            <TouchableOpacity 
-              style={[styles.primaryBtn, { backgroundColor: concernColor }]}
-              onPress={onClose}
-            >
-              <Text style={styles.primaryBtnTxt}>Go to Smart Routine Hub</Text>
-            </TouchableOpacity>
+          <View style={[styles.proofContainer, { backgroundColor: `${BRAND_COLORS.smartBlue}10` }]}>
+            <Text style={[styles.proofText, { color: BRAND_COLORS.smartBlue }]}>
+              You'll find your complete routine under "Smart Routine Hub"
+            </Text>
+            <Text style={styles.disclaimerText}>
+              Access it anytime you need it!
+            </Text>
           </View>
-        </View>
-      </View>
+
+          <TouchableOpacity
+            onPress={onViewRoutine || handleClose}
+            style={[styles.primaryButton, { backgroundColor: BRAND_COLORS.smartBlue, shadowColor: BRAND_COLORS.smartBlue }]}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.primaryButtonText}>
+              View My Smart Routine
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleClose}
+            style={[styles.secondaryButton, { borderColor: BRAND_COLORS.smartBlue }]}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.secondaryButtonText, { color: BRAND_COLORS.smartBlue }]}>
+              Start My Journey
+            </Text>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </TouchableOpacity>
     </Modal>
   );
 }
@@ -134,161 +165,198 @@ export default function SmartRoutineCompletionModal({ visible, onClose, routineD
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
-  modal: {
-    backgroundColor: BRAND_COLORS.white,
+  modalContainer: {
+    backgroundColor: BRAND_COLORS.softBlue,
     borderRadius: 24,
+    paddingHorizontal: 0,
+    paddingTop: 0,
+    paddingBottom: 20,
     width: '100%',
-    maxWidth: 500,
-    height: '80%',
+    maxWidth: 400,
+    position: 'relative',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 20,
     elevation: 10,
+    overflow: 'hidden',
   },
-  headerContainer: {
-    height: 100,
-    position: 'relative',
+  backgroundContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 24,
   },
-  banner: {
+  decorativeSvg: {
+    position: 'absolute',
     width: '100%',
     height: '100%',
   },
-  closeBtn: {
+  closeButton: {
     position: 'absolute',
-    top: 10,
-    right: 10,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    top: 12,
+    right: 12,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: BRAND_COLORS.white,
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  closeTxt: {
+  closeButtonText: {
     fontSize: 18,
     fontWeight: '600',
     color: BRAND_COLORS.darkGray,
+    lineHeight: 18,
   },
-  contentContainer: {
-    flex: 1,
+  bannerContainer: {
+    width: '100%',
+    height: 100,
+    marginBottom: 12,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    overflow: 'hidden',
+    position: 'relative',
   },
-  scrollContent: {
-    padding: 24,
-    paddingBottom: 40,
+  bannerImage: {
+    width: '100%',
+    height: '100%',
   },
-  mainTitle: {
-    fontSize: 24,
+  levelBadgeOnBanner: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  levelBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: BRAND_COLORS.white,
+  },
+  title: {
+    fontSize: 22,
     fontWeight: '700',
     color: BRAND_COLORS.black,
     textAlign: 'center',
-    marginBottom: 12,
-    lineHeight: 32,
+    marginBottom: 6,
+    lineHeight: 28,
+    paddingHorizontal: 20,
   },
-  highlight: {
-    fontWeight: '700',
-  },
-  badge: {
-    alignSelf: 'center',
-    paddingHorizontal: 18,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginBottom: 10,
-  },
-  badgeTxt: {
-    fontSize: 13,
-    fontWeight: '700',
+  titleEmphasis: {
+    fontWeight: '800',
   },
   subtitle: {
     fontSize: 14,
-    color: BRAND_COLORS.gray,
-    textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 20,
-  },
-  routineTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: BRAND_COLORS.black,
+    color: BRAND_COLORS.darkGray,
     textAlign: 'center',
     marginBottom: 16,
+    lineHeight: 20,
+    paddingHorizontal: 20,
   },
-  stepCard: {
-    backgroundColor: BRAND_COLORS.cream,
-    borderRadius: 14,
-    padding: 16,
+  recapContainer: {
     marginBottom: 12,
+    paddingHorizontal: 20,
   },
-  stepHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: BRAND_COLORS.lightGray,
-  },
-  stepIcon: {
-    width: 22,
-    height: 22,
-    marginRight: 8,
-  },
-  stepTitle: {
-    fontSize: 16,
+  recapTitle: {
+    fontSize: 15,
     fontWeight: '700',
     color: BRAND_COLORS.black,
+    marginBottom: 10,
+    textAlign: 'center',
   },
-  productRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 5,
+  stepCard: {
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  productDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    marginRight: 10,
+  stepTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+    marginBottom: 6,
   },
   productName: {
-    flex: 1,
-    fontSize: 14,
-    color: BRAND_COLORS.darkGray,
-    lineHeight: 20,
-  },
-  infoMessage: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
-    color: BRAND_COLORS.primary,
-    textAlign: 'center',
-    marginTop: 12,
-    marginBottom: 4,
+    color: BRAND_COLORS.black,
+    lineHeight: 17,
   },
-  infoSubtext: {
+  emptyText: {
     fontSize: 12,
-    color: BRAND_COLORS.gray,
-    textAlign: 'center',
+    color: BRAND_COLORS.darkGray,
+    fontStyle: 'italic',
   },
-  footer: {
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: BRAND_COLORS.lightGray,
-  },
-  primaryBtn: {
+  proofContainer: {
     borderRadius: 12,
-    paddingVertical: 14,
+    padding: 12,
     alignItems: 'center',
+    marginBottom: 14,
+    marginHorizontal: 20,
   },
-  primaryBtnTxt: {
+  proofText: {
+    fontSize: 13,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 4,
+    lineHeight: 18,
+  },
+  disclaimerText: {
+    fontSize: 11,
+    color: '#999',
+    textAlign: 'center',
+    lineHeight: 15,
+  },
+  primaryButton: {
+    paddingVertical: 14,
+    borderRadius: 28,
+    marginBottom: 10,
+    alignItems: 'center',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+    marginHorizontal: 20,
+  },
+  primaryButtonText: {
+    fontSize: 15,
+    fontWeight: '700',
     color: BRAND_COLORS.white,
+  },
+  secondaryButton: {
+    backgroundColor: BRAND_COLORS.white,
+    borderWidth: 2,
+    paddingVertical: 12,
+    borderRadius: 28,
+    alignItems: 'center',
+    marginHorizontal: 20,
+  },
+  secondaryButtonText: {
     fontSize: 15,
     fontWeight: '700',
   },

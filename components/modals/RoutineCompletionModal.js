@@ -1,4 +1,4 @@
-// components/modals/RoutineCompletionModal.js - WITH SMART ROUTINE SUPPORT
+// components/modals/RoutineCompletionModal.js - UPDATED WITH SMART ROUTINE MATCHING NIGHT STYLE
 import React from 'react';
 import {
   Image,
@@ -19,14 +19,14 @@ const BRAND_COLORS = {
   darkGray: '#666666',
   lightGray: '#E5E5E5',
   softGreen: '#E8F5E9',
-  smartBlue: '#82b2df',
+  smartBlue: '#82B2DF',
 };
 
 const ROUTINE_LEVEL_COLORS = {
   basic: '#4A90E2',
   moderate: '#F39C12',
   comprehensive: '#9B59B6',
-  smart: '#82b2df',
+  smart: '#82B2DF',
 };
 
 const DecorativeDots = ({ isSmartRoutine = false }) => {
@@ -67,13 +67,10 @@ export default function RoutineCompletionModal({
 
   // ===== SMART ROUTINE HANDLING =====
   if (isSmartRoutine && routineData) {
-    const concernColor = routineData.concernColor || BRAND_COLORS.smartBlue;
     const dayProducts = routineData.dayProducts || [];
     const nightProducts = routineData.nightProducts || [];
-    const totalProducts = dayProducts.length + nightProducts.length;
-    const hasBoth = dayProducts.length > 0 && nightProducts.length > 0;
-    const hasDayOnly = dayProducts.length > 0 && nightProducts.length === 0;
-    const hasNightOnly = dayProducts.length === 0 && nightProducts.length > 0;
+    const morningProductName = dayProducts[0]?.name || 'No product selected';
+    const eveningProductName = nightProducts[0]?.name || 'No product selected';
 
     const handleClose = () => {
       console.log('🏠 Closing smart routine modal');
@@ -116,7 +113,7 @@ export default function RoutineCompletionModal({
                 resizeMode="cover"
               />
               
-              <View style={[styles.levelBadgeOnBanner, { backgroundColor: concernColor }]}>
+              <View style={[styles.levelBadgeOnBanner, { backgroundColor: BRAND_COLORS.smartBlue }]}>
                 <Text style={styles.levelBadgeText}>Smart Routine</Text>
               </View>
             </View>
@@ -128,68 +125,41 @@ export default function RoutineCompletionModal({
             </Text>
             
             <Text style={styles.subtitle}>
-              {totalProducts} product{totalProducts !== 1 ? 's' : ''} selected for {routineData.concernName}
+              You're all set with your routine
             </Text>
 
             <View style={styles.recapContainer}>
               <Text style={styles.recapTitle}>
-                Your Targeted Treatment:
+                Your 2-Step Smart Routine:
               </Text>
 
-              {/* DAY PRODUCTS */}
-              {dayProducts.length > 0 && (
-                <View style={styles.smartSection}>
-                  <View style={styles.smartSectionHeader}>
-                    <Text style={styles.smartSectionTitle}>Day Routine Products</Text>
-                    <View style={[styles.timeBadgeSmall, { backgroundColor: '#FFF3E0' }]}>
-                      <Text style={[styles.timeBadgeSmallText, { color: '#F57C00' }]}>Morning</Text>
-                    </View>
-                  </View>
-                  {dayProducts.map((product, index) => (
-                    <View key={product.id} style={styles.productBox}>
-                      <Text style={styles.productName}>{product.name}</Text>
-                      <Text style={styles.productDescription}>{product.description}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
+              <View style={styles.stepCard}>
+                <Text style={styles.stepTitle}>Step 1: Morning</Text>
+                <Text style={[styles.productName, !dayProducts[0] && styles.emptyText]}>
+                  {morningProductName}
+                </Text>
+              </View>
 
-              {/* NIGHT PRODUCTS */}
-              {nightProducts.length > 0 && (
-                <View style={styles.smartSection}>
-                  <View style={styles.smartSectionHeader}>
-                    <Text style={styles.smartSectionTitle}>Night Routine Products</Text>
-                    <View style={[styles.timeBadgeSmall, { backgroundColor: '#E8EAF6' }]}>
-                      <Text style={[styles.timeBadgeSmallText, { color: '#3F51B5' }]}>Evening</Text>
-                    </View>
-                  </View>
-                  {nightProducts.map((product, index) => (
-                    <View key={product.id} style={styles.productBox}>
-                      <Text style={styles.productName}>{product.name}</Text>
-                      <Text style={styles.productDescription}>{product.description}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
+              <View style={styles.stepCard}>
+                <Text style={styles.stepTitle}>Step 2: Evening</Text>
+                <Text style={[styles.productName, !nightProducts[0] && styles.emptyText]}>
+                  {eveningProductName}
+                </Text>
+              </View>
             </View>
 
-            <View style={[styles.proofContainer, { backgroundColor: `${BRAND_COLORS.smartBlue}20` }]}>
+            <View style={[styles.proofContainer, { backgroundColor: `${BRAND_COLORS.smartBlue}10` }]}>
               <Text style={[styles.proofText, { color: BRAND_COLORS.smartBlue }]}>
-                {hasBoth 
-                  ? 'Apply these after cleansing in your day and night routines'
-                  : hasDayOnly
-                  ? 'Apply this after cleansing in your day routine'
-                  : 'Apply this after cleansing in your night routine'
-                }
+                You'll find your complete routine under "Smart Routine Hub"
               </Text>
               <Text style={styles.disclaimerText}>
-                Complements your existing routines
+                Access it anytime you need it!
               </Text>
             </View>
 
             <TouchableOpacity
               onPress={onViewRoutine}
-              style={[styles.primaryButton, { backgroundColor: BRAND_COLORS.smartBlue }]}
+              style={[styles.primaryButton, { backgroundColor: BRAND_COLORS.smartBlue, shadowColor: BRAND_COLORS.smartBlue }]}
               activeOpacity={0.8}
             >
               <Text style={styles.primaryButtonText}>
@@ -281,27 +251,12 @@ export default function RoutineCompletionModal({
 
           <Text style={styles.title}>
             Your <Text style={styles.titleEmphasis}>
-              {isNight ? 'Night Routine' : 'Day Routine'}
+              {isNight ? 'Night' : 'Day'} Routine
             </Text> is Ready!
           </Text>
           
           <Text style={styles.subtitle}>
-            {isNight 
-              ? (isComprehensive 
-                ? "You're all set with your comprehensive night routine"
-                : (isModerate 
-                  ? "You're all set with your enhanced night routine"
-                  : "You're all set with your evening routine"
-                )
-              )
-              : (isComprehensive 
-                ? "You're all set with your comprehensive routine"
-                : (isModerate 
-                  ? "You're all set with your enhanced routine" 
-                  : "You're all set for your skincare journey"
-                )
-              )
-            }
+            You're all set with your {isNight ? 'evening' : 'morning'} routine
           </Text>
 
           <View style={styles.recapContainer}>
@@ -309,113 +264,89 @@ export default function RoutineCompletionModal({
               Your {stepCount}-Step {isNight ? 'Evening' : 'Morning'} Routine:
             </Text>
 
-            {/* STEP 1: CLEANSER */}
             <View style={styles.stepCard}>
               <Text style={styles.stepTitle}>Step 1: Cleanser</Text>
-              {cleansers.length > 0 ? (
-                <View style={styles.productBox}>
-                  <Text style={styles.productName}>{cleansers[0].name}</Text>
-                  <Text style={styles.productDescription}>{cleansers[0].description}</Text>
-                </View>
-              ) : (
-                <Text style={styles.emptyText}>No cleanser selected</Text>
-              )}
+              <Text style={[styles.productName, cleansers.length === 0 && styles.emptyText]}>
+                {cleansers[0]?.name || 'No cleanser selected'}
+              </Text>
             </View>
 
-            {/* STEP 2: MOISTURIZER */}
+            {isModerate && !isNight && (
+              <View style={styles.stepCard}>
+                <Text style={styles.stepTitle}>Step 2: Pore Care</Text>
+                <Text style={[styles.productName, poreCare.length === 0 && styles.emptyText]}>
+                  {poreCare[0]?.name || poreCareProducts[0]?.name || 'No pore care selected'}
+                </Text>
+              </View>
+            )}
+
+            {isComprehensive && !isNight && (
+              <>
+                <View style={styles.stepCard}>
+                  <Text style={styles.stepTitle}>Step 2: Pore Care</Text>
+                  <Text style={[styles.productName, poreCare.length === 0 && styles.emptyText]}>
+                    {poreCare[0]?.name || poreCareProducts[0]?.name || 'No pore care selected'}
+                  </Text>
+                </View>
+                <View style={styles.stepCard}>
+                  <Text style={styles.stepTitle}>Step 3: Specialized Products</Text>
+                  <Text style={[styles.productName, specializedProducts.length === 0 && styles.emptyText]}>
+                    {specializedProducts[0]?.name || 'No specialized product selected'}
+                  </Text>
+                </View>
+              </>
+            )}
+
+            {isComprehensive && isNight && (
+              <>
+                <View style={styles.stepCard}>
+                  <Text style={styles.stepTitle}>Step 2: Specialized Products</Text>
+                  <Text style={[styles.productName, specializedProducts.length === 0 && styles.emptyText]}>
+                    {specializedProducts[0]?.name || 'No specialized product selected'}
+                  </Text>
+                </View>
+                <View style={styles.stepCard}>
+                  <Text style={styles.stepTitle}>Step 3: Advanced Treatment</Text>
+                  <Text style={[styles.productName, advancedTreatments.length === 0 && styles.emptyText]}>
+                    {advancedTreatments[0]?.name || 'No treatment selected'}
+                  </Text>
+                </View>
+              </>
+            )}
+
+            {isModerate && isNight && (
+              <View style={styles.stepCard}>
+                <Text style={styles.stepTitle}>Step 2: Specialized Products</Text>
+                <Text style={[styles.productName, specializedProducts.length === 0 && styles.emptyText]}>
+                  {specializedProducts[0]?.name || 'No specialized product selected'}
+                </Text>
+              </View>
+            )}
+
             <View style={styles.stepCard}>
-              <Text style={styles.stepTitle}>Step 2: {isNight ? 'Night Moisturizer' : 'Moisturizer'}</Text>
-              {moisturizers.length > 0 ? (
-                <View style={styles.productBox}>
-                  <Text style={styles.productName}>{moisturizers[0].name}</Text>
-                  <Text style={styles.productDescription}>{moisturizers[0].description}</Text>
-                </View>
-              ) : (
-                <Text style={styles.emptyText}>No moisturizer selected</Text>
-              )}
+              <Text style={styles.stepTitle}>
+                Step {isComprehensive ? (isNight ? 4 : 4) : (isModerate ? (isNight ? 3 : 3) : 2)}: {isNight ? 'Night Moisturizer' : 'Moisturizer'}
+              </Text>
+              <Text style={[styles.productName, moisturizers.length === 0 && styles.emptyText]}>
+                {moisturizers[0]?.name || 'No moisturizer selected'}
+              </Text>
             </View>
 
-            {/* STEP 3: PORE CARE (NIGHT MODERATE/COMPREHENSIVE) OR SPECIALIZED (DAY MODERATE/COMPREHENSIVE) */}
-            {isNight && (isModerate || isComprehensive) && (
-              <View style={styles.stepCard}>
-                <Text style={styles.stepTitle}>Step 3: Pore Care Treatment</Text>
-                {(poreCareProducts.length > 0 || poreCare.length > 0) ? (
-                  <View style={styles.productBox}>
-                    <Text style={styles.productName}>
-                      {poreCareProducts.length > 0 ? poreCareProducts[0].name : poreCare[0].name}
-                    </Text>
-                    <Text style={styles.productDescription}>
-                      {poreCareProducts.length > 0 ? poreCareProducts[0].description : poreCare[0].description}
-                    </Text>
-                  </View>
-                ) : (
-                  <Text style={styles.emptyText}>No pore care product selected</Text>
-                )}
-              </View>
-            )}
-
-            {!isNight && (isModerate || isComprehensive) && (
-              <View style={styles.stepCard}>
-                <Text style={styles.stepTitle}>Step 3: Specialized Treatment</Text>
-                {specializedProducts.length > 0 ? (
-                  <View style={styles.productBox}>
-                    <Text style={styles.productName}>{specializedProducts[0].name}</Text>
-                    <Text style={styles.productDescription}>{specializedProducts[0].description}</Text>
-                  </View>
-                ) : (
-                  <Text style={styles.emptyText}>No specialized product selected</Text>
-                )}
-              </View>
-            )}
-
-            {/* STEP 4: ADVANCED TREATMENT (NIGHT COMPREHENSIVE OR DAY COMPREHENSIVE) */}
-            {isNight && isComprehensive && (
-              <View style={styles.stepCard}>
-                <Text style={styles.stepTitle}>Step 4: Advanced Night Treatment</Text>
-                {advancedTreatments.length > 0 ? (
-                  <View style={styles.productBox}>
-                    <Text style={styles.productName}>{advancedTreatments[0].name}</Text>
-                    <Text style={styles.productDescription}>{advancedTreatments[0].description}</Text>
-                  </View>
-                ) : (
-                  <Text style={styles.emptyText}>No advanced treatment selected</Text>
-                )}
-              </View>
-            )}
-
-            {!isNight && isComprehensive && (
-              <View style={styles.stepCard}>
-                <Text style={styles.stepTitle}>Step 4: Advanced Treatment</Text>
-                {advancedTreatments.length > 0 ? (
-                  <View style={styles.productBox}>
-                    <Text style={styles.productName}>{advancedTreatments[0].name}</Text>
-                    <Text style={styles.productDescription}>{advancedTreatments[0].description}</Text>
-                  </View>
-                ) : (
-                  <Text style={styles.emptyText}>No advanced treatment selected</Text>
-                )}
-              </View>
-            )}
-
-            {/* FINAL STEP: SUNSCREEN (DAY ONLY) */}
             {!isNight && (
               <View style={styles.stepCard}>
-                <Text style={styles.stepTitle}>Step {dayStepCount}: Sunscreen</Text>
-                {sunscreens.length > 0 ? (
-                  <View style={styles.productBox}>
-                    <Text style={styles.productName}>{sunscreens[0].name}</Text>
-                    <Text style={styles.productDescription}>{sunscreens[0].description}</Text>
-                  </View>
-                ) : (
-                  <Text style={styles.emptyText}>No sunscreen selected</Text>
-                )}
+                <Text style={styles.stepTitle}>
+                  Step {isComprehensive ? 5 : (isModerate ? 4 : 3)}: Sunscreen
+                </Text>
+                <Text style={[styles.productName, sunscreens.length === 0 && styles.emptyText]}>
+                  {sunscreens[0]?.name || 'No sunscreen selected'}
+                </Text>
               </View>
             )}
           </View>
 
           <View style={styles.proofContainer}>
             <Text style={styles.proofText}>
-              You'll find your complete routine under "{isNight ? 'My Night Routine' : 'My Day Routine'}"
+              You'll find your complete routine under "My {isNight ? 'Night' : 'Day'} Routine"
             </Text>
             <Text style={styles.disclaimerText}>
               Access it anytime you need it!
@@ -585,52 +516,11 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.black,
     marginBottom: 6,
   },
-  smartSection: {
-    backgroundColor: BRAND_COLORS.white,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  smartSectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  smartSectionTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: BRAND_COLORS.black,
-  },
-  timeBadgeSmall: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  timeBadgeSmallText: {
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  productBox: {
-    paddingLeft: 0,
-    marginBottom: 6,
-  },
   productName: {
     fontSize: 13,
     fontWeight: '600',
     color: BRAND_COLORS.black,
-    marginBottom: 2,
     lineHeight: 17,
-  },
-  productDescription: {
-    fontSize: 12,
-    color: BRAND_COLORS.darkGray,
-    lineHeight: 16,
   },
   emptyText: {
     fontSize: 12,

@@ -2308,7 +2308,6 @@ const renderComprehensiveNightRoutineStep4 = () => {
     
     const handleContinuePress = () => {
       if (hasDetections && !isConfirmed) {
-        // Show gentle reminder popup
         Alert.alert(
           'Confirm Detection',
           'Please confirm the detection breakdown to continue with your personalized routine.',
@@ -2332,16 +2331,13 @@ const renderComprehensiveNightRoutineStep4 = () => {
     };
   
     return (
-        <View style={styles.resultsContainer}>
-          <ScrollView style={styles.resultsContent}>
-            <AnalysisResults
-              analysisData={analysisData}
-              annotatedImageBlob={annotatedImageBlob}
-              onConfirmedConcern={handleConcernConfirmed}
-            />
-            
-            <CustomizeButton navigation={{ navigate: (screen) => setCurrentStep(screen) }} />
-          </ScrollView>
+      <View style={styles.resultsContainer}>
+        <AnalysisResults
+          analysisData={analysisData}
+          annotatedImageBlob={annotatedImageBlob}
+          onConfirmedConcern={handleConcernConfirmed}
+          onNavigateHome={() => setCurrentStep('home')}
+        />
         
         <View style={styles.resultsActionsRow}>
           <DrAcneButton

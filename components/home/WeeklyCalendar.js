@@ -1,5 +1,5 @@
-// components/home/WeeklyCalendar.js - Weekly Activity Calendar (Updated with Green)
-import React from 'react';
+// components/home/WeeklyCalendar.js - FULL CODE WITH STRONGER CHECK
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -16,29 +16,70 @@ const BRAND_COLORS = {
   lightGray: '#E0E0E0',
 };
 
-export const WeeklyCalendar = ({ weeklyActivity = [] }) => {
+// Generate week data based on current date
+const getWeekData = () => {
+  const today = new Date();
+  const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  
+  // Adjust so Monday = 0, Sunday = 6
+  const adjustedDay = currentDay === 0 ? 6 : currentDay - 1;
+  
+  // Calculate Monday of this week
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - adjustedDay);
+  
+  // Generate week array
+  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const weekData = weekDays.map((day, index) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + index);
+    
+    const isPast = index < adjustedDay;
+    const isToday = index === adjustedDay;
+    
+    return {
+      day,
+      date: date.getDate(),
+      active: isPast,
+      isToday: isToday,
+    };
+  });
+  
+  return weekData;
+};
+
+export const WeeklyCalendar = ({ weeklyActivity }) => {
+  const [weekData, setWeekData] = useState(getWeekData());
+
+  useEffect(() => {
+    // ALWAYS generate from current date - ignore prop
+    setWeekData(getWeekData());
+  }, []);
+
   return (
     <View style={styles.container}>
-      {weeklyActivity.map((day, index) => (
+      {weekData.map((day, index) => (
         <View key={index} style={styles.dayContainer}>
           <Text style={styles.dayText}>{day.day}</Text>
           <View style={[
             styles.dateCircle,
-            day.active ? styles.activeCircle : styles.inactiveCircle
+            day.active ? styles.activeCircle : null,
+            day.isToday ? styles.todayCircle : null,
+            !day.active && !day.isToday ? styles.inactiveCircle : null,
           ]}>
             <Text style={[
               styles.dateText,
-              day.active ? styles.activeDateText : styles.inactiveDateText
+              day.active || day.isToday ? styles.activeDateText : styles.inactiveDateText
             ]}>
               {day.date}
             </Text>
           </View>
           
           {/* Connection line to next day */}
-          {index < weeklyActivity.length - 1 && (
+          {index < weekData.length - 1 && (
             <View style={[
               styles.connectionLine,
-              day.active && weeklyActivity[index + 1].active 
+              (day.active || day.isToday) && (weekData[index + 1].active || weekData[index + 1].isToday)
                 ? styles.activeLine 
                 : styles.inactiveLine
             ]} />
@@ -77,8 +118,18 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
   },
   activeCircle: {
-    backgroundColor: BRAND_COLORS.primary, // Changed from secondary to primary (green)
-    borderColor: BRAND_COLORS.primary, // Changed from secondary to primary (green)
+    backgroundColor: BRAND_COLORS.primary,
+    borderColor: BRAND_COLORS.primary,
+  },
+  todayCircle: {
+    backgroundColor: BRAND_COLORS.primary,
+    borderColor: BRAND_COLORS.primary,
+    borderWidth: 2.5,
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 5,
   },
   inactiveCircle: {
     backgroundColor: BRAND_COLORS.white,
@@ -104,7 +155,7 @@ const styles = StyleSheet.create({
     zIndex: -1,
   },
   activeLine: {
-    backgroundColor: BRAND_COLORS.primary, // Changed from secondary to primary (green)
+    backgroundColor: BRAND_COLORS.primary,
   },
   inactiveLine: {
     backgroundColor: BRAND_COLORS.lightGray,

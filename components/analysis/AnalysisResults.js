@@ -1,4 +1,4 @@
-// components/analysis/AnalysisResults.js - FINAL WITH BRAIN LOADER
+// components/analysis/AnalysisResults.js - WITH CLICKABLE LOGO
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
@@ -116,6 +116,7 @@ export const AnalysisResults = ({
   analysisData, 
   annotatedImageBlob,
   onConfirmedConcern,
+  onNavigateHome,
   style = {} 
 }) => {
   const [annotatedImageUri, setAnnotatedImageUri] = useState(null);
@@ -189,11 +190,13 @@ export const AnalysisResults = ({
   return (
     <View style={[styles.container, style]}>
       <View style={styles.logoHeader}>
-        <Image 
-          source={require('../../assets/images/dracne-logo.png')} 
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
+          <Image 
+            source={require('../../assets/images/dracne-logo.png')} 
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.header}>
@@ -315,6 +318,9 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingBottom: 10,
     backgroundColor: 'transparent',
+  },
+  logoButton: {
+    alignSelf: 'flex-start',
   },
   logo: {
     width: 70,
