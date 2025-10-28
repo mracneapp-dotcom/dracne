@@ -94,6 +94,13 @@ import { Test2Screen } from './Test2Screen';
 import { Test3Part2Screen } from './Test3Part2Screen';
 import { Test3Screen } from './Test3Screen';
 
+// Profile & Settings Screens
+import EditNameScreen from './EditNameScreen';
+import EditSkinTypeScreen from './EditSkinTypeScreen';
+import LanguageScreen from './LanguageScreen';
+import ProfileScreen from './ProfileScreen';
+import SkinGoalsScreen from './SkinGoalsScreen';
+
 // Onboarding Screens
 import OnboardingBarrierHealth1 from './onboardingScreens/OnboardingBarrierHealth1';
 import OnboardingBarrierHealth2 from './onboardingScreens/OnboardingBarrierHealth2';
@@ -319,16 +326,23 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
   }, [currentStep]);
 
   // Onboarding Navigation Handler
-  const handleOnboardingNext = (nextStep, data = {}) => {
-    setOnboardingData(prev => ({ ...prev, ...data }));
+  const handleOnboardingNext = async (nextStep, data = {}) => {
+    const updatedData = { ...onboardingData, ...data };
+    setOnboardingData(updatedData);
     
     if (nextStep === 'complete') {
+      // Save onboarding data to AsyncStorage
+      try {
+        await AsyncStorage.setItem('onboardingData', JSON.stringify(updatedData));
+      } catch (error) {
+        console.error('Error saving onboarding data:', error);
+      }
       setIsOnboardingComplete(true);
-      setCurrentStep('home');
-    } else {
-      setCurrentOnboardingStep(nextStep);
-    }
-  };
+    setCurrentStep('home');
+  } else {
+    setCurrentOnboardingStep(nextStep);
+  }
+};
 
   const handleOnboardingBack = () => {
     if (currentOnboardingStep === 'onboardingWelcome') {
@@ -961,6 +975,8 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
       setCurrentStep('library');
     } else if (tabId === 'calendar') {
       setCurrentStep('calendar');
+    } else if (tabId === 'profile') {
+      setCurrentStep('profile');
     } else {
       Alert.alert('Coming Soon', `${tabId} feature will be available soon!`);
     }
@@ -1428,6 +1444,62 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
       />
     </View>
   );
+
+// PROFILE & SETTINGS RENDERS
+const renderProfile = () => (
+  <View style={styles.screenContainer}>
+    <ProfileScreen
+      onNavigateHome={() => setCurrentStep('home')}
+      onNavigateToSkinGoals={() => setCurrentStep('skinGoals')}
+      onNavigateToLanguage={() => setCurrentStep('language')}
+      onNavigateToSkinType={() => setCurrentStep('editSkinType')}
+      onNavigateToEditName={() => setCurrentStep('editName')}
+      onLogout={() => {
+        setCurrentStep('home');
+        setActiveTab('routines');
+      }}
+    />
+  </View>
+);
+
+const renderSkinGoals = () => (
+  <View style={styles.screenContainer}>
+    <SkinGoalsScreen
+      onBack={() => setCurrentStep('profile')}
+      onNavigateHome={() => setCurrentStep('home')}
+    />
+  </View>
+);
+
+const renderLanguage = () => (
+  <View style={styles.screenContainer}>
+    <LanguageScreen
+      onBack={() => setCurrentStep('profile')}
+      onNavigateHome={() => setCurrentStep('home')}
+    />
+  </View>
+);
+
+const renderEditName = () => (
+  <View style={styles.screenContainer}>
+    <EditNameScreen
+      onBack={() => setCurrentStep('profile')}
+      onNavigateHome={() => setCurrentStep('home')}
+    />
+  </View>
+);
+
+const renderEditSkinType = () => (
+  <View style={styles.screenContainer}>
+    <EditSkinTypeScreen
+      onBack={() => setCurrentStep('profile')}
+      onNavigateHome={() => setCurrentStep('home')}
+      onNavigateToSkinTest={() => {
+        setCurrentStep('skinTest');
+      }}
+    />
+  </View>
+);
 
  // SMART ROUTINE RENDERS
 const renderSmartRoutineHub = () => (
@@ -2535,6 +2607,13 @@ const renderComprehensiveNightRoutineStep4 = () => {
         {isOnboardingComplete && currentStep === 'myNightRoutine' && renderMyNightRoutine()}
         {isOnboardingComplete && currentStep === 'library' && renderLibrary()}
 
+        {/* Profile & Settings Flow */}
+        {isOnboardingComplete && currentStep === 'profile' && renderProfile()}
+        {isOnboardingComplete && currentStep === 'skinGoals' && renderSkinGoals()}
+        {isOnboardingComplete && currentStep === 'language' && renderLanguage()}
+        {isOnboardingComplete && currentStep === 'editSkinType' && renderEditSkinType()}
+        {isOnboardingComplete && currentStep === 'editName' && renderEditName()}
+
         {/* Smart Routine Flow */}
         {isOnboardingComplete && currentStep === 'smartRoutineHub' && renderSmartRoutineHub()}
         {isOnboardingComplete && currentStep === 'smartRoutine' && renderSmartRoutine()}
@@ -2602,6 +2681,7 @@ const renderComprehensiveNightRoutineStep4 = () => {
         currentStep === 'smartRoutine' ||
         currentStep === 'smartRoutineHub' ||
         currentStep === 'library' ||
+        currentStep === 'profile' ||
         currentStep === 'smartRoutine' ||
         currentStep === 'mySmartRoutine' ||
         currentStep === 'smartRoutineIntro' ||
