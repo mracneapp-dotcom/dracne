@@ -1,16 +1,16 @@
-// app/ProfileScreen.js
+// app/ProfileScreen.js - ADDED ACHIEVEMENTS BUTTON
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    Image,
-    Linking,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  Linking,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const BRAND_COLORS = {
@@ -25,6 +25,13 @@ const BRAND_COLORS = {
 };
 
 const PROFILE_OPTIONS = [
+  {
+    id: 'achievements',
+    label: 'Achievements',
+    iconText: 'AC',
+    color: '#FFD700',
+    action: 'navigate',
+  },
   {
     id: 'skin_goals',
     label: 'Skin Goals',
@@ -100,6 +107,7 @@ export default function ProfileScreen({
   onNavigateToLanguage,
   onNavigateToSkinType,
   onNavigateToEditName,
+  onNavigateToAchievements,
   onLogout,
 }) {
   const [userName, setUserName] = useState('User');
@@ -122,7 +130,9 @@ export default function ProfileScreen({
   const handleOptionPress = async (option) => {
     switch (option.action) {
       case 'navigate':
-        if (option.id === 'skin_goals' && onNavigateToSkinGoals) {
+        if (option.id === 'achievements' && onNavigateToAchievements) {
+          onNavigateToAchievements();
+        } else if (option.id === 'skin_goals' && onNavigateToSkinGoals) {
           onNavigateToSkinGoals();
         } else if (option.id === 'language' && onNavigateToLanguage) {
           onNavigateToLanguage();

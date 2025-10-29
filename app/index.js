@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
-  Animated, // ← ADD THIS LINE
+  Animated,
   BackHandler,
   Image,
   PanResponder,
@@ -22,6 +22,7 @@ import { DrAcneButton } from '../components/ui/DrAcneButton';
 import { FeatureCards } from '../components/ui/FeatureCards';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { analyzeImageWithRoboflow, analyzeImageWithRoboflowVisual, handleAPIError } from '../services/RoboflowAPI';
+import { initializeProgress, logRoutine, logSkinScan } from './utils/progressManager';
 
 // Basic Routine Screens
 import BasicRoutineProductSelection from './BasicRoutineProductSelection';
@@ -95,6 +96,7 @@ import { Test3Part2Screen } from './Test3Part2Screen';
 import { Test3Screen } from './Test3Screen';
 
 // Profile & Settings Screens
+import AchievementsScreen from './AchievementsScreen';
 import EditNameScreen from './EditNameScreen';
 import EditSkinTypeScreen from './EditSkinTypeScreen';
 import LanguageScreen from './LanguageScreen';
@@ -248,7 +250,7 @@ export default function AIScannerScreen() {
   const [test3Part1Answer, setTest3Part1Answer] = useState(null);
   const [currentTestResult, setCurrentTestResult] = useState(null);
   const [manualSkinTypeSelection, setManualSkinTypeSelection] = useState(null);
-  
+  const [newlyUnlockedBadge, setNewlyUnlockedBadge] = useState(null);
   
   // Smart Routine State
   const [selectedSmartConcern, setSelectedSmartConcern] = useState(null);
@@ -683,8 +685,8 @@ const handleConcernConfirmed = (concernId) => {
 const handleCreateSmartRoutineFromAnalysis = () => {
   console.log('📱 Creating Smart Routine from analysis with pre-selection:', confirmedConcern);
   setShowSmartRoutineSuggestion(false);
-  setSelectedSmartConcern(confirmedConcern); // Pre-select the confirmed concern
-  setCurrentStep('smartRoutine'); // Go to list screen, not intro
+  setSelectedSmartConcern(confirmedConcern);
+  setCurrentStep('smartRoutine');
 };
 
 const handleSkipSmartRoutine = () => {
@@ -701,6 +703,10 @@ const handleNavigateBackToSmartRoutine = () => {
 const handleNavigateBackToSmartRoutineHub = () => {
   console.log('📱 Navigating back to Smart Routine Hub');
   setCurrentStep('smartRoutineHub');
+};
+
+const handleNavigateToAchievements = () => {
+  setCurrentStep('achievements');
 };
   
   // ✅ NEW: Navigate to Comprehensive Night Routine for editing
@@ -807,7 +813,7 @@ const handleNightCleanserSelected = (products) => {
   setCurrentStep('basicNightRoutineStep2');
 };
 
-const handleNightMoisturizerSelected = (products) => {
+const handleNightMoisturizerSelected = async (products) => {
   console.log('Night - Moisturizers selected:', products);
   
   // Save the night routine to state
@@ -823,6 +829,12 @@ const handleNightMoisturizerSelected = (products) => {
       completedAt: new Date().toISOString()
     }
   }));
+  
+  // Log routine completion
+  const result = await logRoutine();
+  if (result?.newBadges && result.newBadges.length > 0) {
+    setNewlyUnlockedBadge(result.newBadges[0]);
+  }
   
   // Show success message
   Alert.alert(
@@ -933,6 +945,14 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
     return () => backHandler.remove();
   }, [currentStep]);
 
+  useEffect(() => {
+    // Initialize progress tracking
+    const initProgress = async () => {
+      await initializeProgress();
+    };
+    initProgress();
+  }, []);
+
   const panResponder = React.useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (evt, gestureState) => {
@@ -1012,6 +1032,12 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
       }
 
       setAnalysisData(analysisResult);
+      
+      // Log scan and check for badges
+      const scanResult = await logSkinScan(analysisResult.total_found);
+      if (scanResult?.newBadges && scanResult.newBadges.length > 0) {
+        setNewlyUnlockedBadge(scanResult.newBadges[0]);
+      }
       
       if (analysisResult.predictions && analysisResult.predictions.length > 0) {
         console.log('Starting visual API call...');
@@ -1313,10 +1339,16 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
         onNavigateToNightRoutine={handleNavigateToNightRoutine}
         onNavigateToScanSkin={handleNavigateToScanSkin}
         onNavigateToMyJourney={handleNavigateToMyJourney}
+        onNavigateToProfile={() => {
+          setCurrentStep('profile');
+          setActiveTab('profile');
+        }}
         userStreak={userStreak}
         weeklyActivity={weeklyActivity}
         activeTab={activeTab}
         onTabPress={handleTabPress}
+        newlyUnlockedBadge={newlyUnlockedBadge}
+        onBadgeModalClose={() => setNewlyUnlockedBadge(null)}
         style={styles.homeScreenContent}
       />
     </View>
@@ -1343,7 +1375,7 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
         <LibraryScreen 
           onNavigateHome={() => {
           setCurrentStep('home');
-          setActiveTab('home');  // THIS FIXES THE SELECTION ISSUE
+          setActiveTab('home');
         }}
         />
       </View>
@@ -1399,7 +1431,7 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
         onSelectRoutine={handleRoutineSelection}
         onNavigateToSkinTest={handleNavigateToSkinTest}
         onNavigateToMyNightRoutine={handleNavigateToMyNightRoutine}
-        skinProfile={skinProfile} // ADD THIS LINE
+        skinProfile={skinProfile}
         style={styles.screenContent}
       />
     </View>
@@ -1454,6 +1486,7 @@ const renderProfile = () => (
       onNavigateToLanguage={() => setCurrentStep('language')}
       onNavigateToSkinType={() => setCurrentStep('editSkinType')}
       onNavigateToEditName={() => setCurrentStep('editName')}
+      onNavigateToAchievements={handleNavigateToAchievements}
       onLogout={() => {
         setCurrentStep('home');
         setActiveTab('routines');
@@ -1497,6 +1530,15 @@ const renderEditSkinType = () => (
       onNavigateToSkinTest={() => {
         setCurrentStep('skinTest');
       }}
+    />
+  </View>
+);
+
+const renderAchievements = () => (
+  <View style={styles.screenContainer}>
+    <AchievementsScreen
+      onBack={() => setCurrentStep('profile')}
+      onNavigateHome={() => setCurrentStep('home')}
     />
   </View>
 );
@@ -1690,7 +1732,7 @@ const renderModerateNightRoutineStep1 = () => {
         onNavigateHome={() => setCurrentStep('home')}
         onNavigateToNightRoutine={() => setCurrentStep('nightRoutine')}
         onBack={() => setShowModerateNightProductSelection(false)}
-        onContinue={(products) => {  // ✅ FIXED: Changed from onComplete to onContinue
+        onContinue={(products) => {
           console.log('Moderate Night - Cleansers selected:', products);
           setShowModerateNightProductSelectionStep2(false);
           setShowModerateNightProductSelectionStep3(false);
@@ -1730,7 +1772,7 @@ const renderModerateNightRoutineStep2 = () => {
         onNavigateHome={() => setCurrentStep('home')}
         onNavigateToNightRoutine={() => setCurrentStep('nightRoutine')}
         onBack={() => setShowModerateNightProductSelectionStep2(false)}
-        onContinue={(products) => {  // ✅ Make sure this says onContinue
+        onContinue={(products) => {
           console.log('Moderate Night - Moisturizers selected:', products);
           setShowModerateNightProductSelectionStep3(false);
           setCurrentStep('moderateNightRoutineStep3');
@@ -1769,7 +1811,7 @@ const renderModerateNightRoutineStep3 = () => {
         onNavigateHome={() => setCurrentStep('home')}
         onNavigateToNightRoutine={() => setCurrentStep('nightRoutine')}
         onBack={() => setShowModerateNightProductSelectionStep3(false)}
-        onComplete={(products) => {  // ✅ Step 3 can use onComplete (final step)
+        onComplete={(products) => {
           console.log('Moderate Night - Pore Care selected:', products);
           // This will show completion modal from within the component
         }}
@@ -2609,6 +2651,7 @@ const renderComprehensiveNightRoutineStep4 = () => {
 
         {/* Profile & Settings Flow */}
         {isOnboardingComplete && currentStep === 'profile' && renderProfile()}
+        {isOnboardingComplete && currentStep === 'achievements' && renderAchievements()}
         {isOnboardingComplete && currentStep === 'skinGoals' && renderSkinGoals()}
         {isOnboardingComplete && currentStep === 'language' && renderLanguage()}
         {isOnboardingComplete && currentStep === 'editSkinType' && renderEditSkinType()}
@@ -2939,6 +2982,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginVertical: 0,
   },
+  actionButtonDisabled: {
+    opacity: 0.5,
+  },
   screenContainer: {
     flex: 1,
     backgroundColor: 'transparent',
@@ -2950,11 +2996,6 @@ const styles = StyleSheet.create({
   },
   screenContent: {
     flex: 1,
-  },
-  actionButtonRight: {
-    flex: 1,
-    paddingVertical: 12,
-    marginVertical: 0,
   },
   brainLoaderContainer: {
     alignItems: 'center',

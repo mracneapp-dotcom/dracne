@@ -95,7 +95,7 @@ RoutineBanners.displayName = 'RoutineBanners';
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 2,
     gap: 12,
   },
   bannerButton: {

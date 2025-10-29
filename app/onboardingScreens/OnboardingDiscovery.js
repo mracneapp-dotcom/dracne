@@ -37,7 +37,11 @@ export default function OnboardingDiscovery({ onNext }) {
 
   const handleContinue = () => {
     if (selectedOption) {
-      onNext('onboardingExperience', { discovery: selectedOption });
+      // Pass data to parent - index.js will handle storage
+      onNext('onboardingExperience', { 
+        discovery: selectedOption,
+        discoveryTimestamp: new Date().toISOString()
+      });
     }
   };
 
@@ -132,13 +136,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
     paddingHorizontal: 24,
-    paddingTop: 40, // ✓ REDUCED from 50
-    paddingBottom: 160, // ✓ INCREASED from 140 - more space for button
+    paddingTop: 40,
+    paddingBottom: 160,
     justifyContent: 'flex-start',
   },
   heroSection: {
     alignItems: 'center',
-    marginBottom: 32, // ✓ REDUCED from 40 - tighter header spacing
+    marginBottom: 32,
   },
   questionTitle: {
     fontSize: 28,
@@ -159,15 +163,15 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   optionsSection: {
-    marginBottom: 16, // ✓ REDUCED from 20 - tighter section spacing
+    marginBottom: 16,
   },
   optionCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: BRAND_COLORS.white,
     borderRadius: 16,
-    padding: 14, // ✓ REDUCED from 16 - more compact cards
-    marginBottom: 10, // ✓ REDUCED from 12 - tighter card spacing
+    padding: 14,
+    marginBottom: 10,
     borderWidth: 2,
     borderColor: 'transparent',
     shadowColor: '#000',
@@ -177,16 +181,16 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   iconContainer: {
-    width: 40, // ✓ REDUCED from 44 - smaller icons
-    height: 40, // ✓ REDUCED from 44
-    borderRadius: 20, // ✓ ADJUSTED for new size
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12, // ✓ REDUCED from 14
+    marginRight: 12,
   },
   icon: {
-    width: 20, // ✓ REDUCED from 22
-    height: 20, // ✓ REDUCED from 22
+    width: 20,
+    height: 20,
   },
   optionText: {
     fontSize: 16,
@@ -195,7 +199,7 @@ const styles = StyleSheet.create({
   },
   selectionInfo: {
     alignItems: 'center',
-    marginTop: 8, // ✓ REDUCED from 10
+    marginTop: 8,
   },
   selectionText: {
     fontSize: 14,
