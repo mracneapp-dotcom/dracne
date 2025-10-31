@@ -1,7 +1,9 @@
 {
   "expo": {
     "name": "DrAcne",
-    "slug": "dracne-ai-scanner",
+    "slug": "dracne",
+    "owner": "aleb",
+    "scheme": "dracne",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -10,6 +12,8 @@
       "backgroundColor": "#FDF5E6"
     },
     "ios": {
+      "bundleIdentifier": "com.aleboshi.dracne",
+      "usesAppleSignIn": true,
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "DrAcne uses the camera to take photos for AI acne analysis.",
@@ -18,7 +22,7 @@
       }
     },
     "android": {
-      "package": "com.anonymous.dracneaiscanner",
+      "package": "com.aleboshi.dracne",
       "adaptiveIcon": {
         "backgroundColor": "#FDF5E6"
       },

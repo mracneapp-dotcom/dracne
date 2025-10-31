@@ -1,13 +1,22 @@
-// app/onboardingScreens/OnboardingSaveProgress.js
-import React from 'react';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   Image,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { DrAcneButton } from '../../components/ui/DrAcneButton';
+import { auth } from '../../config/firebase';
+import { AuthService } from '../../services/AuthService';
+
+WebBrowser.maybeCompleteAuthSession();
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -18,23 +27,105 @@ const BRAND_COLORS = {
 };
 
 export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) {
+  const [loading, setLoading] = useState(false);
 
-  const handleAppleSignIn = () => {
-    console.log('Apple Sign In pressed');
-    onNext('onboardingPaywall', {
-      ...onboardingData,
-      signInMethod: 'apple',
-      accountCreated: true,
-    });
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    expoClientId: '338991525353-1r9lu6pl024a1vrf7mlg7k77pqj6vrvc.apps.googleusercontent.com',
+    iosClientId: '338991525353-kvd8elr7d227p8493is5qnda0aq2cd5e.apps.googleusercontent.com',
+    webClientId: '338991525353-1r9lu6pl024a1vrf7mlg7k77pqj6vrvc.apps.googleusercontent.com',
+  });
+
+  useEffect(() => {
+    console.log('🔍 Response type:', response?.type);
+    console.log('🔍 Response params:', response?.params);
+    
+    if (response?.type === 'success') {
+      const { id_token } = response.params;
+      console.log('✅ Got ID token, proceeding...');
+      handleGoogleSuccess(id_token);
+    } else if (response?.type === 'error') {
+      console.error('❌ Auth error:', response.error);
+      Alert.alert('Authentication Error', response.error?.message || 'Unknown error');
+    }
+  }, [response]);
+
+  const handleGoogleSuccess = async (idToken) => {
+    setLoading(true);
+    try {
+      console.log('🔐 Signing in with credential...');
+      const credential = GoogleAuthProvider.credential(idToken);
+      const userCredential = await signInWithCredential(auth, credential);
+      
+      console.log('✅ User signed in:', userCredential.user.email);
+      
+      await AuthService.saveUserData(userCredential.user.uid, {
+        ...onboardingData,
+        signInMethod: 'google',
+        email: userCredential.user.email,
+        displayName: userCredential.user.displayName,
+        photoURL: userCredential.user.photoURL,
+      });
+
+      console.log('✅ User data saved');
+
+      onNext('onboardingPaywall', {
+        ...onboardingData,
+        userId: userCredential.user.uid,
+        signInMethod: 'google',
+        accountCreated: true,
+      });
+    } catch (error) {
+      console.error('❌ Sign in error:', error);
+      Alert.alert('Sign In Failed', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    if (Platform.OS !== 'ios') {
+      Alert.alert('Not Available', 'Apple Sign In is only available on iOS devices');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await AuthService.signInWithApple();
+      
+      if (result.success) {
+        await AuthService.saveUserData(result.user.uid, {
+          ...onboardingData,
+          signInMethod: 'apple',
+          email: result.user.email,
+          displayName: result.user.displayName,
+        });
+
+        onNext('onboardingPaywall', {
+          ...onboardingData,
+          userId: result.user.uid,
+          signInMethod: 'apple',
+          accountCreated: true,
+        });
+      } else {
+        if (result.error !== 'Sign in cancelled') {
+          Alert.alert('Sign In Failed', result.error);
+        }
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleSignIn = () => {
-    console.log('Google Sign In pressed');
-    onNext('onboardingPaywall', {
-      ...onboardingData,
-      signInMethod: 'google',
-      accountCreated: true,
+    console.log('🚀 Starting Google Sign-In...');
+    console.log('📋 Request config:', {
+      iosClientId: '338991525353-kvd8elr7d227p8493is5qnda0aq2cd5e.apps.googleusercontent.com',
+      hasRequest: !!request,
+      redirectUri: request?.redirectUri
     });
+    promptAsync();
   };
 
   const handleSkip = () => {
@@ -55,7 +146,6 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
 
   return (
     <View style={styles.container}>
-      {/* ✓ UPDATED: Modern Header with highlighted word */}
       <View style={styles.header}>
         <Text style={styles.title}>
           Save your <Text style={styles.titleHighlight}>progress</Text>
@@ -65,33 +155,51 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
         </Text>
       </View>
 
-      {/* ✓ KEPT: Sign In Buttons */}
       <View style={styles.buttonsSection}>
-        <TouchableOpacity style={styles.appleButton} onPress={handleAppleSignIn}>
-          <Image
-            source={require('../../assets/images/apple.png')}
-            style={styles.appleIcon}
-            resizeMode="contain"
-          />
-          <Text style={styles.appleButtonText}>Sign in with Apple</Text>
-        </TouchableOpacity>
+        {Platform.OS === 'ios' && (
+          <TouchableOpacity 
+            style={[styles.appleButton, loading && styles.buttonDisabled]} 
+            onPress={handleAppleSignIn}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color={BRAND_COLORS.white} />
+            ) : (
+              <>
+                <Image
+                  source={require('../../assets/images/apple.png')}
+                  style={styles.appleIcon}
+                  resizeMode="contain"
+                />
+                <Text style={styles.appleButtonText}>Sign in with Apple</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        )}
 
-        <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignIn}>
-          <Image
-            source={require('../../assets/images/google.png')}
-            style={styles.googleIcon}
-            resizeMode="contain"
-          />
-          <Text style={styles.googleButtonText}>Sign in with Google</Text>
+        <TouchableOpacity 
+          style={[styles.googleButton, loading && styles.buttonDisabled]} 
+          onPress={handleGoogleSignIn}
+          disabled={loading || !request}
+        >
+          {loading ? (
+            <ActivityIndicator color={BRAND_COLORS.black} />
+          ) : (
+            <>
+              <Image
+                source={require('../../assets/images/google.png')}
+                style={styles.googleIcon}
+                resizeMode="contain"
+              />
+              <Text style={styles.googleButtonText}>Sign in with Google</Text>
+            </>
+          )}
         </TouchableOpacity>
       </View>
 
-      {/* ✓ KEPT: Spacer */}
       <View style={styles.spacer} />
 
-      {/* ✓ KEPT: Bottom Section with Skip and Continue */}
       <View style={styles.bottomSection}>
-        {/* Skip Section */}
         <View style={styles.skipSection}>
           <Text style={styles.skipText}>
             Would you like to sign in later? 
@@ -99,15 +207,14 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
           </Text>
         </View>
 
-        {/* Continue Button */}
         <View style={styles.continueSection}>
           <DrAcneButton
             title="Continue"
             onPress={handleContinue}
             style={styles.continueButton}
+            disabled={loading}
           />
           
-          {/* ✓ NEW: Terms and Privacy Policy */}
           <View style={styles.termsSection}>
             <Text style={styles.termsText}>
               By clicking continue, you agree to our{' '}
@@ -216,6 +323,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: BRAND_COLORS.black,
   },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
   spacer: {
     flex: 1,
   },
@@ -239,13 +349,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textDecorationLine: 'underline',
   },
-  continueSection: {
-    // No additional styling needed
-  },
+  continueSection: {},
   continueButton: {
     paddingVertical: 18,
   },
-  // ✓ NEW: Terms and Privacy Policy Styles
   termsSection: {
     marginTop: 16,
     alignItems: 'center',
