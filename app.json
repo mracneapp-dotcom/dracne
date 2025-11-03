@@ -18,7 +18,12 @@
       "infoPlist": {
         "NSCameraUsageDescription": "DrAcne uses the camera to take photos for AI acne analysis.",
         "NSPhotoLibraryUsageDescription": "DrAcne accesses your photo library to select images for AI acne analysis.",
-        "UIBackgroundModes": ["remote-notification"]
+        "UIBackgroundModes": ["remote-notification"],
+        "SKAdNetworkItems": [
+          {
+            "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork"
+          }
+        ]
       }
     },
     "android": {

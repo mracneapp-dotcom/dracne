@@ -1,4 +1,4 @@
-// app/ProfileScreen.js - ADDED ACHIEVEMENTS BUTTON
+// app/ProfileScreen.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
@@ -22,6 +22,24 @@ const BRAND_COLORS = {
   gray: '#999999',
   darkGray: '#666666',
   lightGray: '#E5E5E5',
+};
+
+const SKIN_TYPE_LABELS = {
+  oily: 'Oily',
+  dry: 'Dry',
+  combination: 'Combination',
+  normal: 'Normal',
+  sensitive: 'Sensitive',
+  unknown: "I'm Not Sure",
+};
+
+const SKIN_TYPE_COLORS = {
+  oily: '#4A90E2',
+  dry: '#F39C12',
+  combination: BRAND_COLORS.primary,
+  normal: '#9B59B6',
+  sensitive: BRAND_COLORS.secondary,
+  unknown: '#757575',
 };
 
 const PROFILE_OPTIONS = [
@@ -111,6 +129,7 @@ export default function ProfileScreen({
   onLogout,
 }) {
   const [userName, setUserName] = useState('User');
+  const [skinType, setSkinType] = useState('normal');
 
   useEffect(() => {
     loadUserData();
@@ -119,8 +138,13 @@ export default function ProfileScreen({
   const loadUserData = async () => {
     try {
       const name = await AsyncStorage.getItem('userName');
+      const savedSkinType = await AsyncStorage.getItem('userSkinType');
+      
       if (name) {
         setUserName(name);
+      }
+      if (savedSkinType) {
+        setSkinType(savedSkinType);
       }
     } catch (error) {
       console.error('Error loading user data:', error);
@@ -230,6 +254,9 @@ export default function ProfileScreen({
     }
   };
 
+  const skinTypeLabel = SKIN_TYPE_LABELS[skinType] || 'Normal';
+  const skinTypeColor = SKIN_TYPE_COLORS[skinType] || '#9B59B6';
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView 
@@ -275,12 +302,20 @@ export default function ProfileScreen({
             </TouchableOpacity>
           </View>
           <Text style={styles.userSubtitle}>Your skincare journey</Text>
+          
+          {/* Current Skin Type Display */}
+          <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeColor}15` }]}>
+            <Text style={[styles.skinTypeBadgeText, { color: skinTypeColor }]}>
+              {skinTypeLabel} Skin
+            </Text>
+          </View>
         </View>
 
         <View style={styles.optionsContainer}>
           {PROFILE_OPTIONS.map((option, index) => {
             const isLastItem = index === PROFILE_OPTIONS.length - 1;
             const isDanger = option.id === 'delete_account' || option.id === 'logout';
+            const isSkinType = option.id === 'skin_type';
 
             return (
               <TouchableOpacity
@@ -300,12 +335,19 @@ export default function ProfileScreen({
                   ]}>
                     <Text style={[styles.optionIcon, { color: option.color }]}>{option.iconText}</Text>
                   </View>
-                  <Text style={[
-                    styles.optionLabel,
-                    isDanger && styles.optionLabelDanger
-                  ]}>
-                    {option.label}
-                  </Text>
+                  <View style={styles.optionTextContainer}>
+                    <Text style={[
+                      styles.optionLabel,
+                      isDanger && styles.optionLabelDanger
+                    ]}>
+                      {option.label}
+                    </Text>
+                    {isSkinType && (
+                      <Text style={styles.optionSubtext}>
+                        Currently: {skinTypeLabel}
+                      </Text>
+                    )}
+                  </View>
                 </View>
                 <Text style={styles.chevron}>›</Text>
               </TouchableOpacity>
@@ -399,6 +441,17 @@ const styles = StyleSheet.create({
   userSubtitle: {
     fontSize: 14,
     color: BRAND_COLORS.gray,
+    marginBottom: 12,
+  },
+  skinTypeBadge: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 4,
+  },
+  skinTypeBadgeText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
   optionsContainer: {
     paddingHorizontal: 20,
@@ -442,15 +495,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
+  optionTextContainer: {
+    flex: 1,
+  },
   optionLabel: {
     fontSize: 16,
     fontWeight: '500',
     color: BRAND_COLORS.black,
-    flex: 1,
   },
   optionLabelDanger: {
     color: BRAND_COLORS.secondary,
     fontWeight: '600',
+  },
+  optionSubtext: {
+    fontSize: 12,
+    color: BRAND_COLORS.gray,
+    marginTop: 2,
   },
   chevron: {
     fontSize: 24,

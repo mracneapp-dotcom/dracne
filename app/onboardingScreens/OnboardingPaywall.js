@@ -1,11 +1,15 @@
 // app/onboardingScreens/OnboardingPaywall.js
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+  Alert,
   Animated,
   Dimensions,
   Image,
+  Modal,
+  ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { DrAcneButton } from '../../components/ui/DrAcneButton';
@@ -41,12 +45,16 @@ const BENEFITS = [
   },
 ];
 
+const IS_TEST_MODE = true;
+
 export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.98)).current;
+  const [showPlansModal, setShowPlansModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState('annual');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Gentle entrance animation only - stays visible
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -60,7 +68,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
         useNativeDriver: true,
       }),
     ]).start(() => {
-      // Subtle breathing animation - very gentle
       Animated.loop(
         Animated.sequence([
           Animated.timing(scaleAnim, {
@@ -78,12 +85,85 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     });
   }, [fadeAnim, scaleAnim]);
 
-  const handleContinue = () => {
-    onNext('complete', {
-      ...onboardingData,
-      paywallCompleted: true,
-      trialStarted: new Date().toISOString(),
-    });
+  // ===================================
+  // TO RE-ENABLE FIREBASE IN PRODUCTION:
+  // 1. Uncomment the code below
+  // 2. Make sure Firebase is properly configured
+  // 3. Test that it doesn't hang
+  // ===================================
+  const saveSubscriptionToFirebase = async (plan) => {
+    try {
+      console.log('💾 Saving subscription to Firebase (DISABLED FOR NOW)...');
+      
+      // UNCOMMENT THIS BLOCK FOR PRODUCTION:
+      /*
+      const user = auth.currentUser;
+      const userId = user?.uid || `guest_${Date.now()}`;
+      
+      const subscriptionData = {
+        userId,
+        plan,
+        status: 'active',
+        transactionId: `test_${Date.now()}`,
+        purchaseDate: new Date().toISOString(),
+        hasTrial: plan === 'annual',
+        trialEndDate: plan === 'annual' ? 
+          new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() : null,
+        testMode: IS_TEST_MODE,
+      };
+
+      await setDoc(doc(db, 'subscriptions', userId), subscriptionData);
+      console.log('✅ Subscription saved:', subscriptionData);
+      */
+      
+      // TEMPORARY: Just simulate the save
+      console.log('✅ Subscription save bypassed (test mode)');
+    } catch (error) {
+      console.error('❌ Error saving subscription:', error);
+    }
+  };
+
+  const handleContinue = async () => {
+    console.log('🔘 Continue button pressed');
+    
+    if (IS_TEST_MODE) {
+      Alert.alert(
+        'Test Mode',
+        `Simulating ${selectedPlan} purchase`,
+        [
+          { 
+            text: 'Cancel', 
+            style: 'cancel',
+            onPress: () => {
+              console.log('❌ User cancelled');
+              setLoading(false);
+            }
+          },
+          {
+            text: 'Continue',
+            onPress: async () => {
+              console.log('✅ User confirmed purchase');
+              setLoading(true);
+              
+              await saveSubscriptionToFirebase(selectedPlan);
+              
+              console.log('🚀 Navigating to complete (then home)...');
+              setLoading(false);
+              
+              onNext('complete', {
+                ...onboardingData,
+                paywallCompleted: true,
+                trialStarted: new Date().toISOString(),
+                subscriptionType: selectedPlan,
+                isPremium: true,
+              });
+              
+              console.log('✅ Navigation complete!');
+            },
+          },
+        ]
+      );
+    }
   };
 
   return (
@@ -146,18 +226,140 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       {/* Bottom Section */}
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="Continue"
+          title={loading ? "Processing..." : "Continue"}
           onPress={handleContinue}
+          disabled={loading}
           style={styles.continueButton}
         />
         
         <Text style={styles.pricingText}>
-          3 days free, then $35 per year
+          3 days free, then ${selectedPlan === 'annual' ? '37 per year' : '7.77 per month'}
         </Text>
+
+        <TouchableOpacity onPress={() => setShowPlansModal(true)}>
+          <Text style={styles.seeOtherPlansLink}>See other plans</Text>
+        </TouchableOpacity>
+
         <Text style={styles.cancelText}>
           Cancel anytime • No commitment
         </Text>
       </View>
+
+      {/* Beautiful Centered Plans Modal */}
+      <Modal
+        visible={showPlansModal}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setShowPlansModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <TouchableOpacity 
+                onPress={() => setShowPlansModal(false)}
+                style={styles.closeButton}
+              >
+                <Text style={styles.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+
+              <ScrollView 
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.plansScrollContent}
+              >
+                {/* Annual Plan */}
+                <TouchableOpacity
+                  style={[
+                    styles.planCard,
+                    selectedPlan === 'annual' && styles.planCardSelected,
+                  ]}
+                  onPress={() => {
+                    setSelectedPlan('annual');
+                    setShowPlansModal(false);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.planBadge}>
+                    <Text style={styles.planBadgeText}>3-DAY FREE TRIAL</Text>
+                  </View>
+                  
+                  <Text style={styles.planTitle}>Annual Premium</Text>
+                  
+                  <View style={styles.priceContainer}>
+                    <Text style={styles.planPrice}>$37</Text>
+                    <Text style={styles.planPeriod}>/year</Text>
+                  </View>
+                  
+                  <Text style={styles.planSavings}>💰 Save 52% • Best value</Text>
+                  
+                  <View style={styles.planFeatures}>
+                    <View style={styles.featureRow}>
+                      <Text style={styles.featureCheck}>✓</Text>
+                      <Text style={styles.featureText}>Unlimited AI skin analyses</Text>
+                    </View>
+                    <View style={styles.featureRow}>
+                      <Text style={styles.featureCheck}>✓</Text>
+                      <Text style={styles.featureText}>Personalized routines</Text>
+                    </View>
+                    <View style={styles.featureRow}>
+                      <Text style={styles.featureCheck}>✓</Text>
+                      <Text style={styles.featureText}>Progress tracking</Text>
+                    </View>
+                  </View>
+
+                  {selectedPlan === 'annual' && (
+                    <View style={styles.selectedIndicator}>
+                      <Text style={styles.selectedIndicatorText}>✓</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+
+                {/* Monthly Plan */}
+                <TouchableOpacity
+                  style={[
+                    styles.planCard,
+                    selectedPlan === 'monthly' && styles.planCardSelected,
+                  ]}
+                  onPress={() => {
+                    setSelectedPlan('monthly');
+                    setShowPlansModal(false);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.planTitle}>Monthly Premium</Text>
+                  
+                  <View style={styles.priceContainer}>
+                    <Text style={styles.planPrice}>$7.77</Text>
+                    <Text style={styles.planPeriod}>/month</Text>
+                  </View>
+                  
+                  <Text style={styles.planSavings}>Flexible monthly billing</Text>
+                  
+                  <View style={styles.planFeatures}>
+                    <View style={styles.featureRow}>
+                      <Text style={styles.featureCheck}>✓</Text>
+                      <Text style={styles.featureText}>Unlimited AI skin analyses</Text>
+                    </View>
+                    <View style={styles.featureRow}>
+                      <Text style={styles.featureCheck}>✓</Text>
+                      <Text style={styles.featureText}>Personalized routines</Text>
+                    </View>
+                    <View style={styles.featureRow}>
+                      <Text style={styles.featureCheck}>✓</Text>
+                      <Text style={styles.featureText}>Progress tracking</Text>
+                    </View>
+                  </View>
+
+                  {selectedPlan === 'monthly' && (
+                    <View style={styles.selectedIndicator}>
+                      <Text style={styles.selectedIndicatorText}>✓</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </ScrollView>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -223,7 +425,7 @@ const styles = StyleSheet.create({
   },
   benefitsContainer: {
     paddingHorizontal: 24,
-    marginBottom: 140,
+    marginBottom: 24,
     backgroundColor: 'transparent',
   },
   benefitCard: {
@@ -286,10 +488,161 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 6,
   },
+  seeOtherPlansLink: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+    marginBottom: 6,
+    fontWeight: '500',
+  },
   cancelText: {
     fontSize: 13,
     color: '#999',
     textAlign: 'center',
     fontWeight: '400',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContainer: {
+    width: '90%',
+    maxWidth: 360,
+    maxHeight: '70%',
+  },
+  modalContent: {
+    backgroundColor: 'transparent',
+    borderRadius: 20,
+    padding: 20,
+    position: 'relative',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: BRAND_COLORS.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  closeButtonText: {
+    fontSize: 18,
+    color: '#666',
+    fontWeight: '400',
+  },
+  plansScrollContent: {
+    paddingTop: 40,
+  },
+  planCard: {
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 14,
+    borderWidth: 2,
+    borderColor: '#E5E5E5',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+    position: 'relative',
+    alignItems: 'center',
+  },
+  planCardSelected: {
+    borderColor: BRAND_COLORS.primary,
+    borderWidth: 3,
+    shadowOpacity: 0.2,
+    elevation: 6,
+  },
+  planBadge: {
+    backgroundColor: BRAND_COLORS.primary,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  planBadgeText: {
+    color: BRAND_COLORS.white,
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  planTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: BRAND_COLORS.primary,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'center',
+    marginBottom: 6,
+  },
+  planPrice: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: BRAND_COLORS.primary,
+  },
+  planPeriod: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#666',
+    marginLeft: 4,
+  },
+  planSavings: {
+    fontSize: 12,
+    color: BRAND_COLORS.darkGray,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 14,
+  },
+  planFeatures: {
+    gap: 8,
+    width: '100%',
+  },
+  featureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  featureCheck: {
+    fontSize: 14,
+    color: BRAND_COLORS.primary,
+    fontWeight: '700',
+    marginRight: 8,
+    width: 18,
+  },
+  featureText: {
+    fontSize: 13,
+    color: '#333',
+    flex: 1,
+  },
+  selectedIndicator: {
+    position: 'absolute',
+    top: 18,
+    right: 18,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: BRAND_COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedIndicatorText: {
+    color: BRAND_COLORS.white,
+    fontSize: 16,
+    fontWeight: '700',
   },
 });

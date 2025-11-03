@@ -1,4 +1,4 @@
-// app/NightRoutineScreen.js - UPDATED WITH LOCKING SYSTEM & IMAGE LOCK
+// app/NightRoutineScreen.js - ADDED UNKNOWN SKIN TYPE PROMPT
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -31,6 +31,7 @@ const SKIN_TYPE_INFO = {
   combination: { color: BRAND_COLORS.primary },
   normal: { color: '#9B59B6' },
   sensitive: { color: BRAND_COLORS.primary },
+  unknown: { color: '#757575' },
 };
 
 export default function NightRoutineScreen({ 
@@ -42,7 +43,7 @@ export default function NightRoutineScreen({
 }) {
   const [skinType, setSkinType] = useState('normal');
   const [routineData, setRoutineData] = useState(null);
-  const [selectedLevel, setSelectedLevel] = useState('basic'); // ✅ CHANGED TO BASIC
+  const [selectedLevel, setSelectedLevel] = useState('basic');
   const [currentView, setCurrentView] = useState('initial');
   const [showLockModal, setShowLockModal] = useState(false);
   const [lockMessage, setLockMessage] = useState('');
@@ -331,7 +332,8 @@ export default function NightRoutineScreen({
     </View>
   );
 
-  const renderCreateRoutineScreen = () => (
+  // UNKNOWN SKIN TYPE PROMPT
+  const renderUnknownSkinTypePrompt = () => (
     <View style={styles.container} {...panResponder.panHandlers}>
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
@@ -355,300 +357,367 @@ export default function NightRoutineScreen({
         />
       </TouchableOpacity>
 
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.content}>
-          <View style={styles.heroSection}>
-            <Text style={styles.questionTitle}>
-              Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
-                {routineData.name}
-              </Text>{'\n'}Evening Routine
-            </Text>
-            <Text style={styles.questionSubtitle}>
-              Choose the routine level that fits your skincare goals. Build your foundation first!
-            </Text>
+      <View style={styles.unknownPromptContainer}>
+        <View style={styles.unknownPromptContent}>
+          <View style={styles.unknownIconContainer}>
+            <View style={styles.testTubeIcon}>
+              <View style={styles.testTubeTop} />
+              <View style={styles.testTubeBody} />
+            </View>
           </View>
+          
+          <Text style={styles.unknownPromptTitle}>
+            Let's discover your skin type!
+          </Text>
+          
+          <Text style={styles.unknownPromptMessage}>
+            For the best personalized routine experience, we recommend taking at least 1 of our 3 super easy skin tests. 
+            {'\n\n'}
+            This will help us create the perfect routine tailored specifically for your skin's unique needs!
+          </Text>
+
+          <DrAcneButton
+            title="Take Skin Test Now"
+            onPress={onNavigateToSkinTest}
+            style={styles.unknownPromptButton}
+          />
 
           <TouchableOpacity 
-            style={styles.skinTestReminder}
-            onPress={onNavigateToSkinTest}
-            activeOpacity={0.7}
+            onPress={() => setCurrentView('initial')}
+            style={styles.unknownPromptBackButton}
           >
-            <View style={styles.reminderIcon}>
-              <View style={styles.testTubeIcon}>
-                <View style={styles.testTubeTop} />
-                <View style={styles.testTubeBody} />
-              </View>
-            </View>
-            <View style={styles.reminderContent}>
-              <Text style={styles.reminderTitle}>Not sure about your skin type?</Text>
-              <Text style={styles.reminderSubtitle}>Take our quick skin test for accurate results</Text>
-            </View>
-            <Text style={styles.reminderArrow}>→</Text>
+            <Text style={styles.unknownPromptBackText}>Maybe Later</Text>
           </TouchableOpacity>
-
-          <View style={styles.routineLevelsContainer}>
-            <Text style={styles.sectionTitle}>Choose Your Starting Level</Text>
-            
-            {/* Basic Card - ALWAYS UNLOCKED */}
-            <TouchableOpacity
-              style={[
-                styles.routineCard,
-                selectedLevel === 'basic' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }],
-                hasNightRoutine && savedRoutineLevel === 'basic' && styles.routineCardSaved
-              ]}
-              onPress={() => handleRoutineCardPress('basic')}
-            >
-              <View style={styles.routineHeader}>
-                <View style={[styles.routineBadge, { backgroundColor: '#E8F5E9' }]}>
-                  <Text style={[styles.routineBadgeText, { color: BRAND_COLORS.primary }]}>
-                    BASIC
-                  </Text>
-                </View>
-                <View style={styles.routineHeaderRight}>
-                  {hasNightRoutine && savedRoutineLevel === 'basic' && (
-                    <View style={styles.savedBadge}>
-                      <Text style={styles.savedBadgeText}>SAVED</Text>
-                    </View>
-                  )}
-                  {selectedLevel === 'basic' && (
-                    <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
-                      <Text style={styles.selectedIndicatorText}>✓</Text>
-                    </View>
-                  )}
-                </View>
-              </View>
-              <Text style={styles.routineTitle}>{routineData.basic.title}</Text>
-              <Text style={styles.routineDescription}>{routineData.basic.description}</Text>
-              
-              <View style={styles.routineSteps}>
-                <Text style={styles.stepsTitle}>Evening:</Text>
-                {routineData.basic.steps.pm.map((step, index) => (
-                  <Text key={index} style={styles.stepText}>• {step}</Text>
-                ))}
-              </View>
-
-              <View style={styles.benefitsContainer}>
-                {routineData.basic.keyBenefits.map((benefit, index) => (
-                  <View key={index} style={styles.benefitPill}>
-                    <Text style={styles.benefitText}>{benefit}</Text>
-                  </View>
-                ))}
-              </View>
-            </TouchableOpacity>
-
-            {/* Moderate Card - LOCKED UNTIL 1 WEEK */}
-            <TouchableOpacity
-              style={[
-                styles.routineCard,
-                selectedLevel === 'moderate' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }],
-                hasNightRoutine && savedRoutineLevel === 'moderate' && styles.routineCardSaved,
-                !isModerateUnlocked() && styles.routineCardLocked
-              ]}
-              onPress={() => handleRoutineCardPress('moderate')}
-              activeOpacity={isModerateUnlocked() ? 0.7 : 1}
-            >
-              <View style={styles.routineHeader}>
-                <View style={[styles.routineBadge, { backgroundColor: '#FFF4E5' }]}>
-                  <Text style={[styles.routineBadgeText, { color: '#F39C12' }]}>
-                    MODERATE
-                  </Text>
-                </View>
-                <View style={styles.routineHeaderRight}>
-                  {!isModerateUnlocked() && (
-                    <View style={styles.lockBadge}>
-                      <Image 
-                        source={require('../assets/images/lock1.png')} 
-                        style={styles.lockImage}
-                        resizeMode="contain"
-                      />
-                    </View>
-                  )}
-                  {hasNightRoutine && savedRoutineLevel === 'moderate' && isModerateUnlocked() && (
-                    <View style={styles.savedBadge}>
-                      <Text style={styles.savedBadgeText}>SAVED</Text>
-                    </View>
-                  )}
-                  {selectedLevel === 'moderate' && isModerateUnlocked() && (
-                    <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
-                      <Text style={styles.selectedIndicatorText}>✓</Text>
-                    </View>
-                  )}
-                </View>
-              </View>
-              <Text style={styles.routineTitle}>{routineData.moderate.title}</Text>
-              <Text style={styles.routineDescription}>{routineData.moderate.description}</Text>
-              
-              <View style={styles.routineSteps}>
-                <Text style={styles.stepsTitle}>Evening:</Text>
-                {routineData.moderate.steps.pm.slice(0, 3).map((step, index) => (
-                  <Text key={index} style={styles.stepText}>• {step}</Text>
-                ))}
-                <Text style={styles.moreSteps}>+ additional steps</Text>
-              </View>
-
-              <View style={styles.benefitsContainer}>
-                {routineData.moderate.keyBenefits.map((benefit, index) => (
-                  <View key={index} style={styles.benefitPill}>
-                    <Text style={styles.benefitText}>{benefit}</Text>
-                  </View>
-                ))}
-              </View>
-
-              {!isModerateUnlocked() && (
-                <View style={styles.lockOverlay}>
-                  <Image 
-                    source={require('../assets/images/lock1.png')} 
-                    style={styles.lockOverlayImage}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.lockOverlayText}>Complete Basic Routine for 1 week to unlock</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-
-            {/* Comprehensive Card - LOCKED UNTIL 2 WEEKS */}
-            <TouchableOpacity
-              style={[
-                styles.routineCard,
-                selectedLevel === 'comprehensive' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }],
-                hasNightRoutine && savedRoutineLevel === 'comprehensive' && styles.routineCardSaved,
-                !isComprehensiveUnlocked() && styles.routineCardLocked
-              ]}
-              onPress={() => handleRoutineCardPress('comprehensive')}
-              activeOpacity={isComprehensiveUnlocked() ? 0.7 : 1}
-            >
-              <View style={styles.routineHeader}>
-                <View style={[styles.routineBadge, { backgroundColor: '#F3E5F5' }]}>
-                  <Text style={[styles.routineBadgeText, { color: '#9B59B6' }]}>
-                    COMPREHENSIVE
-                  </Text>
-                </View>
-                <View style={styles.routineHeaderRight}>
-                  {!isComprehensiveUnlocked() && (
-                    <View style={styles.lockBadge}>
-                      <Image 
-                        source={require('../assets/images/lock1.png')} 
-                        style={styles.lockImage}
-                        resizeMode="contain"
-                      />
-                    </View>
-                  )}
-                  {hasNightRoutine && savedRoutineLevel === 'comprehensive' && isComprehensiveUnlocked() && (
-                    <View style={styles.savedBadge}>
-                      <Text style={styles.savedBadgeText}>SAVED</Text>
-                    </View>
-                  )}
-                  {selectedLevel === 'comprehensive' && isComprehensiveUnlocked() && (
-                    <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
-                      <Text style={styles.selectedIndicatorText}>✓</Text>
-                    </View>
-                  )}
-                </View>
-              </View>
-              <Text style={styles.routineTitle}>{routineData.comprehensive.title}</Text>
-              <Text style={styles.routineDescription}>{routineData.comprehensive.description}</Text>
-              
-              <View style={styles.routineSteps}>
-                <Text style={styles.stepsTitle}>Full Treatment:</Text>
-                {routineData.comprehensive.steps.pm.slice(0, 3).map((step, index) => (
-                  <Text key={index} style={styles.stepText}>• {step}</Text>
-                ))}
-                <Text style={styles.moreSteps}>+ advanced treatments & more</Text>
-              </View>
-
-              <View style={styles.benefitsContainer}>
-                {routineData.comprehensive.keyBenefits.map((benefit, index) => (
-                  <View key={index} style={styles.benefitPill}>
-                    <Text style={styles.benefitText}>{benefit}</Text>
-                  </View>
-                ))}
-              </View>
-
-              {!isComprehensiveUnlocked() && (
-                <View style={styles.lockOverlay}>
-                  <Image 
-                    source={require('../assets/images/lock1.png')} 
-                    style={styles.lockOverlayImage}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.lockOverlayText}>Complete Moderate Routine for 2 weeks to unlock</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.trustSection}>
-            <View style={styles.trustItem}>
-              <Text style={styles.trustText}>• Science-backed formulations</Text>
-            </View>
-            <View style={styles.trustItem}>
-              <Text style={styles.trustText}>• Personalized for your skin</Text>
-            </View>
-            <View style={styles.trustItem}>
-              <Text style={styles.trustText}>• Results in 4-12 weeks</Text>
-            </View>
-          </View>
-
-          <View style={styles.bottomSpacing} />
         </View>
-      </ScrollView>
-
-      <View style={styles.bottomSection}>
-        <DrAcneButton
-          title={getButtonText()}
-          onPress={handleSaveRoutine}
-          style={styles.saveButton}
-        />
-        
-        <Text style={styles.helperText}>
-          Build your routine progressively - your skin will thank you!
-        </Text>
       </View>
+    </View>
+  );
 
-      {/* Lock Warning Modal - STYLED LIKE COMPLETION MODAL */}
-      <Modal
-        visible={showLockModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowLockModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalBannerContainer}>
-              <Image 
-                source={require('../assets/images/Banner Locked.png')}
-                style={styles.modalBanner}
-                resizeMode="cover"
-              />
+  const renderCreateRoutineScreen = () => {
+    // If skin type is unknown, show the prompt instead
+    if (skinType === 'unknown') {
+      return renderUnknownSkinTypePrompt();
+    }
+
+    return (
+      <View style={styles.container} {...panResponder.panHandlers}>
+        <View style={styles.topNavigation}>
+          <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
+            <Image 
+              source={require('../assets/images/dracne-logo.png')} 
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity 
+          style={styles.bannerContainer}
+          onPress={() => setCurrentView('initial')}
+          activeOpacity={0.9}
+        >
+          <Image 
+            source={require('../assets/images/Banner Night Routine 1.png')}
+            style={styles.bannerImage}
+            resizeMode="cover"
+          />
+        </TouchableOpacity>
+
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.content}>
+            <View style={styles.heroSection}>
+              <Text style={styles.questionTitle}>
+                Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
+                  {routineData.name}
+                </Text>{'\n'}Evening Routine
+              </Text>
+              <Text style={styles.questionSubtitle}>
+                Choose the routine level that fits your skincare goals. Build your foundation first!
+              </Text>
             </View>
-            
-            <View style={styles.modalBody}>
-              <View style={styles.modalLockIconContainer}>
+
+            <TouchableOpacity 
+              style={styles.skinTestReminder}
+              onPress={onNavigateToSkinTest}
+              activeOpacity={0.7}
+            >
+              <View style={styles.reminderIcon}>
+                <View style={styles.testTubeIcon}>
+                  <View style={styles.testTubeTop} />
+                  <View style={styles.testTubeBody} />
+                </View>
+              </View>
+              <View style={styles.reminderContent}>
+                <Text style={styles.reminderTitle}>Not sure about your skin type?</Text>
+                <Text style={styles.reminderSubtitle}>Take our quick skin test for accurate results</Text>
+              </View>
+              <Text style={styles.reminderArrow}>→</Text>
+            </TouchableOpacity>
+
+            <View style={styles.routineLevelsContainer}>
+              <Text style={styles.sectionTitle}>Choose Your Starting Level</Text>
+              
+              {/* Basic Card - ALWAYS UNLOCKED */}
+              <TouchableOpacity
+                style={[
+                  styles.routineCard,
+                  selectedLevel === 'basic' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }],
+                  hasNightRoutine && savedRoutineLevel === 'basic' && styles.routineCardSaved
+                ]}
+                onPress={() => handleRoutineCardPress('basic')}
+              >
+                <View style={styles.routineHeader}>
+                  <View style={[styles.routineBadge, { backgroundColor: '#E8F5E9' }]}>
+                    <Text style={[styles.routineBadgeText, { color: BRAND_COLORS.primary }]}>
+                      BASIC
+                    </Text>
+                  </View>
+                  <View style={styles.routineHeaderRight}>
+                    {hasNightRoutine && savedRoutineLevel === 'basic' && (
+                      <View style={styles.savedBadge}>
+                        <Text style={styles.savedBadgeText}>SAVED</Text>
+                      </View>
+                    )}
+                    {selectedLevel === 'basic' && (
+                      <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
+                        <Text style={styles.selectedIndicatorText}>✓</Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+                <Text style={styles.routineTitle}>{routineData.basic.title}</Text>
+                <Text style={styles.routineDescription}>{routineData.basic.description}</Text>
+                
+                <View style={styles.routineSteps}>
+                  <Text style={styles.stepsTitle}>Evening:</Text>
+                  {routineData.basic.steps.pm.map((step, index) => (
+                    <Text key={index} style={styles.stepText}>• {step}</Text>
+                  ))}
+                </View>
+
+                <View style={styles.benefitsContainer}>
+                  {routineData.basic.keyBenefits.map((benefit, index) => (
+                    <View key={index} style={styles.benefitPill}>
+                      <Text style={styles.benefitText}>{benefit}</Text>
+                    </View>
+                  ))}
+                </View>
+              </TouchableOpacity>
+
+              {/* Moderate Card - LOCKED UNTIL 1 WEEK */}
+              <TouchableOpacity
+                style={[
+                  styles.routineCard,
+                  selectedLevel === 'moderate' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }],
+                  hasNightRoutine && savedRoutineLevel === 'moderate' && styles.routineCardSaved,
+                  !isModerateUnlocked() && styles.routineCardLocked
+                ]}
+                onPress={() => handleRoutineCardPress('moderate')}
+                activeOpacity={isModerateUnlocked() ? 0.7 : 1}
+              >
+                <View style={styles.routineHeader}>
+                  <View style={[styles.routineBadge, { backgroundColor: '#FFF4E5' }]}>
+                    <Text style={[styles.routineBadgeText, { color: '#F39C12' }]}>
+                      MODERATE
+                    </Text>
+                  </View>
+                  <View style={styles.routineHeaderRight}>
+                    {!isModerateUnlocked() && (
+                      <View style={styles.lockBadge}>
+                        <Image 
+                          source={require('../assets/images/lock1.png')} 
+                          style={styles.lockImage}
+                          resizeMode="contain"
+                        />
+                      </View>
+                    )}
+                    {hasNightRoutine && savedRoutineLevel === 'moderate' && isModerateUnlocked() && (
+                      <View style={styles.savedBadge}>
+                        <Text style={styles.savedBadgeText}>SAVED</Text>
+                      </View>
+                    )}
+                    {selectedLevel === 'moderate' && isModerateUnlocked() && (
+                      <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
+                        <Text style={styles.selectedIndicatorText}>✓</Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+                <Text style={styles.routineTitle}>{routineData.moderate.title}</Text>
+                <Text style={styles.routineDescription}>{routineData.moderate.description}</Text>
+                
+                <View style={styles.routineSteps}>
+                  <Text style={styles.stepsTitle}>Evening:</Text>
+                  {routineData.moderate.steps.pm.slice(0, 3).map((step, index) => (
+                    <Text key={index} style={styles.stepText}>• {step}</Text>
+                  ))}
+                  <Text style={styles.moreSteps}>+ additional steps</Text>
+                </View>
+
+                <View style={styles.benefitsContainer}>
+                  {routineData.moderate.keyBenefits.map((benefit, index) => (
+                    <View key={index} style={styles.benefitPill}>
+                      <Text style={styles.benefitText}>{benefit}</Text>
+                    </View>
+                  ))}
+                </View>
+
+                {!isModerateUnlocked() && (
+                  <View style={styles.lockOverlay}>
+                    <Image 
+                      source={require('../assets/images/lock1.png')} 
+                      style={styles.lockOverlayImage}
+                      resizeMode="contain"
+                    />
+                    <Text style={styles.lockOverlayText}>Complete Basic Routine for 1 week to unlock</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+
+              {/* Comprehensive Card - LOCKED UNTIL 2 WEEKS */}
+              <TouchableOpacity
+                style={[
+                  styles.routineCard,
+                  selectedLevel === 'comprehensive' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }],
+                  hasNightRoutine && savedRoutineLevel === 'comprehensive' && styles.routineCardSaved,
+                  !isComprehensiveUnlocked() && styles.routineCardLocked
+                ]}
+                onPress={() => handleRoutineCardPress('comprehensive')}
+                activeOpacity={isComprehensiveUnlocked() ? 0.7 : 1}
+              >
+                <View style={styles.routineHeader}>
+                  <View style={[styles.routineBadge, { backgroundColor: '#F3E5F5' }]}>
+                    <Text style={[styles.routineBadgeText, { color: '#9B59B6' }]}>
+                      COMPREHENSIVE
+                    </Text>
+                  </View>
+                  <View style={styles.routineHeaderRight}>
+                    {!isComprehensiveUnlocked() && (
+                      <View style={styles.lockBadge}>
+                        <Image 
+                          source={require('../assets/images/lock1.png')} 
+                          style={styles.lockImage}
+                          resizeMode="contain"
+                        />
+                      </View>
+                    )}
+                    {hasNightRoutine && savedRoutineLevel === 'comprehensive' && isComprehensiveUnlocked() && (
+                      <View style={styles.savedBadge}>
+                        <Text style={styles.savedBadgeText}>SAVED</Text>
+                      </View>
+                    )}
+                    {selectedLevel === 'comprehensive' && isComprehensiveUnlocked() && (
+                      <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
+                        <Text style={styles.selectedIndicatorText}>✓</Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+                <Text style={styles.routineTitle}>{routineData.comprehensive.title}</Text>
+                <Text style={styles.routineDescription}>{routineData.comprehensive.description}</Text>
+                
+                <View style={styles.routineSteps}>
+                  <Text style={styles.stepsTitle}>Full Treatment:</Text>
+                  {routineData.comprehensive.steps.pm.slice(0, 3).map((step, index) => (
+                    <Text key={index} style={styles.stepText}>• {step}</Text>
+                  ))}
+                  <Text style={styles.moreSteps}>+ advanced treatments & more</Text>
+                </View>
+
+                <View style={styles.benefitsContainer}>
+                  {routineData.comprehensive.keyBenefits.map((benefit, index) => (
+                    <View key={index} style={styles.benefitPill}>
+                      <Text style={styles.benefitText}>{benefit}</Text>
+                    </View>
+                  ))}
+                </View>
+
+                {!isComprehensiveUnlocked() && (
+                  <View style={styles.lockOverlay}>
+                    <Image 
+                      source={require('../assets/images/lock1.png')} 
+                      style={styles.lockOverlayImage}
+                      resizeMode="contain"
+                    />
+                    <Text style={styles.lockOverlayText}>Complete Moderate Routine for 2 weeks to unlock</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.trustSection}>
+              <View style={styles.trustItem}>
+                <Text style={styles.trustText}>• Science-backed formulations</Text>
+              </View>
+              <View style={styles.trustItem}>
+                <Text style={styles.trustText}>• Personalized for your skin</Text>
+              </View>
+              <View style={styles.trustItem}>
+                <Text style={styles.trustText}>• Results in 4-12 weeks</Text>
+              </View>
+            </View>
+
+            <View style={styles.bottomSpacing} />
+          </View>
+        </ScrollView>
+
+        <View style={styles.bottomSection}>
+          <DrAcneButton
+            title={getButtonText()}
+            onPress={handleSaveRoutine}
+            style={styles.saveButton}
+          />
+          
+          <Text style={styles.helperText}>
+            Build your routine progressively - your skin will thank you!
+          </Text>
+        </View>
+
+        {/* Lock Warning Modal - STYLED LIKE COMPLETION MODAL */}
+        <Modal
+          visible={showLockModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowLockModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalBannerContainer}>
                 <Image 
-                  source={require('../assets/images/lock1.png')} 
-                  style={styles.modalLockIcon}
-                  resizeMode="contain"
+                  source={require('../assets/images/Banner Locked.png')}
+                  style={styles.modalBanner}
+                  resizeMode="cover"
                 />
               </View>
               
-              <Text style={styles.modalTitle}>Routine Locked</Text>
-              <Text style={styles.modalMessage}>{lockMessage}</Text>
-              
-              <DrAcneButton
-                title="Got it!"
-                onPress={() => setShowLockModal(false)}
-                style={styles.modalButton}
-              />
+              <View style={styles.modalBody}>
+                <View style={styles.modalLockIconContainer}>
+                  <Image 
+                    source={require('../assets/images/lock1.png')} 
+                    style={styles.modalLockIcon}
+                    resizeMode="contain"
+                  />
+                </View>
+                
+                <Text style={styles.modalTitle}>Routine Locked</Text>
+                <Text style={styles.modalMessage}>{lockMessage}</Text>
+                
+                <DrAcneButton
+                  title="Got it!"
+                  onPress={() => setShowLockModal(false)}
+                  style={styles.modalButton}
+                />
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
-    </View>
-  );
+        </Modal>
+      </View>
+    );
+  };
 
   return currentView === 'initial' ? renderInitialScreen() : renderCreateRoutineScreen();
 }
@@ -824,6 +893,59 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '500',
     marginTop: 2,
+  },
+  unknownPromptContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  unknownPromptContent: {
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 20,
+    padding: 30,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
+    width: '100%',
+  },
+  unknownIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#F0F8FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  unknownPromptTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  unknownPromptMessage: {
+    fontSize: 15,
+    color: BRAND_COLORS.darkGray,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 25,
+  },
+  unknownPromptButton: {
+    width: '100%',
+    marginBottom: 12,
+  },
+  unknownPromptBackButton: {
+    paddingVertical: 10,
+  },
+  unknownPromptBackText: {
+    fontSize: 14,
+    color: BRAND_COLORS.gray,
+    fontWeight: '600',
   },
   routineLevelsContainer: {
     marginBottom: 8,

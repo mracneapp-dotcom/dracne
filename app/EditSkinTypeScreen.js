@@ -2,13 +2,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -58,6 +58,13 @@ const SKIN_TYPES = [
     icon: require('../assets/images/check.png'),
     color: BRAND_COLORS.secondary,
   },
+  {
+    id: 'unknown',
+    label: "I'm Not Sure",
+    description: "We'll help you find out",
+    icon: require('../assets/images/check.png'),
+    color: '#757575',
+  },
 ];
 
 export default function EditSkinTypeScreen({ onBack, onNavigateHome, onNavigateToSkinTest }) {
@@ -76,7 +83,6 @@ export default function EditSkinTypeScreen({ onBack, onNavigateHome, onNavigateT
         setSelectedType(savedSkinType);
         setInitialType(savedSkinType);
       } else {
-        // Default to normal if not set
         setSelectedType('normal');
         setInitialType('normal');
       }
@@ -145,7 +151,6 @@ export default function EditSkinTypeScreen({ onBack, onNavigateHome, onNavigateT
           <Text style={styles.subtitle}>Update your skin type profile</Text>
         </View>
 
-        {/* Skin Test Reminder Banner */}
         <TouchableOpacity 
           style={styles.testReminderBanner}
           onPress={onNavigateToSkinTest}

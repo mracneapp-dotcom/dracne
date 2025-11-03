@@ -30,6 +30,7 @@ const SKIN_TYPE_INFO = {
   combination: { image: require('../../assets/images/Combination.png'), color: BRAND_COLORS.primary },
   normal: { image: require('../../assets/images/Normal.png'), color: '#9B59B6' },
   sensitive: { image: require('../../assets/images/Sensitive.png'), color: BRAND_COLORS.primary },
+  unknown: { image: require('../../assets/images/Normal.png'), color: '#757575' },
 };
 
 export default function OnboardingPlanReady({ onNext }) {
@@ -105,7 +106,6 @@ export default function OnboardingPlanReady({ onNext }) {
   };
 
   const handleGetStarted = async () => {
-    // Save the selected routine level
     try {
       await AsyncStorage.setItem('selectedRoutineLevel', selectedLevel);
       console.log('✅ Saved routine level:', selectedLevel);
@@ -118,8 +118,34 @@ export default function OnboardingPlanReady({ onNext }) {
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
 
+  const getHeroTitle = () => {
+    if (skinType === 'unknown') {
+      return (
+        <Text style={styles.questionTitle}>
+          Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
+            Gentle Balanced
+          </Text>{'\n'}routine is ready!
+        </Text>
+      );
+    }
+    return (
+      <Text style={styles.questionTitle}>
+        Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
+          {routineData?.name}
+        </Text>{'\n'}routine is ready!
+      </Text>
+    );
+  };
+
+  const getHeroSubtitle = () => {
+    if (skinType === 'unknown') {
+      return "We'll help you discover your skin type as we go. This gentle routine works for everyone!";
+    }
+    return routineData?.description;
+  };
+
   if (!routineData) {
-    return null; // Loading state
+    return null;
   }
 
   return (
@@ -162,13 +188,9 @@ export default function OnboardingPlanReady({ onNext }) {
 
           {/* Hero Section */}
           <View style={styles.heroSection}>
-            <Text style={styles.questionTitle}>
-              Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
-                {routineData.name}
-              </Text>{'\n'}routine is ready!
-            </Text>
+            {getHeroTitle()}
             <Text style={styles.questionSubtitle}>
-              {routineData.description}
+              {getHeroSubtitle()}
             </Text>
           </View>
 

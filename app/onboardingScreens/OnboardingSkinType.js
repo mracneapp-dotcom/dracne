@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState } from 'react';
 import {
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -53,6 +54,13 @@ const SKIN_TYPES = [
     icon: require('../../assets/images/check.png'),
     color: BRAND_COLORS.secondary,
   },
+  {
+    id: 'unknown',
+    label: "I'm Not Sure",
+    description: "We'll help you find out",
+    icon: require('../../assets/images/check.png'),
+    color: '#757575',
+  },
 ];
 
 export default function OnboardingSkinType({ onNext }) {
@@ -64,7 +72,6 @@ export default function OnboardingSkinType({ onNext }) {
 
   const handleContinue = async () => {
     if (selectedType) {
-      // Save skin type to AsyncStorage for easy access throughout the app
       try {
         await AsyncStorage.setItem('userSkinType', selectedType);
         console.log('✅ Skin type saved:', selectedType);
@@ -72,14 +79,25 @@ export default function OnboardingSkinType({ onNext }) {
         console.error('Error saving skin type:', error);
       }
 
-      // Pass to next screen with skin type data
       onNext('onboardingRoutine', { skinType: selectedType });
     }
   };
 
+  const getSelectionMessage = () => {
+    const selected = SKIN_TYPES.find(t => t.id === selectedType);
+    if (selectedType === 'unknown') {
+      return "We'll create a gentle routine for you. Take our skin test later to personalize it!";
+    }
+    return `Perfect! We'll customize your routine for ${selected?.label.toLowerCase()} skin`;
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView 
+        style={styles.scrollContent}
+        contentContainerStyle={styles.scrollContentContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.header}>
           <Text style={styles.title}>
             What's your <Text style={styles.titleHighlight}>skin type?</Text>
@@ -135,11 +153,11 @@ export default function OnboardingSkinType({ onNext }) {
         {selectedType && (
           <View style={styles.selectionInfo}>
             <Text style={styles.selectionText}>
-              Perfect! We'll customize your routine for {SKIN_TYPES.find(t => t.id === selectedType)?.label.toLowerCase()} skin
+              {getSelectionMessage()}
             </Text>
           </View>
         )}
-      </View>
+      </ScrollView>
 
       <View style={styles.bottomSection}>
         <TouchableOpacity
@@ -170,45 +188,46 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
   },
-  content: {
+  scrollContent: {
     flex: 1,
-    backgroundColor: 'transparent',
+  },
+  scrollContentContainer: {
     paddingHorizontal: 20,
-    paddingTop: 40,
-    justifyContent: 'flex-start',
+    paddingTop: 30,
+    paddingBottom: 20,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 30,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '700',
     color: BRAND_COLORS.black,
     textAlign: 'center',
-    marginBottom: 12,
-    lineHeight: 34,
+    marginBottom: 10,
+    lineHeight: 32,
   },
   titleHighlight: {
     color: BRAND_COLORS.primary,
     fontWeight: '800',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#666',
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 22,
   },
   typesContainer: {
-    marginBottom: 20,
+    marginBottom: 15,
   },
   typeCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: BRAND_COLORS.white,
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+    padding: 14,
+    marginBottom: 10,
     borderWidth: 2,
     borderColor: 'transparent',
     shadowColor: '#000',
@@ -218,42 +237,43 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 14,
   },
   icon: {
-    width: 24,
-    height: 24,
+    width: 22,
+    height: 22,
   },
   textContainer: {
     flex: 1,
   },
   typeLabel: {
-    fontSize: 17,
+    fontSize: 16,
     color: BRAND_COLORS.black,
-    marginBottom: 3,
+    marginBottom: 2,
   },
   typeDescription: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#666',
-    lineHeight: 19,
+    lineHeight: 18,
   },
   selectionInfo: {
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 5,
     backgroundColor: '#E8F5E9',
     borderRadius: 12,
-    padding: 16,
+    padding: 14,
   },
   selectionText: {
-    fontSize: 14,
+    fontSize: 13,
     color: BRAND_COLORS.primary,
     fontWeight: '600',
     textAlign: 'center',
+    lineHeight: 19,
   },
   bottomSection: {
     paddingHorizontal: 20,
