@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { AnalysisResults } from '../components/analysis/AnalysisResults';
 import { PhotoCapture } from '../components/camera/PhotoCapture';
+import IntroAnimation from '../components/IntroAnimation';
 import SmartRoutineSuggestionModal from '../components/modals/SmartRoutineSuggestionModal';
 import { BottomNavigation } from '../components/ui/BottomNavigation';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
@@ -232,6 +233,7 @@ export default function AIScannerScreen() {
   const [selectedImageUri, setSelectedImageUri] = useState(null);
   const [analysisData, setAnalysisData] = useState(null);
   const [annotatedImageBlob, setAnnotatedImageBlob] = useState(null);
+  const [showIntro, setShowIntro] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('routines');
   const [analysisSteps, setAnalysisSteps] = useState([
@@ -326,7 +328,10 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
       incrementCount();
     }
   }, [currentStep]);
-
+  const handleIntroComplete = () => {
+    setShowIntro(false);
+  };
+  
   // Onboarding Navigation Handler
   const handleOnboardingNext = async (nextStep, data = {}) => {
     const updatedData = { ...onboardingData, ...data };
@@ -2598,6 +2603,10 @@ const renderComprehensiveNightRoutineStep4 = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {showIntro ? (
+        <IntroAnimation onComplete={handleIntroComplete} />
+      ) : (
+        <>
       <StatusBar barStyle="dark-content" backgroundColor="#FAFBFC" translucent={false} />
       
       <View style={styles.globalBackground}>
@@ -2774,6 +2783,8 @@ const renderComprehensiveNightRoutineStep4 = () => {
           activeTab={activeTab}
           onTabPress={handleTabPress}
         />
+      )}
+        </>
       )}
     </SafeAreaView>
   );

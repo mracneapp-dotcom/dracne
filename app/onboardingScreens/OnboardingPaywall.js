@@ -5,6 +5,7 @@ import {
   Animated,
   Dimensions,
   Image,
+  Linking,
   Modal,
   ScrollView,
   StyleSheet,
@@ -20,6 +21,7 @@ const BRAND_COLORS = {
   cream: '#FDF5E6',
   black: '#000000',
   white: '#FFFFFF',
+  lightGreen: '#E8F5E9',
 };
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -85,38 +87,9 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     });
   }, [fadeAnim, scaleAnim]);
 
-  // ===================================
-  // TO RE-ENABLE FIREBASE IN PRODUCTION:
-  // 1. Uncomment the code below
-  // 2. Make sure Firebase is properly configured
-  // 3. Test that it doesn't hang
-  // ===================================
   const saveSubscriptionToFirebase = async (plan) => {
     try {
       console.log('💾 Saving subscription to Firebase (DISABLED FOR NOW)...');
-      
-      // UNCOMMENT THIS BLOCK FOR PRODUCTION:
-      /*
-      const user = auth.currentUser;
-      const userId = user?.uid || `guest_${Date.now()}`;
-      
-      const subscriptionData = {
-        userId,
-        plan,
-        status: 'active',
-        transactionId: `test_${Date.now()}`,
-        purchaseDate: new Date().toISOString(),
-        hasTrial: plan === 'annual',
-        trialEndDate: plan === 'annual' ? 
-          new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() : null,
-        testMode: IS_TEST_MODE,
-      };
-
-      await setDoc(doc(db, 'subscriptions', userId), subscriptionData);
-      console.log('✅ Subscription saved:', subscriptionData);
-      */
-      
-      // TEMPORARY: Just simulate the save
       console.log('✅ Subscription save bypassed (test mode)');
     } catch (error) {
       console.error('❌ Error saving subscription:', error);
@@ -166,8 +139,20 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     }
   };
 
+  const handlePrivacyPolicy = () => {
+    Linking.openURL('https://dracne.com/privacy-policy');
+  };
+
+  const handleTermsOfUse = () => {
+    Linking.openURL('https://dracne.com/terms-of-use');
+  };
+
   return (
-    <View style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+    >
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>
@@ -243,9 +228,41 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
         <Text style={styles.cancelText}>
           Cancel anytime • No commitment
         </Text>
+
+        {/* Regulatory Text */}
+        <View style={styles.regulatoryContainer}>
+          <Text style={styles.regulatoryText}>
+            All features require an active subscription
+          </Text>
+          <Text style={styles.regulatoryText}>
+            Annual PREMIUM: $37 USD (1 year) • Monthly PREMIUM: $7.77 USD (1 month)
+          </Text>
+          <Text style={styles.regulatoryText}>
+            Dr. Acne Skincare Assistant - 1 Year PREMIUM • Price: $37
+          </Text>
+          <Text style={styles.regulatoryText}>
+            • Subscription renews unless turned off 24h before period end •
+          </Text>
+          <Text style={styles.regulatoryText}>
+            Account charged within 24h of period end
+          </Text>
+          <Text style={styles.regulatoryText}>
+            • Manage subscriptions in Account Settings after purchase
+          </Text>
+          
+          <View style={styles.linksContainer}>
+            <TouchableOpacity onPress={handlePrivacyPolicy}>
+              <Text style={styles.linkText}>Privacy Policy</Text>
+            </TouchableOpacity>
+            <Text style={styles.linkSeparator}> | </Text>
+            <TouchableOpacity onPress={handleTermsOfUse}>
+              <Text style={styles.linkText}>Terms of Use</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
 
-      {/* Beautiful Centered Plans Modal */}
+      {/* Modern Plans Modal */}
       <Modal
         visible={showPlansModal}
         animationType="fade"
@@ -253,114 +270,106 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
         onRequestClose={() => setShowPlansModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <TouchableOpacity 
-                onPress={() => setShowPlansModal(false)}
-                style={styles.closeButton}
+          <View style={styles.modernModalContainer}>
+            {/* Close Button */}
+            <TouchableOpacity 
+              onPress={() => setShowPlansModal(false)}
+              style={styles.modernCloseButton}
+            >
+              <Text style={styles.modernCloseText}>✕</Text>
+            </TouchableOpacity>
+
+            {/* Header */}
+            <Text style={styles.modalTitle}>Choose a Plan</Text>
+            <Text style={styles.modalSubtitle}>Cancel anytime in Settings</Text>
+
+            {/* Plans */}
+            <View style={styles.plansContainer}>
+              {/* Annual Plan - Always with green background */}
+              <TouchableOpacity
+                style={[
+                  styles.modernPlanCard,
+                  styles.annualPlanCard,
+                  selectedPlan === 'annual' && styles.modernPlanCardSelected,
+                ]}
+                onPress={() => {
+                  setSelectedPlan('annual');
+                  setShowPlansModal(false);
+                }}
+                activeOpacity={0.8}
               >
-                <Text style={styles.closeButtonText}>✕</Text>
+                {selectedPlan === 'annual' && (
+                  <View style={styles.checkmarkCircle}>
+                    <Text style={styles.checkmark}>✓</Text>
+                  </View>
+                )}
+                
+                <View style={styles.modernPlanHeader}>
+                  <View style={styles.trialBadge}>
+                    <Text style={styles.trialBadgeText}>3 days free</Text>
+                  </View>
+                  <View style={styles.savingsBadge}>
+                    <Text style={styles.savingsBadgeText}>Save 52%</Text>
+                  </View>
+                </View>
+
+                <Text style={styles.modernPlanName}>Annual Premium</Text>
+                
+                <View style={styles.modernPriceRow}>
+                  <Text style={styles.modernPrice}>$37</Text>
+                  <Text style={styles.modernPeriod}>/year</Text>
+                </View>
+                
+                <Text style={styles.modernPriceDetail}>$3.08/month</Text>
               </TouchableOpacity>
 
-              <ScrollView 
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.plansScrollContent}
+              {/* Monthly Plan */}
+              <TouchableOpacity
+                style={[
+                  styles.modernPlanCard,
+                  selectedPlan === 'monthly' && styles.modernPlanCardSelected,
+                ]}
+                onPress={() => {
+                  setSelectedPlan('monthly');
+                  setShowPlansModal(false);
+                }}
+                activeOpacity={0.8}
               >
-                {/* Annual Plan */}
-                <TouchableOpacity
-                  style={[
-                    styles.planCard,
-                    selectedPlan === 'annual' && styles.planCardSelected,
-                  ]}
-                  onPress={() => {
-                    setSelectedPlan('annual');
-                    setShowPlansModal(false);
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <View style={styles.planBadge}>
-                    <Text style={styles.planBadgeText}>3-DAY FREE TRIAL</Text>
+                {selectedPlan === 'monthly' && (
+                  <View style={styles.checkmarkCircle}>
+                    <Text style={styles.checkmark}>✓</Text>
                   </View>
-                  
-                  <Text style={styles.planTitle}>Annual Premium</Text>
-                  
-                  <View style={styles.priceContainer}>
-                    <Text style={styles.planPrice}>$37</Text>
-                    <Text style={styles.planPeriod}>/year</Text>
-                  </View>
-                  
-                  <Text style={styles.planSavings}>💰 Save 52% • Best value</Text>
-                  
-                  <View style={styles.planFeatures}>
-                    <View style={styles.featureRow}>
-                      <Text style={styles.featureCheck}>✓</Text>
-                      <Text style={styles.featureText}>Unlimited AI skin analyses</Text>
-                    </View>
-                    <View style={styles.featureRow}>
-                      <Text style={styles.featureCheck}>✓</Text>
-                      <Text style={styles.featureText}>Personalized routines</Text>
-                    </View>
-                    <View style={styles.featureRow}>
-                      <Text style={styles.featureCheck}>✓</Text>
-                      <Text style={styles.featureText}>Progress tracking</Text>
-                    </View>
-                  </View>
+                )}
 
-                  {selectedPlan === 'annual' && (
-                    <View style={styles.selectedIndicator}>
-                      <Text style={styles.selectedIndicatorText}>✓</Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
+                <Text style={styles.modernPlanName}>Monthly Premium</Text>
+                
+                <View style={styles.modernPriceRow}>
+                  <Text style={styles.modernPrice}>$7.77</Text>
+                  <Text style={styles.modernPeriod}>/month</Text>
+                </View>
+                
+                <Text style={styles.modernPriceDetail}>Flexible billing</Text>
+              </TouchableOpacity>
+            </View>
 
-                {/* Monthly Plan */}
-                <TouchableOpacity
-                  style={[
-                    styles.planCard,
-                    selectedPlan === 'monthly' && styles.planCardSelected,
-                  ]}
-                  onPress={() => {
-                    setSelectedPlan('monthly');
-                    setShowPlansModal(false);
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.planTitle}>Monthly Premium</Text>
-                  
-                  <View style={styles.priceContainer}>
-                    <Text style={styles.planPrice}>$7.77</Text>
-                    <Text style={styles.planPeriod}>/month</Text>
-                  </View>
-                  
-                  <Text style={styles.planSavings}>Flexible monthly billing</Text>
-                  
-                  <View style={styles.planFeatures}>
-                    <View style={styles.featureRow}>
-                      <Text style={styles.featureCheck}>✓</Text>
-                      <Text style={styles.featureText}>Unlimited AI skin analyses</Text>
-                    </View>
-                    <View style={styles.featureRow}>
-                      <Text style={styles.featureCheck}>✓</Text>
-                      <Text style={styles.featureText}>Personalized routines</Text>
-                    </View>
-                    <View style={styles.featureRow}>
-                      <Text style={styles.featureCheck}>✓</Text>
-                      <Text style={styles.featureText}>Progress tracking</Text>
-                    </View>
-                  </View>
+            {/* Shared Features - Below Plans */}
+            <View style={styles.sharedFeaturesContainer}>
+              <Text style={styles.sharedFeaturesTitle}>All plans include:</Text>
+              <View style={styles.featuresList}>
+                <Text style={styles.featureItem}>✓  Unlimited AI skin analyses</Text>
+                <Text style={styles.featureItem}>✓  Personalized routines</Text>
+                <Text style={styles.featureItem}>✓  Progress tracking</Text>
+              </View>
+            </View>
 
-                  {selectedPlan === 'monthly' && (
-                    <View style={styles.selectedIndicator}>
-                      <Text style={styles.selectedIndicatorText}>✓</Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
-              </ScrollView>
+            {/* No Payment Text */}
+            <View style={styles.noPaymentContainer}>
+              <Text style={styles.noPaymentText}>✓ No Payment Due Now</Text>
             </View>
           </View>
         </View>
       </Modal>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -368,6 +377,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'transparent',
+  },
+  scrollContent: {
+    paddingBottom: 30,
   },
   header: {
     paddingHorizontal: 24,
@@ -469,13 +481,8 @@ const styles = StyleSheet.create({
   },
   bottomSection: {
     paddingHorizontal: 24,
-    paddingBottom: 40,
     paddingTop: 20,
     backgroundColor: 'transparent',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
   },
   continueButton: {
     paddingVertical: 18,
@@ -500,149 +507,200 @@ const styles = StyleSheet.create({
     color: '#999',
     textAlign: 'center',
     fontWeight: '400',
+    marginBottom: 20,
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  regulatoryContainer: {
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5E5',
+  },
+  regulatoryText: {
+    fontSize: 11,
+    color: '#999',
+    textAlign: 'center',
+    lineHeight: 16,
+    marginBottom: 4,
+  },
+  linksContainer: {
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    marginTop: 8,
   },
-  modalContainer: {
-    width: '90%',
-    maxWidth: 360,
-    maxHeight: '70%',
+  linkText: {
+    fontSize: 11,
+    color: '#666',
+    textDecorationLine: 'underline',
+    fontWeight: '500',
   },
-  modalContent: {
-    backgroundColor: 'transparent',
-    borderRadius: 20,
-    padding: 20,
-    position: 'relative',
+  linkSeparator: {
+    fontSize: 11,
+    color: '#999',
+    marginHorizontal: 4,
   },
-  closeButton: {
+  
+  // Modern Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modernModalContainer: {
+    width: '100%',
+    maxWidth: 400,
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 24,
+    padding: 24,
+    paddingTop: 32,
+  },
+  modernCloseButton: {
     position: 'absolute',
-    top: 10,
-    right: 10,
+    top: 16,
+    right: 16,
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: BRAND_COLORS.white,
+    backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
   },
-  closeButtonText: {
+  modernCloseText: {
     fontSize: 18,
     color: '#666',
     fontWeight: '400',
   },
-  plansScrollContent: {
-    paddingTop: 40,
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+    textAlign: 'center',
+    marginBottom: 8,
   },
-  planCard: {
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  plansContainer: {
+    gap: 12,
+    marginBottom: 24,
+  },
+  modernPlanCard: {
     backgroundColor: BRAND_COLORS.white,
     borderRadius: 16,
-    padding: 18,
-    marginBottom: 14,
+    padding: 20,
     borderWidth: 2,
     borderColor: '#E5E5E5',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 4,
     position: 'relative',
+  },
+  annualPlanCard: {
+    backgroundColor: BRAND_COLORS.lightGreen,
+  },
+  modernPlanCardSelected: {
+    borderColor: BRAND_COLORS.primary,
+    borderWidth: 2.5,
+  },
+  checkmarkCircle: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: BRAND_COLORS.primary,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  planCardSelected: {
-    borderColor: BRAND_COLORS.primary,
-    borderWidth: 3,
-    shadowOpacity: 0.2,
-    elevation: 6,
+  checkmark: {
+    color: BRAND_COLORS.white,
+    fontSize: 14,
+    fontWeight: '700',
   },
-  planBadge: {
-    backgroundColor: BRAND_COLORS.primary,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
+  modernPlanHeader: {
+    flexDirection: 'row',
+    gap: 8,
     marginBottom: 12,
   },
-  planBadgeText: {
-    color: BRAND_COLORS.white,
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+  trialBadge: {
+    backgroundColor: BRAND_COLORS.primary,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
-  planTitle: {
+  trialBadgeText: {
+    color: BRAND_COLORS.white,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  savingsBadge: {
+    backgroundColor: '#FFE5B4',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  savingsBadgeText: {
+    color: '#D97706',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  modernPlanName: {
     fontSize: 18,
     fontWeight: '700',
-    color: BRAND_COLORS.primary,
+    color: BRAND_COLORS.black,
     marginBottom: 8,
-    textAlign: 'center',
   },
-  priceContainer: {
+  modernPriceRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    justifyContent: 'center',
-    marginBottom: 6,
+    marginBottom: 4,
   },
-  planPrice: {
+  modernPrice: {
     fontSize: 32,
     fontWeight: '800',
-    color: BRAND_COLORS.primary,
+    color: BRAND_COLORS.black,
   },
-  planPeriod: {
-    fontSize: 14,
+  modernPeriod: {
+    fontSize: 16,
     fontWeight: '400',
     color: '#666',
     marginLeft: 4,
   },
-  planSavings: {
-    fontSize: 12,
-    color: BRAND_COLORS.darkGray,
+  modernPriceDetail: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  sharedFeaturesContainer: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  sharedFeaturesTitle: {
+    fontSize: 13,
     fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 14,
+    color: BRAND_COLORS.black,
+    marginBottom: 10,
   },
-  planFeatures: {
-    gap: 8,
-    width: '100%',
+  featuresList: {
+    gap: 6,
   },
-  featureRow: {
-    flexDirection: 'row',
+  featureItem: {
+    fontSize: 13,
+    color: '#666',
+    lineHeight: 18,
+  },
+  noPaymentContainer: {
     alignItems: 'center',
+    paddingTop: 8,
   },
-  featureCheck: {
+  noPaymentText: {
     fontSize: 14,
     color: BRAND_COLORS.primary,
-    fontWeight: '700',
-    marginRight: 8,
-    width: 18,
-  },
-  featureText: {
-    fontSize: 13,
-    color: '#333',
-    flex: 1,
-  },
-  selectedIndicator: {
-    position: 'absolute',
-    top: 18,
-    right: 18,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: BRAND_COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  selectedIndicatorText: {
-    color: BRAND_COLORS.white,
-    fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '600',
   },
 });

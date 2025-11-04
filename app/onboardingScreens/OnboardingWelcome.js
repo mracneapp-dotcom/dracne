@@ -21,17 +21,14 @@ export default function OnboardingWelcome({ onNext }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   
-  // Logo animations
   const logoPulseAnim = useRef(new Animated.Value(1)).current;
   const logoGlowAnim = useRef(new Animated.Value(0.3)).current;
   
-  // Feature cards animations (one for each card)
   const card1Anim = useRef(new Animated.Value(1)).current;
   const card2Anim = useRef(new Animated.Value(1)).current;
   const card3Anim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    // Initial fade in
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -46,7 +43,6 @@ export default function OnboardingWelcome({ onNext }) {
       }),
     ]).start();
 
-    // Logo pulse animation (continuous loop)
     const logoPulse = Animated.loop(
       Animated.sequence([
         Animated.timing(logoPulseAnim, {
@@ -62,7 +58,6 @@ export default function OnboardingWelcome({ onNext }) {
       ])
     );
 
-    // Logo glow animation (continuous loop)
     const logoGlow = Animated.loop(
       Animated.sequence([
         Animated.timing(logoGlowAnim, {
@@ -78,10 +73,8 @@ export default function OnboardingWelcome({ onNext }) {
       ])
     );
 
-    // Feature cards staggered pulse animation (continuous loop)
     const cardsPulse = Animated.loop(
       Animated.stagger(400, [
-        // Card 1
         Animated.sequence([
           Animated.timing(card1Anim, {
             toValue: 1.05,
@@ -93,9 +86,8 @@ export default function OnboardingWelcome({ onNext }) {
             duration: 600,
             useNativeDriver: true,
           }),
-          Animated.delay(1200), // Wait for other cards
+          Animated.delay(1200),
         ]),
-        // Card 2
         Animated.sequence([
           Animated.timing(card2Anim, {
             toValue: 1.05,
@@ -107,9 +99,8 @@ export default function OnboardingWelcome({ onNext }) {
             duration: 600,
             useNativeDriver: true,
           }),
-          Animated.delay(800), // Wait for card 3
+          Animated.delay(800),
         ]),
-        // Card 3
         Animated.sequence([
           Animated.timing(card3Anim, {
             toValue: 1.05,
@@ -121,7 +112,7 @@ export default function OnboardingWelcome({ onNext }) {
             duration: 600,
             useNativeDriver: true,
           }),
-          Animated.delay(400), // Small delay before loop restarts
+          Animated.delay(400),
         ]),
       ])
     );
@@ -129,7 +120,6 @@ export default function OnboardingWelcome({ onNext }) {
     logoPulse.start();
     logoGlow.start();
     
-    // Delay cards animation to start after initial fade in
     setTimeout(() => {
       cardsPulse.start();
     }, 1000);
@@ -153,7 +143,6 @@ export default function OnboardingWelcome({ onNext }) {
           { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }
         ]}
       >
-        {/* Animated Logo Section */}
         <View style={styles.logoContainer}>
           <Animated.View
             style={[
@@ -175,7 +164,6 @@ export default function OnboardingWelcome({ onNext }) {
           </Animated.View>
         </View>
 
-        {/* Hero Section with Color Accent */}
         <View style={styles.heroSection}>
           <Text style={styles.mainTitle}>
             Welcome to{'\n'}
@@ -186,7 +174,6 @@ export default function OnboardingWelcome({ onNext }) {
           </Text>
         </View>
 
-        {/* Animated Feature Highlights */}
         <View style={styles.featuresGrid}>
           <Animated.View 
             style={[
@@ -240,13 +227,11 @@ export default function OnboardingWelcome({ onNext }) {
           </Animated.View>
         </View>
 
-        {/* Trust Badge */}
         <View style={styles.trustBadge}>
           <Text style={styles.trustText}>Trusted by thousands worldwide</Text>
         </View>
       </Animated.View>
 
-      {/* Bottom Section */}
       <View style={styles.bottomSection}>
         <TouchableOpacity 
           style={styles.continueButton}
@@ -328,7 +313,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: BRAND_COLORS.white,
     borderRadius: 16,
-    padding: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 12,
     alignItems: 'center',
     marginHorizontal: 4,
     shadowColor: '#000',

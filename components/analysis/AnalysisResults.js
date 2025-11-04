@@ -1,9 +1,10 @@
-// components/analysis/AnalysisResults.js - WITH CLICKABLE LOGO
+// components/analysis/AnalysisResults.js - WITH INFO MODAL
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
   Image,
+  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -112,6 +113,38 @@ const AI_TO_CONCERN_MAP = {
   'nodule': 'nodules',
 };
 
+// NEW: Acne type information
+const ACNE_TYPE_INFO = {
+  papules: {
+    name: 'Papules',
+    description: 'Small, raised, red bumps without pus. They form when pores become clogged and inflamed.'
+  },
+  pustules: {
+    name: 'Pustules',
+    description: 'Red bumps with white or yellow pus at the center. Similar to papules but with visible pus.'
+  },
+  blackheads: {
+    name: 'Blackheads',
+    description: 'Open pores clogged with oil and dead skin cells. They appear dark due to oxidation, not dirt.'
+  },
+  whiteheads: {
+    name: 'Whiteheads',
+    description: 'Closed pores clogged with oil and dead skin cells. They appear as small white or flesh-colored bumps.'
+  },
+  dark_spots: {
+    name: 'Dark Spots',
+    description: 'Post-inflammatory marks left after acne heals. They fade over time but can be treated with specific ingredients.'
+  },
+  dark_spot: {
+    name: 'Dark Spots',
+    description: 'Post-inflammatory marks left after acne heals. They fade over time but can be treated with specific ingredients.'
+  },
+  nodules: {
+    name: 'Nodules',
+    description: 'Large, painful bumps deep under the skin. They form when clogged pores develop deeper in the skin.'
+  },
+};
+
 export const AnalysisResults = ({ 
   analysisData, 
   annotatedImageBlob,
@@ -121,6 +154,8 @@ export const AnalysisResults = ({
 }) => {
   const [annotatedImageUri, setAnnotatedImageUri] = useState(null);
   const [confirmedType, setConfirmedType] = useState(null);
+  const [showInfoModal, setShowInfoModal] = useState(false); // NEW
+  const [selectedInfoType, setSelectedInfoType] = useState(null); // NEW
 
   useEffect(() => {
     if (annotatedImageBlob) {
@@ -146,6 +181,17 @@ export const AnalysisResults = ({
     } else if (onConfirmedConcern) {
       onConfirmedConcern(null);
     }
+  };
+
+  // NEW: Info modal handlers
+  const handleInfoPress = (type) => {
+    setSelectedInfoType(type);
+    setShowInfoModal(true);
+  };
+
+  const closeInfoModal = () => {
+    setShowInfoModal(false);
+    setSelectedInfoType(null);
   };
 
   if (!analysisData) {
@@ -268,7 +314,21 @@ export const AnalysisResults = ({
                   <Text style={[styles.detectionIndicator, { color: typeInfo.color }]}>
                     {typeInfo.indicator}
                   </Text>
-                  <Text style={styles.detectionName}>{typeInfo.name}</Text>
+                  
+                  {/* MODIFIED: Added info button */}
+                  <View style={styles.nameWithInfo}>
+                    <Text style={styles.detectionName}>{typeInfo.name}</Text>
+                    <TouchableOpacity 
+                      onPress={() => handleInfoPress(type)}
+                      style={styles.infoButton}
+                      activeOpacity={0.6}
+                    >
+                      <View style={styles.infoIcon}>
+                        <Text style={styles.infoIconText}>i</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                  
                   <View style={styles.detectionStats}>
                     <Text style={styles.detectionCount}>×{detections.length}</Text>
                     <View style={styles.confidenceBadge}>
@@ -304,6 +364,29 @@ export const AnalysisResults = ({
           </Text>
         </View>
       )}
+
+      {/* NEW: Info Modal */}
+      <Modal
+        visible={showInfoModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={closeInfoModal}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1}
+          onPress={closeInfoModal}
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              {selectedInfoType && ACNE_TYPE_INFO[selectedInfoType]?.name}
+            </Text>
+            <Text style={styles.modalDescription}>
+              {selectedInfoType && ACNE_TYPE_INFO[selectedInfoType]?.description}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 };
@@ -488,11 +571,33 @@ const styles = StyleSheet.create({
     width: 36,
     fontWeight: '700',
   },
-  detectionName: {
+  nameWithInfo: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  detectionName: {
     fontSize: 16,
     fontWeight: '600',
     color: BRAND_COLORS.black,
+  },
+  infoButton: {
+    padding: 2,
+  },
+  infoIcon: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#E8F5E9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  infoIconText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#7CB342',
+    fontStyle: 'normal',
   },
   detectionStats: {
     flexDirection: 'row',
@@ -579,5 +684,37 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.secondary,
     textAlign: 'center',
     padding: 20,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  modalContent: {
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 320,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: BRAND_COLORS.primary,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalDescription: {
+    fontSize: 15,
+    color: '#666',
+    lineHeight: 22,
+    textAlign: 'center',
   },
 });
