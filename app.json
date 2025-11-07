@@ -8,11 +8,15 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "backgroundColor": "#FDF5E6",
+    "icon": "./assets/images/icon.png",
     "splash": {
-      "backgroundColor": "#FDF5E6"
+      "image": "./assets/images/splash-icon.png",
+      "backgroundColor": "#FDF5E6",
+      "resizeMode": "contain"
     },
     "ios": {
       "bundleIdentifier": "com.aleboshi.dracne",
+      "buildNumber": "2",
       "usesAppleSignIn": true,
       "supportsTablet": true,
       "infoPlist": {
@@ -29,7 +33,9 @@
     "android": {
       "package": "com.aleboshi.dracne",
       "adaptiveIcon": {
-        "backgroundColor": "#FDF5E6"
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "permissions": [
         "android.permission.CAMERA",
@@ -39,6 +45,7 @@
       ]
     },
     "plugins": [
+      "expo-apple-authentication",
       [
         "expo-camera",
         {
@@ -54,7 +61,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/notification-icon.png",
+          "icon": "./assets/images/icon.png",
           "color": "#7CB342",
           "sounds": []
         }

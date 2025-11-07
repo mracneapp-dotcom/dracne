@@ -140,11 +140,11 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   };
 
   const handlePrivacyPolicy = () => {
-    Linking.openURL('https://dracne.com/privacy-policy');
+    Linking.openURL('https://dracne.pro/privacy');
   };
 
   const handleTermsOfUse = () => {
-    Linking.openURL('https://dracne.com/terms-of-use');
+    Linking.openURL('https://dracne.pro/tos');
   };
 
   return (

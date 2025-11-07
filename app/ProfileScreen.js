@@ -93,7 +93,7 @@ const PROFILE_OPTIONS = [
     iconText: 'SE',
     color: BRAND_COLORS.secondary,
     action: 'email',
-    email: 'support@dracne.com',
+    email: 'hello@dracne.pro',
   },
   {
     id: 'feature_request',
@@ -101,7 +101,7 @@ const PROFILE_OPTIONS = [
     iconText: 'FR',
     color: '#3498DB',
     action: 'email',
-    email: 'feedback@dracne.com',
+    email: 'hello@dracne.pro ',
   },
   {
     id: 'delete_account',

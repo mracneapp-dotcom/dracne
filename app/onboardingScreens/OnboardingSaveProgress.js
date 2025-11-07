@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Linking,
   Platform,
   StyleSheet,
   Text,
@@ -28,6 +29,7 @@ const BRAND_COLORS = {
 
 export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) {
   const [loading, setLoading] = useState(false);
+  const [skipSelected, setSkipSelected] = useState(false);
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     expoClientId: '338991525353-1r9lu6pl024a1vrf7mlg7k77pqj6vrvc.apps.googleusercontent.com',
@@ -90,9 +92,12 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
 
     setLoading(true);
     try {
+      console.log('🍎 Starting Apple Sign In...');
       const result = await AuthService.signInWithApple();
       
       if (result.success) {
+        console.log('✅ Apple Sign In successful:', result.user.email);
+        
         await AuthService.saveUserData(result.user.uid, {
           ...onboardingData,
           signInMethod: 'apple',
@@ -108,10 +113,12 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
         });
       } else {
         if (result.error !== 'Sign in cancelled') {
+          console.error('❌ Apple Sign In failed:', result.error);
           Alert.alert('Sign In Failed', result.error);
         }
       }
     } catch (error) {
+      console.error('❌ Apple Sign In error:', error);
       Alert.alert('Error', 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
@@ -129,19 +136,17 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
   };
 
   const handleSkip = () => {
-    onNext('onboardingPaywall', {
-      ...onboardingData,
-      signInMethod: 'skipped',
-      accountCreated: false,
-    });
+    setSkipSelected(true);
   };
 
   const handleContinue = () => {
-    onNext('onboardingPaywall', {
-      ...onboardingData,
-      signInMethod: 'guest',
-      accountCreated: false,
-    });
+    if (skipSelected) {
+      onNext('onboardingPaywall', {
+        ...onboardingData,
+        signInMethod: 'guest',
+        accountCreated: false,
+      });
+    }
   };
 
   return (
@@ -211,8 +216,11 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
           <DrAcneButton
             title="Continue"
             onPress={handleContinue}
-            style={styles.continueButton}
-            disabled={loading}
+            style={[
+              styles.continueButton,
+              !skipSelected && styles.continueButtonDisabled
+            ]}
+            disabled={!skipSelected || loading}
           />
           
           <View style={styles.termsSection}>
@@ -220,14 +228,14 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
               By clicking continue, you agree to our{' '}
               <Text 
                 style={styles.termsLink}
-                onPress={() => console.log('Navigate to Terms of Service')}
+                onPress={() => Linking.openURL('https://dracne.pro/tos')}
               >
                 Terms of Service
               </Text>
               {' '}and{' '}
               <Text 
                 style={styles.termsLink}
-                onPress={() => console.log('Navigate to Privacy Policy')}
+                onPress={() => Linking.openURL('https://dracne.pro/privacy')}
               >
                 Privacy Policy
               </Text>
@@ -352,6 +360,9 @@ const styles = StyleSheet.create({
   continueSection: {},
   continueButton: {
     paddingVertical: 18,
+  },
+  continueButtonDisabled: {
+    opacity: 0.5,
   },
   termsSection: {
     marginTop: 16,
