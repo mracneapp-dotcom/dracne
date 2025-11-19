@@ -13,7 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { DrAcneButton } from '../../components/ui/DrAcneButton';
 import { auth } from '../../config/firebase';
 import { AuthService } from '../../services/AuthService';
 
@@ -29,7 +28,6 @@ const BRAND_COLORS = {
 
 export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) {
   const [loading, setLoading] = useState(false);
-  const [skipSelected, setSkipSelected] = useState(false);
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     expoClientId: '338991525353-1r9lu6pl024a1vrf7mlg7k77pqj6vrvc.apps.googleusercontent.com',
@@ -136,17 +134,12 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
   };
 
   const handleSkip = () => {
-    setSkipSelected(true);
-  };
-
-  const handleContinue = () => {
-    if (skipSelected) {
-      onNext('onboardingPaywall', {
-        ...onboardingData,
-        signInMethod: 'guest',
-        accountCreated: false,
-      });
-    }
+    console.log('⏭️ User skipped sign in');
+    onNext('onboardingPaywall', {
+      ...onboardingData,
+      signInMethod: 'guest',
+      accountCreated: false,
+    });
   };
 
   return (
@@ -205,42 +198,30 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
       <View style={styles.spacer} />
 
       <View style={styles.bottomSection}>
-        <View style={styles.skipSection}>
+        <TouchableOpacity style={styles.skipButton} onPress={handleSkip} disabled={loading}>
           <Text style={styles.skipText}>
-            Would you like to sign in later? 
-            <Text style={styles.skipLink} onPress={handleSkip}> Skip</Text>
+            Would you like to sign in later?{' '}
+            <Text style={styles.skipLink}>Skip</Text>
           </Text>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.continueSection}>
-          <DrAcneButton
-            title="Continue"
-            onPress={handleContinue}
-            style={[
-              styles.continueButton,
-              !skipSelected && styles.continueButtonDisabled
-            ]}
-            disabled={!skipSelected || loading}
-          />
-          
-          <View style={styles.termsSection}>
-            <Text style={styles.termsText}>
-              By clicking continue, you agree to our{' '}
-              <Text 
-                style={styles.termsLink}
-                onPress={() => Linking.openURL('https://dracne.pro/tos')}
-              >
-                Terms of Service
-              </Text>
-              {' '}and{' '}
-              <Text 
-                style={styles.termsLink}
-                onPress={() => Linking.openURL('https://dracne.pro/privacy')}
-              >
-                Privacy Policy
-              </Text>
+        <View style={styles.termsSection}>
+          <Text style={styles.termsText}>
+            By clicking continue, you agree to our{' '}
+            <Text 
+              style={styles.termsLink}
+              onPress={() => Linking.openURL('https://dracne.pro/tos')}
+            >
+              Terms of Service
             </Text>
-          </View>
+            {' '}and{' '}
+            <Text 
+              style={styles.termsLink}
+              onPress={() => Linking.openURL('https://dracne.pro/privacy')}
+            >
+              Privacy Policy
+            </Text>
+          </Text>
         </View>
       </View>
     </View>
@@ -342,9 +323,10 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     backgroundColor: 'transparent',
   },
-  skipSection: {
+  skipButton: {
     alignItems: 'center',
     marginBottom: 20,
+    paddingVertical: 12,
   },
   skipText: {
     fontSize: 14,
@@ -356,13 +338,6 @@ const styles = StyleSheet.create({
     color: '#999',
     fontWeight: '600',
     textDecorationLine: 'underline',
-  },
-  continueSection: {},
-  continueButton: {
-    paddingVertical: 18,
-  },
-  continueButtonDisabled: {
-    opacity: 0.5,
   },
   termsSection: {
     marginTop: 16,

@@ -1,4 +1,6 @@
 // app/onboardingScreens/OnboardingPaywall.js
+import { getAuth } from 'firebase/auth';
+import { doc, getFirestore, serverTimestamp, setDoc } from 'firebase/firestore';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -7,6 +9,7 @@ import {
   Image,
   Linking,
   Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,6 +17,15 @@ import {
   View,
 } from 'react-native';
 import { DrAcneButton } from '../../components/ui/DrAcneButton';
+
+let InAppPurchases = null;
+let IAPResponseCode = null;
+try {
+  InAppPurchases = require('expo-in-app-purchases');
+  IAPResponseCode = InAppPurchases.IAPResponseCode;
+} catch (e) {
+  console.log('⚠️ In-app purchases not available');
+}
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -47,7 +59,12 @@ const BENEFITS = [
   },
 ];
 
-const IS_TEST_MODE = true;
+const IS_TEST_MODE = !InAppPurchases;
+
+const PRODUCT_IDS = {
+  monthly: 'com.aleboshi.dracne.monthly.premium',
+  annual: 'com.aleboshi.dracne.annual.premium',
+};
 
 export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -55,6 +72,12 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   const [showPlansModal, setShowPlansModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('annual');
   const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [iapReady, setIapReady] = useState(false);
+  
+  const purchaseListenerRef = useRef(null);
+  const hasNavigatedRef = useRef(false);
+  const purchaseTimeoutRef = useRef(null);
 
   useEffect(() => {
     Animated.parallel([
@@ -85,58 +108,299 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
         ])
       ).start();
     });
+
+    if (!IS_TEST_MODE && InAppPurchases) {
+      initializeIAP();
+    }
+
+    return () => {
+      if (purchaseListenerRef.current) {
+        purchaseListenerRef.current.remove();
+      }
+      if (purchaseTimeoutRef.current) {
+        clearTimeout(purchaseTimeoutRef.current);
+      }
+      if (!IS_TEST_MODE && InAppPurchases) {
+        InAppPurchases.disconnectAsync().catch(() => {});
+      }
+    };
   }, [fadeAnim, scaleAnim]);
 
-  const saveSubscriptionToFirebase = async (plan) => {
+  const initializeIAP = async () => {
+    if (!InAppPurchases) {
+      console.log('❌ InAppPurchases not available');
+      return;
+    }
+    
     try {
-      console.log('💾 Saving subscription to Firebase (DISABLED FOR NOW)...');
-      console.log('✅ Subscription save bypassed (test mode)');
+      console.log('🔌 Connecting to IAP...');
+      await InAppPurchases.connectAsync();
+      console.log('✅ Connected to IAP');
+
+      console.log('📦 Loading products...');
+      const { results, responseCode } = await InAppPurchases.getProductsAsync([
+        PRODUCT_IDS.monthly,
+        PRODUCT_IDS.annual,
+      ]);
+
+      console.log('📦 Response Code:', responseCode);
+      console.log('📦 Products Found:', results?.length || 0);
+
+      if (responseCode === IAPResponseCode.OK && results && results.length > 0) {
+        setProducts(results);
+        console.log('✅ Products loaded successfully');
+        
+        if (purchaseListenerRef.current) {
+          purchaseListenerRef.current.remove();
+        }
+
+        purchaseListenerRef.current = InAppPurchases.setPurchaseListener(
+          ({ responseCode, results, errorCode }) => {
+            console.log('📱 Purchase Listener Fired - Response:', responseCode, 'Error:', errorCode);
+            
+            if (responseCode === IAPResponseCode.OK && results) {
+              console.log('✅ Purchase successful, processing...');
+              results.forEach((purchase) => {
+                console.log('🎉 Processing purchase:', purchase.productId);
+                handlePurchaseSuccess(purchase);
+              });
+            } else if (responseCode === IAPResponseCode.USER_CANCELED) {
+              console.log('❌ User canceled purchase');
+              clearPurchaseTimeout();
+              setLoading(false);
+            } else if (responseCode === IAPResponseCode.ERROR) {
+              console.log('❌ Purchase error:', errorCode);
+              clearPurchaseTimeout();
+              setLoading(false);
+              Alert.alert('Purchase Failed', 'Please try again or skip to continue later.');
+            } else {
+              console.log('⚠️ Unknown purchase response:', responseCode);
+              clearPurchaseTimeout();
+              setLoading(false);
+            }
+          }
+        );
+        
+        setIapReady(true);
+        console.log('✅ IAP Ready');
+      } else {
+        console.log('⚠️ No products loaded - products array empty');
+        setIapReady(false);
+      }
     } catch (error) {
-      console.error('❌ Error saving subscription:', error);
+      console.error('❌ IAP initialization failed:', error);
+      setIapReady(false);
     }
   };
 
-  const handleContinue = async () => {
-    console.log('🔘 Continue button pressed');
+  const handlePurchaseSuccess = async (purchase) => {
+    if (hasNavigatedRef.current) {
+      console.log('⚠️ Already navigated, ignoring duplicate call');
+      return;
+    }
+
+    hasNavigatedRef.current = true;
+    console.log('🎉 handlePurchaseSuccess - Navigating now');
     
-    if (IS_TEST_MODE) {
+    clearPurchaseTimeout();
+    setLoading(false);
+    
+    const planType = purchase.productId === PRODUCT_IDS.annual ? 'annual' : 'monthly';
+    
+    onNext('complete', {
+      ...onboardingData,
+      paywallCompleted: true,
+      trialStarted: new Date().toISOString(),
+      subscriptionType: planType,
+      isPremium: true,
+    });
+
+    setTimeout(() => {
+      saveToFirebaseBackground(purchase, planType).catch((error) => {
+        console.log('⚠️ Firebase save failed (non-critical):', error.message);
+      });
+      
+      if (InAppPurchases) {
+        InAppPurchases.finishTransactionAsync(purchase, true)
+          .then(() => console.log('✅ Transaction finished'))
+          .catch((error) => console.log('⚠️ Finish transaction failed:', error.message));
+      }
+    }, 100);
+  };
+
+  const clearPurchaseTimeout = () => {
+    if (purchaseTimeoutRef.current) {
+      clearTimeout(purchaseTimeoutRef.current);
+      purchaseTimeoutRef.current = null;
+    }
+  };
+
+  const saveToFirebaseBackground = async (purchase, plan) => {
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) {
+        console.log('ℹ️ No user logged in, skipping Firebase save');
+        return;
+      }
+
+      const db = getFirestore();
+      const userSubscriptionRef = doc(db, 'users', user.uid, 'subscription', 'current');
+
+      const trialEndDate = new Date();
+      trialEndDate.setDate(trialEndDate.getDate() + 3);
+
+      await setDoc(userSubscriptionRef, {
+        subscriptionType: plan,
+        productId: PRODUCT_IDS[plan],
+        trialStarted: serverTimestamp(),
+        trialEnds: trialEndDate.toISOString(),
+        status: 'trial',
+        receipt: {
+          transactionId: purchase.transactionId,
+          productId: purchase.productId,
+          transactionDate: purchase.transactionDate,
+        },
+        platform: Platform.OS,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      console.log('✅ Firebase subscription saved');
+    } catch (error) {
+      console.error('⚠️ Firebase save failed:', error);
+      throw error;
+    }
+  };
+
+  const purchaseSubscription = async (plan) => {
+    if (!InAppPurchases) {
+      console.log('❌ InAppPurchases not available');
+      return;
+    }
+    
+    try {
+      const productId = PRODUCT_IDS[plan];
+      const product = products.find(p => p.productId === productId);
+      
+      if (!product) {
+        console.log('❌ Product not found:', productId);
+        Alert.alert('Error', 'Selected plan not available. Try the other plan or skip.');
+        return;
+      }
+
+      console.log('🛒 Starting purchase for:', productId);
+      setLoading(true);
+      
+      purchaseTimeoutRef.current = setTimeout(() => {
+        if (!hasNavigatedRef.current) {
+          console.log('⏱️ Purchase timeout - showing skip option');
+          setLoading(false);
+          Alert.alert(
+            'Taking Longer Than Expected',
+            'The purchase is taking longer than usual. Would you like to continue without subscribing? You can subscribe later from Settings.',
+            [
+              {
+                text: 'Keep Waiting',
+                style: 'cancel',
+                onPress: () => {
+                  console.log('User chose to keep waiting');
+                  setLoading(true);
+                }
+              },
+              {
+                text: 'Skip for Now',
+                onPress: handleSkipPaywall
+              }
+            ]
+          );
+        }
+      }, 15000);
+      
+      console.log('🚀 Calling purchaseItemAsync...');
+      await InAppPurchases.purchaseItemAsync(productId);
+      console.log('✅ purchaseItemAsync completed - waiting for listener...');
+      
+    } catch (error) {
+      console.error('❌ Purchase error:', error);
+      clearPurchaseTimeout();
+      setLoading(false);
+      
+      if (error.code === 'E_USER_CANCELLED') {
+        console.log('ℹ️ User cancelled purchase');
+        return;
+      }
+      
       Alert.alert(
-        'Test Mode',
-        `Simulating ${selectedPlan} purchase`,
+        'Purchase Failed',
+        error.message || 'Unable to complete purchase. Would you like to skip for now?',
         [
-          { 
-            text: 'Cancel', 
-            style: 'cancel',
-            onPress: () => {
-              console.log('❌ User cancelled');
-              setLoading(false);
-            }
-          },
-          {
-            text: 'Continue',
-            onPress: async () => {
-              console.log('✅ User confirmed purchase');
-              setLoading(true);
-              
-              await saveSubscriptionToFirebase(selectedPlan);
-              
-              console.log('🚀 Navigating to complete (then home)...');
-              setLoading(false);
-              
-              onNext('complete', {
-                ...onboardingData,
-                paywallCompleted: true,
-                trialStarted: new Date().toISOString(),
-                subscriptionType: selectedPlan,
-                isPremium: true,
-              });
-              
-              console.log('✅ Navigation complete!');
-            },
-          },
+          { text: 'Try Again', style: 'cancel' },
+          { text: 'Skip', onPress: handleSkipPaywall }
         ]
       );
     }
+  };
+
+  const handleSkipPaywall = () => {
+    if (hasNavigatedRef.current) return;
+    
+    hasNavigatedRef.current = true;
+    console.log('⏭️ Skipping paywall');
+    
+    clearPurchaseTimeout();
+    setLoading(false);
+    
+    onNext('complete', {
+      ...onboardingData,
+      paywallCompleted: false,
+      paywallSkipped: true,
+    });
+  };
+
+  const handleContinue = async () => {
+    if (loading || hasNavigatedRef.current) {
+      console.log('⚠️ Already processing or navigated');
+      return;
+    }
+
+    console.log('🔘 Continue button pressed');
+    console.log('Mode:', IS_TEST_MODE ? 'TEST' : 'PRODUCTION');
+    
+    if (IS_TEST_MODE) {
+      console.log('🧪 Running in test mode - simulating purchase');
+      setLoading(true);
+      
+      setTimeout(() => {
+        console.log('✅ Test purchase complete');
+        hasNavigatedRef.current = true;
+        setLoading(false);
+        
+        onNext('complete', {
+          ...onboardingData,
+          paywallCompleted: true,
+          trialStarted: new Date().toISOString(),
+          subscriptionType: selectedPlan,
+          isPremium: true,
+        });
+      }, 1000);
+      return;
+    }
+
+    if (!iapReady || products.length === 0) {
+      console.log('⚠️ IAP not ready or no products');
+      Alert.alert(
+        'Subscriptions Unavailable',
+        'Subscription options are temporarily unavailable. Would you like to continue anyway? You can subscribe later from Settings.',
+        [
+          { text: 'Wait', style: 'cancel' },
+          { text: 'Continue', onPress: handleSkipPaywall }
+        ]
+      );
+      return;
+    }
+
+    console.log('🚀 Starting real purchase...');
+    await purchaseSubscription(selectedPlan);
   };
 
   const handlePrivacyPolicy = () => {
@@ -153,7 +417,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>
           Experience <Text style={styles.titleHighlight}>Dr. Acne</Text> for free
@@ -163,7 +426,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
         </Text>
       </View>
 
-      {/* Animated Mockup Section */}
       <View style={styles.mockupContainer}>
         <Animated.View
           style={[
@@ -183,7 +445,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
         <Text style={styles.mockupLabel}>See your personalized plan in action</Text>
       </View>
 
-      {/* Modern Benefits Cards */}
       <View style={styles.benefitsContainer}>
         {BENEFITS.map((benefit, index) => (
           <View key={index} style={styles.benefitCard}>
@@ -208,7 +469,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
         ))}
       </View>
 
-      {/* Bottom Section */}
       <View style={styles.bottomSection}>
         <DrAcneButton
           title={loading ? "Processing..." : "Continue"}
@@ -217,8 +477,19 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
           style={styles.continueButton}
         />
         
+        {/* NEW: Skip button while loading */}
+        {loading && (
+          <TouchableOpacity onPress={handleSkipPaywall} style={styles.skipWhileLoadingButton}>
+            <Text style={styles.skipWhileLoadingText}>Skip and continue</Text>
+          </TouchableOpacity>
+        )}
+        
+        {!IS_TEST_MODE && !iapReady && (
+          <Text style={styles.loadingText}>Loading subscription options...</Text>
+        )}
+        
         <Text style={styles.pricingText}>
-          3 days free, then ${selectedPlan === 'annual' ? '37 per year' : '7.77 per month'}
+          3 days free, then ${selectedPlan === 'annual' ? '37.90 per year' : '7.79 per month'}
         </Text>
 
         <TouchableOpacity onPress={() => setShowPlansModal(true)}>
@@ -229,16 +500,15 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
           Cancel anytime • No commitment
         </Text>
 
-        {/* Regulatory Text */}
         <View style={styles.regulatoryContainer}>
           <Text style={styles.regulatoryText}>
             All features require an active subscription
           </Text>
           <Text style={styles.regulatoryText}>
-            Annual PREMIUM: $37 USD (1 year) • Monthly PREMIUM: $7.77 USD (1 month)
+            Annual PREMIUM: $37.90 USD (1 year) • Monthly PREMIUM: $7.79 USD (1 month)
           </Text>
           <Text style={styles.regulatoryText}>
-            Dr. Acne Skincare Assistant - 1 Year PREMIUM • Price: $37
+            Dr. Acne Skincare Assistant - 1 Year PREMIUM • Price: $37.90
           </Text>
           <Text style={styles.regulatoryText}>
             • Subscription renews unless turned off 24h before period end •
@@ -262,7 +532,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
         </View>
       </View>
 
-      {/* Modern Plans Modal */}
       <Modal
         visible={showPlansModal}
         animationType="fade"
@@ -271,7 +540,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modernModalContainer}>
-            {/* Close Button */}
             <TouchableOpacity 
               onPress={() => setShowPlansModal(false)}
               style={styles.modernCloseButton}
@@ -279,13 +547,10 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
               <Text style={styles.modernCloseText}>✕</Text>
             </TouchableOpacity>
 
-            {/* Header */}
             <Text style={styles.modalTitle}>Choose a Plan</Text>
             <Text style={styles.modalSubtitle}>Cancel anytime in Settings</Text>
 
-            {/* Plans */}
             <View style={styles.plansContainer}>
-              {/* Annual Plan - Always with green background */}
               <TouchableOpacity
                 style={[
                   styles.modernPlanCard,
@@ -316,14 +581,13 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
                 <Text style={styles.modernPlanName}>Annual Premium</Text>
                 
                 <View style={styles.modernPriceRow}>
-                  <Text style={styles.modernPrice}>$37</Text>
+                  <Text style={styles.modernPrice}>$37.90</Text>
                   <Text style={styles.modernPeriod}>/year</Text>
                 </View>
                 
-                <Text style={styles.modernPriceDetail}>$3.08/month</Text>
+                <Text style={styles.modernPriceDetail}>$3.15/month</Text>
               </TouchableOpacity>
 
-              {/* Monthly Plan */}
               <TouchableOpacity
                 style={[
                   styles.modernPlanCard,
@@ -344,7 +608,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
                 <Text style={styles.modernPlanName}>Monthly Premium</Text>
                 
                 <View style={styles.modernPriceRow}>
-                  <Text style={styles.modernPrice}>$7.77</Text>
+                  <Text style={styles.modernPrice}>$7.79</Text>
                   <Text style={styles.modernPeriod}>/month</Text>
                 </View>
                 
@@ -352,7 +616,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
               </TouchableOpacity>
             </View>
 
-            {/* Shared Features - Below Plans */}
             <View style={styles.sharedFeaturesContainer}>
               <Text style={styles.sharedFeaturesTitle}>All plans include:</Text>
               <View style={styles.featuresList}>
@@ -362,7 +625,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
               </View>
             </View>
 
-            {/* No Payment Text */}
             <View style={styles.noPaymentContainer}>
               <Text style={styles.noPaymentText}>✓ No Payment Due Now</Text>
             </View>
@@ -488,6 +750,23 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     marginBottom: 12,
   },
+  skipWhileLoadingButton: {
+    paddingVertical: 8,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  skipWhileLoadingText: {
+    fontSize: 14,
+    color: BRAND_COLORS.primary,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+  loadingText: {
+    fontSize: 13,
+    color: '#999',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
   pricingText: {
     fontSize: 15,
     color: BRAND_COLORS.black,
@@ -538,8 +817,6 @@ const styles = StyleSheet.create({
     color: '#999',
     marginHorizontal: 4,
   },
-  
-  // Modern Modal Styles
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
