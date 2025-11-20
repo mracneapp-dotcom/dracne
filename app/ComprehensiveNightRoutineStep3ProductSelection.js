@@ -1,13 +1,14 @@
-// app/ComprehensiveNightRoutineStep3ProductSelection.js
+// app/ComprehensiveNightRoutineStep3ProductSelection.js - WITH CITATIONS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -449,6 +450,33 @@ export default function ComprehensiveNightRoutineStep3ProductSelection({
             <Text style={styles.helperText}>{getHelperText()}</Text>
           </View>
 
+          <View style={styles.citationContainer}>
+            <Text style={styles.citationText}>
+              Treatment recommendations based on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/25607907/')}
+              >
+                research on chemical exfoliation and overnight skin regeneration
+              </Text>
+              , studies on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2791365/')}
+              >
+                salicylic acid for comedolytic treatment
+              </Text>
+              , and{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/17373175/')}
+              >
+                hyaluronic acid hydration mechanisms in skin barrier function
+              </Text>
+              . Frequency and concentration matter - consult a dermatologist for persistent concerns.
+            </Text>
+          </View>
+
           <View style={styles.bottomSpacing} />
         </View>
       </ScrollView>
@@ -675,6 +703,24 @@ const styles = StyleSheet.create({
     color: '#B8860B',
     fontWeight: '600',
     textAlign: 'center',
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 160,

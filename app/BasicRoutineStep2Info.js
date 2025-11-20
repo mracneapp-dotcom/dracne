@@ -1,8 +1,9 @@
-// app/BasicRoutineStep2Info.js - COMPLETE WITH NAVIGATION
+// app/BasicRoutineStep2Info.js - COMPLETE WITH CITATIONS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  Linking,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -34,8 +35,8 @@ export default function BasicRoutineStep2Info({
   onNavigateToDayRoutine,
   onBack, 
   onContinue, 
-  currentStep = 2,      // Display step (1-3)
-  internalStep = 3      // Internal progress step (1-6)
+  currentStep = 2,
+  internalStep = 3
 }) {
   const [skinType, setSkinType] = useState('normal');
 
@@ -83,12 +84,11 @@ export default function BasicRoutineStep2Info({
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const totalSteps = 3;  // Display: 3 steps total
-  const totalInternalSteps = 6;  // Internal: 6 stages for smooth progress
+  const totalSteps = 3;
+  const totalInternalSteps = 6;
 
   return (
     <View style={styles.container}>
-      {/* Logo - Always goes to Home */}
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
@@ -99,7 +99,6 @@ export default function BasicRoutineStep2Info({
         </TouchableOpacity>
       </View>
 
-      {/* Banner - Always goes to DayRoutine */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateToDayRoutine}
@@ -172,6 +171,33 @@ export default function BasicRoutineStep2Info({
             {getExplanationText()}
           </Text>
         </View>
+
+        <View style={styles.citationContainer}>
+          <Text style={styles.citationText}>
+            Morning moisturizer recommendations based on research on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6628577/')}
+            >
+              skin barrier function and hydration
+            </Text>
+            , clinical studies on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(03)02617-4/fulltext')}
+            >
+              trans-epidermal water loss prevention
+            </Text>
+            , and guidelines from the{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/dry/dermatologists-tips-relieve-dry-skin')}
+            >
+              American Academy of Dermatology on daily moisturization
+            </Text>
+            . Individual results may vary - consult a dermatologist for personalized advice.
+          </Text>
+        </View>
       </View>
 
       <View style={styles.bottomSection}>
@@ -188,7 +214,7 @@ export default function BasicRoutineStep2Info({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',  // ✅ Transparent to show global decorative dots
+    backgroundColor: 'transparent',
   },
   topNavigation: {
     paddingHorizontal: 20,
@@ -346,6 +372,24 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: BRAND_COLORS.darkGray,
     lineHeight: 19,
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 30,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSection: {
     position: 'absolute',

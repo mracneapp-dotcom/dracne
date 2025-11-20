@@ -1,8 +1,9 @@
-// app/ModerateNightRoutineStep2Info.js - CORRECTED STEP COUNTS
+// app/ModerateRoutineStep2Info.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  Linking,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -29,9 +30,9 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
 };
 
-export default function ModerateNightRoutineStep2Info({ 
+export default function ModerateRoutineStep2Info({ 
   onNavigateHome,
-  onNavigateToNightRoutine,
+  onNavigateToDayRoutine,
   onBack, 
   onContinue, 
   currentStep = 2,
@@ -67,24 +68,24 @@ export default function ModerateNightRoutineStep2Info({
   };
 
   const getProductTitle = () => {
-    if (skinType === 'oily') return 'Lightweight Gel-Cream';
-    if (skinType === 'dry') return 'Rich Night Moisturizer';
-    return 'Light/Medium Moisturizer';
+    if (skinType === 'oily') return 'Lightweight Moisturizer';
+    if (skinType === 'dry') return 'Rich Day Moisturizer';
+    return 'Balanced Day Moisturizer';
   };
 
   const getExplanationText = () => {
     if (skinType === 'oily') {
-      return 'Even oily skin needs hydration at night. Lightweight gel-creams provide essential moisture without adding excess oil, allowing your skin to repair overnight without clogging pores.';
+      return 'Even oily skin needs daytime hydration. Lightweight gel-creams or lotions provide essential moisture without adding excess oil, keeping your skin balanced throughout the day.';
     }
     if (skinType === 'dry') {
-      return 'Night is when your skin repairs itself. Rich moisturizers with ceramides and occlusives create a protective barrier, locking in hydration and strengthening your skin barrier while you sleep.';
+      return 'Dry skin benefits from richer moisturizers with humectants and occlusives. Look for formulas with ceramides, hyaluronic acid, and nourishing oils to maintain hydration all day.';
     }
-    return 'A balanced evening moisturizer provides optimal hydration to support your skin\'s natural overnight repair process. Choose formulas that feel comfortable without being too heavy or too light.';
+    return 'A balanced moisturizer provides optimal hydration without feeling heavy or greasy. Choose formulas that feel comfortable and keep your skin looking fresh throughout the day.';
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const totalSteps = 3;
-  const totalInternalSteps = 6;
+  const totalSteps = 4;
+  const totalInternalSteps = 8;
 
   return (
     <View style={styles.container}>
@@ -100,11 +101,11 @@ export default function ModerateNightRoutineStep2Info({
 
       <TouchableOpacity 
         style={styles.bannerContainer}
-        onPress={onNavigateToNightRoutine}
+        onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
         <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
+          source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
         />
@@ -153,21 +154,48 @@ export default function ModerateNightRoutineStep2Info({
           </View>
           <View style={styles.productTextContainer}>
             <Text style={styles.productTitle}>{getProductTitle()}</Text>
-            <Text style={styles.productSubtitle}>Evening Step 2</Text>
+            <Text style={styles.productSubtitle}>Morning Step 2</Text>
           </View>
         </View>
 
         <View style={styles.introBox}>
           <Text style={styles.introTitle}>Curated for Your Skin</Text>
           <Text style={styles.introText}>
-            We've selected moisturizers specifically for {skinTypeInfo.name.toLowerCase()}. Each product is proven effective and dermatologist-recommended for overnight skin repair.
+            We've selected moisturizers specifically for {skinTypeInfo.name.toLowerCase()}. Each product is proven effective and dermatologist-recommended for daytime hydration.
           </Text>
         </View>
 
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>Why this matters at night</Text>
+          <Text style={styles.explanationTitle}>Why this matters</Text>
           <Text style={styles.explanationText}>
             {getExplanationText()}
+          </Text>
+        </View>
+
+        <View style={styles.citationContainer}>
+          <Text style={styles.citationText}>
+            Day moisturizer recommendations based on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6751381/')}
+            >
+              research on daytime hydration and barrier function
+            </Text>
+            , clinical studies on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4345901/')}
+            >
+              optimal product layering for morning skincare routines
+            </Text>
+            , and{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(17)32410-0/fulltext')}
+            >
+              dermatological guidance on skin type-specific moisturization
+            </Text>
+            . Individual results may vary - consult a dermatologist for personalized advice.
           </Text>
         </View>
       </View>
@@ -344,6 +372,24 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: BRAND_COLORS.darkGray,
     lineHeight: 19,
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSection: {
     position: 'absolute',

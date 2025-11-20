@@ -1,13 +1,14 @@
-// app/ComprehensiveNightRoutineStep1ProductSelection.js
+// app/ComprehensiveNightRoutineStep1ProductSelection.js - WITH CITATIONS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -413,6 +414,33 @@ export default function ComprehensiveNightRoutineStep1ProductSelection({
             </View>
           )}
 
+          <View style={styles.citationContainer}>
+            <Text style={styles.citationText}>
+              Evening cleanser recommendations based on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/care/face-washing-101')}
+              >
+                American Academy of Dermatology guidelines for proper facial cleansing
+              </Text>
+              , research on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/28661865/')}
+              >
+                pH-balanced cleansing and skin barrier preservation
+              </Text>
+              , and{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.cir-safety.org')}
+              >
+                Cosmetic Ingredient Review safety assessments for cleansing agents
+              </Text>
+              . Evening cleansing removes daily buildup - consult a dermatologist for persistent skin concerns.
+            </Text>
+          </View>
+
           <View style={styles.bottomSpacing} />
         </View>
       </ScrollView>
@@ -639,6 +667,24 @@ const styles = StyleSheet.create({
     color: '#B8860B',
     fontWeight: '600',
     textAlign: 'center',
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 160,

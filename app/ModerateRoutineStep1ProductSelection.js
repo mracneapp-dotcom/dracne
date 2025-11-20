@@ -2,12 +2,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -413,6 +414,33 @@ export default function ModerateRoutineStep1ProductSelection({
             </View>
           )}
 
+          <View style={styles.citationContainer}>
+            <Text style={styles.citationText}>
+              Product selections curated using safety data from the{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.cir-safety.org/ingredients')}
+              >
+                Cosmetic Ingredient Review
+              </Text>
+              , formulation research from the{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://onlinelibrary.wiley.com/journal/14682494')}
+              >
+                International Journal of Cosmetic Science
+              </Text>
+              , and clinical studies on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5849435/')}
+              >
+                skin type-specific morning cleansing protocols
+              </Text>
+              . These are educational suggestions - always patch test new products and consult a dermatologist for personalized treatment.
+            </Text>
+          </View>
+
           <View style={styles.bottomSpacing} />
         </View>
       </ScrollView>
@@ -639,6 +667,24 @@ const styles = StyleSheet.create({
     color: '#B8860B',
     fontWeight: '600',
     textAlign: 'center',
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 160,

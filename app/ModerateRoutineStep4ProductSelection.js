@@ -1,13 +1,14 @@
-// app/ModerateRoutineStep4ProductSelection.js - FINAL STEP WITH COMPLETION
+// app/ModerateRoutineStep4ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import RoutineCompletionModal from '../components/modals/RoutineCompletionModal';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
@@ -418,6 +419,33 @@ export default function ModerateRoutineStep4ProductSelection({
             </View>
           )}
 
+          <View style={styles.citationContainer}>
+            <Text style={styles.citationText}>
+              Sunscreen selections curated using{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.fda.gov/drugs/understanding-over-counter-medicines/sunscreen-how-help-protect-your-skin-sun')}
+              >
+                FDA sunscreen regulations and SPF testing standards
+              </Text>
+              , formulation research from the{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://onlinelibrary.wiley.com/journal/14682494')}
+              >
+                International Journal of Cosmetic Science
+              </Text>
+              , and clinical studies on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3543289/')}
+              >
+                photoprotection and skin type-specific sunscreen formulations
+              </Text>
+              . Daily broad-spectrum sunscreen is essential - consult a dermatologist for personalized sun protection advice.
+            </Text>
+          </View>
+
           <View style={styles.bottomSpacing} />
         </View>
       </ScrollView>
@@ -652,6 +680,24 @@ const styles = StyleSheet.create({
     color: '#B8860B',
     fontWeight: '600',
     textAlign: 'center',
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 160,

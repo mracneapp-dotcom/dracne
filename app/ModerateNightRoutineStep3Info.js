@@ -2,12 +2,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -168,6 +169,33 @@ export default function ModerateNightRoutineStep3Info({
               Use in evening only{'\n'}
               Always use sunscreen during the day{'\n'}
               Skip if skin feels irritated
+            </Text>
+          </View>
+
+          <View style={styles.citationContainer}>
+            <Text style={styles.citationText}>
+              Pore care treatment recommendations based on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4554394/')}
+              >
+                clinical research on salicylic acid and beta hydroxy acids for acne-prone skin
+              </Text>
+              , studies on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(06)02559-X/fulltext')}
+              >
+                chemical exfoliation safety and efficacy for evening application
+              </Text>
+              , and{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5574737/')}
+              >
+                dermatological guidance on gradual introduction of active ingredients
+              </Text>
+              . Individual tolerance varies - consult a dermatologist for personalized treatment protocols.
             </Text>
           </View>
 
@@ -371,6 +399,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: BRAND_COLORS.darkGray,
     lineHeight: 18,
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 80,

@@ -1,12 +1,13 @@
-// app/BasicNightRoutineStep1Info.js
+// app/BasicNightRoutineStep1Info.js - SPECIFIC CITATIONS WITH EMBEDDED LINKS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -152,6 +153,33 @@ export default function BasicNightRoutineStep1Info({
           <Text style={styles.explanationTitle}>Why this matters at night</Text>
           <Text style={styles.explanationText}>
             Evening cleansing removes the day's buildup - sunscreen, sebum, pollution, and makeup. A gentle cleanser ensures thorough cleaning without stripping your skin's natural moisture barrier.
+          </Text>
+        </View>
+
+        <View style={styles.citationContainer}>
+          <Text style={styles.citationText}>
+            Evening cleansing recommendations based on research from the{' '}
+            <Text 
+              style={styles.citationLink} 
+              onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/care/face-washing-101')}
+            >
+              American Academy of Dermatology on proper cleansing
+            </Text>
+            , studies on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6628577/')}
+            >
+              skin barrier function and pH balance
+            </Text>
+            , and clinical research on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(06)02559-X/fulltext')}
+            >
+              gentle cleanser efficacy
+            </Text>
+            . Individual results may vary - consult a dermatologist for personalized advice.
           </Text>
         </View>
       </View>
@@ -328,6 +356,24 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: BRAND_COLORS.darkGray,
     lineHeight: 19,
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 30,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSection: {
     position: 'absolute',

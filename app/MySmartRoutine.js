@@ -1,9 +1,10 @@
-// app/MySmartRoutine.js - DISPLAY SAVED SMART ROUTINES
+// app/MySmartRoutine.js - DISPLAY SAVED SMART ROUTINES (UPDATED WITH CITATIONS)
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Image,
+  Linking,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -315,6 +316,33 @@ export default function MySmartRoutine({
                   style={styles.actionButton}
                 />
               </View>
+
+              <View style={styles.citationContainer}>
+                <Text style={styles.citationText}>
+                  Smart routine application protocols based on{' '}
+                  <Text 
+                    style={styles.citationLink}
+                    onPress={() => Linking.openURL('https://www.aad.org/public/diseases/acne/skin-care/tips')}
+                  >
+                    American Academy of Dermatology guidelines for targeted acne treatment integration
+                  </Text>
+                  , research on{' '}
+                  <Text 
+                    style={styles.citationLink}
+                    onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5574737/')}
+                  >
+                    safe frequency and gradual active introduction for concern-specific treatments
+                  </Text>
+                  , and{' '}
+                  <Text 
+                    style={styles.citationLink}
+                    onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(15)02614-6/fulltext')}
+                  >
+                    dermatological protocols for combining targeted treatments with daily routines
+                  </Text>
+                  . Smart routines complement your Day & Night care - adjust frequency based on skin tolerance and consult a dermatologist for personalized treatment plans.
+                </Text>
+              </View>
             </>
           )}
 
@@ -578,6 +606,24 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     width: '100%',
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 40,

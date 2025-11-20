@@ -1,13 +1,14 @@
-// app/ModerateRoutineStep3ProductSelection.js - THE NEW SPECIALIZED PRODUCT SELECTION
+// app/ModerateRoutineStep3ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -320,6 +321,145 @@ export default function ModerateRoutineStep3ProductSelection({
     }
   };
 
+  const getCitationText = () => {
+    if (skinType === 'oily') {
+      return (
+        <Text style={styles.citationText}>
+          Pore care treatment recommendations based on{' '}
+          <Text 
+            style={styles.citationLink}
+            onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4554394/')}
+          >
+            clinical research on salicylic acid and beta hydroxy acids for acne-prone skin
+          </Text>
+          , studies on{' '}
+          <Text 
+            style={styles.citationLink}
+            onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(06)02559-X/fulltext')}
+          >
+            chemical exfoliation safety and efficacy
+          </Text>
+          , and{' '}
+          <Text 
+            style={styles.citationLink}
+            onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5574737/')}
+          >
+            dermatological guidance on gradual introduction of active ingredients
+          </Text>
+          . Individual tolerance varies - consult a dermatologist for personalized treatment protocols.
+        </Text>
+      );
+    } else if (skinType === 'dry') {
+      return (
+        <Text style={styles.citationText}>
+          Hydrating essence recommendations based on{' '}
+          <Text 
+            style={styles.citationLink}
+            onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6751381/')}
+          >
+            research on hyaluronic acid and multi-layer hydration
+          </Text>
+          , clinical studies on{' '}
+          <Text 
+            style={styles.citationLink}
+            onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4345901/')}
+          >
+            product layering for optimal skin hydration
+          </Text>
+          , and{' '}
+          <Text 
+            style={styles.citationLink}
+            onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(17)32410-0/fulltext')}
+          >
+            dermatological guidance on barrier function and moisture retention
+          </Text>
+          . Individual results may vary - consult a dermatologist for personalized advice.
+        </Text>
+      );
+    } else if (skinType === 'combination') {
+      return (
+        <Text style={styles.citationText}>
+          Zone-specific treatment recommendations based on{' '}
+          <Text 
+            style={styles.citationLink}
+            onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4554394/')}
+          >
+            clinical research on targeted acne treatment for combination skin
+          </Text>
+          , studies on{' '}
+          <Text 
+            style={styles.citationLink}
+            onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6751381/')}
+          >
+            differential hydration needs in T-zone versus cheeks
+          </Text>
+          , and{' '}
+          <Text 
+            style={styles.citationLink}
+            onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(17)32410-0/fulltext')}
+          >
+            dermatological protocols for balancing mixed skin types
+          </Text>
+          . Individual tolerance varies - consult a dermatologist for personalized treatment.
+        </Text>
+      );
+    } else if (skinType === 'normal') {
+      return (
+        <Text style={styles.citationText}>
+          Antioxidant serum recommendations based on{' '}
+          <Text 
+            style={styles.citationLink}
+            onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3673383/')}
+          >
+            clinical research on vitamin C and niacinamide for skin protection
+          </Text>
+          , studies on{' '}
+          <Text 
+            style={styles.citationLink}
+            onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5605218/')}
+          >
+            antioxidant efficacy in preventing environmental damage
+          </Text>
+          , and{' '}
+          <Text 
+            style={styles.citationLink}
+            onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(15)02614-6/fulltext')}
+          >
+            dermatological guidance on morning antioxidant application
+          </Text>
+          . Individual results may vary - always follow with sunscreen and consult a dermatologist.
+        </Text>
+      );
+    } else {
+      return (
+        <Text style={styles.citationText}>
+          Soothing serum recommendations based on{' '}
+          <Text 
+            style={styles.citationLink}
+            onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5796020/')}
+          >
+            clinical research on centella asiatica and barrier repair ingredients
+          </Text>
+          , studies on{' '}
+          <Text 
+            style={styles.citationLink}
+            onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4158622/')}
+          >
+            anti-inflammatory compounds for sensitive skin
+          </Text>
+          , and{' '}
+          <Text 
+            style={styles.citationLink}
+            onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(17)32410-0/fulltext')}
+          >
+            dermatological protocols for managing reactive skin
+          </Text>
+          . These are safe for twice-daily use - consult a dermatologist for personalized care.
+        </Text>
+      );
+    }
+  };
+
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
   const totalSteps = 4;
   const totalInternalSteps = 8;
@@ -447,6 +587,10 @@ export default function ModerateRoutineStep3ProductSelection({
 
           <View style={styles.helperBox}>
             <Text style={styles.helperText}>{getHelperText()}</Text>
+          </View>
+
+          <View style={styles.citationContainer}>
+            {getCitationText()}
           </View>
 
           <View style={styles.bottomSpacing} />
@@ -675,6 +819,24 @@ const styles = StyleSheet.create({
     color: '#B8860B',
     fontWeight: '600',
     textAlign: 'center',
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 160,

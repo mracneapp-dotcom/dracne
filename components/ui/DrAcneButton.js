@@ -62,13 +62,18 @@ const styles = StyleSheet.create({
     backgroundColor: BRAND_COLORS.secondary,
   },
   outline: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: BRAND_COLORS.primary,
   },
   disabled: {
-    opacity: 0.5,
+    opacity: 1,
+    backgroundColor: '#7CB342'
   },
+  disabledOutline: {  // ✅ NEW STYLE FOR DISABLED OUTLINE BUTTONS
+    backgroundColor: '#F5F5F5',
+    borderColor: '#CCCCCC',
+  },  
   text: {
     fontSize: 16,
     fontWeight: '600',

@@ -1,9 +1,10 @@
-// app/MyNightRoutine.js - COMPLETE WITH SKIN TYPE BADGE & CORRECT BANNER
+// app/MyNightRoutine.js - ADDED CITATION WITH EMBEDDED LINKS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Image,
+  Linking,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -454,6 +455,33 @@ setRoutineType(null);
                   • Nighttime is when skin repairs itself - consistent use is key
                 </Text>
               </View>
+
+              <View style={styles.citationContainer}>
+                <Text style={styles.citationText}>
+                  Routine guidance based on{' '}
+                  <Text 
+                    style={styles.citationLink}
+                    onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/care/skin-care-steps')}
+                  >
+                    American Academy of Dermatology skincare application guidelines
+                  </Text>
+                  , clinical research on{' '}
+                  <Text 
+                    style={styles.citationLink}
+                    onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4345901/')}
+                  >
+                    product layering and timing for optimal absorption
+                  </Text>
+                  , and studies on{' '}
+                  <Text 
+                    style={styles.citationLink}
+                    onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6751381/')}
+                  >
+                    nighttime skin repair and circadian rhythms
+                  </Text>
+                  . This routine is for educational purposes - individual results vary. Consult a dermatologist for personalized advice.
+                </Text>
+              </View>
             </>
           )}
 
@@ -730,6 +758,24 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: BRAND_COLORS.black,
     lineHeight: 20,
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 40,

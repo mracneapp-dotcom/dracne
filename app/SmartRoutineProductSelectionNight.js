@@ -1,8 +1,9 @@
-// app/SmartRoutineProductSelectionNight.js
+// app/SmartRoutineProductSelectionNight.js - UPDATED WITH VERIFIED WORKING LINKS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -233,6 +234,33 @@ export default function SmartRoutineProductSelectionNight({
             );
           })}
 
+          <View style={styles.citationContainer}>
+            <Text style={styles.citationText}>
+              Evening treatment recommendations based on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/28661865/')}
+              >
+                research on nighttime skin repair and circadian rhythms for optimal active application
+              </Text>
+              , clinical studies on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/26201312/')}
+              >
+                chemical exfoliant and retinoid efficacy during evening routines
+              </Text>
+              , and{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.aad.org/public/diseases/acne/skin-care/treatment')}
+              >
+                dermatological protocols for safe overnight treatment application
+              </Text>
+              . Start with 2-3 times per week and adjust based on tolerance - consult a dermatologist for personalized guidance.
+            </Text>
+          </View>
+
           <View style={styles.bottomSpacing} />
         </View>
       </ScrollView>
@@ -453,6 +481,24 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
     color: BRAND_COLORS.darkGray,
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 100,

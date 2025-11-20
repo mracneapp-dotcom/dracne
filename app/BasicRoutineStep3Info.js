@@ -1,8 +1,9 @@
-// app/BasicRoutineStep3Info.js - COMPLETE WITH NAVIGATION
+// app/BasicRoutineStep3Info.js - COMPLETE WITH CITATIONS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  Linking,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -34,8 +35,8 @@ export default function BasicRoutineStep3Info({
   onNavigateToDayRoutine,
   onBack, 
   onContinue, 
-  currentStep = 3,      // Display step (1-3)
-  internalStep = 5      // Internal progress step (1-6)
+  currentStep = 3,
+  internalStep = 5
 }) {
   const [skinType, setSkinType] = useState('normal');
 
@@ -67,12 +68,11 @@ export default function BasicRoutineStep3Info({
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const totalSteps = 3;  // Display: 3 steps total
-  const totalInternalSteps = 6;  // Internal: 6 stages for smooth progress
+  const totalSteps = 3;
+  const totalInternalSteps = 6;
 
   return (
     <View style={styles.container}>
-      {/* Logo - Always goes to Home */}
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
@@ -83,7 +83,6 @@ export default function BasicRoutineStep3Info({
         </TouchableOpacity>
       </View>
 
-      {/* Banner - Always goes to DayRoutine */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateToDayRoutine}
@@ -166,6 +165,33 @@ export default function BasicRoutineStep3Info({
             • Reapply every 2 hours outdoors
           </Text>
         </View>
+
+        <View style={styles.citationContainer}>
+          <Text style={styles.citationText}>
+            Sunscreen recommendations based on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.aad.org/public/diseases/skin-cancer/surprising-facts-about-sunscreen')}
+            >
+              American Academy of Dermatology guidelines on sun protection
+            </Text>
+            , research on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3543289/')}
+            >
+              proper SPF application amounts and efficacy
+            </Text>
+            , and clinical studies on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(18)32767-6/fulltext')}
+            >
+              UV filter effectiveness and photoprotection
+            </Text>
+            . Daily sun protection is essential - consult a dermatologist for personalized advice.
+          </Text>
+        </View>
       </View>
 
       <View style={styles.bottomSection}>
@@ -182,7 +208,7 @@ export default function BasicRoutineStep3Info({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',  // ✅ Transparent to show global decorative dots
+    backgroundColor: 'transparent',
   },
   topNavigation: {
     paddingHorizontal: 20,
@@ -359,6 +385,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: BRAND_COLORS.darkGray,
     lineHeight: 18,
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 30,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSection: {
     position: 'absolute',

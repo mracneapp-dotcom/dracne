@@ -1,13 +1,14 @@
-// app/ComprehensiveRoutineStep3ProductSelection.js
+// app/ComprehensiveRoutineStep3ProductSelection.js - WITH CITATIONS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -449,6 +450,33 @@ export default function ComprehensiveRoutineStep3ProductSelection({
             <Text style={styles.helperText}>{getHelperText()}</Text>
           </View>
 
+          <View style={styles.citationContainer}>
+            <Text style={styles.citationText}>
+              Specialized treatment recommendations based on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3997530/')}
+              >
+                research on niacinamide benefits for skin barrier and pigmentation
+              </Text>
+              , studies on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/23291589/')}
+              >
+                vitamin C as photoprotection and collagen synthesis support
+              </Text>
+              , and{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/17147561/')}
+              >
+                centella asiatica wound healing and anti-inflammatory properties
+              </Text>
+              . Layer serums before moisturizer - consult a dermatologist for ingredient compatibility.
+            </Text>
+          </View>
+
           <View style={styles.bottomSpacing} />
         </View>
       </ScrollView>
@@ -675,6 +703,24 @@ const styles = StyleSheet.create({
     color: '#B8860B',
     fontWeight: '600',
     textAlign: 'center',
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 160,

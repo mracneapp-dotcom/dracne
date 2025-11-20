@@ -1,8 +1,9 @@
-// app/BasicRoutineStep3ProductSelection.js - COMPLETE WITH ENHANCED MODAL
+// app/BasicRoutineStep3ProductSelection.js - COMPLETE WITH CITATIONS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -230,16 +231,13 @@ export default function BasicRoutineStep3ProductSelection({
   const handleComplete = async () => {
     if (selectedProduct) {
       try {
-        // Load existing routine data (should have cleanser and moisturizer from previous steps)
         const routineData = await AsyncStorage.getItem('myDayRoutine');
         const currentRoutine = routineData ? JSON.parse(routineData) : {};
         
-        // Add sunscreen to routine
         currentRoutine.sunscreens = [selectedProduct];
         currentRoutine.lastUpdated = new Date().toISOString();
         currentRoutine.completedAt = new Date().toISOString();
         
-        // Save complete routine
         await AsyncStorage.setItem('myDayRoutine', JSON.stringify(currentRoutine));
         
         console.log('✅ Complete Routine Saved:', currentRoutine);
@@ -247,10 +245,7 @@ export default function BasicRoutineStep3ProductSelection({
         console.log('📦 Moisturizers:', currentRoutine.moisturizers);
         console.log('📦 Sunscreens:', currentRoutine.sunscreens);
         
-        // Set complete routine data for modal display
         setCompleteRoutineData(currentRoutine);
-        
-        // Show completion modal
         setShowCompletionModal(true);
       } catch (error) {
         console.error('❌ Error saving complete routine:', error);
@@ -304,7 +299,6 @@ export default function BasicRoutineStep3ProductSelection({
 
   return (
     <View style={styles.container}>
-      {/* Logo - Always goes to Home */}
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
@@ -315,7 +309,6 @@ export default function BasicRoutineStep3ProductSelection({
         </TouchableOpacity>
       </View>
 
-      {/* Banner - Always goes to DayRoutine */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateToDayRoutine}
@@ -334,7 +327,6 @@ export default function BasicRoutineStep3ProductSelection({
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
-          {/* Progress Section */}
           <View style={styles.progressContainer}>
             <View style={styles.progressHeader}>
               <TouchableOpacity
@@ -364,7 +356,6 @@ export default function BasicRoutineStep3ProductSelection({
             </View>
           </View>
 
-          {/* Skin Type Badge */}
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
               For {skinTypeInfo.name}
@@ -373,14 +364,12 @@ export default function BasicRoutineStep3ProductSelection({
 
           <Text style={styles.sectionTitle}>Product Recommendations</Text>
 
-          {/* Explanation Box */}
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
               Choose your sunscreen - the most important anti-aging step. All options are SPF 30+ and dermatologist-recommended for your skin type.
             </Text>
           </View>
 
-          {/* Product Selection */}
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
               Choose Your Product {selectedProduct && '(1 selected)'}
@@ -423,18 +412,43 @@ export default function BasicRoutineStep3ProductSelection({
             })}
           </View>
 
-          {/* Helper Text */}
           {!selectedProduct && (
             <View style={styles.helperBox}>
               <Text style={styles.helperText}>Select 1 sunscreen to complete your routine</Text>
             </View>
           )}
 
+          <View style={styles.citationContainer}>
+            <Text style={styles.citationText}>
+              Product selections based on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3543289/')}
+              >
+                sunscreen formulation research and SPF testing standards
+              </Text>
+              , clinical studies on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(19)30125-5/fulltext')}
+              >
+                UV filter safety and efficacy profiles
+              </Text>
+              , and ingredient data from the{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.fda.gov/drugs/understanding-over-counter-medicines/sunscreen-how-help-protect-your-skin-sun')}
+              >
+                FDA on sunscreen active ingredients
+              </Text>
+              . These are educational suggestions - always use broad-spectrum SPF 30+ daily and consult a dermatologist for skin cancer prevention advice.
+            </Text>
+          </View>
+
           <View style={styles.bottomSpacing} />
         </View>
       </ScrollView>
 
-      {/* Bottom Button */}
       <View style={styles.bottomSection}>
         <DrAcneButton
           title={getButtonText()}
@@ -444,7 +458,6 @@ export default function BasicRoutineStep3ProductSelection({
         />
       </View>
 
-      {/* Completion Modal */}
       <RoutineCompletionModal
         visible={showCompletionModal}
         onClose={handleModalClose}
@@ -665,6 +678,24 @@ const styles = StyleSheet.create({
     color: '#B8860B',
     fontWeight: '600',
     textAlign: 'center',
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 160,

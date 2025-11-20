@@ -2979,7 +2979,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 20,
     paddingVertical: 15,
-    backgroundColor: 'transparent',
+    backgroundColor: 'FFFFFF',
     gap: 12,
     zIndex: 10,
   },

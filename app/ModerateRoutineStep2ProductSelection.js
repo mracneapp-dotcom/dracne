@@ -1,8 +1,9 @@
-// app/ModerateNightRoutineStep2ProductSelection.js - CONTINUE TO STEP 3 (NO COMPLETION)
+// app/ModerateRoutineStep2ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -33,171 +34,171 @@ const SKIN_TYPE_INFO = {
 const MOISTURIZER_PRODUCTS = {
   oily: [
     {
-      id: 'moisturizer_night_oily_1',
+      id: 'moisturizer_oily_1',
       name: 'Beauty of Joseon Dynasty Cream Light',
       description: 'Lightweight gel-cream with rice and probiotics',
       benefits: ['Non-greasy', 'Hydrating', 'K-Beauty'],
     },
     {
-      id: 'moisturizer_night_oily_2',
+      id: 'moisturizer_oily_2',
       name: 'Isntree Hyaluronic Aqua Gel Cream',
       description: 'Water-based gel with 5 types of hyaluronic acid',
       benefits: ['Lightweight', 'Plumping', 'Fresh finish'],
     },
     {
-      id: 'moisturizer_night_oily_3',
-      name: 'Innisfree Green Tea Seed Cream',
-      description: 'Light gel-cream with green tea extract',
-      benefits: ['Oil-control', 'Antioxidant', 'Popular'],
-    },
-    {
-      id: 'moisturizer_night_oily_4',
-      name: 'Neutrogena Hydro Boost',
+      id: 'moisturizer_oily_3',
+      name: 'Neutrogena Hydro Boost Water Gel',
       description: 'Gel-cream with hyaluronic acid',
       benefits: ['Affordable', 'Oil-free', 'Hydrating'],
     },
     {
-      id: 'moisturizer_night_oily_5',
+      id: 'moisturizer_oily_4',
       name: 'Clinique Dramatically Different Gel',
       description: 'Classic lightweight moisturizing gel',
       benefits: ['Oil-free', 'Trusted', 'Dermatologist-tested'],
     },
+    {
+      id: 'moisturizer_oily_5',
+      name: 'CeraVe PM Facial Lotion',
+      description: 'Lightweight lotion with ceramides and niacinamide',
+      benefits: ['Affordable', 'Non-comedogenic', 'Ceramides'],
+    },
   ],
   dry: [
     {
-      id: 'moisturizer_night_dry_1',
-      name: 'COSRX Snail 92 All In One Cream',
-      description: 'Rich cream with 92% snail mucin',
-      benefits: ['Nourishing', 'Repairing', 'Hydrating'],
-    },
-    {
-      id: 'moisturizer_night_dry_2',
+      id: 'moisturizer_dry_1',
       name: 'Illiyoon Ceramide Ato Concentrate',
       description: 'Intensive barrier cream with ceramides',
       benefits: ['Rich', 'Barrier repair', 'K-Beauty favorite'],
     },
     {
-      id: 'moisturizer_night_dry_3',
+      id: 'moisturizer_dry_2',
       name: "Kiehl's Ultra Facial Cream",
       description: 'Classic rich moisturizer with squalane',
       benefits: ['24-hour hydration', 'Luxurious', 'Iconic'],
     },
     {
-      id: 'moisturizer_night_dry_4',
+      id: 'moisturizer_dry_3',
       name: 'CeraVe Moisturizing Cream',
       description: 'Rich cream with ceramides and hyaluronic acid',
       benefits: ['Affordable', 'Ceramides', 'Dermatologist-loved'],
     },
     {
-      id: 'moisturizer_night_dry_5',
+      id: 'moisturizer_dry_4',
       name: 'First Aid Beauty Ultra Repair',
       description: 'Intensive cream with colloidal oatmeal',
       benefits: ['Soothing', 'Rich', 'Fast-absorbing'],
     },
+    {
+      id: 'moisturizer_dry_5',
+      name: 'Eucerin Advanced Repair',
+      description: 'Rich moisturizer for very dry skin',
+      benefits: ['Budget-friendly', 'Intensive', 'Fragrance-free'],
+    },
   ],
   combination: [
     {
-      id: 'moisturizer_night_combo_1',
+      id: 'moisturizer_combo_1',
       name: 'Beauty of Joseon Dynasty Cream',
       description: 'Balanced cream suitable for all zones',
       benefits: ['Balanced', 'Versatile', 'Elegant'],
     },
     {
-      id: 'moisturizer_night_combo_2',
-      name: 'Isntree Aloe Soothing Gel',
-      description: 'Light gel with aloe and centella',
-      benefits: ['Soothing', 'Lightweight', 'Fresh'],
-    },
-    {
-      id: 'moisturizer_night_combo_3',
-      name: 'Clinique Moisture Surge',
-      description: 'Auto-replenishing hydration',
-      benefits: ['Oil-free', 'Hydrating', 'Balanced'],
-    },
-    {
-      id: 'moisturizer_night_combo_4',
+      id: 'moisturizer_combo_2',
       name: 'Neutrogena Hydro Boost',
       description: 'Gel-cream for combination skin',
       benefits: ['Versatile', 'Affordable', 'Effective'],
     },
     {
-      id: 'moisturizer_night_combo_5',
-      name: 'COSRX Snail 92',
-      description: 'Lightweight yet nourishing cream',
-      benefits: ['Adaptable', 'Repairing', 'Popular'],
+      id: 'moisturizer_combo_3',
+      name: 'Clinique Moisture Surge',
+      description: 'Auto-replenishing hydration',
+      benefits: ['Oil-free', 'Hydrating', 'Balanced'],
+    },
+    {
+      id: 'moisturizer_combo_4',
+      name: 'CeraVe Daily Lotion',
+      description: 'Lightweight lotion with ceramides',
+      benefits: ['Affordable', 'Balanced', 'Non-greasy'],
+    },
+    {
+      id: 'moisturizer_combo_5',
+      name: 'Isntree Aloe Soothing Gel',
+      description: 'Light gel with aloe and centella',
+      benefits: ['Soothing', 'Lightweight', 'Fresh'],
     },
   ],
   normal: [
     {
-      id: 'moisturizer_night_normal_1',
-      name: 'COSRX Snail 92 All In One Cream',
-      description: 'Perfect hydrating cream for balanced skin',
-      benefits: ['Balanced', 'Repairing', 'Versatile'],
-    },
-    {
-      id: 'moisturizer_night_normal_2',
+      id: 'moisturizer_normal_1',
       name: 'Beauty of Joseon Dynasty Cream',
       description: 'Classic K-beauty moisturizer',
       benefits: ['Elegant', 'Balanced', 'Popular'],
     },
     {
-      id: 'moisturizer_night_normal_3',
+      id: 'moisturizer_normal_2',
       name: 'Clinique Moisture Surge',
       description: 'Auto-replenishing hydration',
       benefits: ['Hydrating', 'Reliable', 'Oil-free'],
     },
     {
-      id: 'moisturizer_night_normal_4',
-      name: 'Eucerin Lotion',
+      id: 'moisturizer_normal_3',
+      name: 'CeraVe Daily Lotion',
       description: 'Simple effective daily moisturizer',
-      benefits: ['Lightweight', 'Budget-friendly', 'Gentle'],
+      benefits: ['Lightweight', 'Budget-friendly', 'Ceramides'],
     },
     {
-      id: 'moisturizer_night_normal_5',
+      id: 'moisturizer_normal_4',
       name: 'Neutrogena Hydro Boost',
       description: 'Gel-cream with hyaluronic acid',
       benefits: ['Hydrating', 'Fresh', 'Affordable'],
     },
+    {
+      id: 'moisturizer_normal_5',
+      name: 'Eucerin Daily Hydration',
+      description: 'Lightweight daily moisturizer',
+      benefits: ['Simple', 'Effective', 'Budget-friendly'],
+    },
   ],
   sensitive: [
     {
-      id: 'moisturizer_night_sens_1',
-      name: 'Illiyoon Ceramide Ato',
-      description: 'Gentle barrier repair cream',
-      benefits: ['Minimal ingredients', 'Ceramides', 'Safe'],
-    },
-    {
-      id: 'moisturizer_night_sens_2',
+      id: 'moisturizer_sens_1',
       name: 'La Roche-Posay Toleriane Dermallergo',
       description: 'Ultra-gentle moisturizer for reactive skin',
       benefits: ['Dermatologist-tested', 'Fragrance-free', 'Safe'],
     },
     {
-      id: 'moisturizer_night_sens_3',
+      id: 'moisturizer_sens_2',
       name: 'CeraVe Moisturizing Cream',
       description: 'Gentle ceramide cream',
       benefits: ['Affordable', 'Ceramides', 'Non-irritating'],
     },
     {
-      id: 'moisturizer_night_sens_4',
-      name: 'A-Derma Dermalibour',
-      description: 'Repairing cream for sensitive skin',
-      benefits: ['Soothing', 'Repairing', 'Gentle'],
+      id: 'moisturizer_sens_3',
+      name: 'Avene Tolerance Emulsion',
+      description: 'Minimal ingredient moisturizer',
+      benefits: ['Thermal water', 'Minimal ingredients', 'Gentle'],
     },
     {
-      id: 'moisturizer_night_sens_5',
+      id: 'moisturizer_sens_4',
       name: 'First Aid Beauty Ultra Repair',
       description: 'Gentle intensive moisturizer',
       benefits: ['Colloidal oatmeal', 'Safe', 'Soothing'],
     },
+    {
+      id: 'moisturizer_sens_5',
+      name: 'Vanicream Daily Moisturizer',
+      description: 'Free of common irritants',
+      benefits: ['Fragrance-free', 'Simple', 'Safe'],
+    },
   ],
 };
 
-export default function ModerateNightRoutineStep2ProductSelection({ 
+export default function ModerateRoutineStep2ProductSelection({ 
   onNavigateHome,
-  onNavigateToNightRoutine,
+  onNavigateToDayRoutine,
   onBack, 
-  onContinue,
+  onContinue, 
   currentStep = 2,
   internalStep = 4
 }) {
@@ -225,26 +226,21 @@ export default function ModerateNightRoutineStep2ProductSelection({
   };
 
   const handleContinue = async () => {
-    if (selectedProduct) {
+    if (selectedProduct && onContinue) {
       try {
-        const routineData = await AsyncStorage.getItem('myModerateNightRoutine');
+        const routineData = await AsyncStorage.getItem('myModerateRoutine');
         const currentRoutine = routineData ? JSON.parse(routineData) : {};
         
         currentRoutine.moisturizers = [selectedProduct];
         currentRoutine.lastUpdated = new Date().toISOString();
         
-        await AsyncStorage.setItem('myModerateNightRoutine', JSON.stringify(currentRoutine));
-        
-        console.log('Moderate Night Step 2 Saved:', currentRoutine);
-        console.log('Cleansers:', currentRoutine.cleansers);
-        console.log('Moisturizers:', currentRoutine.moisturizers);
-        
-        if (onContinue) {
-          onContinue([selectedProduct]);
-        }
+        await AsyncStorage.setItem('myModerateRoutine', JSON.stringify(currentRoutine));
+        console.log('Saved moisturizers to Moderate Routine:', selectedProduct);
       } catch (error) {
-        console.error('Error saving Moderate Night routine step 2:', error);
+        console.error('Error saving to Moderate Routine:', error);
       }
+      
+      onContinue([selectedProduct]);
     }
   };
 
@@ -264,12 +260,12 @@ export default function ModerateNightRoutineStep2ProductSelection({
     if (!selectedProduct) {
       return 'Choose My Moisturizer';
     }
-    return 'Continue to Step 3';
+    return 'Continue with My Selection';
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const totalSteps = 3;
-  const totalInternalSteps = 6;
+  const totalSteps = 4;
+  const totalInternalSteps = 8;
   const canGoNext = !!selectedProduct;
 
   return (
@@ -286,11 +282,11 @@ export default function ModerateNightRoutineStep2ProductSelection({
 
       <TouchableOpacity 
         style={styles.bannerContainer}
-        onPress={onNavigateToNightRoutine}
+        onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
         <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
+          source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
         />
@@ -341,7 +337,7 @@ export default function ModerateNightRoutineStep2ProductSelection({
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose your evening moisturizer. This will support your skin's natural overnight repair process with enhanced hydration.
+              Choose your daytime moisturizer. This will provide essential hydration while keeping your skin comfortable throughout the day.
             </Text>
           </View>
 
@@ -389,9 +385,36 @@ export default function ModerateNightRoutineStep2ProductSelection({
 
           {!selectedProduct && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select 1 product to continue to Step 3</Text>
+              <Text style={styles.helperText}>Select 1 product to continue</Text>
             </View>
           )}
+
+          <View style={styles.citationContainer}>
+            <Text style={styles.citationText}>
+              Product selections curated using formulation research from the{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://onlinelibrary.wiley.com/journal/14682494')}
+              >
+                International Journal of Cosmetic Science
+              </Text>
+              , ingredient safety data from the{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.cir-safety.org/ingredients')}
+              >
+                Cosmetic Ingredient Review
+              </Text>
+              , and clinical studies on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4345901/')}
+              >
+                daytime moisturization for different skin types
+              </Text>
+              . These are educational suggestions - always patch test new products and consult a dermatologist for personalized treatment.
+            </Text>
+          </View>
 
           <View style={styles.bottomSpacing} />
         </View>
@@ -619,6 +642,24 @@ const styles = StyleSheet.create({
     color: '#B8860B',
     fontWeight: '600',
     textAlign: 'center',
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 160,

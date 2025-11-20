@@ -1,7 +1,8 @@
-// app/SmartRoutineIntroScreen.js - UPDATED
+// app/SmartRoutineIntroScreen.js - UPDATED WITH CITATIONS
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -183,6 +184,33 @@ export default function SmartRoutineIntroScreen({
             />
             <Text style={styles.infoText}>
               This targeted routine complements your existing Day & Night routines. Apply these products after cleansing, before moisturizing.
+            </Text>
+          </View>
+
+          <View style={styles.citationContainer}>
+            <Text style={styles.citationText}>
+              Treatment approaches based on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.aad.org/public/diseases/acne/skin-care/tips')}
+              >
+                American Academy of Dermatology guidelines for targeted acne treatment
+              </Text>
+              , clinical research on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2699641/')}
+              >
+                topical retinoid and chemical exfoliant efficacy for specific acne types
+              </Text>
+              , and{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(06)02559-X/fulltext')}
+              >
+                dermatological protocols for safe combination therapy and gradual active introduction
+              </Text>
+              . Smart routines complement your daily care - consult a dermatologist for comprehensive treatment plans.
             </Text>
           </View>
 
@@ -391,6 +419,24 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.darkGray,
     lineHeight: 17,
     fontWeight: '500',
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 100,

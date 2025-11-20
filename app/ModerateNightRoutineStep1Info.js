@@ -2,11 +2,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -152,6 +153,33 @@ export default function ModerateNightRoutineStep1Info({
           <Text style={styles.explanationTitle}>Why this matters</Text>
           <Text style={styles.explanationText}>
             A gentle evening cleanser removes the day's buildup without stripping your skin. Look for low-pH formulas that leave skin clean but never tight, preparing it for overnight repair.
+          </Text>
+        </View>
+
+        <View style={styles.citationContainer}>
+          <Text style={styles.citationText}>
+            Evening cleanser recommendations based on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/care/face-washing-101')}
+            >
+              American Academy of Dermatology guidelines on proper face washing
+            </Text>
+            , research on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4158622/')}
+            >
+              optimal skin pH and barrier function
+            </Text>
+            , and clinical studies on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5849435/')}
+            >
+              evening cleansing for skin type-specific needs
+            </Text>
+            . Individual results may vary - consult a dermatologist for personalized advice.
           </Text>
         </View>
       </View>
@@ -328,6 +356,24 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: BRAND_COLORS.darkGray,
     lineHeight: 19,
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSection: {
     position: 'absolute',

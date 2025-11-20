@@ -1,10 +1,12 @@
-// components/analysis/AnalysisResults.js - WITH INFO MODAL
+// components/analysis/AnalysisResults.js - REMOVED WHITE BACKGROUND FROM CITATION
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
   Image,
+  Linking,
   Modal,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -113,7 +115,6 @@ const AI_TO_CONCERN_MAP = {
   'nodule': 'nodules',
 };
 
-// NEW: Acne type information
 const ACNE_TYPE_INFO = {
   papules: {
     name: 'Papules',
@@ -154,8 +155,8 @@ export const AnalysisResults = ({
 }) => {
   const [annotatedImageUri, setAnnotatedImageUri] = useState(null);
   const [confirmedType, setConfirmedType] = useState(null);
-  const [showInfoModal, setShowInfoModal] = useState(false); // NEW
-  const [selectedInfoType, setSelectedInfoType] = useState(null); // NEW
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [selectedInfoType, setSelectedInfoType] = useState(null);
 
   useEffect(() => {
     if (annotatedImageBlob) {
@@ -183,7 +184,6 @@ export const AnalysisResults = ({
     }
   };
 
-  // NEW: Info modal handlers
   const handleInfoPress = (type) => {
     setSelectedInfoType(type);
     setShowInfoModal(true);
@@ -234,7 +234,11 @@ export const AnalysisResults = ({
   };
 
   return (
-    <View style={[styles.container, style]}>
+    <ScrollView 
+      style={[styles.container, style]} 
+      showsVerticalScrollIndicator={true}
+      contentContainerStyle={styles.scrollContent}
+    >
       <View style={styles.logoHeader}>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
@@ -315,7 +319,6 @@ export const AnalysisResults = ({
                     {typeInfo.indicator}
                   </Text>
                   
-                  {/* MODIFIED: Added info button */}
                   <View style={styles.nameWithInfo}>
                     <Text style={styles.detectionName}>{typeInfo.name}</Text>
                     <TouchableOpacity 
@@ -365,7 +368,15 @@ export const AnalysisResults = ({
         </View>
       )}
 
-      {/* NEW: Info Modal */}
+      <View style={styles.citationContainer}>
+        <Text style={styles.citationText}>
+          AI detection powered by Roboflow facial-acne-detection model. Educational purposes only - not medical diagnosis. Consult a dermatologist for professional evaluation and treatment.
+        </Text>
+        <TouchableOpacity onPress={() => Linking.openURL('https://www.aad.org/public/diseases/acne')}>
+          <Text style={styles.citationLink}>Sources</Text>
+        </TouchableOpacity>
+      </View>
+
       <Modal
         visible={showInfoModal}
         transparent={true}
@@ -387,7 +398,7 @@ export const AnalysisResults = ({
           </View>
         </TouchableOpacity>
       </Modal>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -395,6 +406,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'transparent',
+  },
+  scrollContent: {
+    paddingBottom: 150,
   },
   logoHeader: {
     paddingTop: 10,
@@ -684,6 +698,25 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.secondary,
     textAlign: 'center',
     padding: 20,
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 30,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#999999',
+    textAlign: 'center',
+    marginTop: 8,
+    textDecorationLine: 'underline',
   },
   modalOverlay: {
     flex: 1,

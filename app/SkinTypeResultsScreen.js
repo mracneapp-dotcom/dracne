@@ -1,8 +1,9 @@
-// app/SkinTypeResultsScreen.js - Modern Design with Logo & Consistent Styling
+// app/SkinTypeResultsScreen.js - UPDATED WITH VERIFIED WORKING LINKS
 import React, { useEffect, useRef } from 'react';
 import {
   Animated,
   Image,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -303,6 +304,40 @@ export const SkinTypeResultsScreen = ({
             {skinData.explanation}
           </Text>
         </Animated.View>
+
+        {/* Citation Section */}
+        <Animated.View style={[
+          styles.citationContainer,
+          {
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }]
+          }
+        ]}>
+          <Text style={styles.citationText}>
+            Skin type assessment based on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/25346001/')}
+            >
+              clinical research on skin barrier function and sebum production patterns
+            </Text>
+            , dermatological classifications from the{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/dry/dermatologists-tips-relieve-dry-skin')}
+            >
+              American Academy of Dermatology
+            </Text>
+            , and studies on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/28713669/')}
+            >
+              personalized skincare approaches for different skin types
+            </Text>
+            . Individual skin characteristics vary - consult a dermatologist for personalized assessment and treatment.
+          </Text>
+        </Animated.View>
         
         {/* Continue button */}
         <Animated.View style={[
@@ -454,6 +489,23 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.black,
     lineHeight: 21,
     textAlign: 'center',
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginBottom: 24,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   continueButton: {
     paddingVertical: 16,

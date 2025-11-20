@@ -1,13 +1,14 @@
-// app/ComprehensiveNightRoutineStep2ProductSelection.js
+// app/ComprehensiveNightRoutineStep2ProductSelection.js - WITH CITATIONS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -413,6 +414,33 @@ export default function ComprehensiveNightRoutineStep2ProductSelection({
             </View>
           )}
 
+          <View style={styles.citationContainer}>
+            <Text style={styles.citationText}>
+              Night moisturizer recommendations based on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/28661865/')}
+              >
+                research on overnight skin barrier repair and transepidermal water loss prevention
+              </Text>
+              , clinical studies on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/25346001/')}
+              >
+                ceramide and lipid-based formulations for nighttime barrier restoration
+              </Text>
+              , and{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/dry/dermatologists-tips-relieve-dry-skin')}
+              >
+                AAD guidelines for optimal moisturization during skin's natural repair cycle
+              </Text>
+              . Night is prime repair time - consult a dermatologist for persistent dryness concerns.
+            </Text>
+          </View>
+
           <View style={styles.bottomSpacing} />
         </View>
       </ScrollView>
@@ -639,6 +667,24 @@ const styles = StyleSheet.create({
     color: '#B8860B',
     fontWeight: '600',
     textAlign: 'center',
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 160,

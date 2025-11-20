@@ -1,8 +1,9 @@
-// app/BasicNightRoutineStep2ProductSelection.js - FIXED COMPLETION MODAL
+// app/BasicNightRoutineStep2ProductSelection.js - SPECIFIC CITATIONS WITH EMBEDDED LINKS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -416,6 +417,33 @@ export default function BasicNightRoutineStep2ProductSelection({
             </View>
           )}
 
+          <View style={styles.citationContainer}>
+            <Text style={styles.citationText}>
+              Product selections based on research on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6628577/')}
+              >
+                ceramide and lipid barrier function
+              </Text>
+              , clinical studies on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.jidonline.org/article/S0022-202X(15)41268-2/fulltext')}
+              >
+                humectant and occlusive efficacy
+              </Text>
+              , and ingredient safety profiles from the{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.cir-safety.org/ingredients')}
+              >
+                Cosmetic Ingredient Review
+              </Text>
+              . These are educational suggestions - always patch test new products and consult a dermatologist for personalized treatment.
+            </Text>
+          </View>
+
           <View style={styles.bottomSpacing} />
         </View>
       </ScrollView>
@@ -651,6 +679,24 @@ const styles = StyleSheet.create({
     color: '#B8860B',
     fontWeight: '600',
     textAlign: 'center',
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 160,

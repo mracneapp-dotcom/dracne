@@ -1,8 +1,9 @@
-// app/BasicNightRoutineStep2Info.js
+// app/BasicNightRoutineStep2Info.js - SPECIFIC CITATIONS WITH EMBEDDED LINKS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  Linking,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -168,6 +169,33 @@ export default function BasicNightRoutineStep2Info({
           <Text style={styles.explanationTitle}>Why this matters at night</Text>
           <Text style={styles.explanationText}>
             {getExplanationText()}
+          </Text>
+        </View>
+
+        <View style={styles.citationContainer}>
+          <Text style={styles.citationText}>
+            Moisturizer recommendations based on research on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4345901/')}
+            >
+              circadian skin repair processes
+            </Text>
+            , clinical studies on{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(03)02617-4/fulltext')}
+            >
+              barrier restoration and TEWL
+            </Text>
+            , and guidelines from the{' '}
+            <Text 
+              style={styles.citationLink}
+              onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/dry/dermatologists-tips-relieve-dry-skin')}
+            >
+              American Academy of Dermatology on moisturization
+            </Text>
+            . Individual results may vary - consult a dermatologist for personalized advice.
           </Text>
         </View>
       </View>
@@ -344,6 +372,24 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: BRAND_COLORS.darkGray,
     lineHeight: 19,
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 30,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSection: {
     position: 'absolute',

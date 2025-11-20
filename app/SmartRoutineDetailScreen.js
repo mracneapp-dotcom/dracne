@@ -1,7 +1,8 @@
-// app/SmartRoutineDetailScreen.js - DETAILED SMART ROUTINE (FIXED)
+// app/SmartRoutineDetailScreen.js - UPDATED WITH CITATIONS
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -24,7 +25,7 @@ const BRAND_COLORS = {
 const CONCERN_DATA = {
   nodules: {
     name: 'Inflamed Acne (Nodules)',
-    color: '#FF7A7A', // Secondary
+    color: '#FF7A7A',
     icon: require('../assets/images/Nodule.png'),
     description: 'Deep, painful bumps that form beneath the skin surface. Requires gentle, anti-inflammatory approach.',
     goal: 'Calm inflammation, regulate oil, and prevent infection without stripping skin barrier.',
@@ -74,7 +75,7 @@ const CONCERN_DATA = {
   },
   blackheads: {
     name: 'Blackheads (Open Comedones)',
-    color: '#4A90E2', // Blue
+    color: '#4A90E2',
     icon: require('../assets/images/Blackhead.png'),
     description: 'Oxidized sebum in open pores. Requires chemical exfoliation to dissolve buildup.',
     goal: 'Dissolve oxidized sebum and keep pores clear with BHA exfoliants.',
@@ -125,7 +126,7 @@ const CONCERN_DATA = {
   },
   whiteheads: {
     name: 'Whiteheads (Closed Comedones)',
-    color: '#7CB342', // Primary green
+    color: '#7CB342',
     icon: require('../assets/images/Whitehead.png'),
     description: 'Closed pores filled with sebum and dead skin. Needs cell turnover acceleration.',
     goal: 'Accelerate cell turnover and prevent clogged follicles with retinoids.',
@@ -169,7 +170,7 @@ const CONCERN_DATA = {
   },
   papules: {
     name: 'Papules & Pustules',
-    color: '#F39C12', // Orange
+    color: '#F39C12',
     icon: require('../assets/images/Papule.png'),
     description: 'Surface acne with bacterial involvement. Requires antimicrobial treatment.',
     goal: 'Kill acne bacteria and reduce inflammation with benzoyl peroxide and niacinamide.',
@@ -220,7 +221,7 @@ const CONCERN_DATA = {
   },
   marks: {
     name: 'Post-Inflammatory Marks (PIE/PIH)',
-    color: '#9B59B6', // Purple
+    color: '#9B59B6',
     icon: require('../assets/images/Mark.png'),
     description: 'Dark spots and red marks left after acne heals. Requires brightening and barrier support.',
     goal: 'Fade dark/red spots with brightening actives while maintaining strong barrier.',
@@ -411,6 +412,33 @@ export default function SmartRoutineDetailScreen({ onNavigateHome, onNavigateBac
                 <Text style={styles.tipText}>{tip}</Text>
               </View>
             ))}
+          </View>
+
+          <View style={styles.citationContainer}>
+            <Text style={styles.citationText}>
+              Targeted treatment protocols based on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(15)02614-6/fulltext')}
+              >
+                clinical guidelines for condition-specific acne management
+              </Text>
+              , research on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4554394/')}
+              >
+                topical retinoids and chemical exfoliants for comedonal and inflammatory acne
+              </Text>
+              , and{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5574737/')}
+              >
+                dermatological protocols for safe active ingredient introduction and combination therapy
+              </Text>
+              . These are educational recommendations - always patch test new products and consult a dermatologist for personalized treatment plans.
+            </Text>
           </View>
 
           <View style={styles.bottomSpacing} />
@@ -657,6 +685,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: BRAND_COLORS.darkGray,
     lineHeight: 17,
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 140,

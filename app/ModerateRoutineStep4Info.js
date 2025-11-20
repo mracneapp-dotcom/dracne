@@ -2,12 +2,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 
@@ -168,6 +169,33 @@ export default function ModerateRoutineStep4Info({
               Apply as final step - never mix with other products{'\n'}
               Wait 15 minutes before sun exposure{'\n'}
               Reapply every 2 hours outdoors
+            </Text>
+          </View>
+
+          <View style={styles.citationContainer}>
+            <Text style={styles.citationText}>
+              Sunscreen recommendations based on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.fda.gov/drugs/understanding-over-counter-medicines/sunscreen-how-help-protect-your-skin-sun')}
+              >
+                FDA guidance on sunscreen application and SPF protection
+              </Text>
+              , research on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/sun-protection/sunscreen/how-to-apply-sunscreen')}
+              >
+                proper application amounts from the American Academy of Dermatology
+              </Text>
+              , and clinical studies on{' '}
+              <Text 
+                style={styles.citationLink}
+                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3543289/')}
+              >
+                sunscreen efficacy and photoprotection
+              </Text>
+              . Daily sunscreen use is essential - consult a dermatologist for personalized skin protection advice.
             </Text>
           </View>
 
@@ -371,6 +399,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: BRAND_COLORS.darkGray,
     lineHeight: 18,
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 80,

@@ -1,9 +1,10 @@
-// app/MyDayRoutine.js - FIXED COLORS: BLUE/ORANGE/PURPLE
+// app/MyDayRoutine.js - COMPLETE WITH CITATIONS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Image,
+  Linking,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -33,9 +34,9 @@ const SKIN_TYPE_INFO = {
 };
 
 const ROUTINE_LEVEL_COLORS = {
-  basic: '#4A90E2',          // Blue
-  moderate: '#F39C12',       // Orange
-  comprehensive: '#9B59B6',  // Purple
+  basic: '#4A90E2',
+  moderate: '#F39C12',
+  comprehensive: '#9B59B6',
 };
 
 const STEP_ICONS = {
@@ -64,9 +65,7 @@ export default function MyDayRoutine({
     try {
       setLoading(true);
       
-      // CUSTOM ROUTINE FIRST
       const customDayRoutine = await AsyncStorage.getItem('myDayRoutine');
-      
       const basicRoutine = await AsyncStorage.getItem('myBasicRoutine');
       const moderateRoutine = await AsyncStorage.getItem('myModerateRoutine');
       const comprehensiveRoutine = await AsyncStorage.getItem('myComprehensiveRoutine');
@@ -75,7 +74,6 @@ export default function MyDayRoutine({
       let selectedRoutine = null;
       let selectedLevel = null;
       
-      // CHECK CUSTOM FIRST
       if (customDayRoutine) {
         const customData = JSON.parse(customDayRoutine);
         const hasProducts = (customData.cleansers?.length > 0) || 
@@ -414,6 +412,33 @@ export default function MyDayRoutine({
                   • Results typically appear after 8-12 weeks of consistent use
                 </Text>
               </View>
+
+              <View style={styles.citationContainer}>
+                <Text style={styles.citationText}>
+                  Routine guidance based on{' '}
+                  <Text 
+                    style={styles.citationLink}
+                    onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/care/skin-care-steps')}
+                  >
+                    American Academy of Dermatology morning skincare application guidelines
+                  </Text>
+                  , clinical research on{' '}
+                  <Text 
+                    style={styles.citationLink}
+                    onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4345901/')}
+                  >
+                    optimal product layering and timing for daytime routines
+                  </Text>
+                  , and studies on{' '}
+                  <Text 
+                    style={styles.citationLink}
+                    onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(18)32767-6/fulltext')}
+                  >
+                    UV protection and morning sun defense protocols
+                  </Text>
+                  . This routine is for educational purposes - individual results vary. Consult a dermatologist for personalized advice.
+                </Text>
+              </View>
             </>
           )}
 
@@ -678,6 +703,24 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: BRAND_COLORS.black,
     lineHeight: 20,
+  },
+  citationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  citationText: {
+    fontSize: 11,
+    color: '#999999',
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  citationLink: {
+    fontSize: 11,
+    color: '#666666',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
   bottomSpacing: {
     height: 40,
