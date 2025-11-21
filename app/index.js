@@ -1,4 +1,4 @@
-// app/index.js - UPDATED WITH COMPREHENSIVE ROUTINE COMPLETE
+// app/index.js - UPDATED WITH PROGRESSIVE UNLOCK SYSTEM
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
@@ -144,6 +144,9 @@ const BRAND_COLORS = {
   black: '#000000',
   white: '#FFFFFF',
 };
+
+// Import unlock logic
+import { APPLE_REVIEW_MODE, checkRoutineUnlockStatus } from './utils/routineUnlock';
 
 // Professional Brain Loader Component
 const BrainLoader = () => {
@@ -724,53 +727,147 @@ const handleNavigateToAchievements = () => {
     setCurrentStep('comprehensiveNightRoutineStep1');
   };
 
-  const handleRoutineSelection = (level, timeOfDay, routineData) => {
+  // ==========================================
+  // 🔧 ENHANCED ROUTINE SELECTION WITH PROGRESSIVE UNLOCK
+  // ==========================================
+  const handleRoutineSelection = async (level, timeOfDay, routineData) => {
     console.log(`Selected ${level} ${timeOfDay} routine:`, routineData);
-  // Save the selected routine to skin profile  
-    if (timeOfDay === 'evening') {
-      // Night Routine Selection
-      if (level === 'basic') {
+    
+    // Check unlock status
+    const unlockStatus = await checkRoutineUnlockStatus();
+    
+    // ==========================================
+    // APPLE REVIEW MODE - ALL ROUTINES UNLOCKED
+    // ==========================================
+    if (APPLE_REVIEW_MODE) {
+      if (timeOfDay === 'evening') {
+        // Night Routine Selection - ALL UNLOCKED
+        if (level === 'basic') {
+          setShowNightProductSelection(false);
+          setShowNightProductSelectionStep2(false);
+          setCurrentStep('basicNightRoutineStep1');
+        } else if (level === 'moderate') {
+          setShowModerateNightProductSelection(false);
+          setShowModerateNightProductSelectionStep2(false);
+          setShowModerateNightProductSelectionStep3(false);
+          setCurrentStep('moderateNightRoutineStep1');
+        } else if (level === 'comprehensive' || level === 'intensive') {
+          setShowComprehensiveNightProductSelection(false);
+          setShowComprehensiveNightProductSelectionStep2(false);
+          setShowComprehensiveNightProductSelectionStep3(false);
+          setShowComprehensiveNightProductSelectionStep4(false);
+          setCurrentStep('comprehensiveNightRoutineStep1');
+        }
+      } else {
+        // Day Routine Selection - ALL UNLOCKED
+        if (level === 'basic') {
+          setShowProductSelection(false);
+          setShowProductSelectionStep2(false);
+          setShowProductSelectionStep3(false);
+          setCurrentStep('basicRoutineStep1');
+        } else if (level === 'moderate') {
+          setShowModerateProductSelection(false);
+          setShowModerateProductSelectionStep2(false);
+          setShowModerateProductSelectionStep3(false);
+          setShowModerateProductSelectionStep4(false);
+          setCurrentStep('moderateRoutineStep1');
+        } else if (level === 'comprehensive' || level === 'intensive') {
+          setShowComprehensiveProductSelection(false);
+          setShowComprehensiveProductSelectionStep2(false);
+          setShowComprehensiveProductSelectionStep3(false);
+          setShowComprehensiveProductSelectionStep4(false);
+          setShowComprehensiveProductSelectionStep5(false);
+          setCurrentStep('comprehensiveRoutineStep1');
+        }
+      }
+      return; // EXIT - All routines work in Apple Review mode
+    }
+    
+    // ==========================================
+    // PROGRESSIVE UNLOCK MODE - BASED ON USER PROGRESS
+    // ==========================================
+    
+    // Get current stats for messaging
+    const routineCount = await AsyncStorage.getItem('routineLogCount');
+    const completedRoutines = routineCount ? parseInt(routineCount) : 0;
+    const installDate = await AsyncStorage.getItem('appInstallDate');
+    const daysSinceInstall = installDate 
+      ? Math.floor((new Date() - new Date(installDate)) / (1000 * 60 * 60 * 24))
+      : 0;
+    
+    // Handle MODERATE routine selection
+    if (level === 'moderate') {
+      if (unlockStatus.moderate) {
+        // UNLOCKED - Proceed normally
+        if (timeOfDay === 'evening') {
+          setShowModerateNightProductSelection(false);
+          setShowModerateNightProductSelectionStep2(false);
+          setShowModerateNightProductSelectionStep3(false);
+          setCurrentStep('moderateNightRoutineStep1');
+        } else {
+          setShowModerateProductSelection(false);
+          setShowModerateProductSelectionStep2(false);
+          setShowModerateProductSelectionStep3(false);
+          setShowModerateProductSelectionStep4(false);
+          setCurrentStep('moderateRoutineStep1');
+        }
+      } else {
+        // LOCKED - Show progress message
+        const routinesNeeded = Math.max(0, 5 - completedRoutines);
+        const daysNeeded = Math.max(0, 7 - daysSinceInstall);
+        
+        Alert.alert(
+          '🔒 Moderate Routine Locked',
+          `Unlock by completing:\n• ${routinesNeeded} more routines, OR\n• ${daysNeeded} more days in the app\n\nCurrent Progress:\n✓ ${completedRoutines}/5 routines\n✓ ${daysSinceInstall}/7 days`,
+          [{ text: 'Got it!', style: 'default' }]
+        );
+      }
+      return;
+    }
+    
+    // Handle COMPREHENSIVE routine selection
+    if (level === 'comprehensive' || level === 'intensive') {
+      if (unlockStatus.comprehensive) {
+        // UNLOCKED - Proceed normally
+        if (timeOfDay === 'evening') {
+          setShowComprehensiveNightProductSelection(false);
+          setShowComprehensiveNightProductSelectionStep2(false);
+          setShowComprehensiveNightProductSelectionStep3(false);
+          setShowComprehensiveNightProductSelectionStep4(false);
+          setCurrentStep('comprehensiveNightRoutineStep1');
+        } else {
+          setShowComprehensiveProductSelection(false);
+          setShowComprehensiveProductSelectionStep2(false);
+          setShowComprehensiveProductSelectionStep3(false);
+          setShowComprehensiveProductSelectionStep4(false);
+          setShowComprehensiveProductSelectionStep5(false);
+          setCurrentStep('comprehensiveRoutineStep1');
+        }
+      } else {
+        // LOCKED - Show progress message
+        const routinesNeeded = Math.max(0, 10 - completedRoutines);
+        const daysNeeded = Math.max(0, 14 - daysSinceInstall);
+        
+        Alert.alert(
+          '🔒 Comprehensive Routine Locked',
+          `Unlock by completing:\n• ${routinesNeeded} more routines, OR\n• ${daysNeeded} more days in the app\n\nCurrent Progress:\n✓ ${completedRoutines}/10 routines\n✓ ${daysSinceInstall}/14 days`,
+          [{ text: 'Got it!', style: 'default' }]
+        );
+      }
+      return;
+    }
+    
+    // Handle BASIC routine (always unlocked)
+    if (level === 'basic') {
+      if (timeOfDay === 'evening') {
         setShowNightProductSelection(false);
         setShowNightProductSelectionStep2(false);
         setCurrentStep('basicNightRoutineStep1');
-      } else if (level === 'moderate') {
-        setShowModerateNightProductSelection(false);
-        setShowModerateNightProductSelectionStep2(false);
-        setShowModerateNightProductSelectionStep3(false);
-        setCurrentStep('moderateNightRoutineStep1');
-      } else if (level === 'comprehensive' || level === 'intensive') {
-        setShowComprehensiveNightProductSelection(false);
-        setShowComprehensiveNightProductSelectionStep2(false);
-        setShowComprehensiveNightProductSelectionStep3(false);
-        setShowComprehensiveNightProductSelectionStep4(false);
-        setCurrentStep('comprehensiveNightRoutineStep1');
-      }
-    } else {
-      // Day Routine Selection
-      if (level === 'basic') {
+      } else {
         setShowProductSelection(false);
         setShowProductSelectionStep2(false);
         setShowProductSelectionStep3(false);
         setCurrentStep('basicRoutineStep1');
-      } else if (level === 'moderate') {
-        setShowModerateProductSelection(false);
-        setShowModerateProductSelectionStep2(false);
-        setShowModerateProductSelectionStep3(false);
-        setShowModerateProductSelectionStep4(false);
-        setCurrentStep('moderateRoutineStep1');
-      } else if (level === 'comprehensive' || level === 'intensive') {
-        setShowComprehensiveProductSelection(false);
-        setShowComprehensiveProductSelectionStep2(false);
-        setShowComprehensiveProductSelectionStep3(false);
-        setShowComprehensiveProductSelectionStep4(false);
-        setShowComprehensiveProductSelectionStep5(false);
-        setCurrentStep('comprehensiveRoutineStep1');
-      } else {
-        Alert.alert(
-          'Coming Soon',
-          `${level.charAt(0).toUpperCase() + level.slice(1)} routine will be available soon!`,
-          [{ text: 'OK', onPress: () => setCurrentStep('home') }]
-        );
       }
     }
   };

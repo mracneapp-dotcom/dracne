@@ -1,4 +1,4 @@
-// app/DayRoutineScreen.js - ADDED UNKNOWN SKIN TYPE PROMPT
+// app/DayRoutineScreen.js - WITH CENTRALIZED PROGRESSIVE UNLOCK
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 import { getRoutinesForSkinType } from '../constants/routinesData';
+import { checkRoutineUnlockStatus } from './utils/routineUnlock';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -46,9 +47,10 @@ export default function DayRoutineScreen({
   const [currentView, setCurrentView] = useState('initial');
   const [showLockModal, setShowLockModal] = useState(false);
   const [lockMessage, setLockMessage] = useState('');
-  const [routineCompletionDates, setRoutineCompletionDates] = useState({
-    basic: null,
-    moderate: null
+  const [unlockStatus, setUnlockStatus] = useState({ 
+    moderate: false, 
+    comprehensive: false,
+    stats: { daysSinceInstall: 0, completedRoutines: 0 }
   });
 
   const panResponder = useRef(
@@ -74,7 +76,7 @@ export default function DayRoutineScreen({
 
   useEffect(() => {
     loadSkinTypeAndRoutine();
-    loadRoutineCompletionDates();
+    loadUnlockStatus();
   }, []);
 
   const loadSkinTypeAndRoutine = async () => {
@@ -98,107 +100,57 @@ export default function DayRoutineScreen({
     }
   };
 
-  const loadRoutineCompletionDates = async () => {
-    try {
-      const basicDate = await AsyncStorage.getItem('basicRoutineCompletionDate');
-      const moderateDate = await AsyncStorage.getItem('moderateRoutineCompletionDate');
-      
-      setRoutineCompletionDates({
-        basic: basicDate ? new Date(basicDate) : null,
-        moderate: moderateDate ? new Date(moderateDate) : null
-      });
-      
-      console.log('✅ Loaded completion dates:', { basic: basicDate, moderate: moderateDate });
-    } catch (error) {
-      console.error('Error loading completion dates:', error);
-    }
+  const loadUnlockStatus = async () => {
+    const status = await checkRoutineUnlockStatus();
+    setUnlockStatus(status);
+    console.log('📊 Day Routine Unlock Status:', status);
   };
 
-  const checkRoutineUnlock = (level) => {
-    const now = new Date();
-    
-    if (level === 'moderate') {
-      if (!routineCompletionDates.basic) {
-        setLockMessage(
-          'Start with the Basic Routine first!\n\n' +
-          'Building a solid foundation is essential. Your skin needs time to adjust and respond. ' +
-          'Complete the Basic Routine for at least 1 week before moving to Moderate.\n\n' +
-          'Remember: Skincare is a journey, not a race. Rushing into advanced routines can overwhelm ' +
-          'your skin and cause irritation. Let\'s build your routine thoughtfully!'
-        );
-        setShowLockModal(true);
-        return false;
-      }
-      
-      const daysSinceBasic = Math.floor((now - routineCompletionDates.basic) / (1000 * 60 * 60 * 24));
-      if (daysSinceBasic < 7) {
-        const daysRemaining = 7 - daysSinceBasic;
-        setLockMessage(
-          `Give your skin more time!\n\n` +
-          `You've been on the Basic Routine for ${daysSinceBasic} day${daysSinceBasic !== 1 ? 's' : ''}. ` +
-          `Complete at least 1 week (${daysRemaining} more day${daysRemaining !== 1 ? 's' : ''}) before upgrading.\n\n` +
-          `Your skin needs time to adjust and show you what it really needs. Patience prevents irritation and helps ` +
-          `you understand how your skin responds to each product.`
-        );
-        setShowLockModal(true);
-        return false;
-      }
-    }
-    
-    if (level === 'comprehensive') {
-      if (!routineCompletionDates.moderate) {
-        setLockMessage(
-          'Complete the Moderate Routine first!\n\n' +
-          'The Comprehensive Routine is powerful but demanding. Your skin barrier needs to be strong and ' +
-          'well-prepared before introducing multiple active ingredients.\n\n' +
-          'Progress through Moderate for at least 2 weeks to ensure your skin can handle advanced treatments ' +
-          'without irritation or damage.'
-        );
-        setShowLockModal(true);
-        return false;
-      }
-      
-      const daysSinceModerate = Math.floor((now - routineCompletionDates.moderate) / (1000 * 60 * 60 * 24));
-      if (daysSinceModerate < 14) {
-        const daysRemaining = 14 - daysSinceModerate;
-        setLockMessage(
-          `Your skin needs more time to adapt!\n\n` +
-          `You've been on the Moderate Routine for ${daysSinceModerate} day${daysSinceModerate !== 1 ? 's' : ''}. ` +
-          `Complete at least 2 weeks (${daysRemaining} more day${daysRemaining !== 1 ? 's' : ''}) before upgrading.\n\n` +
-          `The Comprehensive Routine uses powerful actives that can overwhelm unprepared skin. Let your barrier ` +
-          `strengthen first. Results take time - trust the process!`
-        );
-        setShowLockModal(true);
-        return false;
-      }
-    }
-    
-    return true;
-  };
-
-  const handleRoutineCardPress = (level) => {
+  const handleRoutineCardPress = async (level) => {
     if (level === 'basic') {
       setSelectedLevel(level);
-    } else if (checkRoutineUnlock(level)) {
-      setSelectedLevel(level);
+      return;
+    }
+
+    // Check unlock status
+    const status = await checkRoutineUnlockStatus();
+    
+    if (level === 'moderate') {
+      if (status.moderate) {
+        setSelectedLevel(level);
+      } else {
+        const routinesNeeded = Math.max(0, 5 - (status.stats?.completedRoutines || 0));
+        const daysNeeded = Math.max(0, 7 - (status.stats?.daysSinceInstall || 0));
+        
+        setLockMessage(
+          `🔒 Moderate Routine Locked\n\n` +
+          `Unlock by completing:\n• ${routinesNeeded} more routines, OR\n• ${daysNeeded} more days in the app\n\n` +
+          `Current Progress:\n✓ ${status.stats?.completedRoutines || 0}/5 routines\n✓ ${status.stats?.daysSinceInstall || 0}/7 days\n\n` +
+          `Build your foundation first - your skin will thank you!`
+        );
+        setShowLockModal(true);
+      }
+    } else if (level === 'comprehensive') {
+      if (status.comprehensive) {
+        setSelectedLevel(level);
+      } else {
+        const routinesNeeded = Math.max(0, 10 - (status.stats?.completedRoutines || 0));
+        const daysNeeded = Math.max(0, 14 - (status.stats?.daysSinceInstall || 0));
+        
+        setLockMessage(
+          `🔒 Comprehensive Routine Locked\n\n` +
+          `Unlock by completing:\n• ${routinesNeeded} more routines, OR\n• ${daysNeeded} more days in the app\n\n` +
+          `Current Progress:\n✓ ${status.stats?.completedRoutines || 0}/10 routines\n✓ ${status.stats?.daysSinceInstall || 0}/14 days\n\n` +
+          `Advanced routines need a strong foundation. Keep building!`
+        );
+        setShowLockModal(true);
+      }
     }
   };
 
   const handleSaveRoutine = async () => {
     try {
       await AsyncStorage.setItem('selectedRoutineLevel', selectedLevel);
-      
-      // Save completion date if not already saved
-      if (selectedLevel === 'basic' && !routineCompletionDates.basic) {
-        const now = new Date().toISOString();
-        await AsyncStorage.setItem('basicRoutineCompletionDate', now);
-        setRoutineCompletionDates(prev => ({ ...prev, basic: new Date(now) }));
-      } else if (selectedLevel === 'moderate' && !routineCompletionDates.moderate) {
-        const now = new Date().toISOString();
-        await AsyncStorage.setItem('moderateRoutineCompletionDate', now);
-        setRoutineCompletionDates(prev => ({ ...prev, moderate: new Date(now) }));
-      }
-      
       console.log('✅ Saved routine level:', selectedLevel);
       
       if (onSelectRoutine) {
@@ -219,18 +171,6 @@ export default function DayRoutineScreen({
   if (!routineData) {
     return null;
   }
-
-  const isModerateUnlocked = () => {
-    if (!routineCompletionDates.basic) return false;
-    const daysSinceBasic = Math.floor((new Date() - routineCompletionDates.basic) / (1000 * 60 * 60 * 24));
-    return daysSinceBasic >= 7;
-  };
-
-  const isComprehensiveUnlocked = () => {
-    if (!routineCompletionDates.moderate) return false;
-    const daysSinceModerate = Math.floor((new Date() - routineCompletionDates.moderate) / (1000 * 60 * 60 * 24));
-    return daysSinceModerate >= 14;
-  };
 
   // INITIAL SCREEN
   const renderInitialScreen = () => (
@@ -481,15 +421,15 @@ export default function DayRoutineScreen({
                 </View>
               </TouchableOpacity>
 
-              {/* Moderate Card - LOCKED UNTIL 1 WEEK */}
+              {/* Moderate Card - PROGRESSIVE UNLOCK */}
               <TouchableOpacity
                 style={[
                   styles.routineCard,
                   selectedLevel === 'moderate' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }],
-                  !isModerateUnlocked() && styles.routineCardLocked
+                  !unlockStatus.moderate && styles.routineCardLocked
                 ]}
                 onPress={() => handleRoutineCardPress('moderate')}
-                activeOpacity={isModerateUnlocked() ? 0.7 : 1}
+                activeOpacity={unlockStatus.moderate ? 0.7 : 1}
               >
                 <View style={styles.routineHeader}>
                   <View style={[styles.routineBadge, { backgroundColor: '#FFF4E5' }]}>
@@ -497,7 +437,7 @@ export default function DayRoutineScreen({
                       MODERATE
                     </Text>
                   </View>
-                  {!isModerateUnlocked() && (
+                  {!unlockStatus.moderate && (
                     <View style={styles.lockBadge}>
                       <Image 
                         source={require('../assets/images/lock1.png')} 
@@ -506,7 +446,7 @@ export default function DayRoutineScreen({
                       />
                     </View>
                   )}
-                  {selectedLevel === 'moderate' && isModerateUnlocked() && (
+                  {selectedLevel === 'moderate' && unlockStatus.moderate && (
                     <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
                       <Text style={styles.selectedIndicatorText}>✓</Text>
                     </View>
@@ -531,27 +471,29 @@ export default function DayRoutineScreen({
                   ))}
                 </View>
 
-                {!isModerateUnlocked() && (
+                {!unlockStatus.moderate && (
                   <View style={styles.lockOverlay}>
                     <Image 
                       source={require('../assets/images/lock1.png')} 
                       style={styles.lockOverlayImage}
                       resizeMode="contain"
                     />
-                    <Text style={styles.lockOverlayText}>Complete Basic Routine for 1 week to unlock</Text>
+                    <Text style={styles.lockOverlayText}>
+                      1 week OR 5 routines to unlock
+                    </Text>
                   </View>
                 )}
               </TouchableOpacity>
 
-              {/* Comprehensive Card - LOCKED UNTIL 2 WEEKS */}
+              {/* Comprehensive Card - PROGRESSIVE UNLOCK */}
               <TouchableOpacity
                 style={[
                   styles.routineCard,
                   selectedLevel === 'comprehensive' && [styles.routineCardSelected, { borderColor: skinTypeInfo.color }],
-                  !isComprehensiveUnlocked() && styles.routineCardLocked
+                  !unlockStatus.comprehensive && styles.routineCardLocked
                 ]}
                 onPress={() => handleRoutineCardPress('comprehensive')}
-                activeOpacity={isComprehensiveUnlocked() ? 0.7 : 1}
+                activeOpacity={unlockStatus.comprehensive ? 0.7 : 1}
               >
                 <View style={styles.routineHeader}>
                   <View style={[styles.routineBadge, { backgroundColor: '#F3E5F5' }]}>
@@ -559,7 +501,7 @@ export default function DayRoutineScreen({
                       COMPREHENSIVE
                     </Text>
                   </View>
-                  {!isComprehensiveUnlocked() && (
+                  {!unlockStatus.comprehensive && (
                     <View style={styles.lockBadge}>
                       <Image 
                         source={require('../assets/images/lock1.png')} 
@@ -568,7 +510,7 @@ export default function DayRoutineScreen({
                       />
                     </View>
                   )}
-                  {selectedLevel === 'comprehensive' && isComprehensiveUnlocked() && (
+                  {selectedLevel === 'comprehensive' && unlockStatus.comprehensive && (
                     <View style={[styles.selectedIndicator, { backgroundColor: skinTypeInfo.color }]}>
                       <Text style={styles.selectedIndicatorText}>✓</Text>
                     </View>
@@ -593,14 +535,16 @@ export default function DayRoutineScreen({
                   ))}
                 </View>
 
-                {!isComprehensiveUnlocked() && (
+                {!unlockStatus.comprehensive && (
                   <View style={styles.lockOverlay}>
                     <Image 
                       source={require('../assets/images/lock1.png')} 
                       style={styles.lockOverlayImage}
                       resizeMode="contain"
                     />
-                    <Text style={styles.lockOverlayText}>Complete Moderate Routine for 2 weeks to unlock</Text>
+                    <Text style={styles.lockOverlayText}>
+                      2 weeks OR 10 routines to unlock
+                    </Text>
                   </View>
                 )}
               </TouchableOpacity>
@@ -634,7 +578,7 @@ export default function DayRoutineScreen({
           </Text>
         </View>
 
-        {/* Lock Warning Modal - STYLED LIKE COMPLETION MODAL */}
+        {/* Lock Warning Modal */}
         <Modal
           visible={showLockModal}
           transparent={true}
