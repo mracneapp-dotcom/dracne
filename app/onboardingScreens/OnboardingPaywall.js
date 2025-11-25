@@ -172,7 +172,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
               console.log('❌ Purchase error:', errorCode);
               clearPurchaseTimeout();
               setLoading(false);
-              Alert.alert('Purchase Failed', 'Please try again or skip to continue later.');
+              Alert.alert('Purchase Failed', 'Please try again.');
             } else {
               console.log('⚠️ Unknown purchase response:', responseCode);
               clearPurchaseTimeout();
@@ -284,7 +284,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       
       if (!product) {
         console.log('❌ Product not found:', productId);
-        Alert.alert('Error', 'Selected plan not available. Try the other plan or skip.');
+        Alert.alert('Error', 'Selected plan not available. Please try the other plan or restart the app.');
         return;
       }
 
@@ -293,28 +293,20 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       
       purchaseTimeoutRef.current = setTimeout(() => {
         if (!hasNavigatedRef.current) {
-          console.log('⏱️ Purchase timeout - showing skip option');
+          console.log('⏱️ Purchase timeout - showing restart option');
           setLoading(false);
           Alert.alert(
-            'Taking Longer Than Expected',
-            'The purchase is taking longer than usual. Would you like to continue without subscribing? You can subscribe later from Settings.',
+            'Connection Issue',
+            'The subscription service is taking longer than expected. Please restart the app and try again.',
             [
               {
-                text: 'Keep Waiting',
-                style: 'cancel',
-                onPress: () => {
-                  console.log('User chose to keep waiting');
-                  setLoading(true);
-                }
-              },
-              {
-                text: 'Skip for Now',
-                onPress: handleSkipPaywall
+                text: 'OK',
+                style: 'cancel'
               }
             ]
           );
         }
-      }, 15000);
+      }, 20000);
       
       console.log('🚀 Calling purchaseItemAsync...');
       await InAppPurchases.purchaseItemAsync(productId);
@@ -332,29 +324,12 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       
       Alert.alert(
         'Purchase Failed',
-        error.message || 'Unable to complete purchase. Would you like to skip for now?',
+        error.message || 'Unable to complete purchase. Please try again.',
         [
-          { text: 'Try Again', style: 'cancel' },
-          { text: 'Skip', onPress: handleSkipPaywall }
+          { text: 'OK', style: 'cancel' }
         ]
       );
     }
-  };
-
-  const handleSkipPaywall = () => {
-    if (hasNavigatedRef.current) return;
-    
-    hasNavigatedRef.current = true;
-    console.log('⏭️ Skipping paywall');
-    
-    clearPurchaseTimeout();
-    setLoading(false);
-    
-    onNext('complete', {
-      ...onboardingData,
-      paywallCompleted: false,
-      paywallSkipped: true,
-    });
   };
 
   const handleContinue = async () => {
@@ -389,11 +364,10 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     if (!iapReady || products.length === 0) {
       console.log('⚠️ IAP not ready or no products');
       Alert.alert(
-        'Subscriptions Unavailable',
-        'Subscription options are temporarily unavailable. Would you like to continue anyway? You can subscribe later from Settings.',
+        'Subscriptions Required',
+        'Subscription services are loading. Please wait a moment and try again, or restart the app if this persists.',
         [
-          { text: 'Wait', style: 'cancel' },
-          { text: 'Continue', onPress: handleSkipPaywall }
+          { text: 'OK', style: 'cancel' }
         ]
       );
       return;
@@ -476,13 +450,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
           disabled={loading}
           style={styles.continueButton}
         />
-        
-        {/* NEW: Skip button while loading */}
-        {loading && (
-          <TouchableOpacity onPress={handleSkipPaywall} style={styles.skipWhileLoadingButton}>
-            <Text style={styles.skipWhileLoadingText}>Skip and continue</Text>
-          </TouchableOpacity>
-        )}
         
         {!IS_TEST_MODE && !iapReady && (
           <Text style={styles.loadingText}>Loading subscription options...</Text>
@@ -749,17 +716,6 @@ const styles = StyleSheet.create({
   continueButton: {
     paddingVertical: 18,
     marginBottom: 12,
-  },
-  skipWhileLoadingButton: {
-    paddingVertical: 8,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  skipWhileLoadingText: {
-    fontSize: 14,
-    color: BRAND_COLORS.primary,
-    fontWeight: '600',
-    textDecorationLine: 'underline',
   },
   loadingText: {
     fontSize: 13,
