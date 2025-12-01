@@ -1,4 +1,4 @@
-// app/index.js - UPDATED WITH PROGRESSIVE UNLOCK SYSTEM
+// app/index.js - UPDATED WITH ONBOARDING PERSISTENCE CHECK
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
@@ -316,6 +316,38 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
     { day: 'Sun', date: 11, active: false },
   ]);
 
+  // ==========================================
+  // ✅ CRITICAL FIX: CHECK ONBOARDING STATUS ON APP START
+  // ==========================================
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      try {
+        console.log('🔍 Checking if user has completed onboarding...');
+        
+        const onboardingComplete = await AsyncStorage.getItem('onboardingComplete');
+        const savedOnboardingData = await AsyncStorage.getItem('onboardingData');
+        
+        if (onboardingComplete === 'true') {
+          console.log('✅ Onboarding already completed - going straight to HomeScreen');
+          setIsOnboardingComplete(true);
+          setCurrentStep('home');
+          
+          if (savedOnboardingData) {
+            const parsedData = JSON.parse(savedOnboardingData);
+            setOnboardingData(parsedData);
+            console.log('📦 Restored onboarding data:', parsedData);
+          }
+        } else {
+          console.log('ℹ️ First time user - showing onboarding flow');
+        }
+      } catch (error) {
+        console.error('❌ Error checking onboarding status:', error);
+      }
+    };
+    
+    checkOnboardingStatus();
+  }, []);
+
 // Increment log count when user views results
   useEffect(() => {
     if (currentStep === 'results') {
@@ -335,24 +367,27 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
     setShowIntro(false);
   };
   
-  // Onboarding Navigation Handler
+  // ==========================================
+  // ✅ UPDATED: Save onboarding completion flag
+  // ==========================================
   const handleOnboardingNext = async (nextStep, data = {}) => {
     const updatedData = { ...onboardingData, ...data };
     setOnboardingData(updatedData);
     
     if (nextStep === 'complete') {
-      // Save onboarding data to AsyncStorage
       try {
         await AsyncStorage.setItem('onboardingData', JSON.stringify(updatedData));
+        await AsyncStorage.setItem('onboardingComplete', 'true'); // ✅ CRITICAL: Mark as complete
+        console.log('✅ Onboarding completed and saved');
       } catch (error) {
-        console.error('Error saving onboarding data:', error);
+        console.error('❌ Error saving onboarding data:', error);
       }
       setIsOnboardingComplete(true);
-    setCurrentStep('home');
-  } else {
-    setCurrentOnboardingStep(nextStep);
-  }
-};
+      setCurrentStep('home');
+    } else {
+      setCurrentOnboardingStep(nextStep);
+    }
+  };
 
   const handleOnboardingBack = () => {
     if (currentOnboardingStep === 'onboardingWelcome') {

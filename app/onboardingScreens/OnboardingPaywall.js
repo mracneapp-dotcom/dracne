@@ -77,7 +77,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   
   const purchaseListenerRef = useRef(null);
   const hasNavigatedRef = useRef(false);
-  const purchaseTimeoutRef = useRef(null);
 
   useEffect(() => {
     Animated.parallel([
@@ -117,9 +116,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       if (purchaseListenerRef.current) {
         purchaseListenerRef.current.remove();
       }
-      if (purchaseTimeoutRef.current) {
-        clearTimeout(purchaseTimeoutRef.current);
-      }
       if (!IS_TEST_MODE && InAppPurchases) {
         InAppPurchases.disconnectAsync().catch(() => {});
       }
@@ -156,26 +152,19 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
 
         purchaseListenerRef.current = InAppPurchases.setPurchaseListener(
           ({ responseCode, results, errorCode }) => {
-            console.log('📱 Purchase Listener Fired - Response:', responseCode, 'Error:', errorCode);
+            console.log('📱 Purchase Listener - Response:', responseCode, 'Error:', errorCode);
             
             if (responseCode === IAPResponseCode.OK && results) {
-              console.log('✅ Purchase successful, processing...');
+              console.log('✅ Purchase successful via listener');
               results.forEach((purchase) => {
                 console.log('🎉 Processing purchase:', purchase.productId);
                 handlePurchaseSuccess(purchase);
               });
             } else if (responseCode === IAPResponseCode.USER_CANCELED) {
               console.log('❌ User canceled purchase');
-              clearPurchaseTimeout();
               setLoading(false);
             } else if (responseCode === IAPResponseCode.ERROR) {
               console.log('❌ Purchase error:', errorCode);
-              clearPurchaseTimeout();
-              setLoading(false);
-              Alert.alert('Purchase Failed', 'Please try again.');
-            } else {
-              console.log('⚠️ Unknown purchase response:', responseCode);
-              clearPurchaseTimeout();
               setLoading(false);
             }
           }
@@ -184,7 +173,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
         setIapReady(true);
         console.log('✅ IAP Ready');
       } else {
-        console.log('⚠️ No products loaded - products array empty');
+        console.log('⚠️ No products loaded');
         setIapReady(false);
       }
     } catch (error) {
@@ -193,20 +182,19 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     }
   };
 
-  const handlePurchaseSuccess = async (purchase) => {
+  const handlePurchaseSuccess = (purchase) => {
     if (hasNavigatedRef.current) {
-      console.log('⚠️ Already navigated, ignoring duplicate call');
+      console.log('⚠️ Already navigated');
       return;
     }
 
+    console.log('🎉 Purchase confirmed - NAVIGATING NOW');
     hasNavigatedRef.current = true;
-    console.log('🎉 handlePurchaseSuccess - Navigating now');
-    
-    clearPurchaseTimeout();
-    setLoading(false);
     
     const planType = purchase.productId === PRODUCT_IDS.annual ? 'annual' : 'monthly';
     
+    // CRITICAL: Navigate FIRST - don't wait for anything
+    setLoading(false);
     onNext('complete', {
       ...onboardingData,
       paywallCompleted: true,
@@ -215,24 +203,16 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       isPremium: true,
     });
 
+    // Background cleanup - fire and forget (1 second after navigation)
     setTimeout(() => {
-      saveToFirebaseBackground(purchase, planType).catch((error) => {
-        console.log('⚠️ Firebase save failed (non-critical):', error.message);
-      });
+      saveToFirebaseBackground(purchase, planType)
+        .catch((error) => console.log('⚠️ Firebase save failed:', error.message));
       
       if (InAppPurchases) {
         InAppPurchases.finishTransactionAsync(purchase, true)
-          .then(() => console.log('✅ Transaction finished'))
           .catch((error) => console.log('⚠️ Finish transaction failed:', error.message));
       }
-    }, 100);
-  };
-
-  const clearPurchaseTimeout = () => {
-    if (purchaseTimeoutRef.current) {
-      clearTimeout(purchaseTimeoutRef.current);
-      purchaseTimeoutRef.current = null;
-    }
+    }, 1000);
   };
 
   const saveToFirebaseBackground = async (purchase, plan) => {
@@ -275,6 +255,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   const purchaseSubscription = async (plan) => {
     if (!InAppPurchases) {
       console.log('❌ InAppPurchases not available');
+      setLoading(false);
       return;
     }
     
@@ -284,37 +265,46 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       
       if (!product) {
         console.log('❌ Product not found:', productId);
-        Alert.alert('Error', 'Selected plan not available. Please try the other plan or restart the app.');
+        setLoading(false);
+        Alert.alert('Error', 'Selected plan not available. Please restart the app.');
         return;
       }
 
       console.log('🛒 Starting purchase for:', productId);
       setLoading(true);
       
-      purchaseTimeoutRef.current = setTimeout(() => {
-        if (!hasNavigatedRef.current) {
-          console.log('⏱️ Purchase timeout - showing restart option');
-          setLoading(false);
-          Alert.alert(
-            'Connection Issue',
-            'The subscription service is taking longer than expected. Please restart the app and try again.',
-            [
-              {
-                text: 'OK',
-                style: 'cancel'
-              }
-            ]
-          );
-        }
-      }, 20000);
-      
       console.log('🚀 Calling purchaseItemAsync...');
       await InAppPurchases.purchaseItemAsync(productId);
-      console.log('✅ purchaseItemAsync completed - waiting for listener...');
+      console.log('✅ purchaseItemAsync completed');
+      
+      // SAFETY NET: If listener doesn't fire within 3 seconds, check history manually
+      setTimeout(async () => {
+        if (!hasNavigatedRef.current) {
+          console.log('⚠️ Listener did not fire - checking purchase history as backup');
+          try {
+            const { results } = await InAppPurchases.getPurchaseHistoryAsync();
+            console.log('📋 Purchase history results:', results?.length || 0);
+            
+            const recentPurchase = results?.find(p => p.productId === productId);
+            
+            if (recentPurchase) {
+              console.log('✅ Found purchase in history - navigating via backup');
+              handlePurchaseSuccess(recentPurchase);
+            } else {
+              console.log('❌ No purchase found - stopping loading');
+              setLoading(false);
+            }
+          } catch (error) {
+            console.log('❌ Error checking purchase history:', error);
+            setLoading(false);
+          }
+        } else {
+          console.log('✅ Already navigated via listener');
+        }
+      }, 3000);
       
     } catch (error) {
       console.error('❌ Purchase error:', error);
-      clearPurchaseTimeout();
       setLoading(false);
       
       if (error.code === 'E_USER_CANCELLED') {
@@ -324,17 +314,17 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       
       Alert.alert(
         'Purchase Failed',
-        error.message || 'Unable to complete purchase. Please try again.',
-        [
-          { text: 'OK', style: 'cancel' }
-        ]
+        error.message || 'Unable to complete purchase. Please try again.'
       );
     }
   };
 
   const handleContinue = async () => {
-    if (loading || hasNavigatedRef.current) {
-      console.log('⚠️ Already processing or navigated');
+    // CRITICAL: Reset navigation ref on each button press
+    hasNavigatedRef.current = false;
+    
+    if (loading) {
+      console.log('⚠️ Already processing');
       return;
     }
 
@@ -342,7 +332,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     console.log('Mode:', IS_TEST_MODE ? 'TEST' : 'PRODUCTION');
     
     if (IS_TEST_MODE) {
-      console.log('🧪 Running in test mode - simulating purchase');
+      console.log('🧪 Test mode - simulating purchase');
       setLoading(true);
       
       setTimeout(() => {
@@ -362,13 +352,10 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     }
 
     if (!iapReady || products.length === 0) {
-      console.log('⚠️ IAP not ready or no products');
+      console.log('⚠️ IAP not ready');
       Alert.alert(
-        'Subscriptions Required',
-        'Subscription services are loading. Please wait a moment and try again, or restart the app if this persists.',
-        [
-          { text: 'OK', style: 'cancel' }
-        ]
+        'Connection Error',
+        'Subscription services are loading. Please wait a moment and try again.'
       );
       return;
     }
