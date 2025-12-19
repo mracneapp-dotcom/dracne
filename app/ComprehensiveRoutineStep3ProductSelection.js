@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
-  Linking,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -194,22 +195,6 @@ const STEP_3_PRODUCTS = {
   ],
 };
 
-const STEP_3_TITLES = {
-  oily: 'Pore Care Products',
-  dry: 'Hydrating Essences',
-  combination: 'Targeted Treatments',
-  normal: 'Antioxidant Serums',
-  sensitive: 'Soothing Serums',
-};
-
-const STEP_3_EXPLANATIONS = {
-  oily: 'Choose 1-2 pore care products to use 2-4 times per week in the evening. Start with 2x per week and increase gradually. These products help keep your pores clear and prevent breakouts.',
-  dry: 'Choose 1-2 hydrating essences to layer under your moisturizer morning and evening. Apply on damp skin for best results. These create a moisture sandwich that locks in hydration.',
-  combination: 'Choose 1 BHA/mandelic product for T-zone AND 1 hydrating essence for cheeks. Apply BHA only on T-zone 2-4x per week. Use essence on cheeks daily. This zone-specific approach balances your skin.',
-  normal: 'Choose 1 antioxidant serum to use in the morning before moisturizer. These protect from environmental damage and brighten your complexion. Always follow with sunscreen.',
-  sensitive: 'Choose 1-2 soothing serums to use morning and evening. These calm reactive skin and strengthen your barrier. Safe for twice-daily use with no irritation potential.',
-};
-
 export default function ComprehensiveRoutineStep3ProductSelection({ 
   onNavigateHome,
   onNavigateToDayRoutine,
@@ -289,34 +274,72 @@ export default function ComprehensiveRoutineStep3ProductSelection({
     }
   };
 
+  const getSectionTitle = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep3Products.pore_care_products');
+      case 'dry':
+        return t('comprehensiveRoutineStep3Products.hydrating_essences');
+      case 'combination':
+        return t('comprehensiveRoutineStep3Products.targeted_treatments');
+      case 'normal':
+        return t('comprehensiveRoutineStep3Products.antioxidant_serums');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep3Products.soothing_serums');
+      default:
+        return t('comprehensiveRoutineStep3Products.antioxidant_serums');
+    }
+  };
+
+  const getExplanation = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep3Products.oily_explanation');
+      case 'dry':
+        return t('comprehensiveRoutineStep3Products.dry_explanation');
+      case 'combination':
+        return t('comprehensiveRoutineStep3Products.combo_explanation');
+      case 'normal':
+        return t('comprehensiveRoutineStep3Products.normal_explanation');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep3Products.sensitive_explanation');
+      default:
+        return t('comprehensiveRoutineStep3Products.normal_explanation');
+    }
+  };
+
   const getButtonText = () => {
     const minRequired = skinType === 'combination' ? 2 : 1;
     
     if (selectedProducts.length === 0) {
-      return skinType === 'combination' ? 'Choose 2 Products (1 for T-zone, 1 for cheeks)' : 'Choose My Product';
+      return skinType === 'combination' 
+        ? t('comprehensiveRoutineStep3Products.choose_two_products')
+        : t('comprehensiveRoutineStep3Products.choose_product');
     } else if (selectedProducts.length === 1) {
-      return skinType === 'combination' ? 'Choose 1 More Product' : 'Continue with My Selection';
+      return skinType === 'combination' 
+        ? t('comprehensiveRoutineStep3Products.choose_one_more')
+        : t('comprehensiveRoutineStep3Products.continue_selection');
     } else {
-      return 'Continue with My Selections';
+      return t('comprehensiveRoutineStep3Products.continue_selections');
     }
   };
 
   const getHelperText = () => {
     if (skinType === 'combination') {
       if (selectedProducts.length === 0) {
-        return 'Select 2 products: 1 BHA/Mandelic for T-zone + 1 Hydrating essence for cheeks';
+        return t('comprehensiveRoutineStep3Products.combo_helper_0');
       } else if (selectedProducts.length === 1) {
-        return 'Select 1 more product to complete zone-specific care';
+        return t('comprehensiveRoutineStep3Products.combo_helper_1');
       } else {
-        return 'Perfect! You have products for both zones';
+        return t('comprehensiveRoutineStep3Products.combo_helper_2');
       }
     } else {
       if (selectedProducts.length === 0) {
-        return 'Select at least 1 product to continue';
+        return t('comprehensiveRoutineStep3Products.helper_0');
       } else if (selectedProducts.length === 1) {
-        return 'You can add 1 more product as an alternative';
+        return t('comprehensiveRoutineStep3Products.helper_1');
       } else {
-        return 'Maximum 2 products selected';
+        return t('comprehensiveRoutineStep3Products.helper_2');
       }
     }
   };
@@ -344,11 +367,16 @@ export default function ComprehensiveRoutineStep3ProductSelection({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -367,7 +395,9 @@ export default function ComprehensiveRoutineStep3ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('comprehensiveRoutineStep3Products.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -388,23 +418,23 @@ export default function ComprehensiveRoutineStep3ProductSelection({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('comprehensiveRoutineStep3Products.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>{STEP_3_TITLES[skinType]}</Text>
+          <Text style={styles.sectionTitle}>{getSectionTitle()}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              {STEP_3_EXPLANATIONS[skinType]}
+              {getExplanation()}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
               {skinType === 'combination' 
-                ? `Select 2 Products (${selectedProducts.length}/2 selected)`
-                : `Select 1-2 Products ${selectedProducts.length > 0 ? `(${selectedProducts.length} selected)` : ''}`
+                ? t('comprehensiveRoutineStep3Products.select_two', { count: selectedProducts.length })
+                : t('comprehensiveRoutineStep3Products.select_products', { count: selectedProducts.length })
               }
             </Text>
             
@@ -452,28 +482,7 @@ export default function ComprehensiveRoutineStep3ProductSelection({
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Specialized treatment recommendations based on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3997530/')}
-              >
-                research on niacinamide benefits for skin barrier and pigmentation
-              </Text>
-              , studies on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/23291589/')}
-              >
-                vitamin C as photoprotection and collagen synthesis support
-              </Text>
-              , and{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/17147561/')}
-              >
-                centella asiatica wound healing and anti-inflammatory properties
-              </Text>
-              . Layer serums before moisturizer - consult a dermatologist for ingredient compatibility.
+              {t('comprehensiveRoutineStep3Products.citation')}
             </Text>
           </View>
 
@@ -519,6 +528,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,

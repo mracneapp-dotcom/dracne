@@ -1,4 +1,4 @@
-// app/onboardingScreens/OnboardingRating.js
+// app/onboardingScreens/OnboardingRating.js - FIXED SPANISH OVERLAP
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -7,12 +7,14 @@ import {
   Linking,
   Modal,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { DrAcneButton } from '../../components/ui/DrAcneButton';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -24,18 +26,18 @@ const BRAND_COLORS = {
 
 const TESTIMONIALS = [
   {
-    name: 'Sarah',
-    text: 'Dr. Acne helped me understand my skin better. My routine is finally working!',
+    nameKey: 'onboarding.rating.testimonial1_name',
+    textKey: 'onboarding.rating.testimonial1_text',
     isRight: true,
   },
   {
-    name: 'Mike',
-    text: 'The AI analysis was spot-on. I wish I had this app years ago when I struggled with acne.',
+    nameKey: 'onboarding.rating.testimonial2_name',
+    textKey: 'onboarding.rating.testimonial2_text',
     isRight: false,
   },
   {
-    name: 'Emma',
-    text: 'Finally, a skincare app that actually knows what it is talking about. My skin has never looked better.',
+    nameKey: 'onboarding.rating.testimonial3_name',
+    textKey: 'onboarding.rating.testimonial3_text',
     isRight: true,
   },
 ];
@@ -73,66 +75,68 @@ export default function OnboardingRating({ onNext }) {
     return () => clearTimeout(timer);
   }, []);
 
+  const openAppStore = async () => {
+    const storeUrl = Platform.select({
+      ios: 'itms-apps://itunes.apple.com/app/id6741170145',
+      android: 'market://details?id=com.aleboshi.dracne',
+    });
+
+    try {
+      const canOpen = await Linking.canOpenURL(storeUrl);
+      if (canOpen) {
+        await Linking.openURL(storeUrl);
+      } else {
+        throw new Error('Store app not available');
+      }
+    } catch {
+      const webUrl = Platform.select({
+        ios: 'https://apps.apple.com/app/id6741170145',
+        android: 'https://play.google.com/store/apps/details?id=com.aleboshi.dracne',
+      });
+      
+      try {
+        await Linking.openURL(webUrl);
+      } catch {
+        Alert.alert(
+          'Store Not Available',
+          'Unable to open the app store. Please search for "Dr. Acne" in your app store manually.',
+          [{ text: 'OK' }]
+        );
+      }
+    }
+  };
+
   const handleStarPress = async (rating) => {
     setUserRating(rating);
     setShowPopup(false);
     
-    Alert.alert(
-      'Thank you for rating!',
-      `You selected ${rating} star${rating > 1 ? 's' : ''}. Would you like to leave a review in the ${Platform.OS === 'ios' ? 'App Store' : 'Play Store'}?`,
-      [
-        {
-          text: 'Not Now',
-          style: 'cancel',
-          onPress: () => {
-            onNext('onboardingSaveProgress', {
-              rating: rating,
-              ratedInStore: false,
-              ratingCompleted: true,
-            });
-          }
-        },
-        {
-          text: 'Yes, Review',
-          onPress: async () => {
-            const storeUrl = Platform.select({
-              ios: 'itms-apps://itunes.apple.com/app/id6741170145',
-              android: 'market://details?id=com.dracne.app',
-            });
-
-            try {
-              const canOpen = await Linking.canOpenURL(storeUrl);
-              if (canOpen) {
-                await Linking.openURL(storeUrl);
-              } else {
-                throw new Error('Store app not available');
-              }
-            } catch {
-              const webUrl = Platform.select({
-                ios: 'https://apps.apple.com/app/id6741170145',
-                android: 'https://play.google.com/store/apps/details?id=com.dracne.app',
+    if (rating === 5) {
+      // 5 stars - Open store immediately
+      await openAppStore();
+      onNext('onboardingSaveProgress', {
+        rating: rating,
+        ratedInStore: true,
+        ratingCompleted: true,
+      });
+    } else {
+      // 4 stars or less - Thank them without forcing store visit
+      Alert.alert(
+        t('onboarding.rating.thank_you_title'),
+        t('onboarding.rating.thank_you_message'),
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              onNext('onboardingSaveProgress', {
+                rating: rating,
+                ratedInStore: false,
+                ratingCompleted: true,
               });
-              
-              try {
-                await Linking.openURL(webUrl);
-              } catch {
-                Alert.alert(
-                  'Store Not Available',
-                  'Unable to open the app store. Please search for "Dr. Acne" in your app store manually.',
-                  [{ text: 'OK' }]
-                );
-              }
             }
-            
-            onNext('onboardingSaveProgress', {
-              rating: rating,
-              ratedInStore: true,
-              ratingCompleted: true,
-            });
           }
-        }
-      ]
-    );
+        ]
+      );
+    }
   };
 
   const handleNotNow = () => {
@@ -144,7 +148,11 @@ export default function OnboardingRating({ onNext }) {
     });
   };
 
-  const handleContinue = () => {
+  const handleRateUs = () => {
+    setShowPopup(true);
+  };
+
+  const handleSkip = () => {
     onNext('onboardingSaveProgress', {
       rating: 0,
       ratedInStore: false,
@@ -179,52 +187,57 @@ export default function OnboardingRating({ onNext }) {
     );
   };
 
-  const renderTestimonial = (testimonial, index) => (
-    <Animated.View
-      key={testimonial.name}
-      style={[
-        styles.testimonial,
-        { opacity: testimonialsAnim[index] }
-      ]}
-    >
-      {testimonial.isRight ? (
-        <>
-          <View style={styles.avatarCircle}>
-            <Text style={styles.avatarText}>{testimonial.name[0]}</Text>
-          </View>
-          <View style={[styles.testimonialBox, styles.testimonialBoxRight]}>
-            <View style={styles.nameContainer}>
-              <Text style={styles.name}>{testimonial.name}</Text>
-              {renderStars(false, 12)}
+  const renderTestimonial = (testimonial, index) => {
+    const name = t(testimonial.nameKey);
+    const text = t(testimonial.textKey);
+    
+    return (
+      <Animated.View
+        key={index}
+        style={[
+          styles.testimonial,
+          { opacity: testimonialsAnim[index] }
+        ]}
+      >
+        {testimonial.isRight ? (
+          <>
+            <View style={styles.avatarCircle}>
+              <Text style={styles.avatarText}>{name[0]}</Text>
             </View>
-            <Text style={styles.testimonialText}>{testimonial.text}</Text>
-          </View>
-        </>
-      ) : (
-        <>
-          <View style={[styles.testimonialBox, styles.testimonialBoxLeft]}>
-            <View style={styles.nameContainer}>
-              <Text style={styles.name}>{testimonial.name}</Text>
-              {renderStars(false, 12)}
+            <View style={[styles.testimonialBox, styles.testimonialBoxRight]}>
+              <View style={styles.nameContainer}>
+                <Text style={styles.name}>{name}</Text>
+                {renderStars(false, 12)}
+              </View>
+              <Text style={styles.testimonialText}>{text}</Text>
             </View>
-            <Text style={styles.testimonialText}>{testimonial.text}</Text>
-          </View>
-          <View style={styles.avatarCircle}>
-            <Text style={styles.avatarText}>{testimonial.name[0]}</Text>
-          </View>
-        </>
-      )}
-    </Animated.View>
-  );
+          </>
+        ) : (
+          <>
+            <View style={[styles.testimonialBox, styles.testimonialBoxLeft]}>
+              <View style={styles.nameContainer}>
+                <Text style={styles.name}>{name}</Text>
+                {renderStars(false, 12)}
+              </View>
+              <Text style={styles.testimonialText}>{text}</Text>
+            </View>
+            <View style={styles.avatarCircle}>
+              <Text style={styles.avatarText}>{name[0]}</Text>
+            </View>
+          </>
+        )}
+      </Animated.View>
+    );
+  };
 
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
-        <Text style={styles.title}>Give us a rating</Text>
+        <Text style={styles.title}>{t('onboarding.rating.title')}</Text>
       </Animated.View>
 
       <Animated.View style={[styles.socialProofContainer, { opacity: fadeAnim }]}>
-        <Text style={styles.socialProofTitle}>Dr. Acne was made for people like you</Text>
+        <Text style={styles.socialProofTitle}>{t('onboarding.rating.social_proof_title')}</Text>
         <View style={styles.usersContainer}>
           <View style={styles.userAvatarsContainer}>
             {Array.from({ length: 3 }).map((_, index) => (
@@ -233,23 +246,32 @@ export default function OnboardingRating({ onNext }) {
               </View>
             ))}
           </View>
-          <Text style={styles.usersCount}>Dr. Acne Users</Text>
+          <Text style={styles.usersCount}>{t('onboarding.rating.users_label')}</Text>
         </View>
       </Animated.View>
 
-      <View style={styles.testimonialsContainer}>
+      {/* ✅ FIXED: Wrapped in ScrollView to prevent overlap */}
+      <ScrollView 
+        style={styles.testimonialsScrollView}
+        contentContainerStyle={styles.testimonialsContainer}
+        showsVerticalScrollIndicator={false}
+      >
         {TESTIMONIALS.map((testimonial, index) => renderTestimonial(testimonial, index))}
-      </View>
+      </ScrollView>
 
       <View style={styles.buttonContainer}>
+        <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
+          <Text style={styles.skipButtonText}>{t('onboarding.rating.skip')}</Text>
+        </TouchableOpacity>
+        
         <DrAcneButton
-          title="Continue"
-          onPress={handleContinue}
+          title={t('onboarding.rating.button')}
+          onPress={handleRateUs}
           style={styles.button}
         />
       </View>
 
-      {/* ✓ NATIVE iOS/Android Rating Popup - DO NOT CHANGE */}
+      {/* Native iOS/Android Rating Popup */}
       {showPopup && (
         <Modal transparent={true} animationType="fade">
           <TouchableOpacity
@@ -272,9 +294,12 @@ export default function OnboardingRating({ onNext }) {
                 </View>
               </View>
               
-              <Text style={styles.popupTitle}>Enjoying Dr. Acne?</Text>
+              <Text style={styles.popupTitle}>{t('onboarding.rating.popup_title')}</Text>
               <Text style={styles.popupSubtitle}>
-                Tap a star to rate it on the{'\n'}{Platform.OS === 'ios' ? 'App Store' : 'Play Store'}.
+                {Platform.OS === 'ios' 
+                  ? t('onboarding.rating.popup_subtitle_ios')
+                  : t('onboarding.rating.popup_subtitle_android')
+                }
               </Text>
               
               <View style={styles.separator} />
@@ -286,7 +311,7 @@ export default function OnboardingRating({ onNext }) {
               <View style={styles.separator} />
               
               <TouchableOpacity style={styles.notNowButton} onPress={handleNotNow}>
-                <Text style={styles.notNowButtonText}>Not Now</Text>
+                <Text style={styles.notNowButtonText}>{t('onboarding.rating.popup_not_now')}</Text>
               </TouchableOpacity>
             </TouchableOpacity>
           </TouchableOpacity>
@@ -304,26 +329,27 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 24,
-    paddingBottom: 32,
+    paddingBottom: 24,
     alignItems: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '700',
     color: BRAND_COLORS.black,
     textAlign: 'center',
+    lineHeight: 32,
   },
   socialProofContainer: {
     paddingHorizontal: 24,
-    paddingVertical: 24,
+    paddingVertical: 20,
     alignItems: 'center',
   },
   socialProofTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '600',
     color: BRAND_COLORS.black,
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 14,
   },
   usersContainer: {
     alignItems: 'center',
@@ -351,19 +377,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
+  // ✅ FIXED: Added ScrollView wrapper for testimonials
+  testimonialsScrollView: {
+    flex: 1,
+  },
   testimonialsContainer: {
     paddingHorizontal: 24,
-    flex: 1,
+    paddingBottom: 20,
   },
   testimonial: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 16,
+    marginBottom: 14,
   },
   avatarCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: BRAND_COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
@@ -377,7 +407,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F5F5',
     borderRadius: 12,
-    padding: 16,
+    padding: 14,
   },
   testimonialBoxRight: {
     marginLeft: 12,
@@ -388,18 +418,18 @@ const styles = StyleSheet.create({
   nameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   name: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: BRAND_COLORS.black,
     marginRight: 8,
   },
   testimonialText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#666',
-    lineHeight: 20,
+    lineHeight: 18,
   },
   starsContainer: {
     flexDirection: 'row',
@@ -419,12 +449,25 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    paddingBottom: 32,
+    paddingVertical: 12,
+    paddingBottom: 28,
     backgroundColor: 'transparent',
+    alignItems: 'center',
+  },
+  skipButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginBottom: 10,
+  },
+  skipButtonText: {
+    fontSize: 15,
+    color: '#666',
+    textAlign: 'center',
+    textDecorationLine: 'underline',
   },
   button: {
     paddingVertical: 16,
+    width: '100%',
   },
   overlay: {
     flex: 1,

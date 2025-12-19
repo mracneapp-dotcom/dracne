@@ -1,8 +1,9 @@
-// app/BasicRoutineStep3ProductSelection.js - COMPLETE WITH CITATIONS
+// app/BasicRoutineStep3ProductSelection.js - FULLY UPDATED WITH TRANSLATIONS & PROPER BANNER
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Linking,
   ScrollView,
   StyleSheet,
@@ -12,6 +13,7 @@ import {
 } from 'react-native';
 import RoutineCompletionModal from '../components/modals/RoutineCompletionModal';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -25,11 +27,11 @@ const BRAND_COLORS = {
 };
 
 const SKIN_TYPE_INFO = {
-  oily: { color: '#4A90E2', name: 'Oily Skin' },
-  dry: { color: '#F39C12', name: 'Dry Skin' },
-  combination: { color: BRAND_COLORS.primary, name: 'Combination Skin' },
-  normal: { color: '#9B59B6', name: 'Normal Skin' },
-  sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
+  oily: { color: '#4A90E2' },
+  dry: { color: '#F39C12' },
+  combination: { color: BRAND_COLORS.primary },
+  normal: { color: '#9B59B6' },
+  sensitive: { color: BRAND_COLORS.primary },
 };
 
 const SUNSCREEN_PRODUCTS = {
@@ -37,160 +39,160 @@ const SUNSCREEN_PRODUCTS = {
     {
       id: 'sunscreen_oily_1',
       name: 'TIZO Mineral Sun Defense',
-      description: '100% mineral sunscreen with matte finish',
-      benefits: ['Matte finish', 'Mineral', 'SPF 50'],
+      descriptionKey: 'products.sunscreens.oily_1_desc',
+      benefitKeys: ['matte_finish', 'mineral', 'spf_50'],
     },
     {
       id: 'sunscreen_oily_2',
       name: 'Beauty of Joseon Relief Sun',
-      description: 'Lightweight new-gen chemical sunscreen',
-      benefits: ['Lightweight', 'No white cast', 'SPF 50+'],
+      descriptionKey: 'products.sunscreens.oily_2_desc',
+      benefitKeys: ['lightweight', 'no_white_cast', 'spf_50_plus'],
     },
     {
       id: 'sunscreen_oily_3',
       name: 'Isntree Hyaluronic Aqua Gel',
-      description: 'Water-based gel sunscreen',
-      benefits: ['Fresh finish', 'Hydrating', 'SPF 50+'],
+      descriptionKey: 'products.sunscreens.oily_3_desc',
+      benefitKeys: ['fresh_finish', 'hydrating', 'spf_50_plus'],
     },
     {
       id: 'sunscreen_oily_4',
       name: 'EltaMD UV Clear',
-      description: 'Mineral sunscreen for acne-prone skin',
-      benefits: ['Oil-free', 'Niacinamide', 'SPF 46'],
+      descriptionKey: 'products.sunscreens.oily_4_desc',
+      benefitKeys: ['oil_free', 'niacinamide', 'spf_46'],
     },
     {
       id: 'sunscreen_oily_5',
       name: 'La Roche-Posay Anthelios',
-      description: 'Dermatologist-recommended sunscreen',
-      benefits: ['Matte finish', 'Tested', 'SPF 50+'],
+      descriptionKey: 'products.sunscreens.oily_5_desc',
+      benefitKeys: ['matte_finish', 'tested', 'spf_50_plus'],
     },
   ],
   dry: [
     {
       id: 'sunscreen_dry_1',
       name: 'TIZO AM Replenish / Tinted',
-      description: 'Hydrating mineral sunscreen',
-      benefits: ['Moisturizing', 'Tinted option', 'SPF 40'],
+      descriptionKey: 'products.sunscreens.dry_1_desc',
+      benefitKeys: ['moisturizing', 'tinted_option', 'spf_40'],
     },
     {
       id: 'sunscreen_dry_2',
       name: 'Avene Solaire Mineral',
-      description: 'Ultra-gentle mineral sunscreen',
-      benefits: ['Hydrating', 'Thermal water', 'SPF 50+'],
+      descriptionKey: 'products.sunscreens.dry_2_desc',
+      benefitKeys: ['hydrating', 'thermal_water', 'spf_50_plus'],
     },
     {
       id: 'sunscreen_dry_3',
       name: 'Beauty of Joseon Relief Sun',
-      description: 'Hydrating chemical sunscreen',
-      benefits: ['Dewy finish', 'Comfortable', 'SPF 50+'],
+      descriptionKey: 'products.sunscreens.dry_3_desc',
+      benefitKeys: ['dewy_finish', 'comfortable', 'spf_50_plus'],
     },
     {
       id: 'sunscreen_dry_4',
       name: 'La Roche-Posay Anthelios',
-      description: 'Hydrating sunscreen for dry skin',
-      benefits: ['Moisturizing', 'Professional', 'SPF 50+'],
+      descriptionKey: 'products.sunscreens.dry_4_desc',
+      benefitKeys: ['moisturizing', 'professional', 'spf_50_plus'],
     },
     {
       id: 'sunscreen_dry_5',
       name: 'CeraVe Hydrating Sunscreen',
-      description: 'Moisturizing sunscreen with ceramides',
-      benefits: ['Affordable', 'Ceramides', 'SPF 30'],
+      descriptionKey: 'products.sunscreens.dry_5_desc',
+      benefitKeys: ['affordable', 'ceramides', 'spf_30'],
     },
   ],
   combination: [
     {
       id: 'sunscreen_combo_1',
       name: 'TIZO Mineral Sun Defense',
-      description: 'Balanced mineral sunscreen',
-      benefits: ['Versatile', 'Mineral', 'SPF 50'],
+      descriptionKey: 'products.sunscreens.combo_1_desc',
+      benefitKeys: ['versatile', 'mineral', 'spf_50'],
     },
     {
       id: 'sunscreen_combo_2',
       name: 'Beauty of Joseon Relief Sun',
-      description: 'Perfect for combination skin',
-      benefits: ['Balanced', 'Popular', 'SPF 50+'],
+      descriptionKey: 'products.sunscreens.combo_2_desc',
+      benefitKeys: ['balanced', 'popular', 'spf_50_plus'],
     },
     {
       id: 'sunscreen_combo_3',
       name: 'Isntree Watery Sun Gel',
-      description: 'Fresh lightweight sunscreen',
-      benefits: ['Light', 'Hydrating', 'SPF 50+'],
+      descriptionKey: 'products.sunscreens.combo_3_desc',
+      benefitKeys: ['light', 'hydrating', 'spf_50_plus'],
     },
     {
       id: 'sunscreen_combo_4',
       name: 'EltaMD UV Clear',
-      description: 'Oil-free mineral sunscreen',
-      benefits: ['Balanced', 'Professional', 'SPF 46'],
+      descriptionKey: 'products.sunscreens.combo_4_desc',
+      benefitKeys: ['balanced', 'professional', 'spf_46'],
     },
     {
       id: 'sunscreen_combo_5',
       name: 'La Roche-Posay Anthelios',
-      description: 'Dermatologist-recommended',
-      benefits: ['Reliable', 'Tested', 'SPF 50+'],
+      descriptionKey: 'products.sunscreens.combo_5_desc',
+      benefitKeys: ['reliable', 'tested', 'spf_50_plus'],
     },
   ],
   normal: [
     {
       id: 'sunscreen_normal_1',
       name: 'TIZO Mineral Sun Defense',
-      description: 'Professional mineral sunscreen',
-      benefits: ['Reliable', 'Mineral', 'SPF 50'],
+      descriptionKey: 'products.sunscreens.normal_1_desc',
+      benefitKeys: ['reliable', 'mineral', 'spf_50'],
     },
     {
       id: 'sunscreen_normal_2',
       name: 'Beauty of Joseon Relief Sun',
-      description: 'Perfect daily sunscreen',
-      benefits: ['Elegant', 'Comfortable', 'SPF 50+'],
+      descriptionKey: 'products.sunscreens.normal_2_desc',
+      benefitKeys: ['elegant', 'comfortable', 'spf_50_plus'],
     },
     {
       id: 'sunscreen_normal_3',
       name: 'EltaMD UV Clear',
-      description: 'Professional daily sunscreen',
-      benefits: ['Professional', 'Clean', 'SPF 46'],
+      descriptionKey: 'products.sunscreens.normal_3_desc',
+      benefitKeys: ['professional', 'clean_finish', 'spf_46'],
     },
     {
       id: 'sunscreen_normal_4',
       name: 'La Roche-Posay Anthelios',
-      description: 'Dermatologist-recommended',
-      benefits: ['Tested', 'Reliable', 'SPF 50+'],
+      descriptionKey: 'products.sunscreens.normal_4_desc',
+      benefitKeys: ['tested', 'reliable', 'spf_50_plus'],
     },
     {
       id: 'sunscreen_normal_5',
       name: 'Isntree Watery Sun Gel',
-      description: 'Lightweight daily sunscreen',
-      benefits: ['Fresh', 'Hydrating', 'SPF 50+'],
+      descriptionKey: 'products.sunscreens.normal_5_desc',
+      benefitKeys: ['fresh', 'hydrating', 'spf_50_plus'],
     },
   ],
   sensitive: [
     {
       id: 'sunscreen_sens_1',
       name: 'TIZO AM Replenish / Mineral Sun Defense',
-      description: 'Ultra-gentle mineral sunscreen',
-      benefits: ['100% mineral', 'Safe', 'SPF 40-50'],
+      descriptionKey: 'products.sunscreens.sens_1_desc',
+      benefitKeys: ['100_mineral', 'safe', 'spf_40'],
     },
     {
       id: 'sunscreen_sens_2',
       name: 'Avene Solaire Mineral',
-      description: 'Mineral sunscreen for reactive skin',
-      benefits: ['Thermal water', 'Gentle', 'SPF 50+'],
+      descriptionKey: 'products.sunscreens.sens_2_desc',
+      benefitKeys: ['thermal_water', 'gentle', 'spf_50_plus'],
     },
     {
       id: 'sunscreen_sens_3',
       name: 'EltaMD UV Physical',
-      description: '100% mineral tinted sunscreen',
-      benefits: ['Physical only', 'Safe', 'SPF 41'],
+      descriptionKey: 'products.sunscreens.sens_3_desc',
+      benefitKeys: ['physical_only', 'safe', 'spf_41'],
     },
     {
       id: 'sunscreen_sens_4',
       name: 'La Roche-Posay Anthelios Mineral',
-      description: 'Gentle mineral formula',
-      benefits: ['Tested', 'Fragrance-free', 'SPF 50'],
+      descriptionKey: 'products.sunscreens.sens_4_desc',
+      benefitKeys: ['tested', 'fragrance_free', 'spf_50'],
     },
     {
       id: 'sunscreen_sens_5',
       name: 'CeraVe Mineral Sunscreen',
-      description: 'Affordable gentle sunscreen',
-      benefits: ['Budget-friendly', 'Mineral', 'SPF 30'],
+      descriptionKey: 'products.sunscreens.sens_5_desc',
+      benefitKeys: ['budget_friendly', 'mineral', 'spf_30'],
     },
   ],
 };
@@ -226,6 +228,10 @@ export default function BasicRoutineStep3ProductSelection({
       console.error('Error loading skin type:', error);
       setProducts(SUNSCREEN_PRODUCTS.normal);
     }
+  };
+
+  const getTranslatedSkinTypeName = () => {
+    return t(`skinTypes.${skinType}`);
   };
 
   const handleComplete = async () => {
@@ -287,9 +293,9 @@ export default function BasicRoutineStep3ProductSelection({
 
   const getButtonText = () => {
     if (!selectedProduct) {
-      return 'Choose My Sunscreen';
+      return t('basicRoutine.choose_sunscreen');
     }
-    return 'Complete Basic Routine Setup';
+    return t('basicRoutine.complete_routine');
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -314,11 +320,16 @@ export default function BasicRoutineStep3ProductSelection({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Day Routine 1.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
+        <ImageBackground
+          source={require('../assets/images/banner-day-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.dayRoutineBannerTextContainer}>
+            <Text style={styles.dayRoutineLine1}>{t('dayRoutineBanners.line1')}</Text>
+            <Text style={styles.dayRoutineLine2}>{t('dayRoutineBanners.line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -337,7 +348,9 @@ export default function BasicRoutineStep3ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('basicRoutine.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -358,21 +371,21 @@ export default function BasicRoutineStep3ProductSelection({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('basicRoutine.for_skin', { skinType: getTranslatedSkinTypeName() })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Product Recommendations</Text>
+          <Text style={styles.sectionTitle}>{t('basicRoutine.product_recommendations')}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose your sunscreen - the most important anti-aging step. All options are SPF 30+ and dermatologist-recommended for your skin type.
+              {t('basicRoutine.sunscreen_explanation')}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Choose Your Product {selectedProduct && '(1 selected)'}
+              {t('basicRoutine.choose_product')} {selectedProduct && t('productBenefits.selected_1')}
             </Text>
             
             {products.map((product) => {
@@ -391,7 +404,9 @@ export default function BasicRoutineStep3ProductSelection({
                   <View style={styles.productCardHeader}>
                     <View style={styles.productCardLeft}>
                       <Text style={styles.productName}>{product.name}</Text>
-                      <Text style={styles.productDescription}>{product.description}</Text>
+                      <Text style={styles.productDescription}>
+                        {t(product.descriptionKey)}
+                      </Text>
                     </View>
                     {isSelected && (
                       <View style={[styles.checkmark, { backgroundColor: skinTypeInfo.color }]}>
@@ -401,9 +416,11 @@ export default function BasicRoutineStep3ProductSelection({
                   </View>
                   
                   <View style={styles.benefitsRow}>
-                    {product.benefits.map((benefit, idx) => (
+                    {product.benefitKeys.map((benefitKey, idx) => (
                       <View key={idx} style={styles.benefitTag}>
-                        <Text style={styles.benefitTagText}>{benefit}</Text>
+                        <Text style={styles.benefitTagText}>
+                          {t(`productBenefits.${benefitKey}`)}
+                        </Text>
                       </View>
                     ))}
                   </View>
@@ -414,34 +431,34 @@ export default function BasicRoutineStep3ProductSelection({
 
           {!selectedProduct && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select 1 sunscreen to complete your routine</Text>
+              <Text style={styles.helperText}>{t('basicRoutine.select_1_sunscreen')}</Text>
             </View>
           )}
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Product selections based on{' '}
+              {t('basicRoutine.citation_sunscreen_products_intro')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3543289/')}
               >
-                sunscreen formulation research and SPF testing standards
+                {t('basicRoutine.citation_sunscreen_products_link1')}
               </Text>
-              , clinical studies on{' '}
+              , {t('basicRoutine.citation_sunscreen_products_studies')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(19)30125-5/fulltext')}
               >
-                UV filter safety and efficacy profiles
+                {t('basicRoutine.citation_sunscreen_products_link2')}
               </Text>
-              , and ingredient data from the{' '}
+              , {t('basicRoutine.citation_sunscreen_products_data')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://www.fda.gov/drugs/understanding-over-counter-medicines/sunscreen-how-help-protect-your-skin-sun')}
               >
-                FDA on sunscreen active ingredients
+                {t('basicRoutine.citation_sunscreen_products_link3')}
               </Text>
-              . These are educational suggestions - always use broad-spectrum SPF 30+ daily and consult a dermatologist for skin cancer prevention advice.
+              . {t('basicRoutine.citation_sunscreen_products_disclaimer')}
             </Text>
           </View>
 
@@ -463,6 +480,9 @@ export default function BasicRoutineStep3ProductSelection({
         onClose={handleModalClose}
         onViewRoutine={handleViewRoutine}
         routineData={completeRoutineData}
+        routineType="basic"
+        isNightRoutine={false}
+        skinType={skinType}
       />
     </View>
   );
@@ -491,9 +511,43 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  dayRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 10,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  dayRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  dayRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,
+    includeFontPadding: false,
   },
   scrollView: {
     flex: 1,

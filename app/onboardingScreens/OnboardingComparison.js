@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -30,19 +31,19 @@ export default function OnboardingComparison({ onNext }) {
       <View style={styles.content}>
         <View style={styles.heroSection}>
           <Text style={styles.questionTitle}>
-            Why <Text style={styles.titleHighlight}>Dr. Acne</Text> vs. Going Alone?
+            {t('onboarding.comparison.title1')} <Text style={styles.titleHighlight}>{t('onboarding.comparison.title2')}</Text> {t('onboarding.comparison.title3')}
           </Text>
           <Text style={styles.questionSubtitle}>
-            See the difference personalized AI guidance makes
+            {t('onboarding.comparison.subtitle')}
           </Text>
         </View>
 
         <View style={styles.headerRow}>
           <View style={styles.headerColumn}>
-            <Text style={styles.headerText}>On Your Own</Text>
+            <Text style={styles.headerText}>{t('onboarding.comparison.header_left')}</Text>
           </View>
           <View style={styles.headerColumn}>
-            <Text style={styles.headerTextHighlight}>With Dr. Acne</Text>
+            <Text style={styles.headerTextHighlight}>{t('onboarding.comparison.header_right')}</Text>
           </View>
         </View>
 
@@ -53,7 +54,7 @@ export default function OnboardingComparison({ onNext }) {
                 source={require('../../assets/images/no_icon.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonText}>Trial and error</Text>
+              <Text style={styles.comparisonText}>{t('onboarding.comparison.trial')}</Text>
             </View>
             
             <View style={styles.comparisonBoxHighlight}>
@@ -61,7 +62,7 @@ export default function OnboardingComparison({ onNext }) {
                 source={require('../../assets/images/check.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonTextHighlight}>AI personalized</Text>
+              <Text style={styles.comparisonTextHighlight}>{t('onboarding.comparison.personalized')}</Text>
             </View>
           </View>
 
@@ -71,7 +72,7 @@ export default function OnboardingComparison({ onNext }) {
                 source={require('../../assets/images/no_icon.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonText}>Conflicting advice</Text>
+              <Text style={styles.comparisonText}>{t('onboarding.comparison.conflicting')}</Text>
             </View>
             
             <View style={styles.comparisonBoxHighlight}>
@@ -79,7 +80,7 @@ export default function OnboardingComparison({ onNext }) {
                 source={require('../../assets/images/check.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonTextHighlight}>Science-backed</Text>
+              <Text style={styles.comparisonTextHighlight}>{t('onboarding.comparison.science')}</Text>
             </View>
           </View>
 
@@ -89,7 +90,7 @@ export default function OnboardingComparison({ onNext }) {
                 source={require('../../assets/images/no_icon.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonText}>Expensive mistakes</Text>
+              <Text style={styles.comparisonText}>{t('onboarding.comparison.expensive')}</Text>
             </View>
             
             <View style={styles.comparisonBoxHighlight}>
@@ -97,7 +98,7 @@ export default function OnboardingComparison({ onNext }) {
                 source={require('../../assets/images/check.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonTextHighlight}>Targeted routine</Text>
+              <Text style={styles.comparisonTextHighlight}>{t('onboarding.comparison.targeted')}</Text>
             </View>
           </View>
 
@@ -107,7 +108,7 @@ export default function OnboardingComparison({ onNext }) {
                 source={require('../../assets/images/no_icon.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonText}>Months guessing</Text>
+              <Text style={styles.comparisonText}>{t('onboarding.comparison.guessing')}</Text>
             </View>
             
             <View style={styles.comparisonBoxHighlight}>
@@ -115,14 +116,14 @@ export default function OnboardingComparison({ onNext }) {
                 source={require('../../assets/images/check.png')} 
                 style={styles.icon}
               />
-              <Text style={styles.comparisonTextHighlight}>Clear path</Text>
+              <Text style={styles.comparisonTextHighlight}>{t('onboarding.comparison.clear_path')}</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.socialProofSection}>
           <Text style={styles.socialProofText}>
-            Join thousands who cleared their skin with us
+            {t('onboarding.comparison.social_proof')}
           </Text>
         </View>
       </View>
@@ -133,11 +134,11 @@ export default function OnboardingComparison({ onNext }) {
           onPress={handleContinue}
         >
           <Text style={styles.continueButtonText}>
-            Continue with Dr. Acne
+            {t('onboarding.comparison.button')}
           </Text>
         </TouchableOpacity>
         
-        <Text style={styles.helperText}>Personalized for your unique skin</Text>
+        <Text style={styles.helperText}>{t('onboarding.comparison.helper')}</Text>
       </View>
     </View>
   );

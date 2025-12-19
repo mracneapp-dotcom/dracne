@@ -1,6 +1,7 @@
-// components/badges/BadgeCard.js
+// components/badges/BadgeCard.js - WITH SPANISH I18N
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { t } from '../../app/i18n';
 
 const BRAND_COLORS = {
   white: '#FFFFFF',
@@ -15,6 +16,11 @@ export const BadgeCard = ({ badge, onPress, size = 'normal' }) => {
   const imageSize = size === 'small' ? 32 : 40;
   const levelSize = size === 'small' ? 20 : 24;
   const fontSize = size === 'small' ? 11 : 12;
+
+  // Get translated badge title
+  const badgeTitle = badge?.definition?.titleKey 
+    ? t(badge.definition.titleKey) 
+    : badge?.definition?.title || t('home.badges.locked');
 
   return (
     <TouchableOpacity
@@ -63,7 +69,7 @@ export const BadgeCard = ({ badge, onPress, size = 'normal' }) => {
         { fontSize },
         isLocked && styles.lockedLabel
       ]} numberOfLines={2}>
-        {badge?.definition.title || 'Locked'}
+        {badgeTitle}
       </Text>
     </TouchableOpacity>
   );

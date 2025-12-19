@@ -3,13 +3,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
-  Linking,
+  ImageBackground,
   StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -68,19 +69,25 @@ export default function ModerateNightRoutineStep2Info({
   };
 
   const getProductTitle = () => {
-    if (skinType === 'oily') return 'Lightweight Gel-Cream';
-    if (skinType === 'dry') return 'Rich Night Moisturizer';
-    return 'Light/Medium Moisturizer';
+    switch (skinType) {
+      case 'oily':
+        return t('moderateNightRoutineStep2Info.product_title_oily');
+      case 'dry':
+        return t('moderateNightRoutineStep2Info.product_title_dry');
+      default:
+        return t('moderateNightRoutineStep2Info.product_title_default');
+    }
   };
 
   const getExplanationText = () => {
-    if (skinType === 'oily') {
-      return 'Even oily skin needs hydration at night. Lightweight gel-creams provide essential moisture without adding excess oil, allowing your skin to repair overnight without clogging pores.';
+    switch (skinType) {
+      case 'oily':
+        return t('moderateNightRoutineStep2Info.explanation_oily');
+      case 'dry':
+        return t('moderateNightRoutineStep2Info.explanation_dry');
+      default:
+        return t('moderateNightRoutineStep2Info.explanation_default');
     }
-    if (skinType === 'dry') {
-      return 'Night is when your skin repairs itself. Rich moisturizers with ceramides and occlusives create a protective barrier, locking in hydration and strengthening your skin barrier while you sleep.';
-    }
-    return 'A balanced evening moisturizer provides optimal hydration to support your skin\'s natural overnight repair process. Choose formulas that feel comfortable without being too heavy or too light.';
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -104,11 +111,16 @@ export default function ModerateNightRoutineStep2Info({
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Night Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('nightRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('nightRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <View style={styles.content}>
@@ -122,7 +134,9 @@ export default function ModerateNightRoutineStep2Info({
               <Text style={styles.arrowText}>‹</Text>
             </TouchableOpacity>
 
-            <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+            <Text style={styles.progressText}>
+              {t('moderateNightRoutineStep2Info.step_of', { current: currentStep, total: totalSteps })}
+            </Text>
 
             <TouchableOpacity
               onPress={handleNextStep}
@@ -140,7 +154,7 @@ export default function ModerateNightRoutineStep2Info({
 
         <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
           <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-            For {skinTypeInfo.name}
+            {t('moderateNightRoutineStep2Info.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
           </Text>
         </View>
 
@@ -154,19 +168,19 @@ export default function ModerateNightRoutineStep2Info({
           </View>
           <View style={styles.productTextContainer}>
             <Text style={styles.productTitle}>{getProductTitle()}</Text>
-            <Text style={styles.productSubtitle}>Evening Step 2</Text>
+            <Text style={styles.productSubtitle}>{t('moderateNightRoutineStep2Info.evening_step_2')}</Text>
           </View>
         </View>
 
         <View style={styles.introBox}>
-          <Text style={styles.introTitle}>Curated for Your Skin</Text>
+          <Text style={styles.introTitle}>{t('moderateNightRoutineStep2Info.curated_title')}</Text>
           <Text style={styles.introText}>
-            We've selected moisturizers specifically for {skinTypeInfo.name.toLowerCase()}. Each product is proven effective and dermatologist-recommended for overnight skin repair.
+            {t('moderateNightRoutineStep2Info.curated_text', { skinType: t(`profile.skin_labels.${skinType}`).toLowerCase() })}
           </Text>
         </View>
 
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>Why this matters at night</Text>
+          <Text style={styles.explanationTitle}>{t('moderateNightRoutineStep2Info.why_matters')}</Text>
           <Text style={styles.explanationText}>
             {getExplanationText()}
           </Text>
@@ -174,35 +188,14 @@ export default function ModerateNightRoutineStep2Info({
 
         <View style={styles.citationContainer}>
           <Text style={styles.citationText}>
-            Night moisturizer recommendations based on{' '}
-            <Text 
-              style={styles.citationLink}
-              onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6751381/')}
-            >
-              research on nighttime skin repair and circadian rhythms
-            </Text>
-            , clinical studies on{' '}
-            <Text 
-              style={styles.citationLink}
-              onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4345901/')}
-            >
-              optimal product layering for overnight hydration
-            </Text>
-            , and{' '}
-            <Text 
-              style={styles.citationLink}
-              onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(17)32410-0/fulltext')}
-            >
-              dermatological guidance on barrier function and occlusive moisturization
-            </Text>
-            . Individual results may vary - consult a dermatologist for personalized advice.
+            {t('moderateNightRoutineStep2Info.citation')}
           </Text>
         </View>
       </View>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('moderateNightRoutineStep2Info.see_products')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -237,6 +230,21 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  bannerText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   content: {
     flex: 1,

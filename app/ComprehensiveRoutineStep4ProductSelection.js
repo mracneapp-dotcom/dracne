@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
-  Linking,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -194,22 +195,6 @@ const STEP_4_PRODUCTS = {
   ],
 };
 
-const STEP_4_TITLES = {
-  oily: 'High-Performance Actives',
-  dry: 'Deep Hydration Boosters',
-  combination: 'Balancing Multi-Actives',
-  normal: 'Advanced Anti-Aging Serums',
-  sensitive: 'Intensive Barrier Support',
-};
-
-const STEP_4_EXPLANATIONS = {
-  oily: 'Choose 1-2 high-performance actives to use 2-4 times per week in the evening. Start slowly and build tolerance. These products provide transformative results for oil control and texture refinement.',
-  dry: 'Choose 1-2 deep hydration boosters to layer morning and evening. Apply after hydrating essence, before moisturizer. Multi-molecular HA and peptides provide comprehensive moisture support.',
-  combination: 'Choose 1 balancing active for full-face use. Moderate-strength niacinamide or gentle retinol alternatives work across all zones without creating imbalance.',
-  normal: 'Choose 1 advanced anti-aging serum for professional-level results. Your healthy skin can handle strong actives. Start 2-3x per week and increase as tolerated.',
-  sensitive: 'Choose 1-2 intensive barrier support products for daily use. These concentrated treatments strengthen your defense system without irritation. Safe for morning and evening.',
-};
-
 export default function ComprehensiveRoutineStep4ProductSelection({ 
   onNavigateHome,
   onNavigateToDayRoutine,
@@ -287,13 +272,47 @@ export default function ComprehensiveRoutineStep4ProductSelection({
     }
   };
 
+  const getSectionTitle = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep4Products.high_performance');
+      case 'dry':
+        return t('comprehensiveRoutineStep4Products.deep_hydration');
+      case 'combination':
+        return t('comprehensiveRoutineStep4Products.balancing_multi');
+      case 'normal':
+        return t('comprehensiveRoutineStep4Products.advanced_anti_aging');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep4Products.intensive_barrier');
+      default:
+        return t('comprehensiveRoutineStep4Products.advanced_anti_aging');
+    }
+  };
+
+  const getExplanation = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep4Products.oily_explanation');
+      case 'dry':
+        return t('comprehensiveRoutineStep4Products.dry_explanation');
+      case 'combination':
+        return t('comprehensiveRoutineStep4Products.combo_explanation');
+      case 'normal':
+        return t('comprehensiveRoutineStep4Products.normal_explanation');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep4Products.sensitive_explanation');
+      default:
+        return t('comprehensiveRoutineStep4Products.normal_explanation');
+    }
+  };
+
   const getButtonText = () => {
     if (selectedProducts.length === 0) {
-      return 'Choose My Advanced Treatment';
+      return t('comprehensiveRoutineStep4Products.choose_advanced');
     } else if (selectedProducts.length === 1) {
-      return 'Continue with My Selection';
+      return t('comprehensiveRoutineStep4Products.continue_selection');
     } else {
-      return 'Continue with My Selections';
+      return t('comprehensiveRoutineStep4Products.continue_selections');
     }
   };
 
@@ -319,11 +338,16 @@ export default function ComprehensiveRoutineStep4ProductSelection({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -342,7 +366,9 @@ export default function ComprehensiveRoutineStep4ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('comprehensiveRoutineStep4Products.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -363,21 +389,21 @@ export default function ComprehensiveRoutineStep4ProductSelection({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('comprehensiveRoutineStep4Products.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>{STEP_4_TITLES[skinType]}</Text>
+          <Text style={styles.sectionTitle}>{getSectionTitle()}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              {STEP_4_EXPLANATIONS[skinType]}
+              {getExplanation()}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Select 1-2 Products {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
+              {t('comprehensiveRoutineStep4Products.select_products', { count: selectedProducts.length })}
             </Text>
             
             {products.map((product) => {
@@ -420,40 +446,19 @@ export default function ComprehensiveRoutineStep4ProductSelection({
 
           {selectedProducts.length === 0 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select at least 1 product to continue</Text>
+              <Text style={styles.helperText}>{t('comprehensiveRoutineStep4Products.helper_0')}</Text>
             </View>
           )}
 
           {selectedProducts.length === 2 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Maximum 2 products selected</Text>
+              <Text style={styles.helperText}>{t('comprehensiveRoutineStep4Products.helper_2')}</Text>
             </View>
           )}
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Advanced active recommendations based on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/17265500/')}
-              >
-                research on topical retinoids for photoaging and acne treatment
-              </Text>
-              , studies on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5605218/')}
-              >
-                peptide technology in cosmeceuticals and skin aging
-              </Text>
-              , and{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/20653813/')}
-              >
-                niacinamide concentration efficacy for sebum regulation
-              </Text>
-              . Start with lower frequencies - consult a dermatologist for prescription-strength options.
+              {t('comprehensiveRoutineStep4Products.citation')}
             </Text>
           </View>
 
@@ -499,6 +504,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,

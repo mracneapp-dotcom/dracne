@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -19,20 +20,20 @@ const BRAND_COLORS = {
 const PRIVACY_FEATURES = [
   {
     icon: require('../../assets/images/check.png'),
-    title: 'Your photos stay private',
-    description: 'Never shared or stored on our servers',
+    titleKey: 'onboarding.privacy.feature1_title',
+    descKey: 'onboarding.privacy.feature1_desc',
     color: BRAND_COLORS.primary,
   },
   {
     icon: require('../../assets/images/check.png'),
-    title: 'Secure AI processing',
-    description: 'Analysis happens instantly and securely',
+    titleKey: 'onboarding.privacy.feature2_title',
+    descKey: 'onboarding.privacy.feature2_desc',
     color: '#4A90E2',
   },
   {
     icon: require('../../assets/images/check.png'),
-    title: 'No data selling',
-    description: 'We never sell your information',
+    titleKey: 'onboarding.privacy.feature3_title',
+    descKey: 'onboarding.privacy.feature3_desc',
     color: BRAND_COLORS.secondary,
   },
 ];
@@ -57,10 +58,10 @@ export default function OnboardingPrivacy({ onNext }) {
 
         <View style={styles.header}>
           <Text style={styles.title}>
-            Your <Text style={styles.titleHighlight}>privacy</Text> matters
+            {t('onboarding.privacy.title1')} <Text style={styles.titleHighlight}>{t('onboarding.privacy.title2')}</Text> {t('onboarding.privacy.title3')}
           </Text>
           <Text style={styles.subtitle}>
-            Here's how we protect your information
+            {t('onboarding.privacy.subtitle')}
           </Text>
         </View>
 
@@ -75,8 +76,8 @@ export default function OnboardingPrivacy({ onNext }) {
                 />
               </View>
               <View style={styles.featureContent}>
-                <Text style={styles.featureTitle}>{feature.title}</Text>
-                <Text style={styles.featureDescription}>{feature.description}</Text>
+                <Text style={styles.featureTitle}>{t(feature.titleKey)}</Text>
+                <Text style={styles.featureDescription}>{t(feature.descKey)}</Text>
               </View>
             </View>
           ))}
@@ -84,14 +85,14 @@ export default function OnboardingPrivacy({ onNext }) {
 
         <View style={styles.legalContainer}>
           <Text style={styles.legalText}>
-            By continuing, you agree to our Terms of Service and Privacy Policy
+            {t('onboarding.privacy.legal')}
           </Text>
         </View>
       </View>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
-          <Text style={styles.continueButtonText}>I understand, continue</Text>
+          <Text style={styles.continueButtonText}>{t('onboarding.privacy.button')}</Text>
         </TouchableOpacity>
       </View>
     </View>

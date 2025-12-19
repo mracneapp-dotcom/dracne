@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -21,43 +22,43 @@ const BRAND_COLORS = {
 const SKIN_TYPES = [
   {
     id: 'oily',
-    label: 'Oily',
-    description: 'Shiny throughout the day',
+    labelKey: 'onboarding.skinType.oily',
+    descKey: 'onboarding.skinType.oily_desc',
     icon: require('../../assets/images/check.png'),
     color: '#4A90E2',
   },
   {
     id: 'dry',
-    label: 'Dry',
-    description: 'Tight, flaky, or rough',
+    labelKey: 'onboarding.skinType.dry',
+    descKey: 'onboarding.skinType.dry_desc',
     icon: require('../../assets/images/check.png'),
     color: '#F39C12',
   },
   {
     id: 'combination',
-    label: 'Combination',
-    description: 'Oily T-zone, dry cheeks',
+    labelKey: 'onboarding.skinType.combination',
+    descKey: 'onboarding.skinType.combination_desc',
     icon: require('../../assets/images/check.png'),
     color: BRAND_COLORS.primary,
   },
   {
     id: 'normal',
-    label: 'Normal',
-    description: 'Balanced, not too oily or dry',
+    labelKey: 'onboarding.skinType.normal',
+    descKey: 'onboarding.skinType.normal_desc',
     icon: require('../../assets/images/check.png'),
     color: '#9B59B6',
   },
   {
     id: 'sensitive',
-    label: 'Sensitive',
-    description: 'Easily irritated or red',
+    labelKey: 'onboarding.skinType.sensitive',
+    descKey: 'onboarding.skinType.sensitive_desc',
     icon: require('../../assets/images/check.png'),
     color: BRAND_COLORS.secondary,
   },
   {
     id: 'unknown',
-    label: "I'm Not Sure",
-    description: "We'll help you find out",
+    labelKey: 'onboarding.skinType.unknown',
+    descKey: 'onboarding.skinType.unknown_desc',
     icon: require('../../assets/images/check.png'),
     color: '#757575',
   },
@@ -86,9 +87,9 @@ export default function OnboardingSkinType({ onNext }) {
   const getSelectionMessage = () => {
     const selected = SKIN_TYPES.find(t => t.id === selectedType);
     if (selectedType === 'unknown') {
-      return "We'll create a gentle routine for you. Take our skin test later to personalize it!";
+      return t('onboarding.skinType.unknown_message');
     }
-    return `Perfect! We'll customize your routine for ${selected?.label.toLowerCase()} skin`;
+    return t('onboarding.skinType.selected_message', { skinType: t(selected?.labelKey).toLowerCase() });
   };
 
   return (
@@ -100,10 +101,10 @@ export default function OnboardingSkinType({ onNext }) {
       >
         <View style={styles.header}>
           <Text style={styles.title}>
-            What's your <Text style={styles.titleHighlight}>skin type?</Text>
+            {t('onboarding.skinType.title1')} <Text style={styles.titleHighlight}>{t('onboarding.skinType.title2')}</Text>
           </Text>
           <Text style={styles.subtitle}>
-            Choose the one that best describes your skin
+            {t('onboarding.skinType.subtitle')}
           </Text>
         </View>
 
@@ -141,9 +142,9 @@ export default function OnboardingSkinType({ onNext }) {
                     styles.typeLabel,
                     isSelected && { color: type.color, fontWeight: '600' }
                   ]}>
-                    {type.label}
+                    {t(type.labelKey)}
                   </Text>
-                  <Text style={styles.typeDescription}>{type.description}</Text>
+                  <Text style={styles.typeDescription}>{t(type.descKey)}</Text>
                 </View>
               </TouchableOpacity>
             );
@@ -172,11 +173,11 @@ export default function OnboardingSkinType({ onNext }) {
             styles.continueButtonText,
             !selectedType && styles.continueButtonTextDisabled
           ]}>
-            Continue
+            {t('onboarding.skinType.button')}
           </Text>
         </TouchableOpacity>
         <Text style={styles.helperText}>
-          {selectedType ? 'Your personalized plan is ready!' : 'Select your skin type'}
+          {selectedType ? t('onboarding.skinType.helper_selected') : t('onboarding.skinType.helper')}
         </Text>
       </View>
     </View>

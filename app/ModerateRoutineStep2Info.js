@@ -1,9 +1,10 @@
 // app/ModerateRoutineStep2Info.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
+import { t } from './i18n';
 import {
   Image,
-  Linking,
+  ImageBackground,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -38,6 +39,7 @@ export default function ModerateRoutineStep2Info({
   currentStep = 2,
   internalStep = 3
 }) {
+  const { t } = useTranslation();
   const [skinType, setSkinType] = useState('normal');
 
   useEffect(() => {
@@ -68,19 +70,19 @@ export default function ModerateRoutineStep2Info({
   };
 
   const getProductTitle = () => {
-    if (skinType === 'oily') return 'Lightweight Moisturizer';
-    if (skinType === 'dry') return 'Rich Day Moisturizer';
-    return 'Balanced Day Moisturizer';
+    if (skinType === 'oily') return t('moderateRoutineStep2Info.product_title_oily');
+    if (skinType === 'dry') return t('moderateRoutineStep2Info.product_title_dry');
+    return t('moderateRoutineStep2Info.product_title_default');
   };
 
   const getExplanationText = () => {
     if (skinType === 'oily') {
-      return 'Even oily skin needs daytime hydration. Lightweight gel-creams or lotions provide essential moisture without adding excess oil, keeping your skin balanced throughout the day.';
+      return t('moderateRoutineStep2Info.explanation_oily');
     }
     if (skinType === 'dry') {
-      return 'Dry skin benefits from richer moisturizers with humectants and occlusives. Look for formulas with ceramides, hyaluronic acid, and nourishing oils to maintain hydration all day.';
+      return t('moderateRoutineStep2Info.explanation_dry');
     }
-    return 'A balanced moisturizer provides optimal hydration without feeling heavy or greasy. Choose formulas that feel comfortable and keep your skin looking fresh throughout the day.';
+    return t('moderateRoutineStep2Info.explanation_default');
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -104,11 +106,16 @@ export default function ModerateRoutineStep2Info({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <View style={styles.content}>
@@ -122,7 +129,9 @@ export default function ModerateRoutineStep2Info({
               <Text style={styles.arrowText}>‹</Text>
             </TouchableOpacity>
 
-            <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+            <Text style={styles.progressText}>
+              {t('moderateRoutineStep2Info.step_of', { current: currentStep, total: totalSteps })}
+            </Text>
 
             <TouchableOpacity
               onPress={handleNextStep}
@@ -140,7 +149,9 @@ export default function ModerateRoutineStep2Info({
 
         <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
           <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-            For {skinTypeInfo.name}
+            {t('moderateRoutineStep2Info.for_skin', { 
+              skinType: t(`profile.skin_labels.${skinType}`)
+            })}
           </Text>
         </View>
 
@@ -154,19 +165,21 @@ export default function ModerateRoutineStep2Info({
           </View>
           <View style={styles.productTextContainer}>
             <Text style={styles.productTitle}>{getProductTitle()}</Text>
-            <Text style={styles.productSubtitle}>Morning Step 2</Text>
+            <Text style={styles.productSubtitle}>{t('moderateRoutineStep2Info.morning_step')}</Text>
           </View>
         </View>
 
         <View style={styles.introBox}>
-          <Text style={styles.introTitle}>Curated for Your Skin</Text>
+          <Text style={styles.introTitle}>{t('basicRoutine.curated_title')}</Text>
           <Text style={styles.introText}>
-            We've selected moisturizers specifically for {skinTypeInfo.name.toLowerCase()}. Each product is proven effective and dermatologist-recommended for daytime hydration.
+            {t('moderateRoutineStep2Info.curated_text', { 
+              skinType: t(`profile.skin_labels.${skinType}`)
+            })}
           </Text>
         </View>
 
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>Why this matters</Text>
+          <Text style={styles.explanationTitle}>{t('basicRoutine.why_matters_sunscreen')}</Text>
           <Text style={styles.explanationText}>
             {getExplanationText()}
           </Text>
@@ -174,35 +187,14 @@ export default function ModerateRoutineStep2Info({
 
         <View style={styles.citationContainer}>
           <Text style={styles.citationText}>
-            Day moisturizer recommendations based on{' '}
-            <Text 
-              style={styles.citationLink}
-              onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6751381/')}
-            >
-              research on daytime hydration and barrier function
-            </Text>
-            , clinical studies on{' '}
-            <Text 
-              style={styles.citationLink}
-              onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4345901/')}
-            >
-              optimal product layering for morning skincare routines
-            </Text>
-            , and{' '}
-            <Text 
-              style={styles.citationLink}
-              onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(17)32410-0/fulltext')}
-            >
-              dermatological guidance on skin type-specific moisturization
-            </Text>
-            . Individual results may vary - consult a dermatologist for personalized advice.
+            {t('moderateRoutineStep2Info.citation')}
           </Text>
         </View>
       </View>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('basicRoutine.see_products_button')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -237,6 +229,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerTextContainer: {
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   content: {
     flex: 1,
@@ -384,12 +390,6 @@ const styles = StyleSheet.create({
     color: '#999999',
     lineHeight: 16,
     textAlign: 'center',
-  },
-  citationLink: {
-    fontSize: 11,
-    color: '#666666',
-    textDecorationLine: 'underline',
-    fontWeight: '600',
   },
   bottomSection: {
     position: 'absolute',

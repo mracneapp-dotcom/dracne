@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
-  Linking,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -273,11 +274,11 @@ export default function ModerateRoutineStep1ProductSelection({
 
   const getButtonText = () => {
     if (selectedProducts.length === 0) {
-      return 'Choose My Cleanser';
+      return t('moderateRoutineStep1Products.choose_cleanser');
     } else if (selectedProducts.length === 1) {
-      return 'Continue with My Selection';
+      return t('moderateRoutineStep1Products.continue_selection');
     } else {
-      return 'Continue with My Selections';
+      return t('moderateRoutineStep1Products.continue_selections');
     }
   };
 
@@ -303,11 +304,16 @@ export default function ModerateRoutineStep1ProductSelection({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -326,7 +332,9 @@ export default function ModerateRoutineStep1ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('moderateRoutineStep1Products.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -347,21 +355,23 @@ export default function ModerateRoutineStep1ProductSelection({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('moderateRoutineStep1Products.for_skin', { 
+                skinType: t(`profile.skin_labels.${skinType}`)
+              })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Product Recommendations</Text>
+          <Text style={styles.sectionTitle}>{t('moderateRoutineStep1Products.section_title')}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose 1-2 cleansers to give you options when shopping. Having alternatives helps you find what works best for your skin and budget. You can always swap products later.
+              {t('moderateRoutineStep1Products.explanation')}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Select 1-2 Products {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
+              {t('moderateRoutineStep1Products.select_products', { count: selectedProducts.length })}
             </Text>
             
             {products.map((product) => {
@@ -404,40 +414,19 @@ export default function ModerateRoutineStep1ProductSelection({
 
           {selectedProducts.length === 0 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select at least 1 product to continue</Text>
+              <Text style={styles.helperText}>{t('moderateRoutineStep1Products.helper_0')}</Text>
             </View>
           )}
 
           {selectedProducts.length === 2 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Maximum 2 products selected</Text>
+              <Text style={styles.helperText}>{t('moderateRoutineStep1Products.helper_2')}</Text>
             </View>
           )}
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Product selections curated using safety data from the{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.cir-safety.org/ingredients')}
-              >
-                Cosmetic Ingredient Review
-              </Text>
-              , formulation research from the{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://onlinelibrary.wiley.com/journal/14682494')}
-              >
-                International Journal of Cosmetic Science
-              </Text>
-              , and clinical studies on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5849435/')}
-              >
-                skin type-specific morning cleansing protocols
-              </Text>
-              . These are educational suggestions - always patch test new products and consult a dermatologist for personalized treatment.
+              {t('moderateRoutineStep1Products.citation')}
             </Text>
           </View>
 
@@ -483,6 +472,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerTextContainer: {
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,
@@ -679,12 +682,6 @@ const styles = StyleSheet.create({
     color: '#999999',
     lineHeight: 16,
     textAlign: 'center',
-  },
-  citationLink: {
-    fontSize: 11,
-    color: '#666666',
-    textDecorationLine: 'underline',
-    fontWeight: '600',
   },
   bottomSpacing: {
     height: 160,

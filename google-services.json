@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "338991525353",
+    "project_id": "dracne-200c0",
+    "storage_bucket": "dracne-200c0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:338991525353:android:2ca4c75e786470e8ff2f78",
+        "android_client_info": {
+          "package_name": "com.aleboshi.dracne"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "338991525353-emdvn2mg1bsjmr307t5vibiqi4qguijl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aleboshi.dracne",
+            "certificate_hash": "9e82a11ef039c1c6b5b5f36cc64b34691c4d1164"
+          }
+        },
+        {
+          "client_id": "338991525353-gv3597rdivka0ia2vp19pvbjs1f5piet.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aleboshi.dracne",
+            "certificate_hash": "ef3a9e43fcba3172d72f24c1e0e76f60b91eb949"
+          }
+        },
+        {
+          "client_id": "338991525353-1r9lu6pl024a1vrf7mlg7k77pqj6vrvc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBolJICJm50OaYxlUffgfnT8D0e2SBAg3w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "338991525353-1r9lu6pl024a1vrf7mlg7k77pqj6vrvc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "338991525353-kvd8elr7d227p8493is5qnda0aq2cd5e.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.aleboshi.dracne"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

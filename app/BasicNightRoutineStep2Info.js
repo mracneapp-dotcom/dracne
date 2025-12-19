@@ -1,8 +1,9 @@
-// app/BasicNightRoutineStep2Info.js - SPECIFIC CITATIONS WITH EMBEDDED LINKS
+// app/BasicNightRoutineStep2Info.js - FULLY UPDATED WITH PROPER BANNER
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Linking,
   StyleSheet,
   Text,
@@ -10,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -23,11 +25,11 @@ const BRAND_COLORS = {
 };
 
 const SKIN_TYPE_INFO = {
-  oily: { color: '#4A90E2', name: 'Oily Skin' },
-  dry: { color: '#F39C12', name: 'Dry Skin' },
-  combination: { color: BRAND_COLORS.primary, name: 'Combination Skin' },
-  normal: { color: '#9B59B6', name: 'Normal Skin' },
-  sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
+  oily: { color: '#4A90E2' },
+  dry: { color: '#F39C12' },
+  combination: { color: BRAND_COLORS.primary },
+  normal: { color: '#9B59B6' },
+  sensitive: { color: BRAND_COLORS.primary },
 };
 
 export default function BasicNightRoutineStep2Info({ 
@@ -68,24 +70,27 @@ export default function BasicNightRoutineStep2Info({
   };
 
   const getProductTitle = () => {
-    if (skinType === 'oily') return 'Lightweight Gel-Cream';
-    if (skinType === 'dry') return 'Rich Moisturizer';
-    return 'Light/Medium Moisturizer';
+    if (skinType === 'oily') return t('basicRoutine.lightweight_gel_cream');
+    if (skinType === 'dry') return t('basicRoutine.rich_moisturizer');
+    return t('basicRoutine.light_medium_moisturizer');
   };
 
   const getExplanationText = () => {
     if (skinType === 'oily') {
-      return 'Even oily skin needs hydration at night. Lightweight gel-creams provide essential moisture without adding excess oil, allowing your skin to repair overnight.';
+      return t('basicRoutine.moisturizer_night_text_oily');
     }
     if (skinType === 'dry') {
-      return 'Night is when your skin repairs itself. Rich moisturizers with ceramides and occlusives create a protective barrier, locking in hydration and strengthening your skin barrier while you sleep.';
+      return t('basicRoutine.moisturizer_night_text_dry');
     }
-    return 'A balanced evening moisturizer provides optimal hydration to support your skin\'s natural overnight repair process without being too heavy or too light.';
+    return t('basicRoutine.moisturizer_night_text_normal');
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
   const totalSteps = 2;
   const totalInternalSteps = 4;
+
+  // ✅ Get translated skin type name
+  const getSkinTypeName = () => t(`skinTypes.${skinType}`);
 
   return (
     <View style={styles.container}>
@@ -99,16 +104,22 @@ export default function BasicNightRoutineStep2Info({
         </TouchableOpacity>
       </View>
 
+      {/* ✅ FIXED: Night Routine Banner with Proper Two-Line Format */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
+        <ImageBackground
+          source={require('../assets/images/banner-night-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.nightRoutineBannerTextContainer}>
+            <Text style={styles.nightRoutineLine1}>{t('nightRoutineBanners.line1')}</Text>
+            <Text style={styles.nightRoutineLine2}>{t('nightRoutineBanners.line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <View style={styles.content}>
@@ -122,7 +133,9 @@ export default function BasicNightRoutineStep2Info({
               <Text style={styles.arrowText}>‹</Text>
             </TouchableOpacity>
 
-            <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+            <Text style={styles.progressText}>
+              {t('basicRoutine.step_of', { current: currentStep, total: totalSteps })}
+            </Text>
 
             <TouchableOpacity
               onPress={handleNextStep}
@@ -138,9 +151,10 @@ export default function BasicNightRoutineStep2Info({
           </View>
         </View>
 
+        {/* ✅ FIXED: Skin type badge with translated name */}
         <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
           <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-            For {skinTypeInfo.name}
+            {t('basicRoutine.for_skin', { skinType: getSkinTypeName() })}
           </Text>
         </View>
 
@@ -154,19 +168,19 @@ export default function BasicNightRoutineStep2Info({
           </View>
           <View style={styles.productTextContainer}>
             <Text style={styles.productTitle}>{getProductTitle()}</Text>
-            <Text style={styles.productSubtitle}>Evening Step 2</Text>
+            <Text style={styles.productSubtitle}>{t('basicRoutine.evening_step_2')}</Text>
           </View>
         </View>
 
         <View style={styles.introBox}>
-          <Text style={styles.introTitle}>Curated for Your Skin</Text>
+          <Text style={styles.introTitle}>{t('basicRoutine.curated_title')}</Text>
           <Text style={styles.introText}>
-            We've selected moisturizers specifically for {skinTypeInfo.name.toLowerCase()}. Each product is proven effective and dermatologist-recommended for your skin type.
+            {t('basicRoutine.curated_text_moisturizers', { skinType: getSkinTypeName().toLowerCase() })}
           </Text>
         </View>
 
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>Why this matters at night</Text>
+          <Text style={styles.explanationTitle}>{t('basicRoutine.why_night_title')}</Text>
           <Text style={styles.explanationText}>
             {getExplanationText()}
           </Text>
@@ -174,35 +188,35 @@ export default function BasicNightRoutineStep2Info({
 
         <View style={styles.citationContainer}>
           <Text style={styles.citationText}>
-            Moisturizer recommendations based on research on{' '}
+            {t('basicRoutine.citation_moisturizer_part1')}{' '}
             <Text 
               style={styles.citationLink}
               onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4345901/')}
             >
-              circadian skin repair processes
+              {t('basicRoutine.citation_moisturizer_link1')}
             </Text>
-            , clinical studies on{' '}
+            {t('basicRoutine.citation_moisturizer_part2')}{' '}
             <Text 
               style={styles.citationLink}
               onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(03)02617-4/fulltext')}
             >
-              barrier restoration and TEWL
+              {t('basicRoutine.citation_moisturizer_link2')}
             </Text>
-            , and guidelines from the{' '}
+            {t('basicRoutine.citation_moisturizer_part3')}{' '}
             <Text 
               style={styles.citationLink}
               onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/dry/dermatologists-tips-relieve-dry-skin')}
             >
-              American Academy of Dermatology on moisturization
+              {t('basicRoutine.citation_moisturizer_link3')}
             </Text>
-            . Individual results may vary - consult a dermatologist for personalized advice.
+            {t('basicRoutine.citation_moisturizer_part4')}
           </Text>
         </View>
       </View>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('basicRoutine.see_products_button')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -234,9 +248,45 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  // ✅ FIXED: Night Routine Banner Text Styles - Proper Spacing
+  nightRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 20,
+    paddingBottom: 20,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  nightRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 38,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  nightRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 38,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,
+    includeFontPadding: false,
   },
   content: {
     flex: 1,

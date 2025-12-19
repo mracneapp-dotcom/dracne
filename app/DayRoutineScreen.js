@@ -1,8 +1,9 @@
-// app/DayRoutineScreen.js - WITH CENTRALIZED PROGRESSIVE UNLOCK
+// app/DayRoutineScreen.js - WITH PROPER BANNER TEXT SPACING
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Modal,
   PanResponder,
   ScrollView,
@@ -13,6 +14,7 @@ import {
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 import { getRoutinesForSkinType } from '../constants/routinesData';
+import { t } from './i18n';
 import { checkRoutineUnlockStatus } from './utils/routineUnlock';
 
 const BRAND_COLORS = {
@@ -112,7 +114,6 @@ export default function DayRoutineScreen({
       return;
     }
 
-    // Check unlock status
     const status = await checkRoutineUnlockStatus();
     
     if (level === 'moderate') {
@@ -123,10 +124,13 @@ export default function DayRoutineScreen({
         const daysNeeded = Math.max(0, 7 - (status.stats?.daysSinceInstall || 0));
         
         setLockMessage(
-          `🔒 Moderate Routine Locked\n\n` +
-          `Unlock by completing:\n• ${routinesNeeded} more routines, OR\n• ${daysNeeded} more days in the app\n\n` +
-          `Current Progress:\n✓ ${status.stats?.completedRoutines || 0}/5 routines\n✓ ${status.stats?.daysSinceInstall || 0}/7 days\n\n` +
-          `Build your foundation first - your skin will thank you!`
+          t('dayRoutine.lock_moderate_title') +
+          t('dayRoutine.lock_moderate_unlock', { routines: routinesNeeded, days: daysNeeded }) +
+          t('dayRoutine.lock_moderate_progress', { 
+            completedRoutines: status.stats?.completedRoutines || 0, 
+            daysSinceInstall: status.stats?.daysSinceInstall || 0 
+          }) +
+          t('dayRoutine.lock_moderate_message')
         );
         setShowLockModal(true);
       }
@@ -138,10 +142,13 @@ export default function DayRoutineScreen({
         const daysNeeded = Math.max(0, 14 - (status.stats?.daysSinceInstall || 0));
         
         setLockMessage(
-          `🔒 Comprehensive Routine Locked\n\n` +
-          `Unlock by completing:\n• ${routinesNeeded} more routines, OR\n• ${daysNeeded} more days in the app\n\n` +
-          `Current Progress:\n✓ ${status.stats?.completedRoutines || 0}/10 routines\n✓ ${status.stats?.daysSinceInstall || 0}/14 days\n\n` +
-          `Advanced routines need a strong foundation. Keep building!`
+          t('dayRoutine.lock_comprehensive_title') +
+          t('dayRoutine.lock_comprehensive_unlock', { routines: routinesNeeded, days: daysNeeded }) +
+          t('dayRoutine.lock_comprehensive_progress', { 
+            completedRoutines: status.stats?.completedRoutines || 0, 
+            daysSinceInstall: status.stats?.daysSinceInstall || 0 
+          }) +
+          t('dayRoutine.lock_comprehensive_message')
         );
         setShowLockModal(true);
       }
@@ -163,7 +170,7 @@ export default function DayRoutineScreen({
 
   const getButtonText = () => {
     const levelText = selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1);
-    return `Save ${levelText} Routine & Continue`;
+    return t(`dayRoutine.save_button_${selectedLevel}`);
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -171,6 +178,18 @@ export default function DayRoutineScreen({
   if (!routineData) {
     return null;
   }
+
+  const getTranslatedRoutineName = () => t(`routines.${skinType}.name`);
+  const getTranslatedRoutineTitle = (level) => t(`routines.${skinType}.${level}_title`);
+  const getTranslatedRoutineDescription = (level) => t(`routines.${skinType}.${level}_description`);
+  const getTranslatedSteps = (level, period) => {
+    const steps = routineData[level].steps[period];
+    return steps.map((_, index) => t(`routines.${skinType}.${level}_${period}_${index + 1}`));
+  };
+  const getTranslatedBenefits = (level) => {
+    const benefits = routineData[level].keyBenefits;
+    return benefits.map((_, index) => t(`routines.${skinType}.${level}_benefit_${index + 1}`));
+  };
 
   // INITIAL SCREEN
   const renderInitialScreen = () => (
@@ -185,23 +204,29 @@ export default function DayRoutineScreen({
         </TouchableOpacity>
       </View>
 
+      {/* Day Routine Banner - Dynamic */}
       <View style={styles.bannerContainer}>
-        <Image 
-          source={require('../assets/images/Banner Day Routine 1.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
+        <ImageBackground
+          source={require('../assets/images/banner-day-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.dayRoutineBannerTextContainer}>
+            <Text style={styles.dayRoutineLine1}>{t('dayRoutineBanners.line1')}</Text>
+            <Text style={styles.dayRoutineLine2}>{t('dayRoutineBanners.line2')}</Text>
+          </View>
+        </ImageBackground>
       </View>
 
       <View style={styles.contentFixed}>
         <View style={styles.heroSection}>
           <Text style={styles.questionTitle}>
-            Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
-              {routineData.name}
-            </Text>{'\n'}Morning Routine
+            {t('dayRoutine.title')} <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
+              {getTranslatedRoutineName()}
+            </Text>{'\n'}{t('dayRoutine.title_end')}
           </Text>
           <Text style={styles.questionSubtitle}>
-            Build a personalized routine or view your saved routine
+            {t('dayRoutine.subtitle')}
           </Text>
         </View>
 
@@ -217,35 +242,47 @@ export default function DayRoutineScreen({
             </View>
           </View>
           <View style={styles.reminderContent}>
-            <Text style={styles.reminderTitle}>Not sure about your skin type?</Text>
-            <Text style={styles.reminderSubtitle}>Take our quick skin test for accurate results</Text>
+            <Text style={styles.reminderTitle}>{t('dayRoutine.skin_test_title')}</Text>
+            <Text style={styles.reminderSubtitle}>{t('dayRoutine.skin_test_subtitle')}</Text>
           </View>
           <Text style={styles.reminderArrow}>→</Text>
         </TouchableOpacity>
 
         <View style={styles.bannerButtonsContainer}>
+          {/* Create Routine Banner - Dynamic */}
           <TouchableOpacity
             onPress={() => setCurrentView('createRoutine')}
             activeOpacity={0.8}
             style={styles.bannerButton}
           >
-            <Image 
-              source={require('../assets/images/Banner Create Routine.png')}
-              style={styles.bannerButtonImage}
-              resizeMode="cover"
-            />
+            <ImageBackground
+              source={require('../assets/images/banner-create-routine-base.png')}
+              style={styles.bannerButtonImageBackground}
+              imageStyle={styles.bannerButtonImage}
+            >
+              <View style={styles.createRoutineBannerTextContainer}>
+                <Text style={styles.createRoutineLine1}>{t('dayRoutineBanners.create_line1')}</Text>
+                <Text style={styles.createRoutineLine2}>{t('dayRoutineBanners.create_line2')}</Text>
+              </View>
+            </ImageBackground>
           </TouchableOpacity>
           
+          {/* My Routine Banner - Dynamic */}
           <TouchableOpacity
             onPress={onNavigateToMyRoutine}
             activeOpacity={0.8}
             style={styles.bannerButton}
           >
-            <Image 
-              source={require('../assets/images/Banner My Routine.png')}
-              style={styles.bannerButtonImage}
-              resizeMode="cover"
-            />
+            <ImageBackground
+              source={require('../assets/images/banner-my-routine-base.png')}
+              style={styles.bannerButtonImageBackground}
+              imageStyle={styles.bannerButtonImage}
+            >
+              <View style={styles.myRoutineBannerTextContainer}>
+                <Text style={styles.myRoutineMyText}>{t('dayRoutineBanners.my')}</Text>
+                <Text style={styles.myRoutineLine2}>{t('dayRoutineBanners.routine')}</Text>
+              </View>
+            </ImageBackground>
           </TouchableOpacity>
         </View>
       </View>
@@ -270,11 +307,16 @@ export default function DayRoutineScreen({
         onPress={() => setCurrentView('initial')}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Day Routine 1.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
+        <ImageBackground
+          source={require('../assets/images/banner-day-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.dayRoutineBannerTextContainer}>
+            <Text style={styles.dayRoutineLine1}>{t('dayRoutineBanners.line1')}</Text>
+            <Text style={styles.dayRoutineLine2}>{t('dayRoutineBanners.line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <View style={styles.unknownPromptContainer}>
@@ -287,17 +329,15 @@ export default function DayRoutineScreen({
           </View>
           
           <Text style={styles.unknownPromptTitle}>
-            Let's discover your skin type!
+            {t('dayRoutine.unknown_prompt_title')}
           </Text>
           
           <Text style={styles.unknownPromptMessage}>
-            For the best personalized routine experience, we recommend taking at least 1 of our 3 super easy skin tests. 
-            {'\n\n'}
-            This will help us create the perfect routine tailored specifically for your skin's unique needs!
+            {t('dayRoutine.unknown_prompt_message')}
           </Text>
 
           <DrAcneButton
-            title="Take Skin Test Now"
+            title={t('dayRoutine.unknown_prompt_button')}
             onPress={onNavigateToSkinTest}
             style={styles.unknownPromptButton}
           />
@@ -306,7 +346,7 @@ export default function DayRoutineScreen({
             onPress={() => setCurrentView('initial')}
             style={styles.unknownPromptBackButton}
           >
-            <Text style={styles.unknownPromptBackText}>Maybe Later</Text>
+            <Text style={styles.unknownPromptBackText}>{t('dayRoutine.unknown_prompt_back')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -315,7 +355,6 @@ export default function DayRoutineScreen({
 
   // CREATE ROUTINE SCREEN
   const renderCreateRoutineScreen = () => {
-    // If skin type is unknown, show the prompt instead
     if (skinType === 'unknown') {
       return renderUnknownSkinTypePrompt();
     }
@@ -337,11 +376,16 @@ export default function DayRoutineScreen({
           onPress={() => setCurrentView('initial')}
           activeOpacity={0.9}
         >
-          <Image 
-            source={require('../assets/images/Banner Day Routine 1.png')}
-            style={styles.bannerImage}
-            resizeMode="cover"
-          />
+          <ImageBackground
+            source={require('../assets/images/banner-day-routine-base.png')}
+            style={styles.bannerImageBackground}
+            imageStyle={styles.bannerImage}
+          >
+            <View style={styles.dayRoutineBannerTextContainer}>
+              <Text style={styles.dayRoutineLine1}>{t('dayRoutineBanners.line1')}</Text>
+              <Text style={styles.dayRoutineLine2}>{t('dayRoutineBanners.line2')}</Text>
+            </View>
+          </ImageBackground>
         </TouchableOpacity>
 
         <ScrollView 
@@ -352,12 +396,12 @@ export default function DayRoutineScreen({
           <View style={styles.content}>
             <View style={styles.heroSection}>
               <Text style={styles.questionTitle}>
-                Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
-                  {routineData.name}
-                </Text>{'\n'}Morning Routine
+                {t('dayRoutine.create_title')} <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
+                  {getTranslatedRoutineName()}
+                </Text>{'\n'}{t('dayRoutine.create_title_end')}
               </Text>
               <Text style={styles.questionSubtitle}>
-                Choose the routine level that fits your skincare goals. Build your foundation first!
+                {t('dayRoutine.create_subtitle')}
               </Text>
             </View>
 
@@ -373,14 +417,14 @@ export default function DayRoutineScreen({
                 </View>
               </View>
               <View style={styles.reminderContent}>
-                <Text style={styles.reminderTitle}>Not sure about your skin type?</Text>
-                <Text style={styles.reminderSubtitle}>Take our quick skin test for accurate results</Text>
+                <Text style={styles.reminderTitle}>{t('dayRoutine.skin_test_title')}</Text>
+                <Text style={styles.reminderSubtitle}>{t('dayRoutine.skin_test_subtitle')}</Text>
               </View>
               <Text style={styles.reminderArrow}>→</Text>
             </TouchableOpacity>
 
             <View style={styles.routineLevelsContainer}>
-              <Text style={styles.sectionTitle}>Choose Your Starting Level</Text>
+              <Text style={styles.sectionTitle}>{t('dayRoutine.section_title')}</Text>
               
               {/* Basic Card - ALWAYS UNLOCKED */}
               <TouchableOpacity
@@ -393,7 +437,7 @@ export default function DayRoutineScreen({
                 <View style={styles.routineHeader}>
                   <View style={[styles.routineBadge, { backgroundColor: '#E8F5E9' }]}>
                     <Text style={[styles.routineBadgeText, { color: BRAND_COLORS.primary }]}>
-                      BASIC
+                      {t('dayRoutine.basic_badge')}
                     </Text>
                   </View>
                   {selectedLevel === 'basic' && (
@@ -402,18 +446,18 @@ export default function DayRoutineScreen({
                     </View>
                   )}
                 </View>
-                <Text style={styles.routineTitle}>{routineData.basic.title}</Text>
-                <Text style={styles.routineDescription}>{routineData.basic.description}</Text>
+                <Text style={styles.routineTitle}>{getTranslatedRoutineTitle('basic')}</Text>
+                <Text style={styles.routineDescription}>{getTranslatedRoutineDescription('basic')}</Text>
                 
                 <View style={styles.routineSteps}>
-                  <Text style={styles.stepsTitle}>Morning:</Text>
-                  {routineData.basic.steps.am.map((step, index) => (
+                  <Text style={styles.stepsTitle}>{t('dayRoutine.morning_label')}</Text>
+                  {getTranslatedSteps('basic', 'am').map((step, index) => (
                     <Text key={index} style={styles.stepText}>• {step}</Text>
                   ))}
                 </View>
 
                 <View style={styles.benefitsContainer}>
-                  {routineData.basic.keyBenefits.map((benefit, index) => (
+                  {getTranslatedBenefits('basic').map((benefit, index) => (
                     <View key={index} style={styles.benefitPill}>
                       <Text style={styles.benefitText}>{benefit}</Text>
                     </View>
@@ -434,7 +478,7 @@ export default function DayRoutineScreen({
                 <View style={styles.routineHeader}>
                   <View style={[styles.routineBadge, { backgroundColor: '#FFF4E5' }]}>
                     <Text style={[styles.routineBadgeText, { color: '#F39C12' }]}>
-                      MODERATE
+                      {t('dayRoutine.moderate_badge')}
                     </Text>
                   </View>
                   {!unlockStatus.moderate && (
@@ -452,19 +496,19 @@ export default function DayRoutineScreen({
                     </View>
                   )}
                 </View>
-                <Text style={styles.routineTitle}>{routineData.moderate.title}</Text>
-                <Text style={styles.routineDescription}>{routineData.moderate.description}</Text>
+                <Text style={styles.routineTitle}>{getTranslatedRoutineTitle('moderate')}</Text>
+                <Text style={styles.routineDescription}>{getTranslatedRoutineDescription('moderate')}</Text>
                 
                 <View style={styles.routineSteps}>
-                  <Text style={styles.stepsTitle}>Morning:</Text>
-                  {routineData.moderate.steps.am.slice(0, 3).map((step, index) => (
+                  <Text style={styles.stepsTitle}>{t('dayRoutine.morning_label')}</Text>
+                  {getTranslatedSteps('moderate', 'am').slice(0, 3).map((step, index) => (
                     <Text key={index} style={styles.stepText}>• {step}</Text>
                   ))}
-                  <Text style={styles.moreSteps}>+ evening routine</Text>
+                  <Text style={styles.moreSteps}>{t('dayRoutine.more_steps')}</Text>
                 </View>
 
                 <View style={styles.benefitsContainer}>
-                  {routineData.moderate.keyBenefits.map((benefit, index) => (
+                  {getTranslatedBenefits('moderate').map((benefit, index) => (
                     <View key={index} style={styles.benefitPill}>
                       <Text style={styles.benefitText}>{benefit}</Text>
                     </View>
@@ -479,7 +523,7 @@ export default function DayRoutineScreen({
                       resizeMode="contain"
                     />
                     <Text style={styles.lockOverlayText}>
-                      1 week OR 5 routines to unlock
+                      {t('dayRoutine.moderate_unlock')}
                     </Text>
                   </View>
                 )}
@@ -498,7 +542,7 @@ export default function DayRoutineScreen({
                 <View style={styles.routineHeader}>
                   <View style={[styles.routineBadge, { backgroundColor: '#F3E5F5' }]}>
                     <Text style={[styles.routineBadgeText, { color: '#9B59B6' }]}>
-                      COMPREHENSIVE
+                      {t('dayRoutine.comprehensive_badge')}
                     </Text>
                   </View>
                   {!unlockStatus.comprehensive && (
@@ -516,19 +560,19 @@ export default function DayRoutineScreen({
                     </View>
                   )}
                 </View>
-                <Text style={styles.routineTitle}>{routineData.comprehensive.title}</Text>
-                <Text style={styles.routineDescription}>{routineData.comprehensive.description}</Text>
+                <Text style={styles.routineTitle}>{getTranslatedRoutineTitle('comprehensive')}</Text>
+                <Text style={styles.routineDescription}>{getTranslatedRoutineDescription('comprehensive')}</Text>
                 
                 <View style={styles.routineSteps}>
-                  <Text style={styles.stepsTitle}>Full Treatment:</Text>
-                  {routineData.comprehensive.steps.am.slice(0, 3).map((step, index) => (
+                  <Text style={styles.stepsTitle}>{t('dayRoutine.full_treatment')}</Text>
+                  {getTranslatedSteps('comprehensive', 'am').slice(0, 3).map((step, index) => (
                     <Text key={index} style={styles.stepText}>• {step}</Text>
                   ))}
-                  <Text style={styles.moreSteps}>+ advanced actives & more</Text>
+                  <Text style={styles.moreSteps}>{t('dayRoutine.more_steps_comprehensive')}</Text>
                 </View>
 
                 <View style={styles.benefitsContainer}>
-                  {routineData.comprehensive.keyBenefits.map((benefit, index) => (
+                  {getTranslatedBenefits('comprehensive').map((benefit, index) => (
                     <View key={index} style={styles.benefitPill}>
                       <Text style={styles.benefitText}>{benefit}</Text>
                     </View>
@@ -543,7 +587,7 @@ export default function DayRoutineScreen({
                       resizeMode="contain"
                     />
                     <Text style={styles.lockOverlayText}>
-                      2 weeks OR 10 routines to unlock
+                      {t('dayRoutine.comprehensive_unlock')}
                     </Text>
                   </View>
                 )}
@@ -552,13 +596,13 @@ export default function DayRoutineScreen({
 
             <View style={styles.trustSection}>
               <View style={styles.trustItem}>
-                <Text style={styles.trustText}>• Science-backed formulations</Text>
+                <Text style={styles.trustText}>{t('dayRoutine.trust1')}</Text>
               </View>
               <View style={styles.trustItem}>
-                <Text style={styles.trustText}>• Personalized for your skin</Text>
+                <Text style={styles.trustText}>{t('dayRoutine.trust2')}</Text>
               </View>
               <View style={styles.trustItem}>
-                <Text style={styles.trustText}>• Results in 4-12 weeks</Text>
+                <Text style={styles.trustText}>{t('dayRoutine.trust3')}</Text>
               </View>
             </View>
 
@@ -574,7 +618,7 @@ export default function DayRoutineScreen({
           />
           
           <Text style={styles.helperText}>
-            Build your routine progressively - your skin will thank you!
+            {t('dayRoutine.helper')}
           </Text>
         </View>
 
@@ -604,11 +648,11 @@ export default function DayRoutineScreen({
                   />
                 </View>
                 
-                <Text style={styles.modalTitle}>Routine Locked</Text>
+                <Text style={styles.modalTitle}>{t('dayRoutine.modal_locked_title')}</Text>
                 <Text style={styles.modalMessage}>{lockMessage}</Text>
                 
                 <DrAcneButton
-                  title="Got it!"
+                  title={t('dayRoutine.modal_button')}
                   onPress={() => setShowLockModal(false)}
                   style={styles.modalButton}
                 />
@@ -646,9 +690,45 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 15,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  // ✅ FIXED: Day Routine Banner Text Styles - Better Spacing
+  dayRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 20,
+    paddingBottom: 20,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  dayRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 38,          // ✅ INCREASED from 34 for better breathing room
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  dayRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 38,          // ✅ INCREASED from 34
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,           // ✅ CHANGED from -8 to -4 (less negative = more space)
+    includeFontPadding: false,
   },
   scrollView: {
     flex: 1,
@@ -762,9 +842,76 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  bannerButtonImage: {
+  bannerButtonImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerButtonImage: {
+    borderRadius: 12,
+  },
+  // ✅ FIXED: Create Routine Banner Text Styles - Better Spacing
+  createRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 22,
+    paddingBottom: 22,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  createRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 36,
+    fontWeight: '900',
+    lineHeight: 42,          // ✅ INCREASED from 38
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  createRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 36,
+    fontWeight: '900',
+    lineHeight: 42,          // ✅ INCREASED from 38
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,           // ✅ CHANGED from -8 to -4
+    includeFontPadding: false,
+  },
+  // ✅ FIXED: My Routine Banner Text Styles - Better Spacing
+  myRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 22,
+    paddingBottom: 22,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  myRoutineMyText: {
+    fontFamily: 'Brittany',
+    fontSize: 38,
+    lineHeight: 48,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  myRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 36,
+    fontWeight: '900',
+    lineHeight: 42,          // ✅ INCREASED from 38
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -2,           // ✅ CHANGED from -8 to -4
+    includeFontPadding: false,
   },
   unknownPromptContainer: {
     flex: 1,

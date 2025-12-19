@@ -1,8 +1,9 @@
-// app/BasicNightRoutineStep2ProductSelection.js - SPECIFIC CITATIONS WITH EMBEDDED LINKS
+// app/BasicNightRoutineStep2ProductSelection.js - FULLY UPDATED WITH TRANSLATIONS & PROPER BANNER
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Linking,
   ScrollView,
   StyleSheet,
@@ -12,6 +13,7 @@ import {
 } from 'react-native';
 import RoutineCompletionModal from '../components/modals/RoutineCompletionModal';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -25,11 +27,11 @@ const BRAND_COLORS = {
 };
 
 const SKIN_TYPE_INFO = {
-  oily: { color: '#4A90E2', name: 'Oily Skin' },
-  dry: { color: '#F39C12', name: 'Dry Skin' },
-  combination: { color: BRAND_COLORS.primary, name: 'Combination Skin' },
-  normal: { color: '#9B59B6', name: 'Normal Skin' },
-  sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
+  oily: { color: '#4A90E2' },
+  dry: { color: '#F39C12' },
+  combination: { color: BRAND_COLORS.primary },
+  normal: { color: '#9B59B6' },
+  sensitive: { color: BRAND_COLORS.primary },
 };
 
 const MOISTURIZER_PRODUCTS = {
@@ -37,160 +39,160 @@ const MOISTURIZER_PRODUCTS = {
     {
       id: 'moisturizer_night_oily_1',
       name: 'Beauty of Joseon Dynasty Cream Light',
-      description: 'Lightweight gel-cream with rice and probiotics',
-      benefits: ['Non-greasy', 'Hydrating', 'K-Beauty'],
+      descriptionKey: 'products.moisturizers.oily_1_desc',
+      benefitKeys: ['non_greasy', 'hydrating', 'k_beauty'],
     },
     {
       id: 'moisturizer_night_oily_2',
       name: 'Isntree Hyaluronic Aqua Gel Cream',
-      description: 'Water-based gel with 5 types of hyaluronic acid',
-      benefits: ['Lightweight', 'Plumping', 'Fresh finish'],
+      descriptionKey: 'products.moisturizers.oily_2_desc',
+      benefitKeys: ['lightweight', 'plumping', 'fresh_finish'],
     },
     {
       id: 'moisturizer_night_oily_3',
       name: 'Innisfree Green Tea Seed Cream',
-      description: 'Light gel-cream with green tea extract',
-      benefits: ['Oil-control', 'Antioxidant', 'Popular'],
+      descriptionKey: 'products.moisturizers.oily_3_desc',
+      benefitKeys: ['oil_control', 'antioxidant', 'popular'],
     },
     {
       id: 'moisturizer_night_oily_4',
       name: 'Neutrogena Hydro Boost',
-      description: 'Gel-cream with hyaluronic acid',
-      benefits: ['Affordable', 'Oil-free', 'Hydrating'],
+      descriptionKey: 'products.moisturizers.oily_4_desc',
+      benefitKeys: ['affordable', 'oil_free', 'hydrating'],
     },
     {
       id: 'moisturizer_night_oily_5',
       name: 'Clinique Dramatically Different Gel',
-      description: 'Classic lightweight moisturizing gel',
-      benefits: ['Oil-free', 'Trusted', 'Dermatologist-tested'],
+      descriptionKey: 'products.moisturizers.oily_5_desc',
+      benefitKeys: ['oil_free', 'trusted', 'dermatologist_tested'],
     },
   ],
   dry: [
     {
       id: 'moisturizer_night_dry_1',
       name: 'COSRX Snail 92 All In One Cream',
-      description: 'Rich cream with 92% snail mucin',
-      benefits: ['Nourishing', 'Repairing', 'Hydrating'],
+      descriptionKey: 'products.moisturizers.dry_1_desc',
+      benefitKeys: ['nourishing', 'repairing', 'hydrating'],
     },
     {
       id: 'moisturizer_night_dry_2',
       name: 'Illiyoon Ceramide Ato Concentrate',
-      description: 'Intensive barrier cream with ceramides',
-      benefits: ['Rich', 'Barrier repair', 'K-Beauty favorite'],
+      descriptionKey: 'products.moisturizers.dry_2_desc',
+      benefitKeys: ['rich', 'barrier_repair', 'k_beauty_favorite'],
     },
     {
       id: 'moisturizer_night_dry_3',
       name: "Kiehl's Ultra Facial Cream",
-      description: 'Classic rich moisturizer with squalane',
-      benefits: ['24-hour hydration', 'Luxurious', 'Iconic'],
+      descriptionKey: 'products.moisturizers.dry_3_desc',
+      benefitKeys: ['24_hour_hydration', 'luxurious', 'iconic'],
     },
     {
       id: 'moisturizer_night_dry_4',
       name: 'CeraVe Moisturizing Cream',
-      description: 'Rich cream with ceramides and hyaluronic acid',
-      benefits: ['Affordable', 'Ceramides', 'Dermatologist-loved'],
+      descriptionKey: 'products.moisturizers.dry_4_desc',
+      benefitKeys: ['affordable', 'ceramides', 'dermatologist_loved'],
     },
     {
       id: 'moisturizer_night_dry_5',
       name: 'First Aid Beauty Ultra Repair',
-      description: 'Intensive cream with colloidal oatmeal',
-      benefits: ['Soothing', 'Rich', 'Fast-absorbing'],
+      descriptionKey: 'products.moisturizers.dry_5_desc',
+      benefitKeys: ['soothing', 'rich', 'fast_absorbing'],
     },
   ],
   combination: [
     {
       id: 'moisturizer_night_combo_1',
       name: 'Beauty of Joseon Dynasty Cream',
-      description: 'Balanced cream suitable for all zones',
-      benefits: ['Balanced', 'Versatile', 'Elegant'],
+      descriptionKey: 'products.moisturizers.combo_1_desc',
+      benefitKeys: ['balanced', 'versatile', 'elegant'],
     },
     {
       id: 'moisturizer_night_combo_2',
       name: 'Isntree Aloe Soothing Gel',
-      description: 'Light gel with aloe and centella',
-      benefits: ['Soothing', 'Lightweight', 'Fresh'],
+      descriptionKey: 'products.moisturizers.combo_2_desc',
+      benefitKeys: ['soothing', 'lightweight', 'fresh'],
     },
     {
       id: 'moisturizer_night_combo_3',
       name: 'Clinique Moisture Surge',
-      description: 'Auto-replenishing hydration',
-      benefits: ['Oil-free', 'Hydrating', 'Balanced'],
+      descriptionKey: 'products.moisturizers.combo_3_desc',
+      benefitKeys: ['oil_free', 'hydrating', 'balanced'],
     },
     {
       id: 'moisturizer_night_combo_4',
       name: 'Neutrogena Hydro Boost',
-      description: 'Gel-cream for combination skin',
-      benefits: ['Versatile', 'Affordable', 'Effective'],
+      descriptionKey: 'products.moisturizers.combo_4_desc',
+      benefitKeys: ['versatile', 'affordable', 'effective'],
     },
     {
       id: 'moisturizer_night_combo_5',
       name: 'COSRX Snail 92',
-      description: 'Lightweight yet nourishing cream',
-      benefits: ['Adaptable', 'Repairing', 'Popular'],
+      descriptionKey: 'products.moisturizers.combo_5_desc',
+      benefitKeys: ['adaptable', 'repairing', 'popular'],
     },
   ],
   normal: [
     {
       id: 'moisturizer_night_normal_1',
       name: 'COSRX Snail 92 All In One Cream',
-      description: 'Perfect hydrating cream for balanced skin',
-      benefits: ['Balanced', 'Repairing', 'Versatile'],
+      descriptionKey: 'products.moisturizers.normal_1_desc',
+      benefitKeys: ['balanced', 'repairing', 'versatile'],
     },
     {
       id: 'moisturizer_night_normal_2',
       name: 'Beauty of Joseon Dynasty Cream',
-      description: 'Classic K-beauty moisturizer',
-      benefits: ['Elegant', 'Balanced', 'Popular'],
+      descriptionKey: 'products.moisturizers.normal_2_desc',
+      benefitKeys: ['elegant', 'balanced', 'popular'],
     },
     {
       id: 'moisturizer_night_normal_3',
       name: 'Clinique Moisture Surge',
-      description: 'Auto-replenishing hydration',
-      benefits: ['Hydrating', 'Reliable', 'Oil-free'],
+      descriptionKey: 'products.moisturizers.normal_3_desc',
+      benefitKeys: ['hydrating', 'reliable', 'oil_free'],
     },
     {
       id: 'moisturizer_night_normal_4',
       name: 'Eucerin Lotion',
-      description: 'Simple effective daily moisturizer',
-      benefits: ['Lightweight', 'Budget-friendly', 'Gentle'],
+      descriptionKey: 'products.moisturizers.normal_4_desc',
+      benefitKeys: ['lightweight', 'budget_friendly', 'gentle'],
     },
     {
       id: 'moisturizer_night_normal_5',
       name: 'Neutrogena Hydro Boost',
-      description: 'Gel-cream with hyaluronic acid',
-      benefits: ['Hydrating', 'Fresh', 'Affordable'],
+      descriptionKey: 'products.moisturizers.normal_5_desc',
+      benefitKeys: ['hydrating', 'fresh', 'affordable'],
     },
   ],
   sensitive: [
     {
       id: 'moisturizer_night_sens_1',
       name: 'Illiyoon Ceramide Ato',
-      description: 'Gentle barrier repair cream',
-      benefits: ['Minimal ingredients', 'Ceramides', 'Safe'],
+      descriptionKey: 'products.moisturizers.sens_1_desc',
+      benefitKeys: ['minimal_ingredients', 'ceramides', 'safe'],
     },
     {
       id: 'moisturizer_night_sens_2',
       name: 'La Roche-Posay Toleriane Dermallergo',
-      description: 'Ultra-gentle moisturizer for reactive skin',
-      benefits: ['Dermatologist-tested', 'Fragrance-free', 'Safe'],
+      descriptionKey: 'products.moisturizers.sens_2_desc',
+      benefitKeys: ['dermatologist_tested', 'fragrance_free', 'safe'],
     },
     {
       id: 'moisturizer_night_sens_3',
       name: 'CeraVe Moisturizing Cream',
-      description: 'Gentle ceramide cream',
-      benefits: ['Affordable', 'Ceramides', 'Non-irritating'],
+      descriptionKey: 'products.moisturizers.sens_3_desc',
+      benefitKeys: ['affordable', 'ceramides', 'non_irritating'],
     },
     {
       id: 'moisturizer_night_sens_4',
       name: 'A-Derma Dermalibour',
-      description: 'Repairing cream for sensitive skin',
-      benefits: ['Soothing', 'Repairing', 'Gentle'],
+      descriptionKey: 'products.moisturizers.sens_4_desc',
+      benefitKeys: ['soothing', 'repairing', 'gentle'],
     },
     {
       id: 'moisturizer_night_sens_5',
       name: 'First Aid Beauty Ultra Repair',
-      description: 'Gentle intensive moisturizer',
-      benefits: ['Colloidal oatmeal', 'Safe', 'Soothing'],
+      descriptionKey: 'products.moisturizers.sens_5_desc',
+      benefitKeys: ['colloidal_oatmeal', 'safe', 'soothing'],
     },
   ],
 };
@@ -226,6 +228,11 @@ export default function BasicNightRoutineStep2ProductSelection({
       console.error('Error loading skin type:', error);
       setProducts(MOISTURIZER_PRODUCTS.normal);
     }
+  };
+
+  // ✅ GET TRANSLATED SKIN TYPE NAME
+  const getTranslatedSkinTypeName = () => {
+    return t(`skinTypes.${skinType}`);
   };
 
   const handleComplete = async () => {
@@ -286,9 +293,9 @@ export default function BasicNightRoutineStep2ProductSelection({
 
   const getButtonText = () => {
     if (!selectedProduct) {
-      return 'Choose My Moisturizer';
+      return t('basicRoutine.choose_moisturizer');
     }
-    return 'Complete Basic Night Routine';
+    return t('basicRoutine.complete_night_routine');
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -308,16 +315,22 @@ export default function BasicNightRoutineStep2ProductSelection({
         </TouchableOpacity>
       </View>
 
+      {/* ✅ FIXED: Night Routine Banner with Proper Two-Line Format */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
+        <ImageBackground
+          source={require('../assets/images/banner-night-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.nightRoutineBannerTextContainer}>
+            <Text style={styles.nightRoutineLine1}>{t('nightRoutineBanners.line1')}</Text>
+            <Text style={styles.nightRoutineLine2}>{t('nightRoutineBanners.line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -336,7 +349,9 @@ export default function BasicNightRoutineStep2ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('basicRoutine.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -355,23 +370,24 @@ export default function BasicNightRoutineStep2ProductSelection({
             </View>
           </View>
 
+          {/* ✅ FIXED: Now uses translated skin type name */}
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('basicRoutine.for_skin', { skinType: getTranslatedSkinTypeName() })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Product Recommendations</Text>
+          <Text style={styles.sectionTitle}>{t('basicRoutine.product_recommendations')}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose your evening moisturizer to complete your basic night routine. This will support your skin's natural overnight repair process.
+              {t('basicRoutine.explanation_moisturizer')}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Choose Your Product {selectedProduct && '(1 selected)'}
+              {t('basicRoutine.choose_product')} {selectedProduct && t('productBenefits.selected_1')}
             </Text>
             
             {products.map((product) => {
@@ -390,7 +406,9 @@ export default function BasicNightRoutineStep2ProductSelection({
                   <View style={styles.productCardHeader}>
                     <View style={styles.productCardLeft}>
                       <Text style={styles.productName}>{product.name}</Text>
-                      <Text style={styles.productDescription}>{product.description}</Text>
+                      <Text style={styles.productDescription}>
+                        {t(product.descriptionKey)}
+                      </Text>
                     </View>
                     {isSelected && (
                       <View style={[styles.checkmark, { backgroundColor: skinTypeInfo.color }]}>
@@ -400,9 +418,11 @@ export default function BasicNightRoutineStep2ProductSelection({
                   </View>
                   
                   <View style={styles.benefitsRow}>
-                    {product.benefits.map((benefit, idx) => (
+                    {product.benefitKeys.map((benefitKey, idx) => (
                       <View key={idx} style={styles.benefitTag}>
-                        <Text style={styles.benefitTagText}>{benefit}</Text>
+                        <Text style={styles.benefitTagText}>
+                          {t(`productBenefits.${benefitKey}`)}
+                        </Text>
                       </View>
                     ))}
                   </View>
@@ -413,34 +433,34 @@ export default function BasicNightRoutineStep2ProductSelection({
 
           {!selectedProduct && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select 1 product to complete your routine</Text>
+              <Text style={styles.helperText}>{t('basicRoutine.select_1_complete')}</Text>
             </View>
           )}
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Product selections based on research on{' '}
+              {t('basicRoutine.citation_moisturizer_products_intro')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6628577/')}
               >
-                ceramide and lipid barrier function
+                {t('basicRoutine.citation_moisturizer_products_link1')}
               </Text>
-              , clinical studies on{' '}
+              , {t('basicRoutine.citation_moisturizer_products_studies')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://www.jidonline.org/article/S0022-202X(15)41268-2/fulltext')}
               >
-                humectant and occlusive efficacy
+                {t('basicRoutine.citation_moisturizer_products_link2')}
               </Text>
-              , and ingredient safety profiles from the{' '}
+              , {t('basicRoutine.citation_moisturizer_products_profiles')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://www.cir-safety.org/ingredients')}
               >
-                Cosmetic Ingredient Review
+                {t('basicRoutine.citation_moisturizer_products_link3')}
               </Text>
-              . These are educational suggestions - always patch test new products and consult a dermatologist for personalized treatment.
+              . {t('basicRoutine.citation_products_disclaimer')}
             </Text>
           </View>
 
@@ -464,6 +484,7 @@ export default function BasicNightRoutineStep2ProductSelection({
         routineData={completeRoutineData}
         routineType="basic"
         isNightRoutine={true}
+        skinType={skinType}
       />
     </View>
   );
@@ -492,9 +513,44 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  // ✅ FIXED: Night Routine Banner Text Styles - Proper Two-Line Format
+  nightRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 10,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  nightRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  nightRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,
+    includeFontPadding: false,
   },
   scrollView: {
     flex: 1,

@@ -1,4 +1,4 @@
-// components/modals/RoutineCompletionModal.js - UPDATED WITH SMART ROUTINE MATCHING NIGHT STYLE
+// components/modals/RoutineCompletionModal.js - FULLY TRANSLATED VERSION
 import React from 'react';
 import {
   Image,
@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
+import { t } from '../../app/i18n'; // ✅ ADD THIS IMPORT
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -69,8 +70,8 @@ export default function RoutineCompletionModal({
   if (isSmartRoutine && routineData) {
     const dayProducts = routineData.dayProducts || [];
     const nightProducts = routineData.nightProducts || [];
-    const morningProductName = dayProducts[0]?.name || 'No product selected';
-    const eveningProductName = nightProducts[0]?.name || 'No product selected';
+    const morningProductName = dayProducts[0]?.name || t('routineCompletion.no_product_selected');
+    const eveningProductName = nightProducts[0]?.name || t('routineCompletion.no_product_selected');
 
     const handleClose = () => {
       console.log('🏠 Closing smart routine modal');
@@ -114,34 +115,36 @@ export default function RoutineCompletionModal({
               />
               
               <View style={[styles.levelBadgeOnBanner, { backgroundColor: BRAND_COLORS.smartBlue }]}>
-                <Text style={styles.levelBadgeText}>Smart Routine</Text>
+                <Text style={styles.levelBadgeText}>{t('routineCompletion.smart_routine_badge')}</Text>
               </View>
             </View>
 
             <Text style={styles.title}>
-              Your <Text style={[styles.titleEmphasis, { color: BRAND_COLORS.smartBlue }]}>
-                Smart Routine
-              </Text> is Ready!
+              {t('routineCompletion.title_smart_1')}{' '}
+              <Text style={[styles.titleEmphasis, { color: BRAND_COLORS.smartBlue }]}>
+                {t('routineCompletion.title_smart_2')}
+              </Text>{' '}
+              {t('routineCompletion.title_smart_3')}
             </Text>
             
             <Text style={styles.subtitle}>
-              You're all set with your routine
+              {t('routineCompletion.subtitle_smart')}
             </Text>
 
             <View style={styles.recapContainer}>
               <Text style={styles.recapTitle}>
-                Your 2-Step Smart Routine:
+                {t('routineCompletion.smart_2_step_routine')}
               </Text>
 
               <View style={styles.stepCard}>
-                <Text style={styles.stepTitle}>Step 1: Morning</Text>
+                <Text style={styles.stepTitle}>{t('routineCompletion.step_1_morning')}</Text>
                 <Text style={[styles.productName, !dayProducts[0] && styles.emptyText]}>
                   {morningProductName}
                 </Text>
               </View>
 
               <View style={styles.stepCard}>
-                <Text style={styles.stepTitle}>Step 2: Evening</Text>
+                <Text style={styles.stepTitle}>{t('routineCompletion.step_2_evening')}</Text>
                 <Text style={[styles.productName, !nightProducts[0] && styles.emptyText]}>
                   {eveningProductName}
                 </Text>
@@ -150,10 +153,10 @@ export default function RoutineCompletionModal({
 
             <View style={[styles.proofContainer, { backgroundColor: `${BRAND_COLORS.smartBlue}10` }]}>
               <Text style={[styles.proofText, { color: BRAND_COLORS.smartBlue }]}>
-                You'll find your complete routine under "Smart Routine Hub"
+                {t('routineCompletion.find_smart_routine')}
               </Text>
               <Text style={styles.disclaimerText}>
-                Access it anytime you need it!
+                {t('routineCompletion.access_anytime')}
               </Text>
             </View>
 
@@ -163,7 +166,7 @@ export default function RoutineCompletionModal({
               activeOpacity={0.8}
             >
               <Text style={styles.primaryButtonText}>
-                View My Smart Routine
+                {t('routineCompletion.view_smart_routine')}
               </Text>
             </TouchableOpacity>
 
@@ -173,7 +176,7 @@ export default function RoutineCompletionModal({
               activeOpacity={0.8}
             >
               <Text style={[styles.secondaryButtonText, { color: BRAND_COLORS.smartBlue }]}>
-                Start My Journey
+                {t('routineCompletion.start_journey')}
               </Text>
             </TouchableOpacity>
           </TouchableOpacity>
@@ -201,7 +204,7 @@ export default function RoutineCompletionModal({
   const stepCount = isNight ? nightStepCount : dayStepCount;
   
   const levelColor = ROUTINE_LEVEL_COLORS[routineType] || ROUTINE_LEVEL_COLORS.basic;
-  const levelText = isComprehensive ? 'Comprehensive' : (isModerate ? 'Moderate' : 'Basic');
+  const levelText = t(`routineCompletion.${routineType}_label`);
 
   const handleClose = () => {
     console.log('🏠 Closing modal - navigating to HomeScreen');
@@ -245,100 +248,117 @@ export default function RoutineCompletionModal({
             />
             
             <View style={[styles.levelBadgeOnBanner, { backgroundColor: levelColor }]}>
-              <Text style={styles.levelBadgeText}>{levelText} Routine</Text>
+              <Text style={styles.levelBadgeText}>{levelText}</Text>
             </View>
           </View>
 
           <Text style={styles.title}>
-            Your <Text style={styles.titleEmphasis}>
-              {isNight ? 'Night' : 'Day'} Routine
-            </Text> is Ready!
+            {t('routineCompletion.title_1')}{' '}
+            <Text style={styles.titleEmphasis}>
+              {isNight ? t('routineCompletion.title_night') : t('routineCompletion.title_day')}
+            </Text>{' '}
+            {t('routineCompletion.title_3')}
           </Text>
           
           <Text style={styles.subtitle}>
-            You're all set with your {isNight ? 'evening' : 'morning'} routine
+            {isNight ? t('routineCompletion.subtitle_evening') : t('routineCompletion.subtitle_morning')}
           </Text>
 
           <View style={styles.recapContainer}>
             <Text style={styles.recapTitle}>
-              Your {stepCount}-Step {isNight ? 'Evening' : 'Morning'} Routine:
+              {t('routineCompletion.your_x_step_routine', { 
+                count: stepCount, 
+                time: isNight ? t('routineCompletion.evening') : t('routineCompletion.morning')
+              })}
             </Text>
 
+            {/* STEP 1: CLEANSER */}
             <View style={styles.stepCard}>
-              <Text style={styles.stepTitle}>Step 1: Cleanser</Text>
+              <Text style={styles.stepTitle}>{t('routineCompletion.step_1_cleanser')}</Text>
               <Text style={[styles.productName, cleansers.length === 0 && styles.emptyText]}>
-                {cleansers[0]?.name || 'No cleanser selected'}
+                {cleansers[0]?.name || t('routineCompletion.no_cleanser_selected')}
               </Text>
             </View>
 
+            {/* MODERATE DAY: PORE CARE */}
             {isModerate && !isNight && (
               <View style={styles.stepCard}>
-                <Text style={styles.stepTitle}>Step 2: Pore Care</Text>
+                <Text style={styles.stepTitle}>{t('routineCompletion.step_2_pore_care')}</Text>
                 <Text style={[styles.productName, poreCare.length === 0 && styles.emptyText]}>
-                  {poreCare[0]?.name || poreCareProducts[0]?.name || 'No pore care selected'}
+                  {poreCare[0]?.name || poreCareProducts[0]?.name || t('routineCompletion.no_pore_care_selected')}
                 </Text>
               </View>
             )}
 
+            {/* COMPREHENSIVE DAY: PORE CARE + SPECIALIZED */}
             {isComprehensive && !isNight && (
               <>
                 <View style={styles.stepCard}>
-                  <Text style={styles.stepTitle}>Step 2: Pore Care</Text>
+                  <Text style={styles.stepTitle}>{t('routineCompletion.step_2_pore_care')}</Text>
                   <Text style={[styles.productName, poreCare.length === 0 && styles.emptyText]}>
-                    {poreCare[0]?.name || poreCareProducts[0]?.name || 'No pore care selected'}
+                    {poreCare[0]?.name || poreCareProducts[0]?.name || t('routineCompletion.no_pore_care_selected')}
                   </Text>
                 </View>
                 <View style={styles.stepCard}>
-                  <Text style={styles.stepTitle}>Step 3: Specialized Products</Text>
+                  <Text style={styles.stepTitle}>{t('routineCompletion.step_3_specialized')}</Text>
                   <Text style={[styles.productName, specializedProducts.length === 0 && styles.emptyText]}>
-                    {specializedProducts[0]?.name || 'No specialized product selected'}
+                    {specializedProducts[0]?.name || t('routineCompletion.no_specialized_selected')}
                   </Text>
                 </View>
               </>
             )}
 
+            {/* COMPREHENSIVE NIGHT: SPECIALIZED + ADVANCED */}
             {isComprehensive && isNight && (
               <>
                 <View style={styles.stepCard}>
-                  <Text style={styles.stepTitle}>Step 2: Specialized Products</Text>
+                  <Text style={styles.stepTitle}>{t('routineCompletion.step_2_specialized')}</Text>
                   <Text style={[styles.productName, specializedProducts.length === 0 && styles.emptyText]}>
-                    {specializedProducts[0]?.name || 'No specialized product selected'}
+                    {specializedProducts[0]?.name || t('routineCompletion.no_specialized_selected')}
                   </Text>
                 </View>
                 <View style={styles.stepCard}>
-                  <Text style={styles.stepTitle}>Step 3: Advanced Treatment</Text>
+                  <Text style={styles.stepTitle}>{t('routineCompletion.step_3_advanced')}</Text>
                   <Text style={[styles.productName, advancedTreatments.length === 0 && styles.emptyText]}>
-                    {advancedTreatments[0]?.name || 'No treatment selected'}
+                    {advancedTreatments[0]?.name || t('routineCompletion.no_treatment_selected')}
                   </Text>
                 </View>
               </>
             )}
 
+            {/* MODERATE NIGHT: SPECIALIZED */}
             {isModerate && isNight && (
               <View style={styles.stepCard}>
-                <Text style={styles.stepTitle}>Step 2: Specialized Products</Text>
+                <Text style={styles.stepTitle}>{t('routineCompletion.step_2_specialized')}</Text>
                 <Text style={[styles.productName, specializedProducts.length === 0 && styles.emptyText]}>
-                  {specializedProducts[0]?.name || 'No specialized product selected'}
+                  {specializedProducts[0]?.name || t('routineCompletion.no_specialized_selected')}
                 </Text>
               </View>
             )}
 
+            {/* MOISTURIZER STEP */}
             <View style={styles.stepCard}>
               <Text style={styles.stepTitle}>
-                Step {isComprehensive ? (isNight ? 4 : 4) : (isModerate ? (isNight ? 3 : 3) : 2)}: {isNight ? 'Night Moisturizer' : 'Moisturizer'}
+                {t('routineCompletion.step_x_moisturizer', { 
+                  step: isComprehensive ? (isNight ? 4 : 4) : (isModerate ? (isNight ? 3 : 3) : 2),
+                  type: isNight ? t('routineCompletion.night_moisturizer') : t('routineCompletion.moisturizer')
+                })}
               </Text>
               <Text style={[styles.productName, moisturizers.length === 0 && styles.emptyText]}>
-                {moisturizers[0]?.name || 'No moisturizer selected'}
+                {moisturizers[0]?.name || t('routineCompletion.no_moisturizer_selected')}
               </Text>
             </View>
 
+            {/* SUNSCREEN (DAY ONLY) */}
             {!isNight && (
               <View style={styles.stepCard}>
                 <Text style={styles.stepTitle}>
-                  Step {isComprehensive ? 5 : (isModerate ? 4 : 3)}: Sunscreen
+                  {t('routineCompletion.step_x_sunscreen', { 
+                    step: isComprehensive ? 5 : (isModerate ? 4 : 3)
+                  })}
                 </Text>
                 <Text style={[styles.productName, sunscreens.length === 0 && styles.emptyText]}>
-                  {sunscreens[0]?.name || 'No sunscreen selected'}
+                  {sunscreens[0]?.name || t('routineCompletion.no_sunscreen_selected')}
                 </Text>
               </View>
             )}
@@ -346,10 +366,12 @@ export default function RoutineCompletionModal({
 
           <View style={styles.proofContainer}>
             <Text style={styles.proofText}>
-              You'll find your complete routine under "My {isNight ? 'Night' : 'Day'} Routine"
+              {t('routineCompletion.find_routine', { 
+                type: isNight ? t('routineCompletion.night') : t('routineCompletion.day')
+              })}
             </Text>
             <Text style={styles.disclaimerText}>
-              Access it anytime you need it!
+              {t('routineCompletion.access_anytime')}
             </Text>
           </View>
 
@@ -359,7 +381,9 @@ export default function RoutineCompletionModal({
             activeOpacity={0.8}
           >
             <Text style={styles.primaryButtonText}>
-              View My {isNight ? 'Night' : 'Day'} Routine
+              {t('routineCompletion.view_routine', { 
+                type: isNight ? t('routineCompletion.night') : t('routineCompletion.day')
+              })}
             </Text>
           </TouchableOpacity>
 
@@ -368,7 +392,7 @@ export default function RoutineCompletionModal({
             style={styles.secondaryButton}
             activeOpacity={0.8}
           >
-            <Text style={styles.secondaryButtonText}>Start My Journey</Text>
+            <Text style={styles.secondaryButtonText}>{t('routineCompletion.start_journey')}</Text>
           </TouchableOpacity>
         </TouchableOpacity>
       </TouchableOpacity>

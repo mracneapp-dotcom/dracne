@@ -2,13 +2,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -54,6 +56,34 @@ export default function ComprehensiveRoutineStep2Info({
     }
   };
 
+  const getMoisturizerType = () => {
+    switch (skinType) {
+      case 'oily':
+      case 'combination':
+        return t('comprehensiveRoutineStep2Info.lightweight_gel');
+      case 'dry':
+      case 'sensitive':
+        return t('comprehensiveRoutineStep2Info.rich_moisturizer');
+      case 'normal':
+      default:
+        return t('comprehensiveRoutineStep2Info.light_medium');
+    }
+  };
+
+  const getMoisturizerText = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep2Info.oily_text');
+      case 'dry':
+      case 'sensitive':
+        return t('comprehensiveRoutineStep2Info.dry_text');
+      case 'normal':
+      case 'combination':
+      default:
+        return t('comprehensiveRoutineStep2Info.normal_text');
+    }
+  };
+
   const handlePreviousStep = () => {
     if (onBack) {
       onBack();
@@ -64,22 +94,6 @@ export default function ComprehensiveRoutineStep2Info({
     if (onContinue) {
       onContinue();
     }
-  };
-
-  const getProductTitle = () => {
-    if (skinType === 'oily') return 'Lightweight Gel-Cream';
-    if (skinType === 'dry') return 'Rich Moisturizer';
-    return 'Light/Medium Moisturizer';
-  };
-
-  const getExplanationText = () => {
-    if (skinType === 'oily') {
-      return 'Lightweight gel-creams provide essential hydration without adding excess oil. Look for humectants like hyaluronic acid and glycerin with light occlusives like dimethicone or squalane.';
-    }
-    if (skinType === 'dry') {
-      return 'Rich moisturizers lock in hydration with nourishing ingredients. Look for ceramides, cholesterol, and richer occlusives like petrolatum or shea butter to strengthen your skin barrier.';
-    }
-    return 'A balanced moisturizer provides optimal hydration without being too heavy or too light. Look for versatile formulas that adapt to your skin\'s needs.';
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -103,11 +117,16 @@ export default function ComprehensiveRoutineStep2Info({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <View style={styles.content}>
@@ -121,7 +140,9 @@ export default function ComprehensiveRoutineStep2Info({
               <Text style={styles.arrowText}>‹</Text>
             </TouchableOpacity>
 
-            <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+            <Text style={styles.progressText}>
+              {t('comprehensiveRoutineStep2Info.step_of', { current: currentStep, total: totalSteps })}
+            </Text>
 
             <TouchableOpacity
               onPress={handleNextStep}
@@ -139,42 +160,46 @@ export default function ComprehensiveRoutineStep2Info({
 
         <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
           <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-            For {skinTypeInfo.name}
+            {t('comprehensiveRoutineStep2Info.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
           </Text>
+        </View>
+
+        <View style={styles.productTypeTag}>
+          <Text style={styles.productTypeText}>{getMoisturizerType()}</Text>
         </View>
 
         <View style={styles.productHeader}>
           <View style={styles.productIconContainer}>
             <Image 
-              source={require('../assets/images/jar cream.png')}
+              source={require('../assets/images/lotion.png')}
               style={styles.productIcon}
               resizeMode="contain"
             />
           </View>
           <View style={styles.productTextContainer}>
-            <Text style={styles.productTitle}>{getProductTitle()}</Text>
-            <Text style={styles.productSubtitle}>Morning Step 2</Text>
+            <Text style={styles.productTitle}>{t('myDayRoutine.moisturizer')}</Text>
+            <Text style={styles.productSubtitle}>{t('comprehensiveRoutineStep2Info.morning_step')}</Text>
           </View>
         </View>
 
         <View style={styles.introBox}>
-          <Text style={styles.introTitle}>Curated for Your Skin</Text>
+          <Text style={styles.introTitle}>{t('comprehensiveRoutineStep2Info.curated_title')}</Text>
           <Text style={styles.introText}>
-            We've selected moisturizers specifically for {skinTypeInfo.name.toLowerCase()}. Each product is proven effective and dermatologist-recommended for intensive skincare routines.
+            {t('comprehensiveRoutineStep2Info.curated_text', { skinType: t(`profile.skin_labels.${skinType}`) })}
           </Text>
         </View>
 
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>Why this matters</Text>
+          <Text style={styles.explanationTitle}>{t('comprehensiveRoutineStep2Info.why_matters')}</Text>
           <Text style={styles.explanationText}>
-            {getExplanationText()}
+            {getMoisturizerText()}
           </Text>
         </View>
       </View>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('comprehensiveRoutineStep2Info.see_products')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -209,6 +234,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   content: {
     flex: 1,
@@ -266,11 +305,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20,
-    marginBottom: 20,
+    marginBottom: 12,
   },
   skinTypeText: {
     fontSize: 13,
     fontWeight: '700',
+  },
+  productTypeTag: {
+    alignSelf: 'center',
+    backgroundColor: BRAND_COLORS.secondary,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginBottom: 20,
+  },
+  productTypeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: BRAND_COLORS.white,
   },
   productHeader: {
     flexDirection: 'row',

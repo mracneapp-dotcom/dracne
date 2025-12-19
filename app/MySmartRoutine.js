@@ -1,18 +1,19 @@
-// app/MySmartRoutine.js - DISPLAY SAVED SMART ROUTINES (UPDATED WITH CITATIONS)
+// app/MySmartRoutine.js - WITH SPANISH I18N
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Image,
-  Linking,
+  ImageBackground,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -59,7 +60,6 @@ export default function MySmartRoutine({
     try {
       setLoading(true);
       
-      // Load ONLY the most recent smart routine (like MyDayRoutine does)
       const concernIds = ['nodules', 'blackheads', 'whiteheads', 'papules', 'marks'];
       let mostRecentRoutine = null;
       let mostRecentDate = null;
@@ -78,7 +78,6 @@ export default function MySmartRoutine({
             if (hasProducts && isUserCreated) {
               const routineDate = new Date(parsed.createdAt || parsed.completedAt || 0);
               
-              // Keep only the most recent smart routine
               if (!mostRecentRoutine || routineDate > mostRecentDate) {
                 mostRecentRoutine = { ...parsed, storageKey };
                 mostRecentDate = routineDate;
@@ -90,7 +89,6 @@ export default function MySmartRoutine({
         }
       }
       
-      // Set only the most recent routine (or empty array if none)
       setSmartRoutines(mostRecentRoutine ? [mostRecentRoutine] : []);
       
     } catch (error) {
@@ -108,12 +106,12 @@ export default function MySmartRoutine({
 
   const handleClearRoutine = (routine) => {
     Alert.alert(
-      'Clear Smart Routine',
-      `Are you sure you want to clear your ${routine.concernName} routine? This cannot be undone.`,
+      t('mySmartRoutine.alert_clear_title'),
+      t('mySmartRoutine.alert_clear_message', { concern: routine.concernName }),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('mySmartRoutine.alert_cancel'), style: 'cancel' },
         {
-          text: 'Clear',
+          text: t('mySmartRoutine.alert_clear'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -137,11 +135,11 @@ export default function MySmartRoutine({
         </View>
         <View style={[
           styles.timeBadge, 
-          { backgroundColor: timeLabel === 'Morning' ? '#FFF3E0' : '#E8EAF6' }
+          { backgroundColor: timeLabel === t('mySmartRoutine.morning') ? '#FFF3E0' : '#E8EAF6' }
         ]}>
           <Text style={[
             styles.timeBadgeText,
-            { color: timeLabel === 'Morning' ? '#F57C00' : '#3F51B5' }
+            { color: timeLabel === t('mySmartRoutine.morning') ? '#F57C00' : '#3F51B5' }
           ]}>
             {timeLabel}
           </Text>
@@ -179,7 +177,10 @@ export default function MySmartRoutine({
             <View style={styles.routineTitleContainer}>
               <Text style={styles.routineTitle}>{routine.concernName}</Text>
               <Text style={styles.routineSubtitle}>
-                {totalProducts} product{totalProducts !== 1 ? 's' : ''} selected
+                {totalProducts === 1 
+                  ? t('mySmartRoutine.products_count', { count: totalProducts })
+                  : t('mySmartRoutine.products_count_plural', { count: totalProducts })
+                }
               </Text>
             </View>
           </View>
@@ -193,11 +194,12 @@ export default function MySmartRoutine({
 
         {(routine.createdAt || routine.completedAt) && (
           <Text style={styles.completedDate}>
-          Created {new Date(routine.createdAt || routine.completedAt).toLocaleDateString()}
+            {t('mySmartRoutine.created', { 
+              date: new Date(routine.createdAt || routine.completedAt).toLocaleDateString()
+            })}
           </Text>
         )}
 
-        {/* DAY PRODUCTS */}
         {dayProducts.length > 0 && (
           <View style={styles.productsSection}>
             <View style={styles.sectionHeader}>
@@ -206,15 +208,14 @@ export default function MySmartRoutine({
                 style={styles.sectionIcon}
                 resizeMode="contain"
               />
-              <Text style={styles.sectionTitle}>Day Routine</Text>
+              <Text style={styles.sectionTitle}>{t('mySmartRoutine.day_routine')}</Text>
             </View>
             <View style={styles.productsContainer}>
-              {dayProducts.map(product => renderProductCard(product, 'Morning'))}
+              {dayProducts.map(product => renderProductCard(product, t('mySmartRoutine.morning')))}
             </View>
           </View>
         )}
 
-        {/* NIGHT PRODUCTS */}
         {nightProducts.length > 0 && (
           <View style={styles.productsSection}>
             <View style={styles.sectionHeader}>
@@ -223,10 +224,10 @@ export default function MySmartRoutine({
                 style={styles.sectionIcon}
                 resizeMode="contain"
               />
-              <Text style={styles.sectionTitle}>Night Routine</Text>
+              <Text style={styles.sectionTitle}>{t('mySmartRoutine.night_routine')}</Text>
             </View>
             <View style={styles.productsContainer}>
-              {nightProducts.map(product => renderProductCard(product, 'Evening'))}
+              {nightProducts.map(product => renderProductCard(product, t('mySmartRoutine.evening')))}
             </View>
           </View>
         )}
@@ -243,13 +244,13 @@ export default function MySmartRoutine({
           resizeMode="contain"
         />
       </View>
-      <Text style={styles.emptyTitle}>No Smart Routines Yet</Text>
+      <Text style={styles.emptyTitle}>{t('mySmartRoutine.empty_title')}</Text>
       <Text style={styles.emptyText}>
-        Create a targeted routine to address your specific skin concerns. Smart routines work alongside your Day & Night routines.
+        {t('mySmartRoutine.empty_text')}
       </Text>
       
       <DrAcneButton
-        title="Create Smart Routine"
+        title={t('mySmartRoutine.empty_button')}
         onPress={onNavigateToCreate}
         style={styles.emptyButton}
       />
@@ -268,17 +269,18 @@ export default function MySmartRoutine({
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity 
-        style={styles.bannerContainer}
-        onPress={onNavigateToSmartRoutineHub}
-        activeOpacity={0.9}
-      >
-        <Image 
-          source={require('../assets/images/Banner My Smart Routine.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
-      </TouchableOpacity>
+      <View style={styles.bannerContainer}>
+        <ImageBackground
+          source={require('../assets/images/banner-my-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerMyText}>{t('routineBanners.my')}</Text>
+            <Text style={styles.bannerRoutineText}>{t('routineBanners.routine')}</Text>
+          </View>
+        </ImageBackground>
+      </View>
 
       <ScrollView 
         style={styles.scrollView}
@@ -290,12 +292,12 @@ export default function MySmartRoutine({
       >
         <View style={styles.content}>
           <Text style={styles.pageTitle}>
-            My <Text style={styles.pageTitleHighlight}>Smart Routines</Text>
+            {t('mySmartRoutine.title')} <Text style={styles.pageTitleHighlight}>{t('mySmartRoutine.title_highlight')}</Text>
           </Text>
 
           {loading ? (
             <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Loading your routines...</Text>
+              <Text style={styles.loadingText}>{t('mySmartRoutine.loading')}</Text>
             </View>
           ) : smartRoutines.length === 0 ? (
             renderEmptyState()
@@ -303,7 +305,7 @@ export default function MySmartRoutine({
             <>
               <View style={styles.infoBox}>
                 <Text style={styles.infoText}>
-                  Apply these treatments after cleansing, before moisturizing. Use 2-3 times per week for best results.
+                  {t('mySmartRoutine.info')}
                 </Text>
               </View>
 
@@ -311,7 +313,7 @@ export default function MySmartRoutine({
 
               <View style={styles.actionsContainer}>
                 <DrAcneButton
-                  title="Create Another Smart Routine"
+                  title={t('mySmartRoutine.button_create')}
                   onPress={onNavigateToCreate}
                   style={styles.actionButton}
                 />
@@ -319,28 +321,7 @@ export default function MySmartRoutine({
 
               <View style={styles.citationContainer}>
                 <Text style={styles.citationText}>
-                  Smart routine application protocols based on{' '}
-                  <Text 
-                    style={styles.citationLink}
-                    onPress={() => Linking.openURL('https://www.aad.org/public/diseases/acne/skin-care/tips')}
-                  >
-                    American Academy of Dermatology guidelines for targeted acne treatment integration
-                  </Text>
-                  , research on{' '}
-                  <Text 
-                    style={styles.citationLink}
-                    onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5574737/')}
-                  >
-                    safe frequency and gradual active introduction for concern-specific treatments
-                  </Text>
-                  , and{' '}
-                  <Text 
-                    style={styles.citationLink}
-                    onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(15)02614-6/fulltext')}
-                  >
-                    dermatological protocols for combining targeted treatments with daily routines
-                  </Text>
-                  . Smart routines complement your Day & Night care - adjust frequency based on skin tolerance and consult a dermatologist for personalized treatment plans.
+                  {t('mySmartRoutine.citation')}
                 </Text>
               </View>
             </>
@@ -376,9 +357,38 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  bannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 10,
+  },
+  bannerMyText: {
+    fontFamily: 'Brittany',
+    fontSize: 38,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    lineHeight: 40,
+  },
+  bannerRoutineText: {
+    fontFamily: 'BalooBhai2',
+    fontSize: 32,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    lineHeight: 34,
+    marginTop: -5,
   },
   scrollView: {
     flex: 1,

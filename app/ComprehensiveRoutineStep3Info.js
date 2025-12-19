@@ -2,14 +2,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -28,64 +30,6 @@ const SKIN_TYPE_INFO = {
   combination: { color: BRAND_COLORS.primary, name: 'Combination Skin' },
   normal: { color: '#9B59B6', name: 'Normal Skin' },
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
-};
-
-const STEP_3_CONTENT = {
-  oily: {
-    title: 'Pore Care Treatment',
-    subtitle: 'Evening Step 3 (2-4x per week)',
-    icon: require('../assets/images/cream.png'),
-    introTitle: 'Targeted Pore Management',
-    introText: 'BHA (salicylic acid) or mandelic acid helps keep pores clear and prevents breakouts. This is your active treatment step for managing oil and preventing congestion.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply 2-4 times per week in the evening on T-zone or full face as tolerated. Start with 2x per week and increase gradually. Always follow with moisturizer.',
-    warningTitle: 'Important Guidelines',
-    warningText: 'Start slowly (2x per week)\nUse in evening only\nAlways use sunscreen during the day\nSkip if skin feels irritated',
-  },
-  dry: {
-    title: 'Hydrating Essence/Toner',
-    subtitle: 'Morning & Evening Step 3',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Deep Hydration Layer',
-    introText: 'Hydrating essences with panthenol, beta-glucan, and hyaluronic acid provide an extra moisture boost for dry skin. This step helps your moisturizer work more effectively.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply on damp skin after cleansing, before moisturizer. Pat gently until absorbed. This creates a moisture sandwich that locks in hydration more effectively.',
-    warningTitle: 'Application Tip',
-    warningText: 'Apply to damp skin for best results\nPat, do not rub\nLayer under moisturizer\nUse both morning and evening',
-  },
-  combination: {
-    title: 'Targeted Zone Treatment',
-    subtitle: 'Evening Step 3',
-    icon: require('../assets/images/cream.png'),
-    introTitle: 'Zone-Specific Care',
-    introText: 'Combination skin needs different treatments for different zones: BHA or mandelic acid on oily T-zone, hydrating essence on dry cheeks. This customized approach balances your skin.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply BHA/mandelic acid only on T-zone 2-4x per week. Apply hydrating essence on cheeks. This zone-specific approach prevents over-treating or under-treating different areas.',
-    warningTitle: 'Zone Application',
-    warningText: 'BHA/Mandelic: T-zone only\nHydrating essence: Cheeks and dry areas\nStart 2x per week\nAdjust based on skin response',
-  },
-  normal: {
-    title: 'Antioxidant Serum',
-    subtitle: 'Morning Step 3',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Protective Antioxidants',
-    introText: 'Antioxidant serums protect your skin from environmental damage and brighten your complexion. This is your prevention and maintenance step for healthy skin.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply in the morning after cleansing and before moisturizer. Vitamin C derivatives or niacinamide work beautifully for balanced skin. Always follow with sunscreen.',
-    warningTitle: 'Application Guidelines',
-    warningText: 'Use in morning only\nApply before moisturizer\nAlways follow with sunscreen\nVitamin C derivatives are gentler than pure L-ascorbic acid',
-  },
-  sensitive: {
-    title: 'Soothing Serum',
-    subtitle: 'Morning & Evening Step 3',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Calming & Barrier Support',
-    introText: 'Soothing serums with centella, panthenol, beta-glucan, and madecassoside calm reactive skin and strengthen your barrier. This is your protective comfort layer.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply morning and evening after cleansing, before moisturizer. These ingredients reduce redness, calm irritation, and help prevent sensitivity flare-ups.',
-    warningTitle: 'Gentle Care',
-    warningText: 'Safe for twice-daily use\nNo irritation potential\nHelps prevent future sensitivity\nPerfect for reactive skin',
-  },
 };
 
 export default function ComprehensiveRoutineStep3Info({ 
@@ -125,8 +69,136 @@ export default function ComprehensiveRoutineStep3Info({
     }
   };
 
+  const getTitle = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep3Info.pore_care_treatment');
+      case 'dry':
+        return t('comprehensiveRoutineStep3Info.hydrating_essence');
+      case 'combination':
+        return t('comprehensiveRoutineStep3Info.targeted_zone_treatment');
+      case 'normal':
+        return t('comprehensiveRoutineStep3Info.antioxidant_serum');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep3Info.soothing_serum');
+      default:
+        return t('comprehensiveRoutineStep3Info.antioxidant_serum');
+    }
+  };
+
+  const getSubtitle = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep3Info.evening_step_2_4x');
+      case 'dry':
+        return t('comprehensiveRoutineStep3Info.morning_evening_step');
+      case 'combination':
+        return t('comprehensiveRoutineStep3Info.evening_step');
+      case 'normal':
+        return t('comprehensiveRoutineStep3Info.morning_step');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep3Info.morning_evening_step');
+      default:
+        return t('comprehensiveRoutineStep3Info.morning_step');
+    }
+  };
+
+  const getIcon = () => {
+    switch (skinType) {
+      case 'oily':
+      case 'combination':
+        return require('../assets/images/cream.png');
+      default:
+        return require('../assets/images/jar cream.png');
+    }
+  };
+
+  const getIntroTitle = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep3Info.targeted_pore');
+      case 'dry':
+        return t('comprehensiveRoutineStep3Info.deep_hydration');
+      case 'combination':
+        return t('comprehensiveRoutineStep3Info.zone_specific');
+      case 'normal':
+        return t('comprehensiveRoutineStep3Info.protective_antioxidants');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep3Info.calming_barrier');
+      default:
+        return t('comprehensiveRoutineStep3Info.protective_antioxidants');
+    }
+  };
+
+  const getIntroText = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep3Info.oily_intro');
+      case 'dry':
+        return t('comprehensiveRoutineStep3Info.dry_intro');
+      case 'combination':
+        return t('comprehensiveRoutineStep3Info.combo_intro');
+      case 'normal':
+        return t('comprehensiveRoutineStep3Info.normal_intro');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep3Info.sensitive_intro');
+      default:
+        return t('comprehensiveRoutineStep3Info.normal_intro');
+    }
+  };
+
+  const getExplanationText = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep3Info.oily_how');
+      case 'dry':
+        return t('comprehensiveRoutineStep3Info.dry_how');
+      case 'combination':
+        return t('comprehensiveRoutineStep3Info.combo_how');
+      case 'normal':
+        return t('comprehensiveRoutineStep3Info.normal_how');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep3Info.sensitive_how');
+      default:
+        return t('comprehensiveRoutineStep3Info.normal_how');
+    }
+  };
+
+  const getWarningTitle = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep3Info.important_guidelines');
+      case 'dry':
+        return t('comprehensiveRoutineStep3Info.application_tip');
+      case 'combination':
+        return t('comprehensiveRoutineStep3Info.zone_application');
+      case 'normal':
+        return t('comprehensiveRoutineStep3Info.application_guidelines');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep3Info.gentle_care');
+      default:
+        return t('comprehensiveRoutineStep3Info.application_guidelines');
+    }
+  };
+
+  const getWarningText = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep3Info.oily_warning');
+      case 'dry':
+        return t('comprehensiveRoutineStep3Info.dry_warning');
+      case 'combination':
+        return t('comprehensiveRoutineStep3Info.combo_warning');
+      case 'normal':
+        return t('comprehensiveRoutineStep3Info.normal_warning');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep3Info.sensitive_warning');
+      default:
+        return t('comprehensiveRoutineStep3Info.normal_warning');
+    }
+  };
+
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const content = STEP_3_CONTENT[skinType] || STEP_3_CONTENT.normal;
   const totalSteps = 5;
   const totalInternalSteps = 10;
 
@@ -147,11 +219,16 @@ export default function ComprehensiveRoutineStep3Info({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -170,7 +247,9 @@ export default function ComprehensiveRoutineStep3Info({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('comprehensiveRoutineStep3Info.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -188,37 +267,37 @@ export default function ComprehensiveRoutineStep3Info({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('comprehensiveRoutineStep3Info.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
             </Text>
           </View>
 
           <View style={styles.productHeader}>
             <View style={styles.productIconContainer}>
               <Image 
-                source={content.icon}
+                source={getIcon()}
                 style={styles.productIcon}
                 resizeMode="contain"
               />
             </View>
             <View style={styles.productTextContainer}>
-              <Text style={styles.productTitle}>{content.title}</Text>
-              <Text style={styles.productSubtitle}>{content.subtitle}</Text>
+              <Text style={styles.productTitle}>{getTitle()}</Text>
+              <Text style={styles.productSubtitle}>{getSubtitle()}</Text>
             </View>
           </View>
 
           <View style={styles.introBox}>
-            <Text style={styles.introTitle}>{content.introTitle}</Text>
-            <Text style={styles.introText}>{content.introText}</Text>
+            <Text style={styles.introTitle}>{getIntroTitle()}</Text>
+            <Text style={styles.introText}>{getIntroText()}</Text>
           </View>
 
           <View style={styles.explanationBox}>
-            <Text style={styles.explanationTitle}>{content.explanationTitle}</Text>
-            <Text style={styles.explanationText}>{content.explanationText}</Text>
+            <Text style={styles.explanationTitle}>{t('comprehensiveRoutineStep3Info.how_to_use')}</Text>
+            <Text style={styles.explanationText}>{getExplanationText()}</Text>
           </View>
 
           <View style={styles.warningBox}>
-            <Text style={styles.warningTitle}>{content.warningTitle}</Text>
-            <Text style={styles.warningText}>{content.warningText}</Text>
+            <Text style={styles.warningTitle}>{getWarningTitle()}</Text>
+            <Text style={styles.warningText}>{getWarningText()}</Text>
           </View>
 
           <View style={styles.bottomSpacing} />
@@ -227,7 +306,7 @@ export default function ComprehensiveRoutineStep3Info({
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('comprehensiveRoutineStep3Info.see_products')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -262,6 +341,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,

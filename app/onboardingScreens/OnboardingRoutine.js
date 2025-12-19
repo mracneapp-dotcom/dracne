@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -19,22 +20,22 @@ const BRAND_COLORS = {
 const ROUTINE_OPTIONS = [
   {
     id: 'minimal',
-    label: 'Minimal',
-    description: '2-3 products, simple steps',
+    labelKey: 'onboarding.routine.minimal',
+    descKey: 'onboarding.routine.minimal_desc',
     icon: require('../../assets/images/check.png'),
     color: '#4A90E2',
   },
   {
     id: 'moderate',
-    label: 'Moderate',
-    description: '4-5 products, balanced routine',
+    labelKey: 'onboarding.routine.moderate',
+    descKey: 'onboarding.routine.moderate_desc',
     icon: require('../../assets/images/check.png'),
     color: BRAND_COLORS.primary,
   },
   {
     id: 'comprehensive',
-    label: 'Comprehensive',
-    description: '6+ products, complete care',
+    labelKey: 'onboarding.routine.comprehensive',
+    descKey: 'onboarding.routine.comprehensive_desc',
     icon: require('../../assets/images/check.png'),
     color: '#9B59B6',
   },
@@ -58,10 +59,10 @@ export default function OnboardingRoutine({ onNext }) {
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            What <Text style={styles.titleHighlight}>routine level</Text> fits you?
+            {t('onboarding.routine.title1')} <Text style={styles.titleHighlight}>{t('onboarding.routine.title2')}</Text> {t('onboarding.routine.title3')}
           </Text>
           <Text style={styles.subtitle}>
-            We'll tailor recommendations to match your preference
+            {t('onboarding.routine.subtitle')}
           </Text>
         </View>
 
@@ -99,9 +100,9 @@ export default function OnboardingRoutine({ onNext }) {
                     styles.optionLabel,
                     isSelected && { color: option.color, fontWeight: '600' }
                   ]}>
-                    {option.label}
+                    {t(option.labelKey)}
                   </Text>
-                  <Text style={styles.optionDescription}>{option.description}</Text>
+                  <Text style={styles.optionDescription}>{t(option.descKey)}</Text>
                 </View>
               </TouchableOpacity>
             );
@@ -110,7 +111,7 @@ export default function OnboardingRoutine({ onNext }) {
 
         <View style={styles.infoBox}>
           <Text style={styles.infoText}>
-            Don't worry, you can always adjust this later
+            {t('onboarding.routine.info')}
           </Text>
         </View>
       </View>
@@ -128,10 +129,10 @@ export default function OnboardingRoutine({ onNext }) {
             styles.continueButtonText,
             !selectedRoutine && styles.continueButtonTextDisabled
           ]}>
-            Continue
+            {t('onboarding.routine.button')}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.helperText}>Select your preferred routine level</Text>
+        <Text style={styles.helperText}>{t('onboarding.routine.helper')}</Text>
       </View>
     </View>
   );

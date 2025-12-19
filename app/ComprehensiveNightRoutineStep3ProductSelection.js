@@ -1,8 +1,9 @@
-// app/ComprehensiveNightRoutineStep3ProductSelection.js - WITH CITATIONS
+// app/ComprehensiveNightRoutineStep3ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Linking,
   ScrollView,
   StyleSheet,
@@ -11,6 +12,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -194,22 +196,6 @@ const STEP_3_PRODUCTS = {
   ],
 };
 
-const STEP_3_TITLES = {
-  oily: 'Pore Care Products',
-  dry: 'Hydrating Essences',
-  combination: 'Targeted Treatments',
-  normal: 'Gentle Exfoliants',
-  sensitive: 'Barrier Support Serums',
-};
-
-const STEP_3_EXPLANATIONS = {
-  oily: 'Choose 1-2 pore care products to use 2-4 times per week at night. Start with 2x per week and increase gradually. These work overnight to keep pores clear and prevent breakouts.',
-  dry: 'Choose 1-2 hydrating essences to layer under your moisturizer every night. Apply on damp skin for best results. These create overnight moisture that penetrates deeply.',
-  combination: 'Choose 1 BHA/mandelic product for T-zone AND 1 hydrating essence for cheeks. Apply BHA only on T-zone 2-4x per week. Use essence on cheeks nightly.',
-  normal: 'Choose 1 gentle exfoliant to use 1-2 times per week at night. These maintain clarity without irritation. Your skin renews itself while you sleep.',
-  sensitive: 'Choose 1-2 barrier support serums to use every night. These strengthen your barrier while you sleep. No exfoliants needed - focus on building resilience.',
-};
-
 export default function ComprehensiveNightRoutineStep3ProductSelection({ 
   onNavigateHome,
   onNavigateToNightRoutine,
@@ -293,30 +279,34 @@ export default function ComprehensiveNightRoutineStep3ProductSelection({
     const minRequired = skinType === 'combination' ? 2 : 1;
     
     if (selectedProducts.length === 0) {
-      return skinType === 'combination' ? 'Choose 2 Products (1 for T-zone, 1 for cheeks)' : 'Choose My Product';
+      return skinType === 'combination' 
+        ? t('comprehensiveNightRoutine.choose_2_products_combo') 
+        : t('basicRoutine.choose_my_product');
     } else if (selectedProducts.length === 1) {
-      return skinType === 'combination' ? 'Choose 1 More Product' : 'Continue with My Selection';
+      return skinType === 'combination' 
+        ? t('comprehensiveNightRoutine.choose_1_more') 
+        : t('basicRoutine.continue_selection');
     } else {
-      return 'Continue with My Selections';
+      return t('basicRoutine.continue_selections');
     }
   };
 
   const getHelperText = () => {
     if (skinType === 'combination') {
       if (selectedProducts.length === 0) {
-        return 'Select 2 products: 1 BHA/Mandelic for T-zone + 1 Hydrating essence for cheeks';
+        return t('comprehensiveNightRoutine.helper_combo_0');
       } else if (selectedProducts.length === 1) {
-        return 'Select 1 more product to complete zone-specific care';
+        return t('comprehensiveNightRoutine.helper_combo_1');
       } else {
-        return 'Perfect! You have products for both zones';
+        return t('comprehensiveNightRoutine.helper_combo_2');
       }
     } else {
       if (selectedProducts.length === 0) {
-        return 'Select at least 1 product to continue';
+        return t('basicRoutine.select_1_complete');
       } else if (selectedProducts.length === 1) {
-        return 'You can add 1 more product as an alternative';
+        return t('basicRoutine.add_1_more_alternative');
       } else {
-        return 'Maximum 2 products selected';
+        return t('basicRoutine.max_2_selected');
       }
     }
   };
@@ -344,11 +334,13 @@ export default function ComprehensiveNightRoutineStep3ProductSelection({
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
+        <ImageBackground
+          source={require('../assets/images/banner-night-routine-base.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <Text style={styles.bannerText}>{t('routines.night_routine')}</Text>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -367,7 +359,9 @@ export default function ComprehensiveNightRoutineStep3ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('basicRoutine.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -388,23 +382,25 @@ export default function ComprehensiveNightRoutineStep3ProductSelection({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('basicRoutine.for_skin', { skinType: skinTypeInfo.name })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>{STEP_3_TITLES[skinType]}</Text>
+          <Text style={styles.sectionTitle}>
+            {t(`comprehensiveNightRoutine.step_3_titles.${skinType}`)}
+          </Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              {STEP_3_EXPLANATIONS[skinType]}
+              {t(`comprehensiveNightRoutine.step_3_explanations.${skinType}`)}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
               {skinType === 'combination' 
-                ? `Select 2 Products (${selectedProducts.length}/2 selected)`
-                : `Select 1-2 Products ${selectedProducts.length > 0 ? `(${selectedProducts.length} selected)` : ''}`
+                ? `${t('comprehensiveNightRoutine.select_2_products')} ${selectedProducts.length > 0 ? t('comprehensiveNightRoutine.selected_count_2', { count: selectedProducts.length }) : ''}`
+                : `${t('basicRoutine.select_1_2')} ${selectedProducts.length > 0 ? t('basicRoutine.selected_count', { count: selectedProducts.length }) : ''}`
               }
             </Text>
             
@@ -519,6 +515,17 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,

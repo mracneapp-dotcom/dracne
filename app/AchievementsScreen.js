@@ -1,14 +1,15 @@
-// app/AchievementsScreen.js
+// app/AchievementsScreen.js - WITH SPANISH I18N + BADGE TITLES (COMPLETE)
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import { t } from './i18n';
 import { getAllBadges } from './utils/progressManager';
 
 const BRAND_COLORS = {
@@ -44,6 +45,11 @@ export default function AchievementsScreen({ onBack, onNavigateHome }) {
     const isUnlocked = badge.currentLevel > 0;
     const hasNextMilestone = badge.nextMilestone !== undefined;
 
+    // GET TRANSLATED BADGE TITLE
+    const badgeTitle = badge?.definition?.titleKey 
+      ? t(badge.definition.titleKey) 
+      : badge?.definition?.title || t('achievements.locked');
+
     return (
       <View key={badge.badgeId} style={styles.badgeCard}>
         <View style={[
@@ -60,7 +66,7 @@ export default function AchievementsScreen({ onBack, onNavigateHome }) {
           />
           {!isUnlocked && (
             <View style={styles.lockOverlay}>
-              <Text style={styles.lockText}>Locked</Text>
+              <Text style={styles.lockText}>{t('achievements.locked')}</Text>
             </View>
           )}
         </View>
@@ -75,7 +81,7 @@ export default function AchievementsScreen({ onBack, onNavigateHome }) {
         )}
 
         <Text style={styles.badgeTitle} numberOfLines={2}>
-          {badge.definition.title}
+          {badgeTitle}
         </Text>
 
         {!isUnlocked && hasNextMilestone && (
@@ -97,11 +103,14 @@ export default function AchievementsScreen({ onBack, onNavigateHome }) {
     );
   };
 
+  const unlockedCount = badges.filter(b => b.currentLevel > 0).length;
+  const totalCount = badges.length;
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backText}>‹ Back</Text>
+          <Text style={styles.backText}>{t('achievements.back')}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
@@ -119,15 +128,15 @@ export default function AchievementsScreen({ onBack, onNavigateHome }) {
       >
         <View style={styles.header}>
           <Text style={styles.title}>
-            My <Text style={styles.titleHighlight}>Achievements</Text>
+            {t('achievements.title')} <Text style={styles.titleHighlight}>{t('achievements.title_highlight')}</Text>
           </Text>
           <Text style={styles.subtitle}>
-            {badges.filter(b => b.currentLevel > 0).length} of {badges.length} unlocked
+            {t('achievements.subtitle', { unlocked: unlockedCount, total: totalCount })}
           </Text>
         </View>
 
         {loading ? (
-          <Text style={styles.loadingText}>Loading achievements...</Text>
+          <Text style={styles.loadingText}>{t('achievements.loading')}</Text>
         ) : (
           <View style={styles.badgesGrid}>
             {badges.map((badge, index) => renderBadge(badge, index))}

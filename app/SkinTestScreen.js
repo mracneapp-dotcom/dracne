@@ -1,4 +1,4 @@
-// SkinTestScreen.js - Single Screen Fit (No Scrolling)
+// app/SkinTestScreen.js - WITH SPANISH I18N
 import React from 'react';
 import {
   Alert,
@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -29,15 +30,15 @@ export const SkinTestScreen = ({
 }) => {
   const handleDoItLater = () => {
     Alert.alert(
-      'Important Notice',
-      'Adding your skin type is highly important for us to provide the right skincare recommendations tailored to your needs. Without this information, we cannot ensure the most effective treatment plan for your skin.',
+      t('skinTest.alert_important_title'),
+      t('skinTest.alert_important_message'),
       [
         {
-          text: 'Stay Here',
+          text: t('skinTest.alert_stay'),
           style: 'cancel'
         },
         {
-          text: 'Continue Anyway',
+          text: t('skinTest.alert_continue'),
           onPress: () => {
             if (onNavigateHome) {
               onNavigateHome();
@@ -80,18 +81,18 @@ export const SkinTestScreen = ({
         {/* Header with Styled Title */}
         <View style={styles.header}>
           <Text style={styles.title}>
-            Discover Your Skin <Text style={styles.titleHighlight}>Type</Text>
+            {t('skinTest.title')} <Text style={styles.titleHighlight}>{t('skinTest.title_highlight')}</Text>
           </Text>
           <Text style={styles.subtitle}>
-            Take at least one test so we can recommend the perfect products
+            {t('skinTest.subtitle')}
           </Text>
         </View>
 
         {/* Info Box */}
         <View style={styles.infoBox}>
           <Text style={styles.infoText}>
-            <Text style={styles.infoBold}>Why skin type matters:</Text>
-            {' '}Different skin types need different approaches for better results!
+            <Text style={styles.infoBold}>{t('skinTest.info_bold')}</Text>
+            {' '}{t('skinTest.info_text')}
           </Text>
         </View>
 
@@ -104,17 +105,17 @@ export const SkinTestScreen = ({
             activeOpacity={0.9}
           >
             <View style={styles.testNumberBadge}>
-              <Text style={styles.testNumber}>Test 1</Text>
+              <Text style={styles.testNumber}>{t('skinTest.test')} 1</Text>
             </View>
-            <Text style={styles.testTitle}>End-of-Day Check</Text>
+            <Text style={styles.testTitle}>{t('skinTest.test1_title')}</Text>
             <View style={styles.descriptionRow}>
               <View style={styles.descriptionBadge}>
                 <Text style={styles.testDescription}>
-                  Available immediately • 2 minutes
+                  {t('skinTest.test1_desc')}
                 </Text>
               </View>
               <View style={styles.startTestButton}>
-                <Text style={styles.startTestText}>Start Test →</Text>
+                <Text style={styles.startTestText}>{t('skinTest.start_test')}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -126,9 +127,9 @@ export const SkinTestScreen = ({
             activeOpacity={0.9}
           >
             <View style={styles.testNumberBadge}>
-              <Text style={styles.testNumber}>Test 2</Text>
+              <Text style={styles.testNumber}>{t('skinTest.test')} 2</Text>
             </View>
-            <Text style={styles.testTitle}>Blotting Paper Test</Text>
+            <Text style={styles.testTitle}>{t('skinTest.test2_title')}</Text>
             <View style={styles.descriptionRow}>
               <View style={styles.descriptionBadge}>
                 <View style={styles.warningRow}>
@@ -137,12 +138,12 @@ export const SkinTestScreen = ({
                     style={styles.warningIcon}
                   />
                   <Text style={styles.testDescription}>
-                    Need blotting papers • 5 minutes
+                    {t('skinTest.test2_desc')}
                   </Text>
                 </View>
               </View>
               <View style={styles.startTestButton}>
-                <Text style={styles.startTestText}>Start Test →</Text>
+                <Text style={styles.startTestText}>{t('skinTest.start_test')}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -154,17 +155,17 @@ export const SkinTestScreen = ({
             activeOpacity={0.9}
           >
             <View style={styles.testNumberBadge}>
-              <Text style={styles.testNumber}>Test 3</Text>
+              <Text style={styles.testNumber}>{t('skinTest.test')} 3</Text>
             </View>
-            <Text style={styles.testTitle}>Overnight Assessment</Text>
+            <Text style={styles.testTitle}>{t('skinTest.test3_title')}</Text>
             <View style={styles.descriptionRow}>
               <View style={styles.descriptionBadge}>
                 <Text style={styles.testDescription}>
-                  Best done tonight • Check tomorrow morning
+                  {t('skinTest.test3_desc')}
                 </Text>
               </View>
               <View style={styles.startTestButton}>
-                <Text style={styles.startTestText}>Start Test →</Text>
+                <Text style={styles.startTestText}>{t('skinTest.start_test')}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -172,13 +173,13 @@ export const SkinTestScreen = ({
 
         {/* Skip Section */}
         <View style={styles.skipSection}>
-          <Text style={styles.skipTitle}>Already know your skin type?</Text>
+          <Text style={styles.skipTitle}>{t('skinTest.skip_title')}</Text>
           <TouchableOpacity 
             style={styles.skipButton}
             onPress={onSkipToKnownSkinType}
             activeOpacity={0.8}
           >
-            <Text style={styles.skipButtonText}>I Know My Skin Type</Text>
+            <Text style={styles.skipButtonText}>{t('skinTest.skip_button')}</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
@@ -186,7 +187,7 @@ export const SkinTestScreen = ({
             onPress={handleDoItLater}
             activeOpacity={0.7}
           >
-            <Text style={styles.laterButtonText}>I'll do it later</Text>
+            <Text style={styles.laterButtonText}>{t('skinTest.later_button')}</Text>
           </TouchableOpacity>
         </View>
       </View>

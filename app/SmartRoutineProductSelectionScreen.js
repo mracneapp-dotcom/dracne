@@ -1,4 +1,4 @@
-// app/SmartRoutineProductSelectionScreen.js - UPDATED WITH VERIFIED WORKING LINKS
+// app/SmartRoutineProductSelectionScreen.js - CORRECTED: Original structure + i18n only
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import RoutineCompletionModal from '../components/modals/RoutineCompletionModal';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -221,15 +222,15 @@ export default function SmartRoutineProductSelectionScreen({
   const getButtonText = () => {
     const totalSelected = selectedDayProducts.length + selectedNightProducts.length;
     if (totalSelected === 0) {
-      return 'Select Product(s)';
+      return t('smartRoutineProductSelection.select_button');
     }
-    return 'Complete Smart Routine';
+    return t('smartRoutineProductSelection.complete_button');
   };
 
   if (!concernData) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorText}>Concern data not found</Text>
+        <Text style={styles.errorText}>{t('smartRoutineProductSelection.error')}</Text>
       </View>
     );
   }
@@ -252,7 +253,7 @@ export default function SmartRoutineProductSelectionScreen({
               <Image source={concernData.icon} style={styles.concernIcon} resizeMode="contain" />
             </View>
             <Text style={styles.title}>
-              Build Your <Text style={styles.titleHighlight}>Smart Routine</Text>
+              {t('smartRoutineProductSelection.build_title')} <Text style={styles.titleHighlight}>{t('smartRoutineProductSelection.build_title_highlight')}</Text>
             </Text>
             <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}20` }]}>
               <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>{skinTypeInfo.name}</Text>
@@ -261,23 +262,24 @@ export default function SmartRoutineProductSelectionScreen({
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Select 1-2 products for morning and/or evening to target <Text style={{ fontWeight: '700' }}>{concernData.name}</Text>. 
-              Your routine will be saved in Smart Routine Hub.
+              {t('smartRoutineProductSelection.explanation', { concernName: concernData.name })}
             </Text>
           </View>
 
           <View style={styles.routineSection}>
             <View style={styles.routineSectionHeader}>
               <View style={styles.routineTitleContainer}>
-                <Text style={styles.routineSectionTitle}>Morning Products</Text>
+                <Text style={styles.routineSectionTitle}>{t('smartRoutineProductSelection.morning_products')}</Text>
                 <View style={[styles.timeBadge, { backgroundColor: '#FFF9E6' }]}>
-                  <Text style={[styles.timeBadgeText, { color: '#B8860B' }]}>AM • {dayProducts.length} Options</Text>
+                  <Text style={[styles.timeBadgeText, { color: '#B8860B' }]}>
+                    {t('smartRoutineProductSelection.morning_badge', { count: dayProducts.length })}
+                  </Text>
                 </View>
               </View>
             </View>
 
             <View style={styles.selectionContainer}>
-              <Text style={styles.selectionTitle}>Select 0-2 Morning Products (Optional)</Text>
+              <Text style={styles.selectionTitle}>{t('smartRoutineProductSelection.morning_select')}</Text>
               {dayProducts.map((product) => {
                 const isSelected = selectedDayProducts.some(p => p.id === product.id);
                 
@@ -318,15 +320,17 @@ export default function SmartRoutineProductSelectionScreen({
           <View style={styles.routineSection}>
             <View style={styles.routineSectionHeader}>
               <View style={styles.routineTitleContainer}>
-                <Text style={styles.routineSectionTitle}>Evening Products</Text>
+                <Text style={styles.routineSectionTitle}>{t('smartRoutineProductSelection.evening_products')}</Text>
                 <View style={[styles.timeBadge, { backgroundColor: '#E8E9FF' }]}>
-                  <Text style={[styles.timeBadgeText, { color: '#5A5FCC' }]}>PM • {nightProducts.length} Options</Text>
+                  <Text style={[styles.timeBadgeText, { color: '#5A5FCC' }]}>
+                    {t('smartRoutineProductSelection.evening_badge', { count: nightProducts.length })}
+                  </Text>
                 </View>
               </View>
             </View>
 
             <View style={styles.selectionContainer}>
-              <Text style={styles.selectionTitle}>Select 0-2 Evening Products (Optional)</Text>
+              <Text style={styles.selectionTitle}>{t('smartRoutineProductSelection.evening_select')}</Text>
               {nightProducts.map((product) => {
                 const isSelected = selectedNightProducts.some(p => p.id === product.id);
                 
@@ -366,34 +370,34 @@ export default function SmartRoutineProductSelectionScreen({
 
           {totalSelected === 0 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select at least 1 product to complete your Smart Routine</Text>
+              <Text style={styles.helperText}>{t('smartRoutineProductSelection.helper_text')}</Text>
             </View>
           )}
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Product recommendations curated using{' '}
+              {t('smartRoutineProductSelection.citation_part1')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://www.cir-safety.org')}
               >
-                Cosmetic Ingredient Review safety data
+                {t('smartRoutineProductSelection.citation_link1')}
               </Text>
-              , clinical research on{' '}
+              {t('smartRoutineProductSelection.citation_part2')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/26201312/')}
               >
-                optimal timing for active ingredient application and combination therapy protocols
+                {t('smartRoutineProductSelection.citation_link2')}
               </Text>
-              , and{' '}
+              {t('smartRoutineProductSelection.citation_part3')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://www.aad.org/public/diseases/acne/skin-care/tips')}
               >
-                dermatological guidelines for concern-specific treatment approaches
+                {t('smartRoutineProductSelection.citation_link3')}
               </Text>
-              . Smart routines complement your daily care - always patch test new products and consult a dermatologist for comprehensive treatment plans.
+              {t('smartRoutineProductSelection.citation_part4')}
             </Text>
           </View>
 
@@ -409,7 +413,7 @@ export default function SmartRoutineProductSelectionScreen({
           style={[styles.continueButton, totalSelected === 0 && styles.continueButtonDisabled]}
         />
         <TouchableOpacity onPress={onNavigateBack} style={styles.backLink}>
-          <Text style={styles.backLinkText}>← Back to Concern Selection</Text>
+          <Text style={styles.backLinkText}>{t('smartRoutineProductSelection.back_link')}</Text>
         </TouchableOpacity>
       </View>
 

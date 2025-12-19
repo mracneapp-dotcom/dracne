@@ -1,4 +1,4 @@
-// app/SmartRoutineScreen.js - SMART ROUTINE CONCERN SELECTION (FIXED)
+// app/SmartRoutineScreen.js - WITH SPANISH I18N (COMPLETE)
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState } from 'react';
 import {
@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -24,38 +25,38 @@ const BRAND_COLORS = {
 const SKIN_CONCERNS = [
   {
     id: 'nodules',
-    label: 'Inflamed Acne (Nodules)',
-    description: 'Deep, painful bumps under the skin',
+    label: 'smartRoutine.concerns.nodules',
+    description: 'smartRoutine.concerns.nodules_desc',
     icon: require('../assets/images/Nodule.png'),
-    color: '#FF7A7A', // Secondary - for inflammation
+    color: '#FF7A7A',
   },
   {
     id: 'blackheads',
-    label: 'Blackheads',
-    description: 'Open pores with oxidized sebum',
+    label: 'smartRoutine.concerns.blackheads',
+    description: 'smartRoutine.concerns.blackheads_desc',
     icon: require('../assets/images/Blackhead.png'),
-    color: '#4A90E2', // Blue - oily skin related
+    color: '#4A90E2',
   },
   {
     id: 'whiteheads',
-    label: 'Whiteheads',
-    description: 'Closed comedones, clogged pores',
+    label: 'smartRoutine.concerns.whiteheads',
+    description: 'smartRoutine.concerns.whiteheads_desc',
     icon: require('../assets/images/Whitehead.png'),
-    color: '#7CB342', // Primary green
+    color: '#7CB342',
   },
   {
     id: 'papules',
-    label: 'Papules & Pustules',
-    description: 'Red bumps and white-topped pimples',
+    label: 'smartRoutine.concerns.papules',
+    description: 'smartRoutine.concerns.papules_desc',
     icon: require('../assets/images/Papule.png'),
-    color: '#F39C12', // Orange - active acne
+    color: '#F39C12',
   },
   {
     id: 'marks',
-    label: 'Post-Inflammatory Marks',
-    description: 'Dark spots and red marks from acne',
+    label: 'smartRoutine.concerns.marks',
+    description: 'smartRoutine.concerns.marks_desc',
     icon: require('../assets/images/Mark.png'),
-    color: '#9B59B6', // Purple - post-acne
+    color: '#9B59B6',
   },
 ];
 
@@ -103,10 +104,10 @@ export default function SmartRoutineScreen({
         <View style={styles.content}>
           <View style={styles.header}>
             <Text style={styles.title}>
-              Choose Your <Text style={styles.titleHighlight}>Skin Concern</Text>
+              {t('smartRoutine.title')} <Text style={styles.titleHighlight}>{t('smartRoutine.title_highlight')}</Text>
             </Text>
             <Text style={styles.subtitle}>
-              Get a targeted routine to address your specific skin issue
+              {t('smartRoutine.subtitle')}
             </Text>
           </View>
 
@@ -119,7 +120,7 @@ export default function SmartRoutineScreen({
               />
             </View>
             <Text style={styles.infoText}>
-              These advanced routines complement your basic Day & Night routines. Focus on one concern at a time for best results.
+              {t('smartRoutine.info')}
             </Text>
           </View>
 
@@ -158,9 +159,9 @@ export default function SmartRoutineScreen({
                       styles.concernLabel,
                       isSelected && { color: concern.color, fontWeight: '700' }
                     ]}>
-                      {concern.label}
+                      {t(concern.label)}
                     </Text>
-                    <Text style={styles.concernDescription}>{concern.description}</Text>
+                    <Text style={styles.concernDescription}>{t(concern.description)}</Text>
                   </View>
                   {isSelected && (
                     <View style={[styles.checkmark, { backgroundColor: concern.color }]}>
@@ -175,7 +176,9 @@ export default function SmartRoutineScreen({
           {selectedConcern && (
             <View style={styles.selectionInfo}>
               <Text style={styles.selectionText}>
-                Perfect! We'll create a targeted routine for {SKIN_CONCERNS.find(c => c.id === selectedConcern)?.label.toLowerCase()}
+                {t('smartRoutine.selection', { 
+                  concern: t(SKIN_CONCERNS.find(c => c.id === selectedConcern)?.label || '').toLowerCase()
+                })}
               </Text>
             </View>
           )}
@@ -186,7 +189,7 @@ export default function SmartRoutineScreen({
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title={selectedConcern ? "View Targeted Routine" : "Select Your Concern"}
+          title={selectedConcern ? t('smartRoutine.button_selected') : t('smartRoutine.button_unselected')}
           onPress={handleContinue}
           disabled={!selectedConcern}
           style={[
@@ -195,7 +198,7 @@ export default function SmartRoutineScreen({
           ]}
         />
         <Text style={styles.helperText}>
-          {selectedConcern ? 'Get your personalized treatment plan' : 'Choose one concern to focus on'}
+          {selectedConcern ? t('smartRoutine.helper_selected') : t('smartRoutine.helper_unselected')}
         </Text>
       </View>
     </View>

@@ -1,8 +1,9 @@
-// app/BasicRoutineStep3Info.js - COMPLETE WITH CITATIONS
+// app/BasicRoutineStep3Info.js - FULLY FIXED WITH TRANSLATIONS & PROPER BANNER
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Linking,
   StyleSheet,
   Text,
@@ -10,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -23,11 +25,11 @@ const BRAND_COLORS = {
 };
 
 const SKIN_TYPE_INFO = {
-  oily: { color: '#4A90E2', name: 'Oily Skin' },
-  dry: { color: '#F39C12', name: 'Dry Skin' },
-  combination: { color: BRAND_COLORS.primary, name: 'Combination Skin' },
-  normal: { color: '#9B59B6', name: 'Normal Skin' },
-  sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
+  oily: { color: '#4A90E2' },
+  dry: { color: '#F39C12' },
+  combination: { color: BRAND_COLORS.primary },
+  normal: { color: '#9B59B6' },
+  sensitive: { color: BRAND_COLORS.primary },
 };
 
 export default function BasicRoutineStep3Info({ 
@@ -67,6 +69,11 @@ export default function BasicRoutineStep3Info({
     }
   };
 
+  // ✅ GET TRANSLATED SKIN TYPE NAME
+  const getTranslatedSkinTypeName = () => {
+    return t(`basicRoutine.skin_type_${skinType}`);
+  };
+
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
   const totalSteps = 3;
   const totalInternalSteps = 6;
@@ -83,16 +90,22 @@ export default function BasicRoutineStep3Info({
         </TouchableOpacity>
       </View>
 
+      {/* ✅ FIXED: Day Routine Banner with Proper Two-Line Format */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Day Routine 1.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
+        <ImageBackground
+          source={require('../assets/images/banner-day-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.dayRoutineBannerTextContainer}>
+            <Text style={styles.dayRoutineLine1}>{t('dayRoutineBanners.line1')}</Text>
+            <Text style={styles.dayRoutineLine2}>{t('dayRoutineBanners.line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <View style={styles.content}>
@@ -106,7 +119,9 @@ export default function BasicRoutineStep3Info({
               <Text style={styles.arrowText}>‹</Text>
             </TouchableOpacity>
 
-            <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+            <Text style={styles.progressText}>
+              {t('basicRoutine.step_of', { current: currentStep, total: totalSteps })}
+            </Text>
 
             <TouchableOpacity
               onPress={handleNextStep}
@@ -122,9 +137,10 @@ export default function BasicRoutineStep3Info({
           </View>
         </View>
 
+        {/* ✅ FIXED: Now uses translated skin type name */}
         <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
           <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-            For {skinTypeInfo.name}
+            {t('basicRoutine.for_skin', { skinType: getTranslatedSkinTypeName() })}
           </Text>
         </View>
 
@@ -137,66 +153,67 @@ export default function BasicRoutineStep3Info({
             />
           </View>
           <View style={styles.productTextContainer}>
-            <Text style={styles.productTitle}>Sunscreen (SPF 30+)</Text>
-            <Text style={styles.productSubtitle}>Morning Step 3</Text>
+            <Text style={styles.productTitle}>{t('basicRoutine.sunscreen_spf_30')}</Text>
+            <Text style={styles.productSubtitle}>{t('basicRoutine.morning_step_3')}</Text>
           </View>
         </View>
 
         <View style={styles.introBox}>
-          <Text style={styles.introTitle}>Most Important Step</Text>
+          <Text style={styles.introTitle}>{t('basicRoutine.most_important_step')}</Text>
           <Text style={styles.introText}>
-            Sunscreen is the #1 anti-aging and skin protection step. We've selected SPF 30+ options that work perfectly for {skinTypeInfo.name.toLowerCase()}.
+            {t('basicRoutine.sunscreen_intro_text')}
           </Text>
         </View>
 
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>Why this matters</Text>
+          <Text style={styles.explanationTitle}>{t('basicRoutine.why_matters_sunscreen')}</Text>
           <Text style={styles.explanationText}>
-            Apply 2-3 fingers worth for face and neck. Never mix with skincare or makeup - it must be a standalone layer for full protection. Reapply every 2 hours when exposed to sun.
+            {t('basicRoutine.sunscreen_application_text')}
           </Text>
         </View>
 
         <View style={styles.warningBox}>
-          <Text style={styles.warningTitle}>⚠️ Critical Application Rules</Text>
+          <Text style={styles.warningTitle}>{t('basicRoutine.critical_application_rules')}</Text>
           <Text style={styles.warningText}>
-            • Use enough: 2-3 fingers worth (most people use only 25%!){'\n'}
-            • Apply as final step - never mix with other products{'\n'}
-            • Wait 15 minutes before sun exposure{'\n'}
-            • Reapply every 2 hours outdoors
+            {t('basicRoutine.rule_use_enough')}{'\n'}
+            {t('basicRoutine.rule_apply_final')}{'\n'}
+            {t('basicRoutine.rule_wait_15')}{'\n'}
+            {t('basicRoutine.rule_reapply')}
           </Text>
         </View>
 
+        {/* ✅ FIXED: Now uses translation keys */}
         <View style={styles.citationContainer}>
           <Text style={styles.citationText}>
-            Sunscreen recommendations based on{' '}
+            {t('basicRoutine.citation_sunscreen_intro')}{' '}
             <Text 
               style={styles.citationLink}
               onPress={() => Linking.openURL('https://www.aad.org/public/diseases/skin-cancer/surprising-facts-about-sunscreen')}
             >
-              American Academy of Dermatology guidelines on sun protection
+              {t('basicRoutine.citation_sunscreen_link1')}
             </Text>
-            , research on{' '}
+            , {t('basicRoutine.citation_sunscreen_research')}{' '}
             <Text 
               style={styles.citationLink}
               onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3543289/')}
             >
-              proper SPF application amounts and efficacy
+              {t('basicRoutine.citation_sunscreen_link2')}
             </Text>
-            , and clinical studies on{' '}
+            , {t('basicRoutine.citation_sunscreen_studies')}{' '}
             <Text 
               style={styles.citationLink}
               onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(18)32767-6/fulltext')}
             >
-              UV filter effectiveness and photoprotection
+              {t('basicRoutine.citation_sunscreen_link3')}
             </Text>
-            . Daily sun protection is essential - consult a dermatologist for personalized advice.
+            . {t('basicRoutine.citation_sunscreen_disclaimer')}
           </Text>
         </View>
       </View>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('basicRoutine.see_products_button')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -228,9 +245,44 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  // ✅ FIXED: Day Routine Banner Text Styles - Proper Two-Line Format
+  dayRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 10,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  dayRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,          // ✅ Proper spacing
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  dayRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,          // ✅ Proper spacing
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,           // ✅ Less negative = more space
+    includeFontPadding: false,
   },
   content: {
     flex: 1,

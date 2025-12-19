@@ -1,3 +1,4 @@
+// app/onboardingScreens/OnboardingSaveProgress.js
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
@@ -15,6 +16,7 @@ import {
 } from 'react-native';
 import { auth } from '../../config/firebase';
 import { AuthService } from '../../services/AuthService';
+import { t } from '../i18n';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -84,7 +86,10 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
 
   const handleAppleSignIn = async () => {
     if (Platform.OS !== 'ios') {
-      Alert.alert('Not Available', 'Apple Sign In is only available on iOS devices');
+      Alert.alert(
+        t('onboarding.paywall.alert_not_available'),
+        t('onboarding.paywall.alert_apple_ios_only')
+      );
       return;
     }
 
@@ -146,10 +151,10 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>
-          Save your <Text style={styles.titleHighlight}>progress</Text>
+          {t('onboarding.saveProgress.title1')} <Text style={styles.titleHighlight}>{t('onboarding.saveProgress.title2')}</Text>
         </Text>
         <Text style={styles.subtitle}>
-          Create an account to save your personalized skincare plan and progress
+          {t('onboarding.saveProgress.subtitle')}
         </Text>
       </View>
 
@@ -169,7 +174,7 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
                   style={styles.appleIcon}
                   resizeMode="contain"
                 />
-                <Text style={styles.appleButtonText}>Sign in with Apple</Text>
+                <Text style={styles.appleButtonText}>{t('onboarding.saveProgress.apple_button')}</Text>
               </>
             )}
           </TouchableOpacity>
@@ -189,7 +194,7 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
                 style={styles.googleIcon}
                 resizeMode="contain"
               />
-              <Text style={styles.googleButtonText}>Sign in with Google</Text>
+              <Text style={styles.googleButtonText}>{t('onboarding.saveProgress.google_button')}</Text>
             </>
           )}
         </TouchableOpacity>
@@ -200,26 +205,26 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
       <View style={styles.bottomSection}>
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip} disabled={loading}>
           <Text style={styles.skipText}>
-            Would you like to sign in later?{' '}
-            <Text style={styles.skipLink}>Skip</Text>
+            {t('onboarding.saveProgress.skip_text')}{' '}
+            <Text style={styles.skipLink}>{t('onboarding.saveProgress.skip_link')}</Text>
           </Text>
         </TouchableOpacity>
 
         <View style={styles.termsSection}>
           <Text style={styles.termsText}>
-            By clicking continue, you agree to our{' '}
+            {t('onboarding.saveProgress.terms_text')}{' '}
             <Text 
               style={styles.termsLink}
               onPress={() => Linking.openURL('https://dracne.pro/tos')}
             >
-              Terms of Service
+              {t('onboarding.saveProgress.terms_link')}
             </Text>
-            {' '}and{' '}
+            {' '}{t('onboarding.saveProgress.terms_and')}{' '}
             <Text 
               style={styles.termsLink}
               onPress={() => Linking.openURL('https://dracne.pro/privacy')}
             >
-              Privacy Policy
+              {t('onboarding.saveProgress.privacy_link')}
             </Text>
           </Text>
         </View>

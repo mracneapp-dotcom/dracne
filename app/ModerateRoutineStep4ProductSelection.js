@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
-  Linking,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import RoutineCompletionModal from '../components/modals/RoutineCompletionModal';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -288,9 +289,9 @@ export default function ModerateRoutineStep4ProductSelection({
 
   const getButtonText = () => {
     if (!selectedProduct) {
-      return 'Choose My Sunscreen';
+      return t('moderateRoutineStep4Products.choose_sunscreen');
     }
-    return 'Complete Moderate Routine Setup';
+    return t('moderateRoutineStep4Products.complete_routine');
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -315,11 +316,16 @@ export default function ModerateRoutineStep4ProductSelection({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -338,7 +344,9 @@ export default function ModerateRoutineStep4ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('moderateRoutineStep4Products.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -359,21 +367,21 @@ export default function ModerateRoutineStep4ProductSelection({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('moderateRoutineStep4Products.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Product Recommendations</Text>
+          <Text style={styles.sectionTitle}>{t('moderateRoutineStep4Products.section_title')}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose your sunscreen - the most important anti-aging step. All options are SPF 30+ and dermatologist-recommended for your skin type.
+              {t('moderateRoutineStep4Products.explanation')}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Choose Your Product {selectedProduct && '(1 selected)'}
+              {t('moderateRoutineStep4Products.choose_product', { selected: selectedProduct ? 1 : 0 })}
             </Text>
             
             {products.map((product) => {
@@ -415,34 +423,13 @@ export default function ModerateRoutineStep4ProductSelection({
 
           {!selectedProduct && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select 1 sunscreen to complete your routine</Text>
+              <Text style={styles.helperText}>{t('moderateRoutineStep4Products.helper_text')}</Text>
             </View>
           )}
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Sunscreen selections curated using{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.fda.gov/drugs/understanding-over-counter-medicines/sunscreen-how-help-protect-your-skin-sun')}
-              >
-                FDA sunscreen regulations and SPF testing standards
-              </Text>
-              , formulation research from the{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://onlinelibrary.wiley.com/journal/14682494')}
-              >
-                International Journal of Cosmetic Science
-              </Text>
-              , and clinical studies on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3543289/')}
-              >
-                photoprotection and skin type-specific sunscreen formulations
-              </Text>
-              . Daily broad-spectrum sunscreen is essential - consult a dermatologist for personalized sun protection advice.
+              {t('moderateRoutineStep4Products.citation')}
             </Text>
           </View>
 
@@ -496,6 +483,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,

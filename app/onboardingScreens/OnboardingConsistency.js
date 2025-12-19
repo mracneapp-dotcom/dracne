@@ -2,11 +2,13 @@
 import React, { useState } from 'react';
 import {
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -19,29 +21,29 @@ const BRAND_COLORS = {
 const CONSISTENCY_OPTIONS = [
   {
     id: 'very_committed',
-    label: 'Very committed',
-    description: "I'll follow my routine daily",
+    labelKey: 'onboarding.consistency.very_committed',
+    descKey: 'onboarding.consistency.very_committed_desc',
     icon: require('../../assets/images/check.png'),
     color: BRAND_COLORS.primary,
   },
   {
     id: 'mostly_committed',
-    label: 'Mostly committed',
-    description: 'I might miss a day here and there',
+    labelKey: 'onboarding.consistency.mostly_committed',
+    descKey: 'onboarding.consistency.mostly_committed_desc',
     icon: require('../../assets/images/check.png'),
     color: '#4A90E2',
   },
   {
     id: 'trying_best',
-    label: 'Trying my best',
-    description: 'Life gets busy sometimes',
+    labelKey: 'onboarding.consistency.trying_best',
+    descKey: 'onboarding.consistency.trying_best_desc',
     icon: require('../../assets/images/check.png'),
     color: '#F39C12',
   },
   {
     id: 'not_sure',
-    label: 'Not sure yet',
-    description: "Let's see how it goes",
+    labelKey: 'onboarding.consistency.not_sure',
+    descKey: 'onboarding.consistency.not_sure_desc',
     icon: require('../../assets/images/check.png'),
     color: '#9B59B6',
   },
@@ -62,7 +64,11 @@ export default function OnboardingConsistency({ onNext }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.iconContainer}>
           <View style={styles.mainCircle}>
             <Image
@@ -75,10 +81,10 @@ export default function OnboardingConsistency({ onNext }) {
 
         <View style={styles.header}>
           <Text style={styles.title}>
-            How <Text style={styles.titleHighlight}>committed</Text> are you?
+            {t('onboarding.consistency.title1')} <Text style={styles.titleHighlight}>{t('onboarding.consistency.title2')}</Text>
           </Text>
           <Text style={styles.subtitle}>
-            Be honest - this helps us support you better
+            {t('onboarding.consistency.subtitle')}
           </Text>
         </View>
 
@@ -116,9 +122,9 @@ export default function OnboardingConsistency({ onNext }) {
                     styles.optionLabel,
                     isSelected && { color: option.color, fontWeight: '600' }
                   ]}>
-                    {option.label}
+                    {t(option.labelKey)}
                   </Text>
-                  <Text style={styles.optionDescription}>{option.description}</Text>
+                  <Text style={styles.optionDescription}>{t(option.descKey)}</Text>
                 </View>
               </TouchableOpacity>
             );
@@ -127,10 +133,10 @@ export default function OnboardingConsistency({ onNext }) {
 
         <View style={styles.infoBox}>
           <Text style={styles.infoText}>
-            Consistency is key - even small steps lead to big results
+            {t('onboarding.consistency.info')}
           </Text>
         </View>
-      </View>
+      </ScrollView>
 
       <View style={styles.bottomSection}>
         <TouchableOpacity
@@ -145,10 +151,10 @@ export default function OnboardingConsistency({ onNext }) {
             styles.continueButtonText,
             !selectedLevel && styles.continueButtonTextDisabled
           ]}>
-            Continue
+            {t('onboarding.consistency.button')}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.helperText}>Select your commitment level</Text>
+        <Text style={styles.helperText}>{t('onboarding.consistency.helper')}</Text>
       </View>
     </View>
   );
@@ -159,22 +165,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     backgroundColor: 'transparent',
     paddingHorizontal: 24,
-    paddingTop: 40, // ✓ REDUCED from 60
-    paddingBottom: 140, // ✓ ADDED - prevents overlap with bottom button
-    justifyContent: 'flex-start',
+    paddingTop: 40,
+    paddingBottom: 140,
   },
   iconContainer: {
     alignItems: 'center',
-    marginBottom: 24, // ✓ REDUCED from 32
+    marginBottom: 24,
   },
   mainCircle: {
-    width: 70, // ✓ REDUCED from 80
-    height: 70, // ✓ REDUCED from 80
-    borderRadius: 35, // ✓ ADJUSTED
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: BRAND_COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
@@ -185,13 +192,13 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   mainIcon: {
-    width: 35, // ✓ REDUCED from 40
-    height: 35, // ✓ REDUCED from 40
+    width: 35,
+    height: 35,
     tintColor: BRAND_COLORS.white,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 30, // ✓ REDUCED from 40
+    marginBottom: 30,
   },
   title: {
     fontSize: 28,
@@ -212,14 +219,14 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   optionsContainer: {
-    marginBottom: 20, // ✓ REDUCED from 24
+    marginBottom: 20,
   },
   optionCard: {
     flexDirection: 'row',
     backgroundColor: BRAND_COLORS.white,
     borderRadius: 16,
-    padding: 16, // ✓ REDUCED from 18
-    marginBottom: 10, // ✓ REDUCED from 14
+    padding: 16,
+    marginBottom: 10,
     borderWidth: 2,
     borderColor: 'transparent',
     shadowColor: '#000',
@@ -229,37 +236,37 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   iconCircle: {
-    width: 44, // ✓ REDUCED from 48
-    height: 44, // ✓ REDUCED from 48
-    borderRadius: 22, // ✓ ADJUSTED
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 14, // ✓ REDUCED from 16
+    marginRight: 14,
   },
   icon: {
-    width: 22, // ✓ REDUCED from 24
-    height: 22, // ✓ REDUCED from 24
+    width: 22,
+    height: 22,
   },
   textContainer: {
     flex: 1,
     justifyContent: 'center',
   },
   optionLabel: {
-    fontSize: 16, // ✓ REDUCED from 17
+    fontSize: 16,
     color: BRAND_COLORS.black,
     marginBottom: 4,
   },
   optionDescription: {
-    fontSize: 13, // ✓ REDUCED from 14
+    fontSize: 13,
     color: '#666',
-    lineHeight: 18, // ✓ REDUCED from 19
+    lineHeight: 18,
   },
   infoBox: {
     backgroundColor: `${BRAND_COLORS.primary}10`,
     borderRadius: 12,
-    padding: 14, // ✓ REDUCED from 16
+    padding: 14,
     alignItems: 'center',
-    marginBottom: 20, // ✓ ADDED - extra space before bottom section
+    marginBottom: 20,
   },
   infoText: {
     fontSize: 13,

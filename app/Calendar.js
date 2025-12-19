@@ -1,4 +1,4 @@
-// app/Calendar.js - WEEKLY ROUTINE CALENDAR
+// app/Calendar.js - WEEKLY ROUTINE CALENDAR WITH SPANISH I18N
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -25,8 +26,8 @@ const BRAND_COLORS = {
   smartBlue: '#82b2df',
 };
 
-const DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
-const DAYS_FULL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const DAYS = ['calendar.days.mon', 'calendar.days.tue', 'calendar.days.wed', 'calendar.days.thu', 'calendar.days.fri', 'calendar.days.sat', 'calendar.days.sun'];
+const DAYS_FULL = ['calendar.days_full.monday', 'calendar.days_full.tuesday', 'calendar.days_full.wednesday', 'calendar.days_full.thursday', 'calendar.days_full.friday', 'calendar.days_full.saturday', 'calendar.days_full.sunday'];
 
 export default function Calendar({ onNavigateHome }) {
   const [dayRoutine, setDayRoutine] = useState(null);
@@ -271,7 +272,7 @@ if (nightRoutine) {
     const isToday = dayIndex === currentDay;
 
     setModalContent({
-      day: DAYS_FULL[dayIndex],
+      day: t(DAYS_FULL[dayIndex]),
       isToday,
       isRestDay: dayData.isRestDay,
       morning: dayData.morning,
@@ -282,9 +283,9 @@ if (nightRoutine) {
 
   const showRestDayInfo = () => {
     Alert.alert(
-      'Rest Days',
-      'Rest days are when you skip Smart Routine treatments to let your skin recover. You still follow your regular Day & Night routines.\n\nGiving your skin rest prevents irritation and helps treatments work better!',
-      [{ text: 'Got it!' }]
+      t('calendar.alert_rest_title'),
+      t('calendar.alert_rest_message'),
+      [{ text: t('calendar.alert_ok') }]
     );
   };
 
@@ -322,17 +323,17 @@ if (nightRoutine) {
             styles.dayLabel,
             isToday && styles.dayLabelToday
           ]}>
-            {dayLabel}
+            {t(dayLabel)}
           </Text>
           <View style={styles.dayHeaderBadges}>
             {isToday && (
               <View style={styles.todayBadge}>
-                <Text style={styles.todayBadgeText}>TODAY</Text>
+                <Text style={styles.todayBadgeText}>{t('calendar.today')}</Text>
               </View>
             )}
             {isRestDay && (
               <View style={styles.restDayBadge}>
-                <Text style={styles.restDayBadgeText}>Rest Day</Text>
+                <Text style={styles.restDayBadgeText}>{t('calendar.rest_day')}</Text>
               </View>
             )}
           </View>
@@ -347,7 +348,7 @@ if (nightRoutine) {
                 style={styles.timeSectionIcon}
                 resizeMode="contain"
               />
-              <Text style={styles.timeSectionLabel}>AM</Text>
+              <Text style={styles.timeSectionLabel}>{t('calendar.am')}</Text>
             </View>
             <View style={styles.productsList}>
               {dayData.morning.slice(0, 3).map((product, idx) => 
@@ -355,7 +356,7 @@ if (nightRoutine) {
               )}
               {dayData.morning.length > 3 && (
                 <Text style={styles.moreProducts}>
-                  +{dayData.morning.length - 3} more
+                  {t('calendar.more', { count: dayData.morning.length - 3 })}
                 </Text>
               )}
             </View>
@@ -371,7 +372,7 @@ if (nightRoutine) {
                 style={styles.timeSectionIcon}
                 resizeMode="contain"
               />
-              <Text style={styles.timeSectionLabel}>PM</Text>
+              <Text style={styles.timeSectionLabel}>{t('calendar.pm')}</Text>
             </View>
             <View style={styles.productsList}>
               {dayData.evening.slice(0, 3).map((product, idx) => 
@@ -379,7 +380,7 @@ if (nightRoutine) {
               )}
               {dayData.evening.length > 3 && (
                 <Text style={styles.moreProducts}>
-                  +{dayData.evening.length - 3} more
+                  {t('calendar.more', { count: dayData.evening.length - 3 })}
                 </Text>
               )}
             </View>
@@ -390,7 +391,7 @@ if (nightRoutine) {
         {dayData.morning.length === 0 && dayData.evening.length === 0 && (
           <View style={styles.noRoutinesContainer}>
             <Text style={styles.noRoutinesText}>
-              Create your Day & Night routines to see them here
+              {t('calendar.no_routines')}
             </Text>
           </View>
         )}
@@ -432,24 +433,24 @@ if (nightRoutine) {
         <View style={styles.content}>
           <View style={styles.titleContainer}>
             <Text style={styles.pageTitle}>
-              Your <Text style={styles.pageTitleHighlight}>Weekly Calendar</Text>
+              {t('calendar.title')} <Text style={styles.pageTitleHighlight}>{t('calendar.title_highlight')}</Text>
             </Text>
           </View>
 
           {loading ? (
             <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Loading your calendar...</Text>
+              <Text style={styles.loadingText}>{t('calendar.loading')}</Text>
             </View>
           ) : (
             <>
               <View style={styles.legendContainer}>
                 <View style={styles.legendItem}>
                   <View style={[styles.legendDot, { backgroundColor: BRAND_COLORS.primary }]} />
-                  <Text style={styles.legendText}>Day/Night Routine</Text>
+                  <Text style={styles.legendText}>{t('calendar.legend_day_night')}</Text>
                 </View>
                 <View style={styles.legendItem}>
                   <View style={[styles.legendDot, { backgroundColor: BRAND_COLORS.smartBlue }]} />
-                  <Text style={styles.legendText}>Smart Routine</Text>
+                  <Text style={styles.legendText}>{t('calendar.legend_smart')}</Text>
                 </View>
               </View>
 
@@ -459,19 +460,19 @@ if (nightRoutine) {
 
               {smartRoutines.length === 0 && (dayRoutine || nightRoutine) && (
                 <View style={styles.smartRoutineSuggestion}>
-                  <Text style={styles.suggestionTitle}>Boost Your Results</Text>
+                  <Text style={styles.suggestionTitle}>{t('calendar.boost_title')}</Text>
                   <Text style={styles.suggestionText}>
-                    Have specific skin concerns? Create Smart Routines for targeted treatments 2-3x per week.
+                    {t('calendar.boost_text')}
                   </Text>
                 </View>
               )}
 
               <View style={styles.tipsContainer}>
-                <Text style={styles.tipsTitle}>Quick Tips</Text>
-                <Text style={styles.tipText}>• Tap any day to see full details</Text>
-                <Text style={styles.tipText}>• Green dots = regular routine</Text>
-                <Text style={styles.tipText}>• Blue dots = smart treatments (2-3x/week)</Text>
-                <Text style={styles.tipText}>• Rest days help prevent irritation</Text>
+                <Text style={styles.tipsTitle}>{t('calendar.tips_title')}</Text>
+                <Text style={styles.tipText}>{t('calendar.tip1')}</Text>
+                <Text style={styles.tipText}>{t('calendar.tip2')}</Text>
+                <Text style={styles.tipText}>{t('calendar.tip3')}</Text>
+                <Text style={styles.tipText}>{t('calendar.tip4')}</Text>
               </View>
             </>
           )}
@@ -493,7 +494,7 @@ if (nightRoutine) {
               <Text style={styles.modalTitle}>{modalContent?.day}</Text>
               {modalContent?.isToday && (
                 <View style={styles.modalTodayBadge}>
-                  <Text style={styles.modalTodayText}>TODAY</Text>
+                  <Text style={styles.modalTodayText}>{t('calendar.today')}</Text>
                 </View>
               )}
               <TouchableOpacity 
@@ -507,9 +508,9 @@ if (nightRoutine) {
             <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
               {modalContent?.isRestDay && (
                 <View style={styles.modalRestDayNote}>
-                  <Text style={styles.modalRestNoteTitle}>Rest Day</Text>
+                  <Text style={styles.modalRestNoteTitle}>{t('calendar.modal_rest_title')}</Text>
                   <Text style={styles.modalRestNoteText}>
-                    Skip your Smart Routine treatments today. Continue with your regular Day & Night routines below.
+                    {t('calendar.modal_rest_text')}
                   </Text>
                 </View>
               )}
@@ -523,7 +524,7 @@ if (nightRoutine) {
                       style={styles.modalSectionIcon}
                       resizeMode="contain"
                     />
-                    <Text style={styles.modalSectionTitle}>Morning Routine</Text>
+                    <Text style={styles.modalSectionTitle}>{t('calendar.modal_morning')}</Text>
                   </View>
                   {modalContent.morning.map((product, idx) => (
                     <View key={`morning-${idx}`} style={styles.modalProduct}>
@@ -531,7 +532,7 @@ if (nightRoutine) {
                         <Text style={styles.modalProductName}>{product.name}</Text>
                         {product.isSmart && (
                           <View style={styles.modalSmartBadge}>
-                            <Text style={styles.modalSmartText}>SMART</Text>
+                            <Text style={styles.modalSmartText}>{t('calendar.modal_smart_badge')}</Text>
                           </View>
                         )}
                       </View>
@@ -561,7 +562,7 @@ if (nightRoutine) {
                           style={styles.modalSectionIcon}
                           resizeMode="contain"
                         />
-                        <Text style={styles.modalSectionTitle}>Evening Routine</Text>
+                        <Text style={styles.modalSectionTitle}>{t('calendar.modal_evening')}</Text>
                       </View>
                       {modalContent.evening.map((product, idx) => (
                         <View key={`evening-${idx}`} style={styles.modalProduct}>
@@ -569,7 +570,7 @@ if (nightRoutine) {
                             <Text style={styles.modalProductName}>{product.name}</Text>
                             {product.isSmart && (
                               <View style={styles.modalSmartBadge}>
-                                <Text style={styles.modalSmartText}>SMART</Text>
+                                <Text style={styles.modalSmartText}>{t('calendar.modal_smart_badge')}</Text>
                               </View>
                             )}
                           </View>

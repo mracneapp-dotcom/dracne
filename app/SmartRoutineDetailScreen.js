@@ -1,7 +1,8 @@
-// app/SmartRoutineDetailScreen.js - UPDATED WITH CITATIONS
+// app/SmartRoutineDetailScreen.js - FULLY TRANSLATED (COMPLETE)
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Linking,
   ScrollView,
   StyleSheet,
@@ -10,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -24,20 +26,20 @@ const BRAND_COLORS = {
 
 const CONCERN_DATA = {
   nodules: {
-    name: 'Inflamed Acne (Nodules)',
+    nameKey: 'smartRoutine.nodules_name',
     color: '#FF7A7A',
     icon: require('../assets/images/Nodule.png'),
-    description: 'Deep, painful bumps that form beneath the skin surface. Requires gentle, anti-inflammatory approach.',
-    goal: 'Calm inflammation, regulate oil, and prevent infection without stripping skin barrier.',
+    descriptionKey: 'smartRoutine.nodules_description',
+    goalKey: 'smartRoutine.nodules_goal',
     amRoutine: [
-      { step: 1, title: 'Gentle Low-pH Cleanser', description: 'Non-stripping formula to cleanse without irritation' },
-      { step: 2, title: 'Barrier Moisturizer', description: 'Light gel-cream to maintain skin barrier' },
-      { step: 3, title: 'Mineral or Hybrid SPF', description: 'Non-comedogenic sun protection' },
+      { step: 1, titleKey: 'smartRoutine.nodules_am_step1_title', descriptionKey: 'smartRoutine.nodules_am_step1_desc' },
+      { step: 2, titleKey: 'smartRoutine.nodules_am_step2_title', descriptionKey: 'smartRoutine.nodules_am_step2_desc' },
+      { step: 3, titleKey: 'smartRoutine.nodules_am_step3_title', descriptionKey: 'smartRoutine.nodules_am_step3_desc' },
     ],
     pmRoutine: [
-      { step: 1, title: 'Gentle Cleanser', description: 'Same as morning cleanser' },
-      { step: 2, title: 'Targeted Active', description: 'Adapalene 0.1% (3-4x/week) or Azelaic Acid 10-20%' },
-      { step: 3, title: 'Lightweight Moisturizer', description: 'Barrier support without heaviness' },
+      { step: 1, titleKey: 'smartRoutine.nodules_pm_step1_title', descriptionKey: 'smartRoutine.nodules_pm_step1_desc' },
+      { step: 2, titleKey: 'smartRoutine.nodules_pm_step2_title', descriptionKey: 'smartRoutine.nodules_pm_step2_desc' },
+      { step: 3, titleKey: 'smartRoutine.nodules_pm_step3_title', descriptionKey: 'smartRoutine.nodules_pm_step3_desc' },
     ],
     products: {
       cleansers: [
@@ -66,29 +68,29 @@ const CONCERN_DATA = {
       ],
     },
     extraCare: [
-      'Never pop or touch nodules - they form deep beneath the skin',
-      'Use disposable cotton pads instead of towels to prevent bacteria spread',
-      'Change pillowcases 2-3 times per week',
-      'Apply ice wrapped in gauze for 30 seconds to reduce swelling',
-      'Introduce actives slowly - start 2x per week',
+      'smartRoutine.nodules_tip1',
+      'smartRoutine.nodules_tip2',
+      'smartRoutine.nodules_tip3',
+      'smartRoutine.nodules_tip4',
+      'smartRoutine.nodules_tip5',
     ],
   },
   blackheads: {
-    name: 'Blackheads (Open Comedones)',
+    nameKey: 'smartRoutine.blackheads_name',
     color: '#4A90E2',
     icon: require('../assets/images/Blackhead.png'),
-    description: 'Oxidized sebum in open pores. Requires chemical exfoliation to dissolve buildup.',
-    goal: 'Dissolve oxidized sebum and keep pores clear with BHA exfoliants.',
+    descriptionKey: 'smartRoutine.blackheads_description',
+    goalKey: 'smartRoutine.blackheads_goal',
     amRoutine: [
-      { step: 1, title: 'Gentle Gel Cleanser', description: 'Low-pH formula for clean skin' },
-      { step: 2, title: 'Lightweight Gel-Cream', description: 'Oil-free hydration' },
-      { step: 3, title: 'Broad-Spectrum SPF', description: 'Daily sun protection' },
+      { step: 1, titleKey: 'smartRoutine.blackheads_am_step1_title', descriptionKey: 'smartRoutine.blackheads_am_step1_desc' },
+      { step: 2, titleKey: 'smartRoutine.blackheads_am_step2_title', descriptionKey: 'smartRoutine.blackheads_am_step2_desc' },
+      { step: 3, titleKey: 'smartRoutine.blackheads_am_step3_title', descriptionKey: 'smartRoutine.blackheads_am_step3_desc' },
     ],
     pmRoutine: [
-      { step: 1, title: 'Double Cleanse', description: 'Oil-based balm first if using sunscreen' },
-      { step: 2, title: 'Basic Cleanser', description: 'Gentle daily cleanser' },
-      { step: 3, title: 'BHA Exfoliant (2-3x/week)', description: 'Salicylic acid to clear pores' },
-      { step: 4, title: 'Gel-Cream Moisturizer', description: 'Lightweight barrier support' },
+      { step: 1, titleKey: 'smartRoutine.blackheads_pm_step1_title', descriptionKey: 'smartRoutine.blackheads_pm_step1_desc' },
+      { step: 2, titleKey: 'smartRoutine.blackheads_pm_step2_title', descriptionKey: 'smartRoutine.blackheads_pm_step2_desc' },
+      { step: 3, titleKey: 'smartRoutine.blackheads_pm_step3_title', descriptionKey: 'smartRoutine.blackheads_pm_step3_desc' },
+      { step: 4, titleKey: 'smartRoutine.blackheads_pm_step4_title', descriptionKey: 'smartRoutine.blackheads_pm_step4_desc' },
     ],
     products: {
       cleansers: [
@@ -117,28 +119,28 @@ const CONCERN_DATA = {
       ],
     },
     extraCare: [
-      'Avoid physical scrubs or pore strips - they damage the barrier',
-      'Steam once weekly before BHA application to enhance penetration',
-      'Never over-cleanse - skin should never feel tight',
-      'Be patient - results take 6-8 weeks of consistent use',
-      'Don\'t mix BHA with retinoids on the same night',
+      'smartRoutine.blackheads_tip1',
+      'smartRoutine.blackheads_tip2',
+      'smartRoutine.blackheads_tip3',
+      'smartRoutine.blackheads_tip4',
+      'smartRoutine.blackheads_tip5',
     ],
   },
   whiteheads: {
-    name: 'Whiteheads (Closed Comedones)',
+    nameKey: 'smartRoutine.whiteheads_name',
     color: '#7CB342',
     icon: require('../assets/images/Whitehead.png'),
-    description: 'Closed pores filled with sebum and dead skin. Needs cell turnover acceleration.',
-    goal: 'Accelerate cell turnover and prevent clogged follicles with retinoids.',
+    descriptionKey: 'smartRoutine.whiteheads_description',
+    goalKey: 'smartRoutine.whiteheads_goal',
     amRoutine: [
-      { step: 1, title: 'Gentle Cleanser', description: 'Non-stripping daily cleanser' },
-      { step: 2, title: 'Niacinamide Moisturizer', description: 'Anti-inflammatory hydration' },
-      { step: 3, title: 'Non-Comedogenic Sunscreen', description: 'Essential daily protection' },
+      { step: 1, titleKey: 'smartRoutine.whiteheads_am_step1_title', descriptionKey: 'smartRoutine.whiteheads_am_step1_desc' },
+      { step: 2, titleKey: 'smartRoutine.whiteheads_am_step2_title', descriptionKey: 'smartRoutine.whiteheads_am_step2_desc' },
+      { step: 3, titleKey: 'smartRoutine.whiteheads_am_step3_title', descriptionKey: 'smartRoutine.whiteheads_am_step3_desc' },
     ],
     pmRoutine: [
-      { step: 1, title: 'Gentle Cleanser', description: 'Same as morning' },
-      { step: 2, title: 'Retinoid (2-3x/week)', description: 'Adapalene or low-strength retinol' },
-      { step: 3, title: 'Hydrating Moisturizer', description: 'Ceramide or gel-cream formula' },
+      { step: 1, titleKey: 'smartRoutine.whiteheads_pm_step1_title', descriptionKey: 'smartRoutine.whiteheads_pm_step1_desc' },
+      { step: 2, titleKey: 'smartRoutine.whiteheads_pm_step2_title', descriptionKey: 'smartRoutine.whiteheads_pm_step2_desc' },
+      { step: 3, titleKey: 'smartRoutine.whiteheads_pm_step3_title', descriptionKey: 'smartRoutine.whiteheads_pm_step3_desc' },
     ],
     products: {
       cleansers: [
@@ -161,29 +163,29 @@ const CONCERN_DATA = {
       ],
     },
     extraCare: [
-      'Never pick or squeeze whiteheads - causes scarring',
-      'Introduce retinoids slowly: 2x per week for first month',
-      'Always use SPF when using retinoids - increased sun sensitivity',
-      'Sleep on clean pillowcases changed every 2-3 days',
-      'Remove all makeup thoroughly every night',
+      'smartRoutine.whiteheads_tip1',
+      'smartRoutine.whiteheads_tip2',
+      'smartRoutine.whiteheads_tip3',
+      'smartRoutine.whiteheads_tip4',
+      'smartRoutine.whiteheads_tip5',
     ],
   },
   papules: {
-    name: 'Papules & Pustules',
+    nameKey: 'smartRoutine.papules_name',
     color: '#F39C12',
     icon: require('../assets/images/Papule.png'),
-    description: 'Surface acne with bacterial involvement. Requires antimicrobial treatment.',
-    goal: 'Kill acne bacteria and reduce inflammation with benzoyl peroxide and niacinamide.',
+    descriptionKey: 'smartRoutine.papules_description',
+    goalKey: 'smartRoutine.papules_goal',
     amRoutine: [
-      { step: 1, title: 'Antimicrobial Cleanser', description: 'Gentle cleanser with antibacterial properties' },
-      { step: 2, title: 'Niacinamide Serum (5-10%)', description: 'Reduces inflammation' },
-      { step: 3, title: 'Lightweight Oil-Free Moisturizer', description: 'Barrier support' },
-      { step: 4, title: 'SPF Protection', description: 'Daily sun protection' },
+      { step: 1, titleKey: 'smartRoutine.papules_am_step1_title', descriptionKey: 'smartRoutine.papules_am_step1_desc' },
+      { step: 2, titleKey: 'smartRoutine.papules_am_step2_title', descriptionKey: 'smartRoutine.papules_am_step2_desc' },
+      { step: 3, titleKey: 'smartRoutine.papules_am_step3_title', descriptionKey: 'smartRoutine.papules_am_step3_desc' },
+      { step: 4, titleKey: 'smartRoutine.papules_am_step4_title', descriptionKey: 'smartRoutine.papules_am_step4_desc' },
     ],
     pmRoutine: [
-      { step: 1, title: 'Basic Cleanser', description: 'Gentle daily cleanser' },
-      { step: 2, title: 'Benzoyl Peroxide 2.5-5%', description: 'Spot treatment or short-contact wash' },
-      { step: 3, title: 'Gel-Cream Moisturizer', description: 'Lightweight hydration' },
+      { step: 1, titleKey: 'smartRoutine.papules_pm_step1_title', descriptionKey: 'smartRoutine.papules_pm_step1_desc' },
+      { step: 2, titleKey: 'smartRoutine.papules_pm_step2_title', descriptionKey: 'smartRoutine.papules_pm_step2_desc' },
+      { step: 3, titleKey: 'smartRoutine.papules_pm_step3_title', descriptionKey: 'smartRoutine.papules_pm_step3_desc' },
     ],
     products: {
       cleansers: [
@@ -212,30 +214,30 @@ const CONCERN_DATA = {
       ],
     },
     extraCare: [
-      'Never apply BP and retinoids at the same time - alternate nights',
-      'Use cotton pillowcases (not synthetic) and change frequently',
-      'BP can bleach fabrics - use white towels and sheets',
-      'Start with 2.5% BP - higher isn\'t always better',
-      'Moisturize before BP application to reduce irritation',
+      'smartRoutine.papules_tip1',
+      'smartRoutine.papules_tip2',
+      'smartRoutine.papules_tip3',
+      'smartRoutine.papules_tip4',
+      'smartRoutine.papules_tip5',
     ],
   },
   marks: {
-    name: 'Post-Inflammatory Marks (PIE/PIH)',
+    nameKey: 'smartRoutine.marks_name',
     color: '#9B59B6',
     icon: require('../assets/images/Mark.png'),
-    description: 'Dark spots and red marks left after acne heals. Requires brightening and barrier support.',
-    goal: 'Fade dark/red spots with brightening actives while maintaining strong barrier.',
+    descriptionKey: 'smartRoutine.marks_description',
+    goalKey: 'smartRoutine.marks_goal',
     amRoutine: [
-      { step: 1, title: 'Gentle Cleanser', description: 'Maintain barrier integrity' },
-      { step: 2, title: 'Vitamin C or Brightening Serum', description: 'Antioxidant protection & fading' },
-      { step: 3, title: 'Lightweight Moisturizer', description: 'Barrier support' },
-      { step: 4, title: 'SPF (Non-Negotiable)', description: 'Prevents darkening of marks' },
+      { step: 1, titleKey: 'smartRoutine.marks_am_step1_title', descriptionKey: 'smartRoutine.marks_am_step1_desc' },
+      { step: 2, titleKey: 'smartRoutine.marks_am_step2_title', descriptionKey: 'smartRoutine.marks_am_step2_desc' },
+      { step: 3, titleKey: 'smartRoutine.marks_am_step3_title', descriptionKey: 'smartRoutine.marks_am_step3_desc' },
+      { step: 4, titleKey: 'smartRoutine.marks_am_step4_title', descriptionKey: 'smartRoutine.marks_am_step4_desc' },
     ],
     pmRoutine: [
-      { step: 1, title: 'Gentle Cleanser', description: 'Same as morning' },
-      { step: 2, title: 'Niacinamide or Alpha Arbutin', description: 'Fading serum' },
-      { step: 3, title: 'Retinoid (2-3x/week)', description: 'Accelerate cell turnover' },
-      { step: 4, title: 'Moisturizer', description: 'Lock in treatment' },
+      { step: 1, titleKey: 'smartRoutine.marks_pm_step1_title', descriptionKey: 'smartRoutine.marks_pm_step1_desc' },
+      { step: 2, titleKey: 'smartRoutine.marks_pm_step2_title', descriptionKey: 'smartRoutine.marks_pm_step2_desc' },
+      { step: 3, titleKey: 'smartRoutine.marks_pm_step3_title', descriptionKey: 'smartRoutine.marks_pm_step3_desc' },
+      { step: 4, titleKey: 'smartRoutine.marks_pm_step4_title', descriptionKey: 'smartRoutine.marks_pm_step4_desc' },
     ],
     products: {
       cleansers: [
@@ -264,11 +266,11 @@ const CONCERN_DATA = {
       ],
     },
     extraCare: [
-      'SPF every day, even indoors - UV darkens marks',
-      'Avoid "miracle" spot creams with harsh acids',
-      'Use soothing sheet masks (Dr. Jart Cicapair, Beauty of Joseon)',
-      'Be patient - fading takes 6-12 weeks minimum',
-      'Never pick at acne - causes more marks',
+      'smartRoutine.marks_tip1',
+      'smartRoutine.marks_tip2',
+      'smartRoutine.marks_tip3',
+      'smartRoutine.marks_tip4',
+      'smartRoutine.marks_tip5',
     ],
   },
 };
@@ -285,10 +287,17 @@ export default function SmartRoutineDetailScreen({ onNavigateHome, onNavigateBac
   if (!concernData) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorText}>Concern data not found</Text>
+        <Text style={styles.errorText}>{t('smartRoutineDetail.error')}</Text>
       </View>
     );
   }
+
+  // ✅ Helper to format category names
+  const formatCategoryName = (category) => {
+    return category
+      .charAt(0).toUpperCase() + 
+      category.slice(1).replace(/([A-Z])/g, ' $1');
+  };
 
   return (
     <View style={styles.container}>
@@ -302,6 +311,24 @@ export default function SmartRoutineDetailScreen({ onNavigateHome, onNavigateBac
           />
         </TouchableOpacity>
       </View>
+
+      {/* ✅ ADDED: Banner with Proper Text */}
+      <TouchableOpacity 
+        style={styles.bannerContainer}
+        onPress={onNavigateBack}
+        activeOpacity={0.9}
+      >
+        <ImageBackground
+          source={require('../assets/images/banner-scan-skin-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.smartBannerTextContainer}>
+            <Text style={styles.smartBannerLine1}>{t('smartRoutineBanners.smart')}</Text>
+            <Text style={styles.smartBannerLine2}>{t('smartRoutineBanners.routine')}</Text>
+          </View>
+        </ImageBackground>
+      </TouchableOpacity>
 
       <ScrollView 
         style={styles.scrollView}
@@ -318,14 +345,14 @@ export default function SmartRoutineDetailScreen({ onNavigateHome, onNavigateBac
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.concernTitle}>{concernData.name}</Text>
-            <Text style={styles.concernDescription}>{concernData.description}</Text>
+            <Text style={styles.concernTitle}>{t(concernData.nameKey)}</Text>
+            <Text style={styles.concernDescription}>{t(concernData.descriptionKey)}</Text>
           </View>
 
           {/* Goal Box */}
           <View style={[styles.goalBox, { borderLeftColor: concernData.color }]}>
-            <Text style={styles.goalTitle}>Treatment Goal</Text>
-            <Text style={styles.goalText}>{concernData.goal}</Text>
+            <Text style={styles.goalTitle}>{t('smartRoutineDetail.treatment_goal')}</Text>
+            <Text style={styles.goalText}>{t(concernData.goalKey)}</Text>
           </View>
 
           {/* AM Routine */}
@@ -338,7 +365,7 @@ export default function SmartRoutineDetailScreen({ onNavigateHome, onNavigateBac
                   resizeMode="contain"
                 />
               </View>
-              <Text style={styles.routineTitle}>Morning Routine</Text>
+              <Text style={styles.routineTitle}>{t('smartRoutineDetail.morning_routine')}</Text>
             </View>
             {concernData.amRoutine.map((item) => (
               <View key={item.step} style={styles.stepCard}>
@@ -346,8 +373,8 @@ export default function SmartRoutineDetailScreen({ onNavigateHome, onNavigateBac
                   <Text style={styles.stepNumberText}>{item.step}</Text>
                 </View>
                 <View style={styles.stepContent}>
-                  <Text style={styles.stepTitle}>{item.title}</Text>
-                  <Text style={styles.stepDescription}>{item.description}</Text>
+                  <Text style={styles.stepTitle}>{t(item.titleKey)}</Text>
+                  <Text style={styles.stepDescription}>{t(item.descriptionKey)}</Text>
                 </View>
               </View>
             ))}
@@ -363,7 +390,7 @@ export default function SmartRoutineDetailScreen({ onNavigateHome, onNavigateBac
                   resizeMode="contain"
                 />
               </View>
-              <Text style={styles.routineTitle}>Evening Routine</Text>
+              <Text style={styles.routineTitle}>{t('smartRoutineDetail.evening_routine')}</Text>
             </View>
             {concernData.pmRoutine.map((item) => (
               <View key={item.step} style={styles.stepCard}>
@@ -371,8 +398,8 @@ export default function SmartRoutineDetailScreen({ onNavigateHome, onNavigateBac
                   <Text style={styles.stepNumberText}>{item.step}</Text>
                 </View>
                 <View style={styles.stepContent}>
-                  <Text style={styles.stepTitle}>{item.title}</Text>
-                  <Text style={styles.stepDescription}>{item.description}</Text>
+                  <Text style={styles.stepTitle}>{t(item.titleKey)}</Text>
+                  <Text style={styles.stepDescription}>{t(item.descriptionKey)}</Text>
                 </View>
               </View>
             ))}
@@ -380,11 +407,11 @@ export default function SmartRoutineDetailScreen({ onNavigateHome, onNavigateBac
 
           {/* Product Recommendations */}
           <View style={styles.productsSection}>
-            <Text style={styles.sectionTitle}>Product Recommendations</Text>
+            <Text style={styles.sectionTitle}>{t('smartRoutineDetail.product_recommendations')}</Text>
             {Object.keys(concernData.products).map((category) => (
               <View key={category} style={styles.productCategory}>
                 <Text style={styles.categoryTitle}>
-                  {category.charAt(0).toUpperCase() + category.slice(1).replace(/([A-Z])/g, ' $1')}
+                  {formatCategoryName(category)}
                 </Text>
                 {concernData.products[category].map((product, index) => (
                   <View key={index} style={styles.productCard}>
@@ -401,43 +428,43 @@ export default function SmartRoutineDetailScreen({ onNavigateHome, onNavigateBac
 
           {/* Extra Care */}
           <View style={styles.extraCareSection}>
-            <Text style={styles.sectionTitle}>Extra Care Tips</Text>
-            {concernData.extraCare.map((tip, index) => (
+            <Text style={styles.sectionTitle}>{t('smartRoutineDetail.extra_care')}</Text>
+            {concernData.extraCare.map((tipKey, index) => (
               <View key={index} style={styles.tipCard}>
                 <Image 
                   source={require('../assets/images/check.png')}
                   style={styles.tipIcon}
                   resizeMode="contain"
                 />
-                <Text style={styles.tipText}>{tip}</Text>
+                <Text style={styles.tipText}>{t(tipKey)}</Text>
               </View>
             ))}
           </View>
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Targeted treatment protocols based on{' '}
+              {t('smartRoutineDetail.citation_intro')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(15)02614-6/fulltext')}
               >
-                clinical guidelines for condition-specific acne management
+                {t('smartRoutineDetail.citation_link1')}
               </Text>
-              , research on{' '}
+              {t('smartRoutineDetail.citation_part2')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4554394/')}
               >
-                topical retinoids and chemical exfoliants for comedonal and inflammatory acne
+                {t('smartRoutineDetail.citation_link2')}
               </Text>
-              , and{' '}
+              {t('smartRoutineDetail.citation_part3')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5574737/')}
               >
-                dermatological protocols for safe active ingredient introduction and combination therapy
+                {t('smartRoutineDetail.citation_link3')}
               </Text>
-              . These are educational recommendations - always patch test new products and consult a dermatologist for personalized treatment plans.
+              {t('smartRoutineDetail.citation_disclaimer')}
             </Text>
           </View>
 
@@ -447,12 +474,12 @@ export default function SmartRoutineDetailScreen({ onNavigateHome, onNavigateBac
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="Back to Concerns"
+          title={t('smartRoutineDetail.back_button')}
           onPress={onNavigateBack}
           style={styles.backButton}
         />
         <Text style={styles.helperText}>
-          Consistency is key - results take 6-12 weeks
+          {t('smartRoutineDetail.helper')}
         </Text>
       </View>
     </View>
@@ -476,6 +503,51 @@ const styles = StyleSheet.create({
   logoImage: {
     width: 80,
     height: 50,
+  },
+  // ✅ ADDED: Banner Styles
+  bannerContainer: {
+    width: '100%',
+    height: 120,
+    marginBottom: 20,
+  },
+  bannerImageBackground: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  smartBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 20,
+    paddingBottom: 20,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  smartBannerLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 38,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  smartBannerLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 38,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,
+    includeFontPadding: false,
   },
   scrollView: {
     flex: 1,

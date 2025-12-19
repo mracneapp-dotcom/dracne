@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -44,10 +45,10 @@ export default function OnboardingBarrierHealth1({ onNext }) {
 
         <View style={styles.header}>
           <Text style={styles.title}>
-            Does your skin feel <Text style={styles.titleHighlight}>tight or burning?</Text>
+            {t('onboarding.barrierHealth1.title1')}<Text style={styles.titleHighlight}>{t('onboarding.barrierHealth1.title2')}</Text>
           </Text>
           <Text style={styles.subtitle}>
-            This helps us assess your skin barrier health
+            {t('onboarding.barrierHealth1.subtitle')}
           </Text>
         </View>
 
@@ -81,9 +82,9 @@ export default function OnboardingBarrierHealth1({ onNext }) {
                 styles.optionLabel,
                 hasBarrierDamage === true && { color: BRAND_COLORS.secondary, fontWeight: '600' }
               ]}>
-                Yes, often
+                {t('onboarding.barrierHealth1.yes')}
               </Text>
-              <Text style={styles.optionDescription}>My skin feels tight or has a burning sensation</Text>
+              <Text style={styles.optionDescription}>{t('onboarding.barrierHealth1.yes_desc')}</Text>
             </View>
           </TouchableOpacity>
 
@@ -116,16 +117,16 @@ export default function OnboardingBarrierHealth1({ onNext }) {
                 styles.optionLabel,
                 hasBarrierDamage === false && { color: BRAND_COLORS.primary, fontWeight: '600' }
               ]}>
-                No, not really
+                {t('onboarding.barrierHealth1.no')}
               </Text>
-              <Text style={styles.optionDescription}>My skin feels comfortable and balanced</Text>
+              <Text style={styles.optionDescription}>{t('onboarding.barrierHealth1.no_desc')}</Text>
             </View>
           </TouchableOpacity>
         </View>
 
         <View style={styles.infoBox}>
           <Text style={styles.infoText}>
-            Barrier damage can affect how your skin responds to products
+            {t('onboarding.barrierHealth1.info')}
           </Text>
         </View>
       </View>
@@ -143,10 +144,10 @@ export default function OnboardingBarrierHealth1({ onNext }) {
             styles.continueButtonText,
             hasBarrierDamage === null && styles.continueButtonTextDisabled
           ]}>
-            Continue
+            {t('onboarding.barrierHealth1.button')}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.helperText}>Select one option</Text>
+        <Text style={styles.helperText}>{t('onboarding.barrierHealth1.helper')}</Text>
       </View>
     </View>
   );

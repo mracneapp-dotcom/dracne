@@ -1,9 +1,10 @@
-// app/MyDayRoutine.js - COMPLETE WITH CITATIONS
+// app/MyDayRoutine.js - FULLY TRANSLATED (COMPLETE)
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Image,
+  ImageBackground,
   Linking,
   RefreshControl,
   ScrollView,
@@ -13,6 +14,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -26,11 +28,11 @@ const BRAND_COLORS = {
 };
 
 const SKIN_TYPE_INFO = {
-  oily: { color: '#4A90E2', name: 'Oily Skin' },
-  dry: { color: '#F39C12', name: 'Dry Skin' },
-  combination: { color: BRAND_COLORS.primary, name: 'Combination Skin' },
-  normal: { color: '#9B59B6', name: 'Normal Skin' },
-  sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
+  oily: { color: '#4A90E2' },
+  dry: { color: '#F39C12' },
+  combination: { color: BRAND_COLORS.primary },
+  normal: { color: '#9B59B6' },
+  sensitive: { color: BRAND_COLORS.primary },
 };
 
 const ROUTINE_LEVEL_COLORS = {
@@ -82,7 +84,7 @@ export default function MyDayRoutine({
         const isUserCreated = customData.completedAt || customData.savedByUser === true;
         if (hasProducts && isUserCreated) {
           selectedRoutine = customData;
-          selectedLevel = 'custom';
+          selectedLevel = 'basic';
         }
       }
       
@@ -154,20 +156,21 @@ export default function MyDayRoutine({
   }, []);
 
   const handleClearRoutine = () => {
-    const levelText = routineLevel ? routineLevel.charAt(0).toUpperCase() + routineLevel.slice(1) : '';
+    const levelText = getRoutineTitle();
     
     Alert.alert(
-      'Clear Routine',
-      `Are you sure you want to clear your ${levelText} Routine? This cannot be undone.`,
+      t('myDayRoutine.alert_clear_title'),
+      t('myDayRoutine.alert_clear_message', { level: levelText }),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('myDayRoutine.alert_cancel'), style: 'cancel' },
         {
-          text: 'Clear',
+          text: t('myDayRoutine.alert_clear'),
           style: 'destructive',
           onPress: async () => {
             try {
               if (routineLevel === 'basic') {
                 await AsyncStorage.removeItem('myBasicRoutine');
+                await AsyncStorage.removeItem('myDayRoutine');
               } else if (routineLevel === 'moderate') {
                 await AsyncStorage.removeItem('myModerateRoutine');
               } else if (routineLevel === 'comprehensive') {
@@ -185,29 +188,64 @@ export default function MyDayRoutine({
     );
   };
 
-  const renderProductCard = (product, index, total) => (
-    <View key={product.id} style={styles.productCard}>
-      <View style={styles.productHeader}>
-        <View style={styles.productLeft}>
-          <Text style={styles.productName}>{product.name}</Text>
-          <Text style={styles.productDescription}>{product.description}</Text>
+  // ✅ NEW: Translate routine level name
+  const getRoutineTitle = () => {
+    if (routineLevel === 'comprehensive') return t('myDayRoutine.comprehensive_routine');
+    if (routineLevel === 'moderate') return t('myDayRoutine.moderate_routine');
+    return t('myDayRoutine.basic_routine');
+  };
+
+  // ✅ NEW: Helper function to translate product data
+  const translateProductData = (product) => {
+    if (!product) return product;
+    
+    // Translate description if it has a descriptionKey
+    const description = product.descriptionKey 
+      ? t(product.descriptionKey) 
+      : product.description;
+    
+    // Translate benefits if they have benefitKeys
+    const benefits = product.benefitKeys 
+      ? product.benefitKeys.map(key => t(`productBenefits.${key}`))
+      : product.benefits;
+    
+    return {
+      ...product,
+      description,
+      benefits
+    };
+  };
+
+  // ✅ UPDATED: Now translates product data
+  const renderProductCard = (product, index, total) => {
+    const translatedProduct = translateProductData(product);
+    
+    return (
+      <View key={product.id} style={styles.productCard}>
+        <View style={styles.productHeader}>
+          <View style={styles.productLeft}>
+            <Text style={styles.productName}>{translatedProduct.name}</Text>
+            <Text style={styles.productDescription}>{translatedProduct.description}</Text>
+          </View>
+          {total > 1 && (
+            <View style={styles.optionBadge}>
+              <Text style={styles.optionText}>{t('myDayRoutine.option')} {index + 1}</Text>
+            </View>
+          )}
         </View>
-        {total > 1 && (
-          <View style={styles.optionBadge}>
-            <Text style={styles.optionText}>Option {index + 1}</Text>
+        
+        {translatedProduct.benefits && (
+          <View style={styles.benefitsRow}>
+            {translatedProduct.benefits.map((benefit, idx) => (
+              <View key={idx} style={styles.benefitTag}>
+                <Text style={styles.benefitTagText}>{benefit}</Text>
+              </View>
+            ))}
           </View>
         )}
       </View>
-      
-      <View style={styles.benefitsRow}>
-        {product.benefits.map((benefit, idx) => (
-          <View key={idx} style={styles.benefitTag}>
-            <Text style={styles.benefitTagText}>{benefit}</Text>
-          </View>
-        ))}
-      </View>
-    </View>
-  );
+    );
+  };
 
   const renderRoutineStep = (stepNumber, title, icon, products) => {
     if (!products || products.length === 0) return null;
@@ -219,7 +257,7 @@ export default function MyDayRoutine({
             <Image source={icon} style={styles.stepIcon} resizeMode="contain" />
           </View>
           <View style={styles.stepTitleContainer}>
-            <Text style={styles.stepNumber}>Step {stepNumber}</Text>
+            <Text style={styles.stepNumber}>{t('myDayRoutine.step')} {stepNumber}</Text>
             <Text style={styles.stepTitle}>{title}</Text>
           </View>
         </View>
@@ -235,13 +273,13 @@ export default function MyDayRoutine({
 
   const renderEmptyState = () => (
     <View style={styles.emptyStateContainer}>
-      <Text style={styles.emptyTitle}>No Routine Saved Yet</Text>
+      <Text style={styles.emptyTitle}>{t('myDayRoutine.empty_title')}</Text>
       <Text style={styles.emptyText}>
-        Complete the Day Routine setup to create your personalized morning skincare routine.
+        {t('myDayRoutine.empty_text')}
       </Text>
       
       <DrAcneButton
-        title="Create My Routine"
+        title={t('myDayRoutine.empty_button')}
         onPress={onNavigateToDayRoutine}
         style={styles.emptyButton}
       />
@@ -260,20 +298,31 @@ export default function MyDayRoutine({
 
     const stepCount = routineLevel === 'comprehensive' ? 5 : (routineLevel === 'moderate' ? 4 : 3);
 
+    const productsText = totalProducts === 1 
+      ? t('myDayRoutine.info_products')
+      : t('myDayRoutine.info_products_plural');
+
     return (
       <View style={styles.routineInfoBox}>
-        <Text style={styles.routineInfoTitle}>Your Morning Routine</Text>
+        <Text style={styles.routineInfoTitle}>{t('myDayRoutine.info_title')}</Text>
         <Text style={styles.routineInfoText}>
-          {totalProducts} product{totalProducts !== 1 ? 's' : ''} selected • {stepCount} essential steps
+          {totalProducts} {productsText} • {stepCount} {t('myDayRoutine.info_steps')}
         </Text>
         {routineData.completedAt && (
           <Text style={styles.routineInfoDate}>
-            Completed {new Date(routineData.completedAt).toLocaleDateString()}
+            {t('myDayRoutine.info_completed')} {new Date(routineData.completedAt).toLocaleDateString()}
           </Text>
         )}
       </View>
     );
   };
+
+  const getStepTitle = (key) => {
+    return t(`myDayRoutine.${key}`);
+  };
+
+  // ✅ NEW: Get translated skin type name
+  const getSkinTypeName = () => t(`skinTypes.${skinType}`);
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
   const routineLevelColor = routineLevel ? ROUTINE_LEVEL_COLORS[routineLevel] : BRAND_COLORS.primary;
@@ -290,17 +339,18 @@ export default function MyDayRoutine({
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity 
-        style={styles.bannerContainer}
-        onPress={onNavigateToDayRoutine}
-        activeOpacity={0.9}
-      >
-        <Image 
-          source={require('../assets/images/Banner My Day Routine.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
-      </TouchableOpacity>
+      <View style={styles.bannerContainer}>
+        <ImageBackground
+          source={require('../assets/images/banner-my-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.bannerTextContainer}>
+          <Text style={styles.bannerMyText}>{t('routineBanners.my')}</Text>
+          <Text style={styles.bannerRoutineText}>{t('routineBanners.day_line2')}</Text>
+          </View>
+        </ImageBackground>
+      </View>
 
       <ScrollView 
         style={styles.scrollView}
@@ -313,26 +363,26 @@ export default function MyDayRoutine({
         <View style={styles.content}>
           {loading ? (
             <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Loading your routine...</Text>
+              <Text style={styles.loadingText}>{t('myDayRoutine.loading')}</Text>
             </View>
           ) : !routineData ? (
             renderEmptyState()
           ) : (
             <>
               <View style={styles.badgesRow}>
-                <View style={[styles.skinTypeBadge, { backgroundColor: skinTypeInfo.color }]}>
-                  <Text style={[styles.skinTypeText, { color: BRAND_COLORS.white }]}>
-                    {skinTypeInfo.name}
+                <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
+                  <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
+                    {getSkinTypeName()}
                   </Text>
                 </View>
 
                 {routineLevel && (
                   <View style={[
                     styles.routineLevelBadge, 
-                    { borderColor: routineLevelColor }
+                    { backgroundColor: `${routineLevelColor}15`, borderColor: routineLevelColor }
                   ]}>
                     <Text style={[styles.routineLevelText, { color: routineLevelColor }]}>
-                      {routineLevel.charAt(0).toUpperCase() + routineLevel.slice(1)} Routine
+                      {getRoutineTitle()}
                     </Text>
                   </View>
                 )}
@@ -342,21 +392,21 @@ export default function MyDayRoutine({
 
               {renderRoutineStep(
                 1,
-                'Cleanser',
+                getStepTitle('cleanser'),
                 STEP_ICONS.cleanser,
                 routineData.cleansers
               )}
 
               {renderRoutineStep(
                 2,
-                'Moisturizer',
+                getStepTitle('moisturizer'),
                 STEP_ICONS.moisturizer,
                 routineData.moisturizers
               )}
 
               {routineLevel === 'moderate' && renderRoutineStep(
                 3,
-                'Specialized Treatment',
+                getStepTitle('specialized'),
                 STEP_ICONS.moisturizer,
                 routineData.specializedProducts
               )}
@@ -365,13 +415,13 @@ export default function MyDayRoutine({
                 <>
                   {renderRoutineStep(
                     3,
-                    'Specialized Treatment',
+                    getStepTitle('specialized'),
                     STEP_ICONS.moisturizer,
                     routineData.specializedProducts
                   )}
                   {renderRoutineStep(
                     4,
-                    'Advanced Treatment',
+                    getStepTitle('advanced'),
                     STEP_ICONS.moisturizer,
                     routineData.advancedTreatments
                   )}
@@ -380,20 +430,20 @@ export default function MyDayRoutine({
 
               {renderRoutineStep(
                 routineLevel === 'comprehensive' ? 5 : (routineLevel === 'moderate' ? 4 : 3),
-                'Sunscreen',
+                getStepTitle('sunscreen'),
                 STEP_ICONS.sunscreen,
                 routineData.sunscreens
               )}
 
               <View style={styles.actionsContainer}>
                 <DrAcneButton
-                  title="Edit Routine"
+                  title={t('myDayRoutine.edit_button')}
                   onPress={onNavigateToBasicRoutine}
                   style={styles.actionButton}
                 />
 
                 <DrAcneButton
-                  title="Clear Routine"
+                  title={t('myDayRoutine.clear_button')}
                   variant="outline"
                   onPress={handleClearRoutine}
                   style={styles.actionButton}
@@ -401,42 +451,39 @@ export default function MyDayRoutine({
               </View>
 
               <View style={styles.footerBox}>
-                <Text style={styles.footerTitle}>Using Your Routine</Text>
+                <Text style={styles.footerTitle}>{t('myDayRoutine.footer_title')}</Text>
                 <Text style={styles.footerText}>
-                  • Apply products in order: Cleanser → Moisturizer
-                  {routineLevel === 'moderate' && ' → Specialized Treatment'}
-                  {routineLevel === 'comprehensive' && ' → Specialized Treatment → Advanced Treatment'}
-                  {' → Sunscreen\n'}
-                  • Wait 1-2 minutes between steps for absorption{'\n'}
-                  • Use sunscreen as the final step - never mix with other products{'\n'}
-                  • Results typically appear after 8-12 weeks of consistent use
+                  {t('myDayRoutine.footer_text', {
+                    specialized: (routineLevel === 'moderate' || routineLevel === 'comprehensive') ? t('myDayRoutine.footer_specialized') : '',
+                    advanced: routineLevel === 'comprehensive' ? t('myDayRoutine.footer_advanced') : ''
+                  })}
                 </Text>
               </View>
 
               <View style={styles.citationContainer}>
                 <Text style={styles.citationText}>
-                  Routine guidance based on{' '}
+                  {t('myDayRoutine.citation_intro')}{' '}
                   <Text 
                     style={styles.citationLink}
                     onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/care/skin-care-steps')}
                   >
-                    American Academy of Dermatology morning skincare application guidelines
+                    {t('myDayRoutine.citation_link1')}
                   </Text>
-                  , clinical research on{' '}
+                  {t('myDayRoutine.citation_part2')}{' '}
                   <Text 
                     style={styles.citationLink}
                     onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4345901/')}
                   >
-                    optimal product layering and timing for daytime routines
+                    {t('myDayRoutine.citation_link2')}
                   </Text>
-                  , and studies on{' '}
+                  {t('myDayRoutine.citation_part3')}{' '}
                   <Text 
                     style={styles.citationLink}
                     onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(18)32767-6/fulltext')}
                   >
-                    UV protection and morning sun defense protocols
+                    {t('myDayRoutine.citation_link3')}
                   </Text>
-                  . This routine is for educational purposes - individual results vary. Consult a dermatologist for personalized advice.
+                  {t('myDayRoutine.citation_disclaimer')}
                 </Text>
               </View>
             </>
@@ -472,9 +519,38 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  bannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 10,
+  },
+  bannerMyText: {
+    fontFamily: 'Brittany',
+    fontSize: 38,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    lineHeight: 40,
+  },
+  bannerRoutineText: {
+    fontFamily: 'BalooBhai2',
+    fontSize: 32,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    lineHeight: 34,
+    marginTop: -5,
   },
   scrollView: {
     flex: 1,
@@ -507,7 +583,6 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: 'transparent',
   },
   routineLevelText: {
     fontSize: 13,

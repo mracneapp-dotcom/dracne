@@ -1,16 +1,16 @@
-// app/SmartRoutineProductSelectionDay.js - UPDATED WITH VERIFIED WORKING LINKS
+// app/SmartRoutineProductSelectionDay.js - CORRECTED VERSION
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
-  Linking,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -178,7 +178,9 @@ export default function SmartRoutineProductSelectionDay({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('smartRoutineProductDay.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleContinue}
@@ -196,7 +198,7 @@ export default function SmartRoutineProductSelectionDay({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('smartRoutineProductDay.for_skin', { skinType: skinTypeInfo.name })}
             </Text>
           </View>
 
@@ -218,7 +220,7 @@ export default function SmartRoutineProductSelectionDay({
               resizeMode="contain"
             />
             <Text style={styles.infoText}>
-              Select morning products for your smart routine. You can choose multiple options to alternate between.
+              {t('smartRoutineProductDay.info_text')}
             </Text>
           </View>
 
@@ -230,7 +232,10 @@ export default function SmartRoutineProductSelectionDay({
                 resizeMode="contain"
               />
               <Text style={styles.sectionTitle}>
-                Morning Products {selectedDayProducts.length > 0 && `(${selectedDayProducts.length} selected)`}
+                {selectedDayProducts.length > 0 
+                  ? t('smartRoutineProductDay.morning_products_selected', { count: selectedDayProducts.length })
+                  : t('smartRoutineProductDay.morning_products')
+                }
               </Text>
             </View>
 
@@ -272,28 +277,7 @@ export default function SmartRoutineProductSelectionDay({
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Morning treatment recommendations based on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.aad.org/public/diseases/acne/skin-care/tips')}
-              >
-                American Academy of Dermatology guidelines for daytime skincare
-              </Text>
-              , clinical studies on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/26201312/')}
-              >
-                optimal timing for active ingredient application and skin type-specific formulations
-              </Text>
-              , and{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.cir-safety.org')}
-              >
-                Cosmetic Ingredient Review safety data for daytime use products
-              </Text>
-              . Select products you can commit to using consistently - consult a dermatologist for personalized guidance.
+              {t('smartRoutineProductDay.citation')}
             </Text>
           </View>
 
@@ -303,7 +287,7 @@ export default function SmartRoutineProductSelectionDay({
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="Continue to Evening Products"
+          title={t('smartRoutineProductDay.continue_button')}
           onPress={handleContinue}
           style={styles.continueButton}
         />
@@ -548,12 +532,6 @@ const styles = StyleSheet.create({
     color: '#999999',
     lineHeight: 16,
     textAlign: 'center',
-  },
-  citationLink: {
-    fontSize: 11,
-    color: '#666666',
-    textDecorationLine: 'underline',
-    fontWeight: '600',
   },
   bottomSpacing: {
     height: 120,

@@ -1,13 +1,14 @@
-// app/Test3Part2Screen.js - Overnight Assessment Part 2 (Properly Centered)
+// app/Test3Part2Screen.js - Overnight Assessment Part 2 (Properly Centered) - UPDATED WITH i18n
 import React, { useState } from 'react';
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -31,12 +32,12 @@ export const Test3Part2Screen = ({
 
   const question = {
     id: 'morning_appearance',
-    question: 'How does your skin look in the mirror first thing in the morning?',
+    question: t('test3Part2.question'),
     options: [
-      { id: 'shiny_oily', text: 'Shiny and oily throughout', points: 4 },
-      { id: 'shiny_tzone', text: 'Shiny T-zone, normal cheeks', points: 3 },
-      { id: 'fresh_even', text: 'Fresh and even-toned', points: 2 },
-      { id: 'dull_tight', text: 'Dull, tight, or showing fine lines', points: 1 }
+      { id: 'shiny_oily', text: t('test3Part2.option_1'), points: 4 },
+      { id: 'shiny_tzone', text: t('test3Part2.option_2'), points: 3 },
+      { id: 'fresh_even', text: t('test3Part2.option_3'), points: 2 },
+      { id: 'dull_tight', text: t('test3Part2.option_4'), points: 1 }
     ]
   };
 
@@ -97,9 +98,9 @@ export const Test3Part2Screen = ({
         <View style={styles.content}>
           <View style={styles.header}>
             <Text style={styles.title}>
-              Morning <Text style={styles.titleHighlight}>Assessment</Text>
+              {t('test3Part2.title')} <Text style={styles.titleHighlight}>{t('test3Part2.title_highlight')}</Text>
             </Text>
-            <Text style={styles.subtitle}>Question 2 of 2</Text>
+            <Text style={styles.subtitle}>{t('test3Part2.subtitle')}</Text>
           </View>
 
           <View style={styles.questionCard}>
@@ -134,7 +135,7 @@ export const Test3Part2Screen = ({
 
           <View style={styles.buttonContainer}>
             <DrAcneButton
-              title={selectedAnswer ? "Reveal My Skin Type (2/2)" : "Answer question (1/2)"}
+              title={selectedAnswer ? t('test3Part2.button_reveal') : t('test3Part2.button_answer')}
               onPress={handleContinue}
               disabled={!selectedAnswer}
               style={styles.continueButton}

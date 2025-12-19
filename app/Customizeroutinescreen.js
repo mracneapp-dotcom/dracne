@@ -1,15 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -56,7 +57,7 @@ export default function CustomizeRoutineScreen({ navigation }) {
 
   const addProduct = () => {
     if (!productInput.trim()) {
-      Alert.alert('Error', 'Please enter a product name');
+      Alert.alert(t('customizeRoutine.error'), t('customizeRoutine.enter_product'));
       return;
     }
 
@@ -87,11 +88,11 @@ export default function CustomizeRoutineScreen({ navigation }) {
       const storageKey = routineType === 'day' ? 'myDayRoutine' : 'myNightRoutine';
       await AsyncStorage.setItem(storageKey, JSON.stringify(routineData));
 
-      Alert.alert('Success', 'Routine saved!', [
-        { text: 'OK', onPress: () => navigation.goBack() }
+      Alert.alert(t('customizeRoutine.success'), t('customizeRoutine.routine_saved'), [
+        { text: t('customizeRoutine.ok'), onPress: () => navigation.goBack() }
       ]);
     } catch (e) {
-      Alert.alert('Error', 'Failed to save routine');
+      Alert.alert(t('customizeRoutine.error'), t('customizeRoutine.save_failed'));
     }
   };
 
@@ -99,9 +100,9 @@ export default function CustomizeRoutineScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backText}>← Back</Text>
+          <Text style={styles.backText}>{t('customizeRoutine.back')}</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Customize Routine</Text>
+        <Text style={styles.title}>{t('customizeRoutine.title')}</Text>
       </View>
 
       {/* Dropdown */}
@@ -110,19 +111,19 @@ export default function CustomizeRoutineScreen({ navigation }) {
           style={[styles.dropdownBtn, routineType === 'day' && styles.dropdownBtnActive]}
           onPress={() => setRoutineType('day')}
         >
-          <Text style={styles.dropdownText}>☀️ Day</Text>
+          <Text style={styles.dropdownText}>{t('customizeRoutine.day')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.dropdownBtn, routineType === 'night' && styles.dropdownBtnActive]}
           onPress={() => setRoutineType('night')}
         >
-          <Text style={styles.dropdownText}>🌙 Night</Text>
+          <Text style={styles.dropdownText}>{t('customizeRoutine.night')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.dropdownBtn, routineType === 'smart' && styles.dropdownBtnActive]}
           onPress={() => setRoutineType('smart')}
         >
-          <Text style={styles.dropdownText}>✨ Smart</Text>
+          <Text style={styles.dropdownText}>{t('customizeRoutine.smart')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -131,12 +132,12 @@ export default function CustomizeRoutineScreen({ navigation }) {
         <View style={styles.inputRow}>
           <TextInput
             style={styles.input}
-            placeholder="Enter product name"
+            placeholder={t('customizeRoutine.placeholder')}
             value={productInput}
             onChangeText={setProductInput}
           />
           <TouchableOpacity style={styles.addBtn} onPress={addProduct}>
-            <Text style={styles.addBtnText}>Add</Text>
+            <Text style={styles.addBtnText}>{t('customizeRoutine.add')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -159,7 +160,7 @@ export default function CustomizeRoutineScreen({ navigation }) {
       {/* Save Button */}
       {products.length > 0 && (
         <TouchableOpacity style={styles.saveBtn} onPress={saveRoutine}>
-          <Text style={styles.saveBtnText}>Save Routine</Text>
+          <Text style={styles.saveBtnText}>{t('customizeRoutine.save_routine')}</Text>
         </TouchableOpacity>
       )}
     </SafeAreaView>

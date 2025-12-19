@@ -1,9 +1,10 @@
 // app/ModerateRoutineStep2ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
+import { t } from './i18n';
 import {
   Image,
-  Linking,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -202,6 +203,7 @@ export default function ModerateRoutineStep2ProductSelection({
   currentStep = 2,
   internalStep = 4
 }) {
+  const { t } = useTranslation();
   const [skinType, setSkinType] = useState('normal');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [products, setProducts] = useState([]);
@@ -258,9 +260,9 @@ export default function ModerateRoutineStep2ProductSelection({
 
   const getButtonText = () => {
     if (!selectedProduct) {
-      return 'Choose My Moisturizer';
+      return t('moderateRoutineStep2Products.choose_moisturizer');
     }
-    return 'Continue with My Selection';
+    return t('moderateRoutineStep2Products.continue_selection');
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -285,11 +287,16 @@ export default function ModerateRoutineStep2ProductSelection({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -308,7 +315,9 @@ export default function ModerateRoutineStep2ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('moderateRoutineStep2Products.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -329,21 +338,25 @@ export default function ModerateRoutineStep2ProductSelection({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('moderateRoutineStep2Products.for_skin', { 
+                skinType: t(`profile.skin_labels.${skinType}`)
+              })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Product Recommendations</Text>
+          <Text style={styles.sectionTitle}>{t('moderateRoutineStep2Products.section_title')}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose your daytime moisturizer. This will provide essential hydration while keeping your skin comfortable throughout the day.
+              {t('moderateRoutineStep2Products.explanation')}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Choose Your Product {selectedProduct && '(1 selected)'}
+              {t('moderateRoutineStep2Products.choose_product', { 
+                selected: selectedProduct ? ' (1 selected)' : '' 
+              })}
             </Text>
             
             {products.map((product) => {
@@ -385,34 +398,13 @@ export default function ModerateRoutineStep2ProductSelection({
 
           {!selectedProduct && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select 1 product to continue</Text>
+              <Text style={styles.helperText}>{t('moderateRoutineStep2Products.helper_text')}</Text>
             </View>
           )}
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Product selections curated using formulation research from the{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://onlinelibrary.wiley.com/journal/14682494')}
-              >
-                International Journal of Cosmetic Science
-              </Text>
-              , ingredient safety data from the{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.cir-safety.org/ingredients')}
-              >
-                Cosmetic Ingredient Review
-              </Text>
-              , and clinical studies on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4345901/')}
-              >
-                daytime moisturization for different skin types
-              </Text>
-              . These are educational suggestions - always patch test new products and consult a dermatologist for personalized treatment.
+              {t('moderateRoutineStep2Products.citation')}
             </Text>
           </View>
 
@@ -458,6 +450,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerTextContainer: {
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,
@@ -654,12 +660,6 @@ const styles = StyleSheet.create({
     color: '#999999',
     lineHeight: 16,
     textAlign: 'center',
-  },
-  citationLink: {
-    fontSize: 11,
-    color: '#666666',
-    textDecorationLine: 'underline',
-    fontWeight: '600',
   },
   bottomSpacing: {
     height: 160,

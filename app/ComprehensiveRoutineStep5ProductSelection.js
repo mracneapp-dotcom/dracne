@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
-  Linking,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import RoutineCompletionModal from '../components/modals/RoutineCompletionModal';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -304,11 +305,11 @@ export default function ComprehensiveRoutineStep5ProductSelection({
 
   const getButtonText = () => {
     if (selectedProducts.length === 0) {
-      return 'Choose My Sunscreen';
+      return t('comprehensiveRoutineStep5Products.choose_sunscreen');
     } else if (selectedProducts.length === 1) {
-      return 'Complete My Comprehensive Routine';
+      return t('comprehensiveRoutineStep5Products.complete_routine');
     } else {
-      return 'Complete My Comprehensive Routine';
+      return t('comprehensiveRoutineStep5Products.complete_routine');
     }
   };
 
@@ -334,11 +335,16 @@ export default function ComprehensiveRoutineStep5ProductSelection({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -357,7 +363,9 @@ export default function ComprehensiveRoutineStep5ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('comprehensiveRoutineStep5Products.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -378,21 +386,21 @@ export default function ComprehensiveRoutineStep5ProductSelection({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('comprehensiveRoutineStep5Products.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Sunscreen Recommendations</Text>
+          <Text style={styles.sectionTitle}>{t('comprehensiveRoutineStep5Products.sunscreen_recommendations')}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose 1-2 sunscreens to give you options for different occasions. SPF 30+ is essential for daily protection, especially when using active treatments. Remember to reapply every 2 hours when outdoors.
+              {t('comprehensiveRoutineStep5Products.explanation')}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Select 1-2 Products {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
+              {t('comprehensiveRoutineStep5Products.select_products', { count: selectedProducts.length })}
             </Text>
             
             {products.map((product) => {
@@ -435,40 +443,19 @@ export default function ComprehensiveRoutineStep5ProductSelection({
 
           {selectedProducts.length === 0 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select at least 1 product to complete your routine</Text>
+              <Text style={styles.helperText}>{t('comprehensiveRoutineStep5Products.helper_0')}</Text>
             </View>
           )}
 
           {selectedProducts.length === 2 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Maximum 2 products selected</Text>
+              <Text style={styles.helperText}>{t('comprehensiveRoutineStep5Products.helper_2')}</Text>
             </View>
           )}
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Sunscreen recommendations based on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/sun-protection/shade-clothing-sunscreen/how-to-select-sunscreen')}
-              >
-                American Academy of Dermatology guidelines for broad-spectrum SPF 30+ protection
-              </Text>
-              , research on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/18482301/')}
-              >
-                proper sunscreen application amounts and reapplication frequency
-              </Text>
-              , and{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3543289/')}
-              >
-                UV radiation effects on skin aging and photoprotection strategies
-              </Text>
-              . Daily sunscreen prevents premature aging and skin damage - reapply every 2 hours during sun exposure.
+              {t('comprehensiveRoutineStep5Products.citation')}
             </Text>
           </View>
 
@@ -522,6 +509,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,

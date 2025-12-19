@@ -1,4 +1,4 @@
-// app/Test3Screen.js - Overnight Assessment Part 1 (Properly Centered)
+// app/Test3Screen.js - Overnight Assessment Part 1 (Properly Centered) - UPDATED WITH i18n
 import React, { useState } from 'react';
 import {
   Image,
@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -31,12 +32,12 @@ export const Test3Screen = ({
 
   const question = {
     id: 'morning_feel',
-    question: 'How does your skin feel when you wake up in the morning (before washing)?',
+    question: t('test3.question'),
     options: [
-      { id: 'very_oily', text: 'Very oily and greasy all over', points: 4 },
-      { id: 'oily_tzone', text: 'Oily in T-zone, normal elsewhere', points: 3 },
-      { id: 'balanced', text: 'Comfortable and balanced', points: 2 },
-      { id: 'tight_dry', text: 'Tight, dry, or flaky', points: 1 }
+      { id: 'very_oily', text: t('test3.option_1'), points: 4 },
+      { id: 'oily_tzone', text: t('test3.option_2'), points: 3 },
+      { id: 'balanced', text: t('test3.option_3'), points: 2 },
+      { id: 'tight_dry', text: t('test3.option_4'), points: 1 }
     ]
   };
 
@@ -63,37 +64,33 @@ export const Test3Screen = ({
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            Overnight <Text style={styles.titleHighlight}>Assessment</Text>
+            {t('test3.title')} <Text style={styles.titleHighlight}>{t('test3.title_highlight')}</Text>
           </Text>
           <Text style={styles.subtitle}>
-            Check how your skin behaves while you sleep
+            {t('test3.subtitle')}
           </Text>
         </View>
 
         <View style={styles.instructionsBox}>
-          <Text style={styles.instructionsTitle}>How this test works:</Text>
+          <Text style={styles.instructionsTitle}>{t('test3.how_it_works_title')}</Text>
           <Text style={styles.instructionsText}>
-            This test reveals your skin's natural oil production while you sleep - the most accurate way to understand your skin type!
+            {t('test3.how_it_works_text')}
           </Text>
           
-          <Text style={styles.instructionsTitle}>Tonight:</Text>
+          <Text style={styles.instructionsTitle}>{t('test3.tonight_title')}</Text>
           <Text style={styles.instructionsText}>
-            1. Cleanse your face before bed{'\n'}
-            2. Don't apply any moisturizers or treatments{'\n'}
-            3. Sleep normally
+            {t('test3.tonight_text')}
           </Text>
 
-          <Text style={styles.instructionsTitle}>Tomorrow morning:</Text>
+          <Text style={styles.instructionsTitle}>{t('test3.tomorrow_title')}</Text>
           <Text style={styles.instructionsText}>
-            4. Look in the mirror before washing your face{'\n'}
-            5. Notice how your skin feels and looks{'\n'}
-            6. Come back here to record your results!
+            {t('test3.tomorrow_text')}
           </Text>
         </View>
 
         <View style={styles.buttonContainer}>
           <DrAcneButton
-            title="Log My Morning Check"
+            title={t('test3.button_log')}
             onPress={() => setCurrentScreen('question')}
             style={styles.continueButton}
           />
@@ -107,9 +104,9 @@ export const Test3Screen = ({
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            Morning <Text style={styles.titleHighlight}>Assessment</Text>
+            {t('test3.question_title')} <Text style={styles.titleHighlight}>{t('test3.question_title_highlight')}</Text>
           </Text>
-          <Text style={styles.subtitle}>Question 1 of 2</Text>
+          <Text style={styles.subtitle}>{t('test3.question_subtitle')}</Text>
         </View>
 
         <View style={styles.questionCard}>
@@ -144,7 +141,7 @@ export const Test3Screen = ({
 
         <View style={styles.buttonContainer}>
           <DrAcneButton
-            title={selectedAnswer ? "Next Question (1/2)" : "Answer question (0/2)"}
+            title={selectedAnswer ? t('test3.button_next') : t('test3.button_answer')}
             onPress={handleContinue}
             disabled={!selectedAnswer}
             style={styles.continueButton}

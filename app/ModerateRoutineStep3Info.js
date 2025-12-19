@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
-  Linking,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -148,11 +149,16 @@ export default function ModerateRoutineStep3Info({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -171,7 +177,9 @@ export default function ModerateRoutineStep3Info({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('moderateRoutineStep3Info.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -189,7 +197,9 @@ export default function ModerateRoutineStep3Info({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('moderateRoutineStep3Info.for_skin', { 
+                skinType: t(`profile.skin_labels.${skinType}`)
+              })}
             </Text>
           </View>
 
@@ -224,28 +234,7 @@ export default function ModerateRoutineStep3Info({
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Treatment recommendations based on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4554394/')}
-              >
-                clinical research on active ingredients for acne-prone skin
-              </Text>
-              , studies on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(06)02559-X/fulltext')}
-              >
-                chemical exfoliation safety and efficacy
-              </Text>
-              , and{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5574737/')}
-              >
-                dermatological guidance on gradual introduction of active treatments
-              </Text>
-              . Individual tolerance varies - consult a dermatologist for personalized treatment protocols.
+              {t('moderateRoutineStep3Info.citation')}
             </Text>
           </View>
 
@@ -255,7 +244,7 @@ export default function ModerateRoutineStep3Info({
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('moderateRoutineStep3Info.see_products')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -290,6 +279,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerTextContainer: {
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,
@@ -461,12 +464,6 @@ const styles = StyleSheet.create({
     color: '#999999',
     lineHeight: 16,
     textAlign: 'center',
-  },
-  citationLink: {
-    fontSize: 11,
-    color: '#666666',
-    textDecorationLine: 'underline',
-    fontWeight: '600',
   },
   bottomSpacing: {
     height: 80,

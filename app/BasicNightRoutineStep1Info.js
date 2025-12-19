@@ -1,8 +1,9 @@
-// app/BasicNightRoutineStep1Info.js - SPECIFIC CITATIONS WITH EMBEDDED LINKS
+// app/BasicNightRoutineStep1Info.js - FULLY UPDATED WITH PROPER BANNER
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Linking,
   StyleSheet,
   Text,
@@ -10,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -23,11 +25,11 @@ const BRAND_COLORS = {
 };
 
 const SKIN_TYPE_INFO = {
-  oily: { color: '#4A90E2', name: 'Oily Skin' },
-  dry: { color: '#F39C12', name: 'Dry Skin' },
-  combination: { color: BRAND_COLORS.primary, name: 'Combination Skin' },
-  normal: { color: '#9B59B6', name: 'Normal Skin' },
-  sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
+  oily: { color: '#4A90E2' },
+  dry: { color: '#F39C12' },
+  combination: { color: BRAND_COLORS.primary },
+  normal: { color: '#9B59B6' },
+  sensitive: { color: BRAND_COLORS.primary },
 };
 
 export default function BasicNightRoutineStep1Info({ 
@@ -71,6 +73,9 @@ export default function BasicNightRoutineStep1Info({
   const totalSteps = 2;
   const totalInternalSteps = 4;
 
+  // ✅ Get translated skin type name
+  const getSkinTypeName = () => t(`skinTypes.${skinType}`);
+
   return (
     <View style={styles.container}>
       <View style={styles.topNavigation}>
@@ -83,16 +88,22 @@ export default function BasicNightRoutineStep1Info({
         </TouchableOpacity>
       </View>
 
+      {/* ✅ FIXED: Night Routine Banner with Proper Two-Line Format */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
+        <ImageBackground
+          source={require('../assets/images/banner-night-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.nightRoutineBannerTextContainer}>
+            <Text style={styles.nightRoutineLine1}>{t('nightRoutineBanners.line1')}</Text>
+            <Text style={styles.nightRoutineLine2}>{t('nightRoutineBanners.line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <View style={styles.content}>
@@ -106,7 +117,9 @@ export default function BasicNightRoutineStep1Info({
               <Text style={styles.arrowText}>‹</Text>
             </TouchableOpacity>
 
-            <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+            <Text style={styles.progressText}>
+              {t('basicRoutine.step_of', { current: currentStep, total: totalSteps })}
+            </Text>
 
             <TouchableOpacity
               onPress={handleNextStep}
@@ -122,9 +135,10 @@ export default function BasicNightRoutineStep1Info({
           </View>
         </View>
 
+        {/* ✅ FIXED: Skin type badge with translated name */}
         <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
           <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-            For {skinTypeInfo.name}
+            {t('basicRoutine.for_skin', { skinType: getSkinTypeName() })}
           </Text>
         </View>
 
@@ -137,56 +151,56 @@ export default function BasicNightRoutineStep1Info({
             />
           </View>
           <View style={styles.productTextContainer}>
-            <Text style={styles.productTitle}>Gentle Cleanser</Text>
-            <Text style={styles.productSubtitle}>Evening Step 1</Text>
+            <Text style={styles.productTitle}>{t('basicRoutine.gentle_cleanser')}</Text>
+            <Text style={styles.productSubtitle}>{t('basicRoutine.evening_step_1')}</Text>
           </View>
         </View>
 
         <View style={styles.introBox}>
-          <Text style={styles.introTitle}>Curated for Your Skin</Text>
+          <Text style={styles.introTitle}>{t('basicRoutine.curated_title')}</Text>
           <Text style={styles.introText}>
-            We've selected cleansers specifically for {skinTypeInfo.name.toLowerCase()}. Each product is proven effective and dermatologist-recommended for your skin type.
+            {t('basicRoutine.curated_text_cleansers', { skinType: getSkinTypeName().toLowerCase() })}
           </Text>
         </View>
 
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>Why this matters at night</Text>
+          <Text style={styles.explanationTitle}>{t('basicRoutine.why_night_title')}</Text>
           <Text style={styles.explanationText}>
-            Evening cleansing removes the day's buildup - sunscreen, sebum, pollution, and makeup. A gentle cleanser ensures thorough cleaning without stripping your skin's natural moisture barrier.
+            {t('basicRoutine.cleanser_night_text')}
           </Text>
         </View>
 
         <View style={styles.citationContainer}>
           <Text style={styles.citationText}>
-            Evening cleansing recommendations based on research from the{' '}
+            {t('basicRoutine.citation_cleanser_part1')}{' '}
             <Text 
               style={styles.citationLink} 
               onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/care/face-washing-101')}
             >
-              American Academy of Dermatology on proper cleansing
+              {t('basicRoutine.citation_cleanser_link1')}
             </Text>
-            , studies on{' '}
+            {t('basicRoutine.citation_cleanser_part2')}{' '}
             <Text 
               style={styles.citationLink}
               onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6628577/')}
             >
-              skin barrier function and pH balance
+              {t('basicRoutine.citation_cleanser_link2')}
             </Text>
-            , and clinical research on{' '}
+            {t('basicRoutine.citation_cleanser_part3')}{' '}
             <Text 
               style={styles.citationLink}
               onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(06)02559-X/fulltext')}
             >
-              gentle cleanser efficacy
+              {t('basicRoutine.citation_cleanser_link3')}
             </Text>
-            . Individual results may vary - consult a dermatologist for personalized advice.
+            {t('basicRoutine.citation_cleanser_part4')}
           </Text>
         </View>
       </View>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('basicRoutine.see_products_button')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -218,9 +232,45 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  // ✅ FIXED: Night Routine Banner Text Styles - Proper Spacing
+  nightRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 20,
+    paddingBottom: 20,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  nightRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 38,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  nightRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 38,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,
+    includeFontPadding: false,
   },
   content: {
     flex: 1,

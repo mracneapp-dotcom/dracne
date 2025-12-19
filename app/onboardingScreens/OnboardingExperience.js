@@ -1,13 +1,7 @@
 // app/onboardingScreens/OnboardingExperience.js
 import React, { useState } from 'react';
-import {
-  Dimensions,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { t } from '../i18n';
 
 const { width } = Dimensions.get('window');
 
@@ -25,22 +19,22 @@ const BRAND_COLORS = {
 const EXPERIENCE_OPTIONS = [
   { 
     id: 'yes_many', 
-    label: 'Yes, many',
-    description: "I've tried several apps",
+    labelKey: 'onboarding.experience.yes_many',
+    descKey: 'onboarding.experience.yes_many_desc',
     icon: require('../../assets/images/check.png'),
     color: '#9B59B6',
   },
   { 
     id: 'yes_few', 
-    label: 'Yes, a few',
-    description: "I've tested some options",
+    labelKey: 'onboarding.experience.yes_few',
+    descKey: 'onboarding.experience.yes_few_desc',
     icon: require('../../assets/images/check.png'),
     color: '#4A90E2',
   },
   { 
     id: 'no_first', 
-    label: 'No, this is my first time',
-    description: "I'm just starting out",
+    labelKey: 'onboarding.experience.no_first',
+    descKey: 'onboarding.experience.no_first_desc',
     icon: require('../../assets/images/check.png'),
     color: BRAND_COLORS.primary,
   },
@@ -61,14 +55,13 @@ export default function OnboardingExperience({ onNext }) {
 
   return (
     <View style={styles.container}>
-      {/* Main Content */}
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            What's your <Text style={styles.titleHighlight}>skincare experience?</Text>
+            {t('onboarding.experience.title')} <Text style={styles.titleHighlight}>{t('onboarding.experience.titleHighlight')}</Text>
           </Text>
           <Text style={styles.subtitle}>
-            This helps us personalize your journey
+            {t('onboarding.experience.subtitle')}
           </Text>
         </View>
 
@@ -106,9 +99,9 @@ export default function OnboardingExperience({ onNext }) {
                     styles.optionLabel,
                     isSelected && { color: option.color, fontWeight: '600' }
                   ]}>
-                    {option.label}
+                    {t(option.labelKey)}
                   </Text>
-                  <Text style={styles.optionDescription}>{option.description}</Text>
+                  <Text style={styles.optionDescription}>{t(option.descKey)}</Text>
                 </View>
               </TouchableOpacity>
             );
@@ -116,7 +109,6 @@ export default function OnboardingExperience({ onNext }) {
         </View>
       </View>
 
-      {/* Fixed Bottom Section */}
       <View style={styles.bottomSection}>
         <TouchableOpacity 
           style={[
@@ -130,11 +122,11 @@ export default function OnboardingExperience({ onNext }) {
             styles.continueButtonText,
             !selectedOption && styles.continueButtonTextDisabled
           ]}>
-            Continue
+            {t('onboarding.experience.button')}
           </Text>
         </TouchableOpacity>
         
-        <Text style={styles.helperText}>Select your experience level</Text>
+        <Text style={styles.helperText}>{t('onboarding.experience.helper')}</Text>
       </View>
     </View>
   );

@@ -4,7 +4,7 @@
     "slug": "dracne",
     "owner": "aleb",
     "scheme": "dracne",
-    "version": "1.0.4",
+    "version": "1.0.7",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "backgroundColor": "#FAFBFC",
@@ -12,11 +12,12 @@
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "backgroundColor": "#FAFBFC",
-      "resizeMode": "contain"
+      "resizeMode": "contain",
+      "hideAsync": true
     },
     "ios": {
       "bundleIdentifier": "com.aleboshi.dracne",
-      "buildNumber": "1",
+      "buildNumber": "29",
       "usesAppleSignIn": true,
       "supportsTablet": true,
       "infoPlist": {
@@ -29,7 +30,8 @@
           {
             "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork"
           }
-        ]
+        ],
+        "UILaunchStoryboardName": "SplashScreen"
       }
     },
     "android": {
@@ -45,7 +47,12 @@
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.INTERNET",
         "android.permission.POST_NOTIFICATIONS"
-      ]
+      ],
+      "googleServicesFile": "./google-services.json",
+      "splash": {
+        "backgroundColor": "#FAFBFC",
+        "resizeMode": "contain"
+      }
     },
     "plugins": [
       "expo-apple-authentication",
@@ -69,8 +76,22 @@
           "sounds": []
         }
       ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/images/fonts/Baloo-Regular.ttf"
+          ]
+        }
+      ],
       "expo-router",
-      "expo-web-browser"
-    ]
+      "expo-web-browser",
+      "expo-localization"
+    ],
+    "extra": {
+      "iosClientId": "338991525353-kvd8elr7d227p8493is5qnda0aq2cd5e.apps.googleusercontent.com",
+      "androidClientId": "338991525353-kvd8elr7d227p8493is5qnda0aq2cd5e.apps.googleusercontent.com",
+      "webClientId": "338991525353-1r9lu6pl024a1vrf7mlg7k77pqj6vrvc.apps.googleusercontent.com"
+    }
   }
 }

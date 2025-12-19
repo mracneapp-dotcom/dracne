@@ -1,8 +1,9 @@
-// app/BasicRoutineStep1Info.js - ADDED CITATIONS
+// app/BasicRoutineStep1Info.js - FULLY FIXED WITH TRANSLATIONS & PROPER BANNER
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Linking,
   StyleSheet,
   Text,
@@ -10,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -23,11 +25,11 @@ const BRAND_COLORS = {
 };
 
 const SKIN_TYPE_INFO = {
-  oily: { color: '#4A90E2', name: 'Oily Skin' },
-  dry: { color: '#F39C12', name: 'Dry Skin' },
-  combination: { color: BRAND_COLORS.primary, name: 'Combination Skin' },
-  normal: { color: '#9B59B6', name: 'Normal Skin' },
-  sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
+  oily: { color: '#4A90E2' },
+  dry: { color: '#F39C12' },
+  combination: { color: BRAND_COLORS.primary },
+  normal: { color: '#9B59B6' },
+  sensitive: { color: BRAND_COLORS.primary },
 };
 
 export default function BasicRoutineStep1Info({ 
@@ -71,6 +73,11 @@ export default function BasicRoutineStep1Info({
   const totalSteps = 3;
   const totalInternalSteps = 6;
 
+  // ✅ GET TRANSLATED SKIN TYPE NAME
+  const getTranslatedSkinTypeName = () => {
+    return t(`basicRoutine.skin_type_${skinType}`);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.topNavigation}>
@@ -83,16 +90,22 @@ export default function BasicRoutineStep1Info({
         </TouchableOpacity>
       </View>
 
+      {/* ✅ FIXED: Day Routine Banner with Proper Two-Line Format */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Day Routine 1.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
+        <ImageBackground
+          source={require('../assets/images/banner-day-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.dayRoutineBannerTextContainer}>
+            <Text style={styles.dayRoutineLine1}>{t('dayRoutineBanners.line1')}</Text>
+            <Text style={styles.dayRoutineLine2}>{t('dayRoutineBanners.line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <View style={styles.content}>
@@ -106,7 +119,9 @@ export default function BasicRoutineStep1Info({
               <Text style={styles.arrowText}>‹</Text>
             </TouchableOpacity>
 
-            <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+            <Text style={styles.progressText}>
+              {t('basicRoutine.step_of', { current: currentStep, total: totalSteps })}
+            </Text>
 
             <TouchableOpacity
               onPress={handleNextStep}
@@ -122,9 +137,10 @@ export default function BasicRoutineStep1Info({
           </View>
         </View>
 
+        {/* ✅ FIXED: Now uses translated skin type name */}
         <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
           <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-            For {skinTypeInfo.name}
+            {t('basicRoutine.for_skin', { skinType: getTranslatedSkinTypeName() })}
           </Text>
         </View>
 
@@ -137,56 +153,58 @@ export default function BasicRoutineStep1Info({
             />
           </View>
           <View style={styles.productTextContainer}>
-            <Text style={styles.productTitle}>Gentle Cleanser</Text>
-            <Text style={styles.productSubtitle}>Morning Step 1</Text>
+            <Text style={styles.productTitle}>{t('basicRoutine.gentle_cleanser')}</Text>
+            <Text style={styles.productSubtitle}>{t('basicRoutine.morning_step_1')}</Text>
           </View>
         </View>
 
+        {/* ✅ FIXED: Now uses translation key */}
         <View style={styles.introBox}>
-          <Text style={styles.introTitle}>Curated for Your Skin</Text>
+          <Text style={styles.introTitle}>{t('basicRoutine.curated_title')}</Text>
           <Text style={styles.introText}>
-            We've selected cleansers specifically for {skinTypeInfo.name.toLowerCase()}. Each product is proven effective and dermatologist-recommended for your skin type.
+            {t('basicRoutine.curated_text_cleansers')}
           </Text>
         </View>
 
+        {/* ✅ FIXED: Now uses translation key */}
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>Why this matters</Text>
+          <Text style={styles.explanationTitle}>{t('basicRoutine.why_this_matters')}</Text>
           <Text style={styles.explanationText}>
-            A gentle cleanser removes impurities without stripping your skin's natural moisture. Look for low-pH formulas (pH 4.5-6.5) that leave skin clean but never tight.
+            {t('basicRoutine.cleanser_explanation')}
           </Text>
         </View>
 
         <View style={styles.citationContainer}>
           <Text style={styles.citationText}>
-            Morning cleansing recommendations based on{' '}
+            {t('basicRoutine.citation_intro')}{' '}
             <Text 
               style={styles.citationLink}
               onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/care/face-washing-101')}
             >
-              American Academy of Dermatology guidelines on proper face washing
+              {t('basicRoutine.citation_link1')}
             </Text>
-            , research on{' '}
+            , {t('basicRoutine.citation_research_on')}{' '}
             <Text 
               style={styles.citationLink}
               onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4158622/')}
             >
-              optimal skin pH and barrier function
+              {t('basicRoutine.citation_link2')}
             </Text>
-            , and clinical studies on{' '}
+            , {t('basicRoutine.citation_and_studies_on')}{' '}
             <Text 
               style={styles.citationLink}
               onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(06)02559-X/fulltext')}
             >
-              gentle cleanser efficacy for daily use
+              {t('basicRoutine.citation_link3')}
             </Text>
-            . Individual results may vary - consult a dermatologist for personalized advice.
+            . {t('basicRoutine.citation_disclaimer')}
           </Text>
         </View>
       </View>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('basicRoutine.see_products_button')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -218,9 +236,44 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  // ✅ FIXED: Day Routine Banner Text Styles - Proper Two-Line Format
+  dayRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 10,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  dayRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,          // ✅ Proper spacing
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  dayRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,          // ✅ Proper spacing
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,           // ✅ Less negative = more space
+    includeFontPadding: false,
   },
   content: {
     flex: 1,

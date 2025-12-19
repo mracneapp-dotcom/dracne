@@ -17,6 +17,7 @@ import {
   View,
 } from 'react-native';
 import { DrAcneButton } from '../../components/ui/DrAcneButton';
+import { t } from '../i18n';
 
 let InAppPurchases = null;
 let IAPResponseCode = null;
@@ -41,20 +42,20 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const BENEFITS = [
   {
     icon: require('../../assets/images/check.png'),
-    title: 'No Payment Due Now',
-    description: '3 days completely free',
+    titleKey: 'onboarding.paywall.benefit1_title',
+    descriptionKey: 'onboarding.paywall.benefit1_desc',
     color: BRAND_COLORS.primary,
   },
   {
     icon: require('../../assets/images/check.png'),
-    title: 'AI-Powered Acne Detection',
-    description: 'Smart skin analysis',
+    titleKey: 'onboarding.paywall.benefit2_title',
+    descriptionKey: 'onboarding.paywall.benefit2_desc',
     color: '#4A90E2',
   },
   {
     icon: require('../../assets/images/check.png'),
-    title: 'Personalized Skincare Plans',
-    description: 'Tailored to your skin',
+    titleKey: 'onboarding.paywall.benefit3_title',
+    descriptionKey: 'onboarding.paywall.benefit3_desc',
     color: '#9B59B6',
   },
 ];
@@ -266,7 +267,10 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       if (!product) {
         console.log('❌ Product not found:', productId);
         setLoading(false);
-        Alert.alert('Error', 'Selected plan not available. Please restart the app.');
+        Alert.alert(
+          t('onboarding.paywall.alert_purchase_failed'),
+          t('onboarding.paywall.alert_selected_plan_unavailable')
+        );
         return;
       }
 
@@ -313,8 +317,8 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       }
       
       Alert.alert(
-        'Purchase Failed',
-        error.message || 'Unable to complete purchase. Please try again.'
+        t('onboarding.paywall.alert_purchase_failed'),
+        error.message || t('onboarding.paywall.alert_purchase_error')
       );
     }
   };
@@ -354,8 +358,8 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     if (!iapReady || products.length === 0) {
       console.log('⚠️ IAP not ready');
       Alert.alert(
-        'Connection Error',
-        'Subscription services are loading. Please wait a moment and try again.'
+        t('onboarding.paywall.alert_connection_error'),
+        t('onboarding.paywall.alert_subscription_loading')
       );
       return;
     }
@@ -372,6 +376,13 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     Linking.openURL('https://dracne.pro/tos');
   };
 
+  const getPricingText = () => {
+    if (selectedPlan === 'annual') {
+      return t('onboarding.paywall.pricing_annual');
+    }
+    return t('onboarding.paywall.pricing_monthly');
+  };
+
   return (
     <ScrollView 
       style={styles.container}
@@ -380,10 +391,10 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     >
       <View style={styles.header}>
         <Text style={styles.title}>
-          Experience <Text style={styles.titleHighlight}>Dr. Acne</Text> for free
+          {t('onboarding.paywall.title1')} <Text style={styles.titleHighlight}>{t('onboarding.paywall.title2')}</Text> {t('onboarding.paywall.title3')}
         </Text>
         <Text style={styles.subtitle}>
-          Get personalized skincare analysis and professional routines
+          {t('onboarding.paywall.subtitle')}
         </Text>
       </View>
 
@@ -403,7 +414,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
             resizeMode="contain"
           />
         </Animated.View>
-        <Text style={styles.mockupLabel}>See your personalized plan in action</Text>
+        <Text style={styles.mockupLabel}>{t('onboarding.paywall.mockup_label')}</Text>
       </View>
 
       <View style={styles.benefitsContainer}>
@@ -423,8 +434,8 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
               />
             </View>
             <View style={styles.benefitContent}>
-              <Text style={styles.benefitTitle}>{benefit.title}</Text>
-              <Text style={styles.benefitDescription}>{benefit.description}</Text>
+              <Text style={styles.benefitTitle}>{t(benefit.titleKey)}</Text>
+              <Text style={styles.benefitDescription}>{t(benefit.descriptionKey)}</Text>
             </View>
           </View>
         ))}
@@ -432,55 +443,55 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title={loading ? "Processing..." : "Continue"}
+          title={loading ? t('onboarding.paywall.button_processing') : t('onboarding.paywall.button_continue')}
           onPress={handleContinue}
           disabled={loading}
           style={styles.continueButton}
         />
         
         {!IS_TEST_MODE && !iapReady && (
-          <Text style={styles.loadingText}>Loading subscription options...</Text>
+          <Text style={styles.loadingText}>{t('onboarding.paywall.loading_text')}</Text>
         )}
         
         <Text style={styles.pricingText}>
-          3 days free, then ${selectedPlan === 'annual' ? '37.90 per year' : '7.79 per month'}
+          {getPricingText()}
         </Text>
 
         <TouchableOpacity onPress={() => setShowPlansModal(true)}>
-          <Text style={styles.seeOtherPlansLink}>See other plans</Text>
+          <Text style={styles.seeOtherPlansLink}>{t('onboarding.paywall.see_other_plans')}</Text>
         </TouchableOpacity>
 
         <Text style={styles.cancelText}>
-          Cancel anytime • No commitment
+          {t('onboarding.paywall.cancel_text')}
         </Text>
 
         <View style={styles.regulatoryContainer}>
           <Text style={styles.regulatoryText}>
-            All features require an active subscription
+            {t('onboarding.paywall.regulatory1')}
           </Text>
           <Text style={styles.regulatoryText}>
-            Annual PREMIUM: $37.90 USD (1 year) • Monthly PREMIUM: $7.79 USD (1 month)
+            {t('onboarding.paywall.regulatory2')}
           </Text>
           <Text style={styles.regulatoryText}>
-            Dr. Acne Skincare Assistant - 1 Year PREMIUM • Price: $37.90
+            {t('onboarding.paywall.regulatory3')}
           </Text>
           <Text style={styles.regulatoryText}>
-            • Subscription renews unless turned off 24h before period end •
+            {t('onboarding.paywall.regulatory4')}
           </Text>
           <Text style={styles.regulatoryText}>
-            Account charged within 24h of period end
+            {t('onboarding.paywall.regulatory5')}
           </Text>
           <Text style={styles.regulatoryText}>
-            • Manage subscriptions in Account Settings after purchase
+            {t('onboarding.paywall.regulatory6')}
           </Text>
           
           <View style={styles.linksContainer}>
             <TouchableOpacity onPress={handlePrivacyPolicy}>
-              <Text style={styles.linkText}>Privacy Policy</Text>
+              <Text style={styles.linkText}>{t('onboarding.paywall.privacy_policy')}</Text>
             </TouchableOpacity>
             <Text style={styles.linkSeparator}> | </Text>
             <TouchableOpacity onPress={handleTermsOfUse}>
-              <Text style={styles.linkText}>Terms of Use</Text>
+              <Text style={styles.linkText}>{t('onboarding.paywall.terms_of_use')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -501,8 +512,8 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
               <Text style={styles.modernCloseText}>✕</Text>
             </TouchableOpacity>
 
-            <Text style={styles.modalTitle}>Choose a Plan</Text>
-            <Text style={styles.modalSubtitle}>Cancel anytime in Settings</Text>
+            <Text style={styles.modalTitle}>{t('onboarding.paywall.modal_title')}</Text>
+            <Text style={styles.modalSubtitle}>{t('onboarding.paywall.modal_subtitle')}</Text>
 
             <View style={styles.plansContainer}>
               <TouchableOpacity
@@ -525,21 +536,21 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
                 
                 <View style={styles.modernPlanHeader}>
                   <View style={styles.trialBadge}>
-                    <Text style={styles.trialBadgeText}>3 days free</Text>
+                    <Text style={styles.trialBadgeText}>{t('onboarding.paywall.modal_trial_badge')}</Text>
                   </View>
                   <View style={styles.savingsBadge}>
-                    <Text style={styles.savingsBadgeText}>Save 52%</Text>
+                    <Text style={styles.savingsBadgeText}>{t('onboarding.paywall.modal_savings_badge')}</Text>
                   </View>
                 </View>
 
-                <Text style={styles.modernPlanName}>Annual Premium</Text>
+                <Text style={styles.modernPlanName}>{t('onboarding.paywall.modal_annual')}</Text>
                 
                 <View style={styles.modernPriceRow}>
                   <Text style={styles.modernPrice}>$37.90</Text>
-                  <Text style={styles.modernPeriod}>/year</Text>
+                  <Text style={styles.modernPeriod}>{t('onboarding.paywall.modal_per_year')}</Text>
                 </View>
                 
-                <Text style={styles.modernPriceDetail}>$3.15/month</Text>
+                <Text style={styles.modernPriceDetail}>{t('onboarding.paywall.modal_annual_detail')}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -559,28 +570,28 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
                   </View>
                 )}
 
-                <Text style={styles.modernPlanName}>Monthly Premium</Text>
+                <Text style={styles.modernPlanName}>{t('onboarding.paywall.modal_monthly')}</Text>
                 
                 <View style={styles.modernPriceRow}>
                   <Text style={styles.modernPrice}>$7.79</Text>
-                  <Text style={styles.modernPeriod}>/month</Text>
+                  <Text style={styles.modernPeriod}>{t('onboarding.paywall.modal_per_month')}</Text>
                 </View>
                 
-                <Text style={styles.modernPriceDetail}>Flexible billing</Text>
+                <Text style={styles.modernPriceDetail}>{t('onboarding.paywall.modal_monthly_detail')}</Text>
               </TouchableOpacity>
             </View>
 
             <View style={styles.sharedFeaturesContainer}>
-              <Text style={styles.sharedFeaturesTitle}>All plans include:</Text>
+              <Text style={styles.sharedFeaturesTitle}>{t('onboarding.paywall.modal_features_title')}</Text>
               <View style={styles.featuresList}>
-                <Text style={styles.featureItem}>✓  Unlimited AI skin analyses</Text>
-                <Text style={styles.featureItem}>✓  Personalized routines</Text>
-                <Text style={styles.featureItem}>✓  Progress tracking</Text>
+                <Text style={styles.featureItem}>{t('onboarding.paywall.modal_feature1')}</Text>
+                <Text style={styles.featureItem}>{t('onboarding.paywall.modal_feature2')}</Text>
+                <Text style={styles.featureItem}>{t('onboarding.paywall.modal_feature3')}</Text>
               </View>
             </View>
 
             <View style={styles.noPaymentContainer}>
-              <Text style={styles.noPaymentText}>✓ No Payment Due Now</Text>
+              <Text style={styles.noPaymentText}>{t('onboarding.paywall.modal_no_payment')}</Text>
             </View>
           </View>
         </View>

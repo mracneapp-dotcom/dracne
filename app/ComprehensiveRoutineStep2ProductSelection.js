@@ -1,9 +1,9 @@
-// app/ComprehensiveRoutineStep2ProductSelection.js - WITH CITATIONS
+// app/ComprehensiveRoutineStep2ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
-  Linking,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -34,162 +35,162 @@ const SKIN_TYPE_INFO = {
 const MOISTURIZER_PRODUCTS = {
   oily: [
     {
-      id: 'moisturizer_oily_1',
-      name: 'Beauty of Joseon Dynasty Cream Light',
-      description: 'Lightweight gel-cream with rice and probiotics',
-      benefits: ['Non-greasy', 'Hydrating', 'K-Beauty'],
+      id: 'moist_oily_1',
+      name: 'iUNIK Centella Calming Gel',
+      description: 'Lightweight gel-cream with 70% centella asiatica',
+      benefits: ['Oil-free', 'Soothing', 'Fast-absorbing'],
     },
     {
-      id: 'moisturizer_oily_2',
-      name: 'Isntree Hyaluronic Aqua Gel Cream',
-      description: 'Water-based gel with 5 types of hyaluronic acid',
-      benefits: ['Lightweight', 'Plumping', 'Fresh finish'],
+      id: 'moist_oily_2',
+      name: 'COSRX Oil-Free Ultra-Moisturizing Lotion',
+      description: 'Birch sap-based lightweight lotion',
+      benefits: ['Oil-free', 'Hydrating', 'Non-greasy'],
     },
     {
-      id: 'moisturizer_oily_3',
-      name: 'Innisfree Green Tea Seed Cream',
-      description: 'Light gel-cream with green tea extract',
-      benefits: ['Oil-control', 'Antioxidant', 'Popular'],
+      id: 'moist_oily_3',
+      name: 'Neutrogena Hydro Boost Water Gel',
+      description: 'Hyaluronic acid gel moisturizer',
+      benefits: ['Oil-free', 'Lightweight', 'Budget-friendly'],
     },
     {
-      id: 'moisturizer_oily_4',
-      name: 'Neutrogena Hydro Boost',
-      description: 'Gel-cream with hyaluronic acid',
-      benefits: ['Affordable', 'Oil-free', 'Hydrating'],
+      id: 'moist_oily_4',
+      name: 'La Roche-Posay Effaclar Mat',
+      description: 'Mattifying moisturizer for oily skin',
+      benefits: ['Mattifying', 'Pore-refining', 'Tested'],
     },
     {
-      id: 'moisturizer_oily_5',
-      name: 'Clinique Dramatically Different Gel',
-      description: 'Classic lightweight moisturizing gel',
-      benefits: ['Oil-free', 'Trusted', 'Dermatologist-tested'],
+      id: 'moist_oily_5',
+      name: 'Belif True Aqua Bomb',
+      description: 'Gel-cream with Lady\'s Mantle herb',
+      benefits: ['Cooling', 'Hydrating', 'K-Beauty'],
     },
   ],
   dry: [
     {
-      id: 'moisturizer_dry_1',
-      name: 'COSRX Snail 92 All In One Cream',
-      description: 'Rich cream with 92% snail mucin',
-      benefits: ['Nourishing', 'Repairing', 'Hydrating'],
+      id: 'moist_dry_1',
+      name: 'La Roche-Posay Toleriane Double Repair',
+      description: 'Rich moisturizer with ceramides and niacinamide',
+      benefits: ['Barrier repair', 'Nourishing', 'Tested'],
     },
     {
-      id: 'moisturizer_dry_2',
-      name: 'Illiyoon Ceramide Ato Concentrate',
-      description: 'Intensive barrier cream with ceramides',
-      benefits: ['Rich', 'Barrier repair', 'K-Beauty favorite'],
-    },
-    {
-      id: 'moisturizer_dry_3',
-      name: "Kiehl's Ultra Facial Cream",
-      description: 'Classic rich moisturizer with squalane',
-      benefits: ['24-hour hydration', 'Luxurious', 'Iconic'],
-    },
-    {
-      id: 'moisturizer_dry_4',
+      id: 'moist_dry_2',
       name: 'CeraVe Moisturizing Cream',
       description: 'Rich cream with ceramides and hyaluronic acid',
-      benefits: ['Affordable', 'Ceramides', 'Dermatologist-loved'],
+      benefits: ['Affordable', 'Ceramides', 'Rich texture'],
     },
     {
-      id: 'moisturizer_dry_5',
-      name: 'First Aid Beauty Ultra Repair',
-      description: 'Intensive cream with colloidal oatmeal',
-      benefits: ['Soothing', 'Rich', 'Fast-absorbing'],
+      id: 'moist_dry_3',
+      name: 'Etude SoonJung 2x Barrier Intensive Cream',
+      description: 'Intensive barrier cream for sensitive dry skin',
+      benefits: ['Hypoallergenic', 'Rich', 'Soothing'],
+    },
+    {
+      id: 'moist_dry_4',
+      name: 'Avene Tolerance Extremely Gentle Cream',
+      description: 'Ultra-gentle nourishing cream',
+      benefits: ['Minimal ingredients', 'Rich', 'Safe'],
+    },
+    {
+      id: 'moist_dry_5',
+      name: 'Vanicream Moisturizing Cream',
+      description: 'Fragrance-free rich cream',
+      benefits: ['Fragrance-free', 'Budget-friendly', 'Gentle'],
     },
   ],
   combination: [
     {
-      id: 'moisturizer_combo_1',
-      name: 'Beauty of Joseon Dynasty Cream',
-      description: 'Balanced cream suitable for all zones',
-      benefits: ['Balanced', 'Versatile', 'Elegant'],
+      id: 'moist_combo_1',
+      name: 'iUNIK Centella Calming Gel',
+      description: 'Lightweight gel suitable for all zones',
+      benefits: ['Balanced', 'Calming', 'Adaptable'],
     },
     {
-      id: 'moisturizer_combo_2',
-      name: 'Isntree Aloe Soothing Gel',
-      description: 'Light gel with aloe and centella',
-      benefits: ['Soothing', 'Lightweight', 'Fresh'],
+      id: 'moist_combo_2',
+      name: 'Neutrogena Hydro Boost Water Gel',
+      description: 'Hyaluronic acid gel moisturizer',
+      benefits: ['Lightweight', 'Versatile', 'Affordable'],
     },
     {
-      id: 'moisturizer_combo_3',
-      name: 'Clinique Moisture Surge',
-      description: 'Auto-replenishing hydration',
-      benefits: ['Oil-free', 'Hydrating', 'Balanced'],
+      id: 'moist_combo_3',
+      name: 'La Roche-Posay Toleriane Double Repair',
+      description: 'Balanced moisturizer with ceramides',
+      benefits: ['Barrier support', 'Versatile', 'Professional'],
     },
     {
-      id: 'moisturizer_combo_4',
-      name: 'Neutrogena Hydro Boost',
-      description: 'Gel-cream for combination skin',
-      benefits: ['Versatile', 'Affordable', 'Effective'],
+      id: 'moist_combo_4',
+      name: 'Belif True Aqua Bomb',
+      description: 'Gel-cream texture for mixed zones',
+      benefits: ['Balanced', 'Hydrating', 'Popular'],
     },
     {
-      id: 'moisturizer_combo_5',
-      name: 'COSRX Snail 92',
-      description: 'Lightweight yet nourishing cream',
-      benefits: ['Adaptable', 'Repairing', 'Popular'],
+      id: 'moist_combo_5',
+      name: 'CeraVe PM Facial Lotion',
+      description: 'Lightweight lotion with ceramides',
+      benefits: ['Affordable', 'Balanced', 'Effective'],
     },
   ],
   normal: [
     {
-      id: 'moisturizer_normal_1',
-      name: 'COSRX Snail 92 All In One Cream',
-      description: 'Perfect hydrating cream for balanced skin',
-      benefits: ['Balanced', 'Repairing', 'Versatile'],
+      id: 'moist_normal_1',
+      name: 'Neutrogena Hydro Boost Water Gel',
+      description: 'Perfect lightweight moisture for healthy skin',
+      benefits: ['Light', 'Effective', 'Budget-friendly'],
     },
     {
-      id: 'moisturizer_normal_2',
-      name: 'Beauty of Joseon Dynasty Cream',
-      description: 'Classic K-beauty moisturizer',
-      benefits: ['Elegant', 'Balanced', 'Popular'],
+      id: 'moist_normal_2',
+      name: 'La Roche-Posay Toleriane Double Repair',
+      description: 'Balanced daily moisturizer',
+      benefits: ['Versatile', 'Professional', 'Reliable'],
     },
     {
-      id: 'moisturizer_normal_3',
-      name: 'Clinique Moisture Surge',
-      description: 'Auto-replenishing hydration',
-      benefits: ['Hydrating', 'Reliable', 'Oil-free'],
+      id: 'moist_normal_3',
+      name: 'Belif True Aqua Bomb',
+      description: 'Refreshing gel-cream',
+      benefits: ['Popular', 'Refreshing', 'Effective'],
     },
     {
-      id: 'moisturizer_normal_4',
-      name: 'Eucerin Lotion',
+      id: 'moist_normal_4',
+      name: 'CeraVe PM Facial Lotion',
       description: 'Simple effective daily moisturizer',
-      benefits: ['Lightweight', 'Budget-friendly', 'Gentle'],
+      benefits: ['Affordable', 'Ceramides', 'Light'],
     },
     {
-      id: 'moisturizer_normal_5',
-      name: 'Neutrogena Hydro Boost',
-      description: 'Gel-cream with hyaluronic acid',
-      benefits: ['Hydrating', 'Fresh', 'Affordable'],
+      id: 'moist_normal_5',
+      name: 'iUNIK Centella Calming Gel',
+      description: 'Soothing lightweight gel',
+      benefits: ['Calming', 'Light', 'K-Beauty'],
     },
   ],
   sensitive: [
     {
-      id: 'moisturizer_sens_1',
-      name: 'Illiyoon Ceramide Ato',
-      description: 'Gentle barrier repair cream',
-      benefits: ['Minimal ingredients', 'Ceramides', 'Safe'],
+      id: 'moist_sens_1',
+      name: 'Avene Tolerance Extremely Gentle Cream',
+      description: 'Ultra-gentle cream for reactive skin',
+      benefits: ['Minimal ingredients', 'Safe', 'Rich'],
     },
     {
-      id: 'moisturizer_sens_2',
-      name: 'La Roche-Posay Toleriane Dermallergo',
-      description: 'Ultra-gentle moisturizer for reactive skin',
-      benefits: ['Dermatologist-tested', 'Fragrance-free', 'Safe'],
+      id: 'moist_sens_2',
+      name: 'Etude SoonJung 2x Barrier Intensive Cream',
+      description: 'Hypoallergenic barrier cream',
+      benefits: ['pH 5.5', 'Tested', 'Calming'],
     },
     {
-      id: 'moisturizer_sens_3',
+      id: 'moist_sens_3',
+      name: 'La Roche-Posay Toleriane Double Repair',
+      description: 'Dermatologist-recommended barrier support',
+      benefits: ['Tested', 'Ceramides', 'Safe'],
+    },
+    {
+      id: 'moist_sens_4',
+      name: 'Vanicream Moisturizing Cream',
+      description: 'Free of common irritants',
+      benefits: ['Fragrance-free', 'Simple', 'Budget-friendly'],
+    },
+    {
+      id: 'moist_sens_5',
       name: 'CeraVe Moisturizing Cream',
-      description: 'Gentle ceramide cream',
-      benefits: ['Affordable', 'Ceramides', 'Non-irritating'],
-    },
-    {
-      id: 'moisturizer_sens_4',
-      name: 'A-Derma Dermalibour',
-      description: 'Repairing cream for sensitive skin',
-      benefits: ['Soothing', 'Repairing', 'Gentle'],
-    },
-    {
-      id: 'moisturizer_sens_5',
-      name: 'First Aid Beauty Ultra Repair',
-      description: 'Gentle intensive moisturizer',
-      benefits: ['Colloidal oatmeal', 'Safe', 'Soothing'],
+      description: 'Gentle ceramide-rich cream',
+      benefits: ['Ceramides', 'Affordable', 'Gentle'],
     },
   ],
 };
@@ -273,11 +274,11 @@ export default function ComprehensiveRoutineStep2ProductSelection({
 
   const getButtonText = () => {
     if (selectedProducts.length === 0) {
-      return 'Choose My Moisturizer';
+      return t('comprehensiveRoutineStep2Products.choose_moisturizer');
     } else if (selectedProducts.length === 1) {
-      return 'Continue with My Selection';
+      return t('comprehensiveRoutineStep2Products.continue_selection');
     } else {
-      return 'Continue with My Selections';
+      return t('comprehensiveRoutineStep2Products.continue_selections');
     }
   };
 
@@ -303,11 +304,16 @@ export default function ComprehensiveRoutineStep2ProductSelection({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -326,7 +332,9 @@ export default function ComprehensiveRoutineStep2ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('comprehensiveRoutineStep2Products.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -347,21 +355,21 @@ export default function ComprehensiveRoutineStep2ProductSelection({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('comprehensiveRoutineStep2Products.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Product Recommendations</Text>
+          <Text style={styles.sectionTitle}>{t('comprehensiveRoutineStep2Products.product_recommendations')}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose 1-2 moisturizers to give you options when shopping. Having alternatives helps you find what works best for your skin and budget. You can always swap products later.
+              {t('comprehensiveRoutineStep2Products.explanation')}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Select 1-2 Products {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
+              {t('comprehensiveRoutineStep2Products.select_products')} {selectedProducts.length > 0 && t('comprehensiveRoutineStep2Products.selected_count', { count: selectedProducts.length })}
             </Text>
             
             {products.map((product) => {
@@ -404,40 +412,19 @@ export default function ComprehensiveRoutineStep2ProductSelection({
 
           {selectedProducts.length === 0 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select at least 1 product to continue</Text>
+              <Text style={styles.helperText}>{t('comprehensiveRoutineStep2Products.select_one')}</Text>
             </View>
           )}
 
           {selectedProducts.length === 2 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Maximum 2 products selected</Text>
+              <Text style={styles.helperText}>{t('comprehensiveRoutineStep2Products.maximum_two')}</Text>
             </View>
           )}
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Moisturizer recommendations based on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6628200/')}
-              >
-                research on ceramide-based moisturizers in skin barrier function
-              </Text>
-              , studies on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/21374606/')}
-              >
-                hyaluronic acid penetration and hydration mechanisms
-              </Text>
-              , and{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4885180/')}
-              >
-                moisturizer selection based on skin type characteristics
-              </Text>
-              . Morning hydration protects your barrier throughout the day - consult a dermatologist for persistent dryness.
+              {t('comprehensiveRoutineStep2Products.citation')}
             </Text>
           </View>
 
@@ -483,6 +470,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,
@@ -679,12 +680,6 @@ const styles = StyleSheet.create({
     color: '#999999',
     lineHeight: 16,
     textAlign: 'center',
-  },
-  citationLink: {
-    fontSize: 11,
-    color: '#666666',
-    textDecorationLine: 'underline',
-    fontWeight: '600',
   },
   bottomSpacing: {
     height: 160,

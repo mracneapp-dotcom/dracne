@@ -2,11 +2,13 @@
 import React from 'react';
 import {
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { DrAcneButton } from '../../components/ui/DrAcneButton';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -18,30 +20,30 @@ const BRAND_COLORS = {
 
 const TIMELINE_MILESTONES = [
   {
-    week: 'Week 1',
-    title: 'Your routine is working',
-    description: 'Skin begins adjusting',
+    weekKey: 'onboarding.resultsTimeline.week1',
+    titleKey: 'onboarding.resultsTimeline.week1_title',
+    descKey: 'onboarding.resultsTimeline.week1_desc',
     icon: require('../../assets/images/check.png'),
     color: '#4A90E2',
   },
   {
-    week: 'Weeks 2-3',
-    title: 'First visible improvements',
-    description: "You'll start noticing clearer patches",
+    weekKey: 'onboarding.resultsTimeline.weeks2_3',
+    titleKey: 'onboarding.resultsTimeline.weeks2_3_title',
+    descKey: 'onboarding.resultsTimeline.weeks2_3_desc',
     icon: require('../../assets/images/check.png'),
     color: '#9B59B6',
   },
   {
-    week: 'Weeks 4-6',
-    title: 'Significant progress',
-    description: 'Friends notice your skin',
+    weekKey: 'onboarding.resultsTimeline.weeks4_6',
+    titleKey: 'onboarding.resultsTimeline.weeks4_6_title',
+    descKey: 'onboarding.resultsTimeline.weeks4_6_desc',
     icon: require('../../assets/images/check.png'),
     color: '#F39C12',
   },
   {
-    week: 'Week 8+',
-    title: 'Goal achieved!',
-    description: 'Consistently clear skin',
+    weekKey: 'onboarding.resultsTimeline.week8',
+    titleKey: 'onboarding.resultsTimeline.week8_title',
+    descKey: 'onboarding.resultsTimeline.week8_desc',
     icon: require('../../assets/images/check.png'),
     color: BRAND_COLORS.primary,
   },
@@ -54,13 +56,17 @@ export default function OnboardingResultsTimeline({ onNext }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header Section */}
         <View style={styles.header}>
           <Text style={styles.title}>
-            Here's What to <Text style={styles.titleHighlight}>Expect</Text>
+            {t('onboarding.resultsTimeline.title1')} <Text style={styles.titleHighlight}>{t('onboarding.resultsTimeline.title2')}</Text>
           </Text>
-          <Text style={styles.subtitle}>Your skin transformation timeline</Text>
+          <Text style={styles.subtitle}>{t('onboarding.resultsTimeline.subtitle')}</Text>
         </View>
 
         {/* Modern Timeline with Cards */}
@@ -90,11 +96,11 @@ export default function OnboardingResultsTimeline({ onNext }) {
                   styles.weekLabel,
                   { color: milestone.color }
                 ]}>
-                  {milestone.week}
+                  {t(milestone.weekKey)}
                 </Text>
-                <Text style={styles.milestoneTitle}>{milestone.title}</Text>
+                <Text style={styles.milestoneTitle}>{t(milestone.titleKey)}</Text>
                 <Text style={styles.milestoneDescription}>
-                  {milestone.description}
+                  {t(milestone.descKey)}
                 </Text>
               </View>
             </View>
@@ -104,18 +110,18 @@ export default function OnboardingResultsTimeline({ onNext }) {
         {/* Social Proof Section */}
         <View style={styles.proofContainer}>
           <Text style={styles.proofText}>
-            Timeline supported by peer-reviewed skincare science
+            {t('onboarding.resultsTimeline.proof')}
           </Text>
           <Text style={styles.disclaimerText}>
-            Results may vary based on skin type and routine consistency
+            {t('onboarding.resultsTimeline.disclaimer')}
           </Text>
         </View>
-      </View>
+      </ScrollView>
 
       {/* Fixed Button at Bottom */}
       <View style={styles.buttonContainer}>
         <DrAcneButton
-          title="I'm ready for this journey"
+          title={t('onboarding.resultsTimeline.button')}
           onPress={handleContinue}
           style={styles.button}
         />
@@ -129,13 +135,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     backgroundColor: 'transparent',
     paddingHorizontal: 24,
     paddingTop: 40,
     paddingBottom: 140,
-    justifyContent: 'flex-start',
   },
   header: {
     alignItems: 'center',

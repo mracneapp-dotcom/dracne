@@ -2,13 +2,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -87,11 +89,16 @@ export default function ComprehensiveRoutineStep5Info({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <View style={styles.content}>
@@ -105,7 +112,9 @@ export default function ComprehensiveRoutineStep5Info({
               <Text style={styles.arrowText}>‹</Text>
             </TouchableOpacity>
 
-            <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+            <Text style={styles.progressText}>
+              {t('comprehensiveRoutineStep5Info.step_of', { current: currentStep, total: totalSteps })}
+            </Text>
 
             <TouchableOpacity
               onPress={handleNextStep}
@@ -123,7 +132,7 @@ export default function ComprehensiveRoutineStep5Info({
 
         <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
           <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-            For {skinTypeInfo.name}
+            {t('comprehensiveRoutineStep5Info.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
           </Text>
         </View>
 
@@ -136,36 +145,36 @@ export default function ComprehensiveRoutineStep5Info({
             />
           </View>
           <View style={styles.productTextContainer}>
-            <Text style={styles.productTitle}>Sunscreen (SPF 30+)</Text>
-            <Text style={styles.productSubtitle}>Final Morning Step</Text>
+            <Text style={styles.productTitle}>{t('comprehensiveRoutineStep5Info.sunscreen_title')}</Text>
+            <Text style={styles.productSubtitle}>{t('comprehensiveRoutineStep5Info.final_morning_step')}</Text>
           </View>
         </View>
 
         <View style={styles.introBox}>
-          <Text style={styles.introTitle}>Essential Protection</Text>
+          <Text style={styles.introTitle}>{t('comprehensiveRoutineStep5Info.essential_protection')}</Text>
           <Text style={styles.introText}>
-            Sunscreen is the most important anti-aging and skin protection product in your routine. It prevents UV damage, premature aging, and protects your skin while using active treatments.
+            {t('comprehensiveRoutineStep5Info.essential_text')}
           </Text>
         </View>
 
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>Why this matters</Text>
+          <Text style={styles.explanationTitle}>{t('comprehensiveRoutineStep5Info.why_matters')}</Text>
           <Text style={styles.explanationText}>
-            UV exposure is responsible for up to 80% of visible aging. When using active treatments like retinoids or acids, sunscreen becomes even more critical to prevent sensitivity and hyperpigmentation.
+            {t('comprehensiveRoutineStep5Info.why_text')}
           </Text>
         </View>
 
         <View style={styles.tipBox}>
-          <Text style={styles.tipTitle}>Application Tip</Text>
+          <Text style={styles.tipTitle}>{t('comprehensiveRoutineStep5Info.application_tip')}</Text>
           <Text style={styles.tipText}>
-            Use 2 fingers worth of sunscreen for your face and neck. Apply as the last step of your morning routine, 15 minutes before sun exposure. Reapply every 2 hours if outdoors.
+            {t('comprehensiveRoutineStep5Info.tip_text')}
           </Text>
         </View>
       </View>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('comprehensiveRoutineStep5Info.see_products')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -200,6 +209,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   content: {
     flex: 1,

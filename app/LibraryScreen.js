@@ -1,4 +1,4 @@
-// app/LibraryScreen.js - Modern Design with Banner
+// app/LibraryScreen.js - WITH SPANISH I18N (COMPLETE)
 import React, { useState } from 'react';
 import {
   Image,
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -23,59 +24,59 @@ const BRAND_COLORS = {
 const SKINCARE_TIPS = [
   {
     id: 1,
-    title: 'Pillowcase Care',
+    title: 'library.tips.pillowcase.title',
     icon: require('../assets/images/pillow.png'),
-    shortDescription: 'Change regularly for clearer skin',
-    fullDescription: 'Your pillowcase collects oil, bacteria, and dead skin cells every night. These can clog your pores and cause breakouts.\n\n✓ Change pillowcases 2-3 times per week\n✓ Use cotton or silk fabric (avoid synthetic materials)\n✓ Wash with fragrance-free detergent\n✓ Consider having 4-6 pillowcases in rotation\n\nThis simple habit can significantly reduce acne breakouts and improve skin clarity.',
+    shortDescription: 'library.tips.pillowcase.short',
+    fullDescription: 'library.tips.pillowcase.full',
   },
   {
     id: 2,
-    title: 'Cotton Pads',
+    title: 'library.tips.cotton.title',
     icon: require('../assets/images/cotton-pad.png'),
-    shortDescription: 'The right way to apply products',
-    fullDescription: 'Cotton pads help apply products evenly and hygienically without transferring bacteria from your hands.\n\n✓ Use 100% cotton pads (avoid synthetic blends)\n✓ Perfect for toners and essences\n✓ Apply with gentle patting motions\n✓ Never rub or drag across skin\n✓ Use separate pads for different products\n\nThis ensures even product distribution and prevents contamination.',
+    shortDescription: 'library.tips.cotton.short',
+    fullDescription: 'library.tips.cotton.full',
   },
   {
     id: 3,
-    title: 'Phone Hygiene',
+    title: 'library.tips.phone.title',
     icon: require('../assets/images/phone.png'),
-    shortDescription: 'Clean your phone screen daily',
-    fullDescription: 'Your phone touches your face multiple times daily and harbors more bacteria than most surfaces.\n\n✓ Clean screen with alcohol wipes 2x daily\n✓ Use speakerphone when possible\n✓ Never place phone on dirty surfaces\n✓ Consider using earbuds for calls\n\nReducing phone-to-face contact can prevent jawline and cheek acne.',
+    shortDescription: 'library.tips.phone.short',
+    fullDescription: 'library.tips.phone.full',
   },
   {
     id: 4,
-    title: 'Hair Products',
+    title: 'library.tips.hair.title',
     icon: require('../assets/images/hair.png'),
-    shortDescription: 'Keep hair products off your face',
-    fullDescription: 'Hair products can migrate to your skin and cause clogged pores, especially along the hairline and forehead.\n\n✓ Tie hair back during skincare routine\n✓ Rinse hair products completely in shower\n✓ Apply hair products away from hairline\n✓ Use non-comedogenic hair products when possible\n✓ Wash pillowcase after using heavy styling products\n\nThis prevents pomade acne and forehead breakouts.',
+    shortDescription: 'library.tips.hair.short',
+    fullDescription: 'library.tips.hair.full',
   },
   {
     id: 5,
-    title: 'Towel Hygiene',
+    title: 'library.tips.towel.title',
     icon: require('../assets/images/towel.png'),
-    shortDescription: 'Use clean towels for your face',
-    fullDescription: 'Damp towels are breeding grounds for bacteria that can transfer to your freshly cleansed skin.\n\n✓ Use a dedicated face towel separate from body towels\n✓ Change face towel every 2-3 days\n✓ Pat dry gently, never rub\n✓ Consider disposable face towels for acne-prone skin\n✓ Wash towels in hot water with mild detergent\n\nThis simple switch prevents recontamination after cleansing.',
+    shortDescription: 'library.tips.towel.short',
+    fullDescription: 'library.tips.towel.full',
   },
   {
     id: 6,
-    title: 'Hydration',
+    title: 'library.tips.hydration.title',
     icon: require('../assets/images/water.png'),
-    shortDescription: 'Drink water for healthy skin',
-    fullDescription: 'Proper hydration supports skin cell function and helps flush toxins that can contribute to breakouts.\n\n✓ Aim for 8 glasses (2 liters) of water daily\n✓ Drink more during exercise or hot weather\n✓ Hydrated skin heals faster from acne\n✓ Water helps regulate oil production\n✓ Supports overall skin barrier function\n\nDehydrated skin can overproduce oil, leading to more breakouts.',
+    shortDescription: 'library.tips.hydration.short',
+    fullDescription: 'library.tips.hydration.full',
   },
   {
     id: 7,
-    title: 'Sun Protection',
+    title: 'library.tips.sun.title',
     icon: require('../assets/images/sun.png'),
-    shortDescription: 'SPF every day, rain or shine',
-    fullDescription: 'UV damage worsens acne scarring and can trigger inflammation in acne-prone skin.\n\n✓ Apply SPF 30-50 broad spectrum daily\n✓ Reapply every 2 hours when outdoors\n✓ Choose oil-free, non-comedogenic formulas\n✓ Mineral sunscreens (zinc oxide) are gentler\n✓ SPF prevents dark spots from acne\n\nConsistent sun protection is crucial for preventing post-acne marks.',
+    shortDescription: 'library.tips.sun.short',
+    fullDescription: 'library.tips.sun.full',
   },
   {
     id: 8,
-    title: 'Hand Hygiene',
+    title: 'library.tips.hands.title',
     icon: require('../assets/images/hands.png'),
-    shortDescription: 'Never touch your face',
-    fullDescription: 'Touching your face transfers bacteria, oil, and dirt from your hands directly to your pores.\n\n✓ Avoid touching face throughout the day\n✓ Never pick or pop pimples\n✓ Wash hands before skincare routine\n✓ Use tissues instead of fingers when needed\n✓ Be mindful of unconscious face-touching\n\nThis single habit can dramatically reduce breakouts.',
+    shortDescription: 'library.tips.hands.short',
+    fullDescription: 'library.tips.hands.full',
   },
 ];
 
@@ -122,9 +123,9 @@ export const LibraryScreen = ({ onNavigateHome }) => {
       {/* Header Title */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>
-          Skincare <Text style={styles.headerTitleGreen}>Library</Text>
+          {t('library.title')} <Text style={styles.headerTitleGreen}>{t('library.title_highlight')}</Text>
         </Text>
-        <Text style={styles.headerSubtitle}>Expert tips for clearer skin</Text>
+        <Text style={styles.headerSubtitle}>{t('library.subtitle')}</Text>
       </View>
 
       {/* Tip Cards Grid */}
@@ -150,7 +151,7 @@ export const LibraryScreen = ({ onNavigateHome }) => {
                   resizeMode="contain"
                 />
               </View>
-              <Text style={styles.cardTitle}>{tip.title}</Text>
+              <Text style={styles.cardTitle}>{t(tip.title)}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -193,7 +194,7 @@ export const LibraryScreen = ({ onNavigateHome }) => {
                       <Text style={styles.closeButtonText}>✕</Text>
                     </TouchableOpacity>
                     
-                    <Text style={styles.modalTitle}>{selectedTip.title}</Text>
+                    <Text style={styles.modalTitle}>{t(selectedTip.title)}</Text>
                   </View>
 
                   {/* Modal Body */}
@@ -205,7 +206,7 @@ export const LibraryScreen = ({ onNavigateHome }) => {
                     overScrollMode="never"
                   >
                     <Text style={styles.modalDescription}>
-                      {selectedTip.fullDescription}
+                      {t(selectedTip.fullDescription)}
                     </Text>
                   </ScrollView>
 
@@ -216,7 +217,7 @@ export const LibraryScreen = ({ onNavigateHome }) => {
                       onPress={closeModal}
                       activeOpacity={0.8}
                     >
-                      <Text style={styles.modalButtonText}>Got it!</Text>
+                      <Text style={styles.modalButtonText}>{t('library.modal_button')}</Text>
                     </TouchableOpacity>
                   </View>
                 </>

@@ -1,4 +1,4 @@
-// app/Test1Screen.js - End-of-Day Check Part 1 (Modern Design)
+// app/Test1Screen.js - UPDATED WITH i18n
 import React, { useState } from 'react';
 import {
   Image,
@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -31,12 +32,12 @@ export const Test1Screen = ({
 
   const question = {
     id: 'oiliness',
-    question: 'How does your skin feel right now?',
+    question: t('test1.question'),
     options: [
-      { id: 'very_oily', text: 'Very oily and shiny', points: 4 },
-      { id: 'slightly_oily', text: 'Slightly oily', points: 3 },
-      { id: 'balanced', text: 'Comfortable and balanced', points: 2 },
-      { id: 'tight', text: 'Tight and dry', points: 1 }
+      { id: 'very_oily', text: t('test1.option_1'), points: 4 },
+      { id: 'slightly_oily', text: t('test1.option_2'), points: 3 },
+      { id: 'balanced', text: t('test1.option_3'), points: 2 },
+      { id: 'tight', text: t('test1.option_4'), points: 1 }
     ]
   };
 
@@ -83,18 +84,18 @@ export const Test1Screen = ({
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>
-              End-of-Day <Text style={styles.titleHighlight}>Check</Text>
+              {t('test1.title')} <Text style={styles.titleHighlight}>{t('test1.title_highlight')}</Text>
             </Text>
             <Text style={styles.subtitle}>
-              Check your skin 2-3 hours after cleansing
+              {t('test1.subtitle')}
             </Text>
           </View>
 
           {/* Instructions Box */}
           <View style={styles.instructionsBox}>
-            <Text style={styles.instructionsTitle}>How it works:</Text>
+            <Text style={styles.instructionsTitle}>{t('test1.instructions_title')}</Text>
             <Text style={styles.instructionsText}>
-              Cleanse your face normally, wait 2-3 hours without applying any products, then answer these questions.
+              {t('test1.instructions_text')}
             </Text>
           </View>
 
@@ -132,7 +133,7 @@ export const Test1Screen = ({
           {/* Continue Button */}
           <View style={styles.buttonContainer}>
             <DrAcneButton
-              title={selectedAnswer ? "Next Question (1/2)" : "Answer question (0/2)"}
+              title={selectedAnswer ? t('test1.button_next') : t('test1.button_answer')}
               onPress={handleContinue}
               disabled={!selectedAnswer}
               style={styles.continueButton}

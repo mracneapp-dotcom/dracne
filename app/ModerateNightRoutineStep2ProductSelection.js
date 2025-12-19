@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
-  Linking,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -263,9 +264,9 @@ export default function ModerateNightRoutineStep2ProductSelection({
 
   const getButtonText = () => {
     if (!selectedProduct) {
-      return 'Choose My Moisturizer';
+      return t('moderateNightRoutineStep2Products.choose_moisturizer');
     }
-    return 'Continue to Step 3';
+    return t('moderateNightRoutineStep2Products.continue_step_3');
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -290,11 +291,16 @@ export default function ModerateNightRoutineStep2ProductSelection({
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Night Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('nightRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('nightRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -313,7 +319,9 @@ export default function ModerateNightRoutineStep2ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('moderateNightRoutineStep2Products.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -334,21 +342,21 @@ export default function ModerateNightRoutineStep2ProductSelection({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('moderateNightRoutineStep2Products.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Product Recommendations</Text>
+          <Text style={styles.sectionTitle}>{t('moderateNightRoutineStep2Products.section_title')}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose your evening moisturizer. This will support your skin's natural overnight repair process with enhanced hydration.
+              {t('moderateNightRoutineStep2Products.explanation')}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Choose Your Product {selectedProduct && '(1 selected)'}
+              {t('moderateNightRoutineStep2Products.choose_product', { selected: selectedProduct ? ' (1 selected)' : '' })}
             </Text>
             
             {products.map((product) => {
@@ -390,34 +398,13 @@ export default function ModerateNightRoutineStep2ProductSelection({
 
           {!selectedProduct && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select 1 product to continue to Step 3</Text>
+              <Text style={styles.helperText}>{t('moderateNightRoutineStep2Products.helper_text')}</Text>
             </View>
           )}
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Product selections curated using safety data from the{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.cir-safety.org/ingredients')}
-              >
-                Cosmetic Ingredient Review
-              </Text>
-              , formulation research from the{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://onlinelibrary.wiley.com/journal/14682494')}
-              >
-                International Journal of Cosmetic Science
-              </Text>
-              , and clinical studies on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6751381/')}
-              >
-                skin type-specific nighttime moisturization and barrier repair
-              </Text>
-              . These are educational suggestions - always patch test new products and consult a dermatologist for personalized treatment.
+              {t('moderateNightRoutineStep2Products.citation')}
             </Text>
           </View>
 
@@ -463,6 +450,21 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  bannerText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   scrollView: {
     flex: 1,

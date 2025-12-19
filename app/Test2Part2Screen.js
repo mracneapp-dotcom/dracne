@@ -1,14 +1,15 @@
-// app/Test2Part2Screen.js - Blotting Paper Test Part 2 (Modern Design)
+// app/Test2Part2Screen.js - UPDATED WITH i18n
 import React, { useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -32,12 +33,12 @@ export const Test2Part2Screen = ({
 
   const question = {
     id: 'cheeks_results',
-    question: 'What does the blotting paper show on your cheeks?',
+    question: t('test2Part2.question'),
     options: [
-      { id: 'oily', text: 'Oily - clear oil absorption', points: 4 },
-      { id: 'some_oil', text: 'Some oil - light marks visible', points: 3 },
-      { id: 'very_little', text: 'Very little oil - faint marks', points: 2 },
-      { id: 'no_oil', text: 'No oil - completely dry', points: 1 }
+      { id: 'oily', text: t('test2Part2.option_1'), points: 4 },
+      { id: 'some_oil', text: t('test2Part2.option_2'), points: 3 },
+      { id: 'very_little', text: t('test2Part2.option_3'), points: 2 },
+      { id: 'no_oil', text: t('test2Part2.option_4'), points: 1 }
     ]
   };
 
@@ -102,9 +103,9 @@ export const Test2Part2Screen = ({
         <View style={styles.content}>
           <View style={styles.header}>
             <Text style={styles.title}>
-              Record Your <Text style={styles.titleHighlight}>Results</Text>
+              {t('test2Part2.title')} <Text style={styles.titleHighlight}>{t('test2Part2.title_highlight')}</Text>
             </Text>
-            <Text style={styles.subtitle}>Question 2 of 2</Text>
+            <Text style={styles.subtitle}>{t('test2Part2.subtitle')}</Text>
           </View>
 
           <View style={styles.questionCard}>
@@ -139,7 +140,7 @@ export const Test2Part2Screen = ({
 
           <View style={styles.buttonContainer}>
             <DrAcneButton
-              title={selectedAnswer ? "Reveal My Skin Type (2/2)" : "Answer question (1/2)"}
+              title={selectedAnswer ? t('test2Part2.button_reveal') : t('test2Part2.button_answer')}
               onPress={handleContinue}
               disabled={!selectedAnswer}
               style={styles.continueButton}

@@ -1,7 +1,8 @@
-// components/ui/BottomNavigation.js - Modern Refined Design
+// components/ui/BottomNavigation.js - WITH SPANISH I18N
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import { t } from '../../app/i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -48,11 +49,11 @@ const ProfileIcon = ({ color = "#666" }) => (
 
 export const BottomNavigation = ({ activeTab = 'routines', onTabPress }) => {
   const tabs = [
-    { id: 'routines', icon: RoutinesIcon, label: 'Routines' },
-    { id: 'calendar', icon: CalendarIcon, label: 'Calendar' },
-    { id: 'upload', icon: PlusIcon, label: 'Upload', isMain: true },
-    { id: 'library', icon: LibraryIcon, label: 'Library' },
-    { id: 'profile', icon: ProfileIcon, label: 'Profile' },
+    { id: 'routines', icon: RoutinesIcon, label: 'navigation.routines' },
+    { id: 'calendar', icon: CalendarIcon, label: 'navigation.calendar' },
+    { id: 'upload', icon: PlusIcon, label: 'navigation.upload', isMain: true },
+    { id: 'library', icon: LibraryIcon, label: 'navigation.library' },
+    { id: 'profile', icon: ProfileIcon, label: 'navigation.profile' },
   ];
 
   return (
@@ -101,7 +102,7 @@ export const BottomNavigation = ({ activeTab = 'routines', onTabPress }) => {
                     styles.label,
                     isActive && styles.activeLabel
                   ]}>
-                    {tab.label}
+                    {t(tab.label)}
                   </Text>
                 </View>
               </TouchableOpacity>

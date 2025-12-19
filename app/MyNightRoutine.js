@@ -1,9 +1,10 @@
-// app/MyNightRoutine.js - ADDED CITATION WITH EMBEDDED LINKS
+// app/MyNightRoutine.js - FULLY TRANSLATED (COMPLETE)
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Image,
+  ImageBackground,
   Linking,
   RefreshControl,
   ScrollView,
@@ -13,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -26,17 +28,17 @@ const BRAND_COLORS = {
 };
 
 const SKIN_TYPE_INFO = {
-  oily: { color: '#4A90E2', name: 'Oily Skin' },
-  dry: { color: '#F39C12', name: 'Dry Skin' },
-  combination: { color: BRAND_COLORS.primary, name: 'Combination Skin' },
-  normal: { color: '#9B59B6', name: 'Normal Skin' },
-  sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
+  oily: { color: '#4A90E2' },
+  dry: { color: '#F39C12' },
+  combination: { color: BRAND_COLORS.primary },
+  normal: { color: '#9B59B6' },
+  sensitive: { color: BRAND_COLORS.primary },
 };
 
 const ROUTINE_LEVEL_COLORS = {
-  basic: '#4A90E2',          // Blue
-  moderate: '#F39C12',       // Orange
-  comprehensive: '#9B59B6',  // Purple
+  basic: '#4A90E2',
+  moderate: '#F39C12',
+  comprehensive: '#9B59B6',
 };
 
 const STEP_ICONS = {
@@ -69,78 +71,73 @@ export default function MyNightRoutine({
     setIsLoading(true);
     
     try {
-      // Load skin type
       const savedSkinType = await AsyncStorage.getItem('userSkinType');
       if (savedSkinType) {
         setSkinType(savedSkinType);
       }
-     // CHECK CUSTOM ROUTINE FIRST
-const customNightData = await AsyncStorage.getItem('myNightRoutine');
-if (customNightData) {
-  const parsed = JSON.parse(customNightData);
-  const hasProducts = (parsed.cleansers?.length > 0) || 
-                      (parsed.moisturizers?.length > 0);
-  const isUserCreated = parsed.completedAt || parsed.savedByUser === true;
 
-  if (hasProducts && isUserCreated) {
-    setRoutineData(parsed);
-    setRoutineType('custom');
-    setIsLoading(false);
-    return;
-  }
-}
+      const customNightData = await AsyncStorage.getItem('myNightRoutine');
+      if (customNightData) {
+        const parsed = JSON.parse(customNightData);
+        const hasProducts = (parsed.cleansers?.length > 0) || 
+                            (parsed.moisturizers?.length > 0);
+        const isUserCreated = parsed.completedAt || parsed.savedByUser === true;
 
-// Check for Comprehensive first (most complete)
-const comprehensiveData = await AsyncStorage.getItem('myComprehensiveNightRoutine');
-if (comprehensiveData) {
-  const parsed = JSON.parse(comprehensiveData);
-  const hasProducts = (parsed.cleansers?.length > 0) || 
-                      (parsed.moisturizers?.length > 0);
-  const isUserCreated = parsed.completedAt || parsed.savedByUser === true;
-  
-  if (hasProducts && isUserCreated) {
-    setRoutineData(parsed);
-    setRoutineType('comprehensive');
-    setIsLoading(false);
-    return;
-  }
-}
+        if (hasProducts && isUserCreated) {
+          setRoutineData(parsed);
+          setRoutineType('basic');
+          setIsLoading(false);
+          return;
+        }
+      }
 
-// Then check Moderate
-const moderateData = await AsyncStorage.getItem('myModerateNightRoutine');
-if (moderateData) {
-  const parsed = JSON.parse(moderateData);
-  const hasProducts = (parsed.cleansers?.length > 0) || 
-                      (parsed.moisturizers?.length > 0);
-  const isUserCreated = parsed.completedAt || parsed.savedByUser === true;
-  
-  if (hasProducts && isUserCreated) {
-    setRoutineData(parsed);
-    setRoutineType('moderate');
-    setIsLoading(false);
-    return;
-  }
-}
+      const comprehensiveData = await AsyncStorage.getItem('myComprehensiveNightRoutine');
+      if (comprehensiveData) {
+        const parsed = JSON.parse(comprehensiveData);
+        const hasProducts = (parsed.cleansers?.length > 0) || 
+                            (parsed.moisturizers?.length > 0);
+        const isUserCreated = parsed.completedAt || parsed.savedByUser === true;
+        
+        if (hasProducts && isUserCreated) {
+          setRoutineData(parsed);
+          setRoutineType('comprehensive');
+          setIsLoading(false);
+          return;
+        }
+      }
 
-// Finally check Basic
-const basicData = await AsyncStorage.getItem('myBasicNightRoutine');
-if (basicData) {
-  const parsed = JSON.parse(basicData);
-  const hasProducts = (parsed.cleansers?.length > 0) || 
-                      (parsed.moisturizers?.length > 0);
-  const isUserCreated = parsed.completedAt || parsed.savedByUser === true;
-  
-  if (hasProducts && isUserCreated) {
-    setRoutineData(parsed);
-    setRoutineType('basic');
-    setIsLoading(false);
-    return;
-  }
-}
+      const moderateData = await AsyncStorage.getItem('myModerateNightRoutine');
+      if (moderateData) {
+        const parsed = JSON.parse(moderateData);
+        const hasProducts = (parsed.cleansers?.length > 0) || 
+                            (parsed.moisturizers?.length > 0);
+        const isUserCreated = parsed.completedAt || parsed.savedByUser === true;
+        
+        if (hasProducts && isUserCreated) {
+          setRoutineData(parsed);
+          setRoutineType('moderate');
+          setIsLoading(false);
+          return;
+        }
+      }
 
-// No routine found
-setRoutineData(null);
-setRoutineType(null); 
+      const basicData = await AsyncStorage.getItem('myBasicNightRoutine');
+      if (basicData) {
+        const parsed = JSON.parse(basicData);
+        const hasProducts = (parsed.cleansers?.length > 0) || 
+                            (parsed.moisturizers?.length > 0);
+        const isUserCreated = parsed.completedAt || parsed.savedByUser === true;
+        
+        if (hasProducts && isUserCreated) {
+          setRoutineData(parsed);
+          setRoutineType('basic');
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      setRoutineData(null);
+      setRoutineType(null); 
     } catch (error) {
       console.error('❌ Error loading Night Routine:', error);
     } finally {
@@ -166,19 +163,20 @@ setRoutineType(null);
   };
 
   const handleClearRoutine = () => {
-    const levelText = routineType ? routineType.charAt(0).toUpperCase() + routineType.slice(1) : '';
+    const levelText = getRoutineTitle();
     
     Alert.alert(
-      'Clear Night Routine',
-      `Are you sure you want to clear your ${levelText} Night Routine? This cannot be undone.`,
+      t('myNightRoutine.alert_clear_title'),
+      t('myNightRoutine.alert_clear_message', { level: levelText }),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('myNightRoutine.alert_cancel'), style: 'cancel' },
         {
-          text: 'Clear',
+          text: t('myNightRoutine.alert_clear'),
           style: 'destructive',
           onPress: async () => {
             try {
               if (routineType === 'basic') {
+                await AsyncStorage.removeItem('myNightRoutine');
                 await AsyncStorage.removeItem('myBasicNightRoutine');
               } else if (routineType === 'moderate') {
                 await AsyncStorage.removeItem('myModerateNightRoutine');
@@ -200,44 +198,71 @@ setRoutineType(null);
   const getStepCount = () => {
     if (routineType === 'comprehensive') return 4;
     if (routineType === 'moderate') return 3;
-    return 2; // basic
+    return 2;
   };
 
   const getRoutineColor = () => {
     return ROUTINE_LEVEL_COLORS[routineType] || ROUTINE_LEVEL_COLORS.basic;
   };
 
+  // ✅ UPDATED: Now uses translations
   const getRoutineTitle = () => {
-    if (routineType === 'comprehensive') return 'Comprehensive';
-    if (routineType === 'moderate') return 'Moderate';
-    return 'Basic';
+    if (routineType === 'comprehensive') return t('myNightRoutine.comprehensive_routine');
+    if (routineType === 'moderate') return t('myNightRoutine.moderate_routine');
+    return t('myNightRoutine.basic_routine');
   };
 
-  const renderProductCard = (product, index, total) => (
-    <View key={product.id || index} style={styles.productCard}>
-      <View style={styles.productHeader}>
-        <View style={styles.productLeft}>
-          <Text style={styles.productName}>{product.name}</Text>
-          <Text style={styles.productDescription}>{product.description}</Text>
+  // ✅ NEW: Helper function to translate product data
+  const translateProductData = (product) => {
+    if (!product) return product;
+    
+    // Translate description if it has a descriptionKey
+    const description = product.descriptionKey 
+      ? t(product.descriptionKey) 
+      : product.description;
+    
+    // Translate benefits if they have benefitKeys
+    const benefits = product.benefitKeys 
+      ? product.benefitKeys.map(key => t(`productBenefits.${key}`))
+      : product.benefits;
+    
+    return {
+      ...product,
+      description,
+      benefits
+    };
+  };
+
+  // ✅ UPDATED: Now translates product data
+  const renderProductCard = (product, index, total) => {
+    const translatedProduct = translateProductData(product);
+    
+    return (
+      <View key={product.id || index} style={styles.productCard}>
+        <View style={styles.productHeader}>
+          <View style={styles.productLeft}>
+            <Text style={styles.productName}>{translatedProduct.name}</Text>
+            <Text style={styles.productDescription}>{translatedProduct.description}</Text>
+          </View>
+          {total > 1 && (
+            <View style={styles.optionBadge}>
+              <Text style={styles.optionText}>{t('myNightRoutine.option')} {index + 1}</Text>
+            </View>
+          )}
         </View>
-        {total > 1 && (
-          <View style={styles.optionBadge}>
-            <Text style={styles.optionText}>Option {index + 1}</Text>
+        
+        {translatedProduct.benefits && (
+          <View style={styles.benefitsRow}>
+            {translatedProduct.benefits.map((benefit, idx) => (
+              <View key={idx} style={styles.benefitTag}>
+                <Text style={styles.benefitTagText}>{benefit}</Text>
+              </View>
+            ))}
           </View>
         )}
       </View>
-      
-      {product.benefits && (
-        <View style={styles.benefitsRow}>
-          {product.benefits.map((benefit, idx) => (
-            <View key={idx} style={styles.benefitTag}>
-              <Text style={styles.benefitTagText}>{benefit}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-    </View>
-  );
+    );
+  };
 
   const renderRoutineStep = (stepNumber, title, icon, products, usageNote) => {
     if (!products || products.length === 0) return null;
@@ -249,7 +274,7 @@ setRoutineType(null);
             <Image source={icon} style={styles.stepIcon} resizeMode="contain" />
           </View>
           <View style={styles.stepTitleContainer}>
-            <Text style={styles.stepNumber}>Step {stepNumber}</Text>
+            <Text style={styles.stepNumber}>{t('myNightRoutine.step')} {stepNumber}</Text>
             <Text style={styles.stepTitle}>{title}</Text>
           </View>
         </View>
@@ -271,13 +296,13 @@ setRoutineType(null);
 
   const renderEmptyState = () => (
     <View style={styles.emptyStateContainer}>
-      <Text style={styles.emptyTitle}>No Night Routine Saved Yet</Text>
+      <Text style={styles.emptyTitle}>{t('myNightRoutine.empty_title')}</Text>
       <Text style={styles.emptyText}>
-        Create your personalized evening skincare routine to enhance your skin's nighttime repair.
+        {t('myNightRoutine.empty_text')}
       </Text>
       
       <DrAcneButton
-        title="Create My Night Routine"
+        title={t('myNightRoutine.empty_button')}
         onPress={onNavigateToNightRoutine}
         style={styles.emptyButton}
       />
@@ -296,20 +321,27 @@ setRoutineType(null);
 
     const stepCount = getStepCount();
 
+    const productsText = totalProducts === 1 
+      ? t('myNightRoutine.info_products')
+      : t('myNightRoutine.info_products_plural');
+
     return (
       <View style={styles.routineInfoBox}>
-        <Text style={styles.routineInfoTitle}>Your Evening Routine</Text>
+        <Text style={styles.routineInfoTitle}>{t('myNightRoutine.info_title')}</Text>
         <Text style={styles.routineInfoText}>
-          {totalProducts} product{totalProducts !== 1 ? 's' : ''} selected • {stepCount} essential steps
+          {totalProducts} {productsText} • {stepCount} {t('myNightRoutine.info_steps')}
         </Text>
         {routineData.completedAt && (
           <Text style={styles.routineInfoDate}>
-            Completed {new Date(routineData.completedAt).toLocaleDateString()}
+            {t('myNightRoutine.info_completed')} {new Date(routineData.completedAt).toLocaleDateString()}
           </Text>
         )}
       </View>
     );
   };
+
+  // ✅ Get translated skin type name
+  const getSkinTypeName = () => t(`skinTypes.${skinType}`);
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
   const routineLevelColor = routineType ? ROUTINE_LEVEL_COLORS[routineType] : BRAND_COLORS.primary;
@@ -327,7 +359,7 @@ setRoutineType(null);
           </TouchableOpacity>
         </View>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading your night routine...</Text>
+          <Text style={styles.loadingText}>{t('myNightRoutine.loading')}</Text>
         </View>
       </View>
     );
@@ -350,17 +382,19 @@ setRoutineType(null);
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity 
-        style={styles.bannerContainer}
-        onPress={onNavigateToNightRoutine}
-        activeOpacity={0.9}
-      >
-        <Image 
-          source={require('../assets/images/Banner My Night Routine.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
-      </TouchableOpacity>
+      <View style={styles.bannerContainer}>
+        <ImageBackground
+          source={require('../assets/images/banner-my-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.bannerTextContainer}>
+          <Text style={styles.bannerMyText}>{t('routineBanners.my')}</Text>
+          <Text style={styles.bannerRoutineText}>{t('routineBanners.night_line2')}</Text>
+          <Text style={styles.bannerRoutineText}>{t('routineBanners.night_line3')}</Text>
+          </View>
+        </ImageBackground>
+      </View>
 
       <ScrollView 
         style={styles.scrollView}
@@ -378,33 +412,33 @@ setRoutineType(null);
               <View style={styles.badgesRow}>
                 <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
                   <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-                    {skinTypeInfo.name}
+                    {getSkinTypeName()}
                   </Text>
                 </View>
 
                 {routineType && (
                   <View style={[styles.routineLevelBadge, { backgroundColor: `${routineLevelColor}15` }]}>
                     <Text style={[styles.routineLevelText, { color: routineLevelColor }]}>
-                      {getRoutineTitle()} Routine
+                      {getRoutineTitle()}
                     </Text>
                   </View>
                 )}
               </View>
 
-              <Text style={styles.pageTitle}>My Night Routine</Text>
+              <Text style={styles.pageTitle}>{t('myNightRoutine.page_title')}</Text>
 
               {renderRoutineInfo()}
 
               {renderRoutineStep(
                 1,
-                'Evening Cleanser',
+                t('myNightRoutine.evening_cleanser'),
                 STEP_ICONS.cleanser,
                 cleansers
               )}
 
               {renderRoutineStep(
                 2,
-                'Night Moisturizer',
+                t('myNightRoutine.night_moisturizer'),
                 STEP_ICONS.moisturizer,
                 moisturizers
               )}
@@ -412,30 +446,30 @@ setRoutineType(null);
               {(routineType === 'moderate' || routineType === 'comprehensive') && 
                 renderRoutineStep(
                   3,
-                  'Pore Care Treatment',
+                  t('myNightRoutine.pore_care'),
                   STEP_ICONS.poreCare,
                   poreCare,
-                  'Use 2-4 times per week'
+                  t('myNightRoutine.usage_note_pore')
                 )}
 
               {routineType === 'comprehensive' && 
                 renderRoutineStep(
                   4,
-                  'Advanced Night Treatment',
+                  t('myNightRoutine.advanced_night'),
                   STEP_ICONS.advanced,
                   advancedTreatments,
-                  'Use 2-3 times per week, start slowly'
+                  t('myNightRoutine.usage_note_advanced')
                 )}
 
               <View style={styles.actionsContainer}>
                 <DrAcneButton
-                  title="Edit Night Routine"
+                  title={t('myNightRoutine.edit_button')}
                   onPress={handleEditRoutine}
                   style={styles.actionButton}
                 />
 
                 <DrAcneButton
-                  title="Clear Routine"
+                  title={t('myNightRoutine.clear_button')}
                   variant="outline"
                   onPress={handleClearRoutine}
                   style={styles.actionButton}
@@ -443,43 +477,39 @@ setRoutineType(null);
               </View>
 
               <View style={styles.footerBox}>
-                <Text style={styles.footerTitle}>Using Your Night Routine</Text>
+                <Text style={styles.footerTitle}>{t('myNightRoutine.footer_title')}</Text>
                 <Text style={styles.footerText}>
-                  • Apply products in order: Cleanser → Moisturizer
-                  {(routineType === 'moderate' || routineType === 'comprehensive') && ' → Pore Care (2-4x/week)'}
-                  {routineType === 'comprehensive' && ' → Advanced Treatment (2-3x/week)'}
-                  {'\n'}
-                  • Wait 1-2 minutes between steps for absorption{'\n'}
-                  • On treatment nights, apply pore care first, then advanced treatments{'\n'}
-                  • Always follow with moisturizer to lock in benefits{'\n'}
-                  • Nighttime is when skin repairs itself - consistent use is key
+                  {t('myNightRoutine.footer_text', {
+                    pore: (routineType === 'moderate' || routineType === 'comprehensive') ? t('myNightRoutine.footer_pore') : '',
+                    advanced: routineType === 'comprehensive' ? t('myNightRoutine.footer_advanced') : ''
+                  })}
                 </Text>
               </View>
 
               <View style={styles.citationContainer}>
                 <Text style={styles.citationText}>
-                  Routine guidance based on{' '}
+                  {t('myNightRoutine.citation_intro')}{' '}
                   <Text 
                     style={styles.citationLink}
                     onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/care/skin-care-steps')}
                   >
-                    American Academy of Dermatology skincare application guidelines
+                    {t('myNightRoutine.citation_link1')}
                   </Text>
-                  , clinical research on{' '}
+                  {t('myNightRoutine.citation_part2')}{' '}
                   <Text 
                     style={styles.citationLink}
                     onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4345901/')}
                   >
-                    product layering and timing for optimal absorption
+                    {t('myNightRoutine.citation_link2')}
                   </Text>
-                  , and studies on{' '}
+                  {t('myNightRoutine.citation_part3')}{' '}
                   <Text 
                     style={styles.citationLink}
                     onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6751381/')}
                   >
-                    nighttime skin repair and circadian rhythms
+                    {t('myNightRoutine.citation_link3')}
                   </Text>
-                  . This routine is for educational purposes - individual results vary. Consult a dermatologist for personalized advice.
+                  {t('myNightRoutine.citation_disclaimer')}
                 </Text>
               </View>
             </>
@@ -515,9 +545,38 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  bannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 10,
+  },
+  bannerMyText: {
+    fontFamily: 'Brittany',
+    fontSize: 38,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    lineHeight: 40,
+  },
+  bannerRoutineText: {
+    fontFamily: 'BalooBhai2',
+    fontSize: 32,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    lineHeight: 34,
+    marginTop: -5,
   },
   scrollView: {
     flex: 1,

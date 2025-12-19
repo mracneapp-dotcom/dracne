@@ -1,8 +1,9 @@
-// app/ComprehensiveNightRoutineStep2ProductSelection.js - WITH CITATIONS
+// app/ComprehensiveNightRoutineStep2ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Linking,
   ScrollView,
   StyleSheet,
@@ -11,6 +12,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -273,11 +275,11 @@ export default function ComprehensiveNightRoutineStep2ProductSelection({
 
   const getButtonText = () => {
     if (selectedProducts.length === 0) {
-      return 'Choose My Moisturizer';
+      return t('basicRoutine.choose_my_moisturizer');
     } else if (selectedProducts.length === 1) {
-      return 'Continue with My Selection';
+      return t('basicRoutine.continue_selection');
     } else {
-      return 'Continue with My Selections';
+      return t('basicRoutine.continue_selections');
     }
   };
 
@@ -303,11 +305,13 @@ export default function ComprehensiveNightRoutineStep2ProductSelection({
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
+        <ImageBackground
+          source={require('../assets/images/banner-night-routine-base.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <Text style={styles.bannerText}>{t('routines.night_routine')}</Text>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -326,7 +330,9 @@ export default function ComprehensiveNightRoutineStep2ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('basicRoutine.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -347,21 +353,21 @@ export default function ComprehensiveNightRoutineStep2ProductSelection({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('basicRoutine.for_skin', { skinType: skinTypeInfo.name })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Product Recommendations</Text>
+          <Text style={styles.sectionTitle}>{t('basicRoutine.product_recommendations')}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose 1-2 moisturizers to give you options when shopping. Having alternatives helps you find what works best for your skin and budget. You can always swap products later.
+              {t('basicRoutine.explanation_1_2')}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Select 1-2 Products {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
+              {t('basicRoutine.select_1_2')} {selectedProducts.length > 0 && t('basicRoutine.selected_count', { count: selectedProducts.length })}
             </Text>
             
             {products.map((product) => {
@@ -404,13 +410,13 @@ export default function ComprehensiveNightRoutineStep2ProductSelection({
 
           {selectedProducts.length === 0 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select at least 1 product to continue</Text>
+              <Text style={styles.helperText}>{t('basicRoutine.select_1_complete')}</Text>
             </View>
           )}
 
           {selectedProducts.length === 2 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Maximum 2 products selected</Text>
+              <Text style={styles.helperText}>{t('basicRoutine.max_2_selected')}</Text>
             </View>
           )}
 
@@ -483,6 +489,17 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,

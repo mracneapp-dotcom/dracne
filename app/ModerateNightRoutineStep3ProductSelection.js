@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
-  Linking,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import RoutineCompletionModal from '../components/modals/RoutineCompletionModal';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -152,9 +153,9 @@ export default function ModerateNightRoutineStep3ProductSelection({
 
   const getButtonText = () => {
     if (!selectedProduct) {
-      return 'Choose My Pore Care Treatment';
+      return t('moderateNightRoutineStep3Products.choose_treatment');
     }
-    return 'Complete Moderate Night Routine';
+    return t('moderateNightRoutineStep3Products.complete_routine');
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -179,11 +180,16 @@ export default function ModerateNightRoutineStep3ProductSelection({
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Night Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('nightRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('nightRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -202,7 +208,9 @@ export default function ModerateNightRoutineStep3ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('moderateNightRoutineStep3Products.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -223,21 +231,23 @@ export default function ModerateNightRoutineStep3ProductSelection({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('moderateNightRoutineStep3Products.for_skin', { 
+                skinType: t(`profile.skin_labels.${skinType}`)
+              })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Product Recommendations</Text>
+          <Text style={styles.sectionTitle}>{t('moderateNightRoutineStep3Products.section_title')}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose your pore care treatment to complete your moderate night routine. Use 2-4 times per week in the evening for clear, healthy pores. Start with 2x per week.
+              {t('moderateNightRoutineStep3Products.explanation')}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Choose Your Product {selectedProduct && '(1 selected)'}
+              {t('moderateNightRoutineStep3Products.choose_product', { selected: selectedProduct ? 1 : 0 })}
             </Text>
             
             {PORE_CARE_PRODUCTS.map((product) => {
@@ -279,34 +289,13 @@ export default function ModerateNightRoutineStep3ProductSelection({
 
           {!selectedProduct && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select 1 product to complete your routine</Text>
+              <Text style={styles.helperText}>{t('moderateNightRoutineStep3Products.helper_text')}</Text>
             </View>
           )}
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Product selections curated using safety data from the{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.cir-safety.org/ingredients')}
-              >
-                Cosmetic Ingredient Review
-              </Text>
-              , clinical research on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4554394/')}
-              >
-                beta hydroxy acid efficacy and safety profiles
-              </Text>
-              , and dermatological studies on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(06)02559-X/fulltext')}
-              >
-                optimal active ingredient concentrations for acne-prone skin
-              </Text>
-              . These are educational suggestions - always introduce new actives gradually and consult a dermatologist for personalized treatment.
+              {t('moderateNightRoutineStep3Products.citation')}
             </Text>
           </View>
 
@@ -361,6 +350,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerTextContainer: {
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,
@@ -557,12 +560,6 @@ const styles = StyleSheet.create({
     color: '#999999',
     lineHeight: 16,
     textAlign: 'center',
-  },
-  citationLink: {
-    fontSize: 11,
-    color: '#666666',
-    textDecorationLine: 'underline',
-    fontWeight: '600',
   },
   bottomSpacing: {
     height: 160,

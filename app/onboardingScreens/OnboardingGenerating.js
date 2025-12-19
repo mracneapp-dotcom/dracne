@@ -7,6 +7,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -17,10 +18,10 @@ const BRAND_COLORS = {
 };
 
 const GENERATION_STEPS = [
-  { text: 'Analyzing your skin profile', delay: 0 },
-  { text: 'Matching ingredients to your needs', delay: 800 },
-  { text: 'Creating your personalized routine', delay: 1600 },
-  { text: 'Finalizing recommendations', delay: 2400 },
+  { textKey: 'onboarding.generating.step1', delay: 0 },
+  { textKey: 'onboarding.generating.step2', delay: 800 },
+  { textKey: 'onboarding.generating.step3', delay: 1600 },
+  { textKey: 'onboarding.generating.step4', delay: 2400 },
 ];
 
 export default function OnboardingGenerating({ onNext }) {
@@ -93,10 +94,10 @@ export default function OnboardingGenerating({ onNext }) {
 
         <View style={styles.header}>
           <Text style={styles.title}>
-            Creating Your <Text style={styles.titleHighlight}>Perfect Plan</Text>
+            {t('onboarding.generating.title1')} <Text style={styles.titleHighlight}>{t('onboarding.generating.title2')}</Text>
           </Text>
           <Text style={styles.subtitle}>
-            Hang tight, our AI is working its magic
+            {t('onboarding.generating.subtitle')}
           </Text>
         </View>
 
@@ -110,7 +111,7 @@ export default function OnboardingGenerating({ onNext }) {
               ]}
             >
               <View style={styles.stepDot} />
-              <Text style={styles.stepText}>{step.text}</Text>
+              <Text style={styles.stepText}>{t(step.textKey)}</Text>
             </Animated.View>
           ))}
         </View>

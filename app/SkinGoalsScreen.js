@@ -1,16 +1,17 @@
-// app/SkinGoalsScreen.js
+// app/SkinGoalsScreen.js - WITH SPANISH I18N (COMPLETE)
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -25,31 +26,31 @@ const BRAND_COLORS = {
 const GOALS = [
   { 
     id: 'clear_acne', 
-    label: 'Clear existing acne',
+    label: 'skinGoals.goals.clear_acne',
     icon: require('../assets/images/check.png'),
     color: BRAND_COLORS.primary,
   },
   { 
     id: 'prevent_breakouts', 
-    label: 'Prevent future breakouts',
+    label: 'skinGoals.goals.prevent_breakouts',
     icon: require('../assets/images/check.png'),
     color: '#4A90E2',
   },
   { 
     id: 'reduce_scars', 
-    label: 'Reduce acne scars',
+    label: 'skinGoals.goals.reduce_scars',
     icon: require('../assets/images/check.png'),
     color: BRAND_COLORS.secondary,
   },
   { 
     id: 'even_tone', 
-    label: 'Even out skin tone',
+    label: 'skinGoals.goals.even_tone',
     icon: require('../assets/images/check.png'),
     color: '#9B59B6',
   },
   { 
     id: 'healthy_glow', 
-    label: 'Achieve healthy glow',
+    label: 'skinGoals.goals.healthy_glow',
     icon: require('../assets/images/check.png'),
     color: '#F39C12',
   },
@@ -107,11 +108,11 @@ export default function SkinGoalsScreen({ onBack, onNavigateHome }) {
     try {
       await AsyncStorage.setItem('userSkinGoals', JSON.stringify(selectedGoals));
       Alert.alert(
-        'Goals Updated',
-        'Your skincare goals have been saved successfully!',
+        t('skinGoals.alert_saved_title'),
+        t('skinGoals.alert_saved_message'),
         [
           {
-            text: 'OK',
+            text: t('skinGoals.alert_ok'),
             onPress: () => {
               if (onBack) onBack();
             }
@@ -119,7 +120,7 @@ export default function SkinGoalsScreen({ onBack, onNavigateHome }) {
         ]
       );
     } catch (error) {
-      Alert.alert('Error', 'Unable to save your goals. Please try again.');
+      Alert.alert(t('skinGoals.alert_error_title'), t('skinGoals.alert_error'));
     }
   };
 
@@ -127,7 +128,7 @@ export default function SkinGoalsScreen({ onBack, onNavigateHome }) {
     <View style={styles.container}>
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backText}>‹ Back</Text>
+          <Text style={styles.backText}>{t('skinGoals.back')}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
@@ -145,9 +146,9 @@ export default function SkinGoalsScreen({ onBack, onNavigateHome }) {
       >
         <View style={styles.header}>
           <Text style={styles.title}>
-            Update Your <Text style={styles.titleHighlight}>Skincare Goals</Text>
+            {t('skinGoals.title')} <Text style={styles.titleHighlight}>{t('skinGoals.title_highlight')}</Text>
           </Text>
-          <Text style={styles.subtitle}>Select all that apply to you</Text>
+          <Text style={styles.subtitle}>{t('skinGoals.subtitle')}</Text>
         </View>
 
         <View style={styles.goalsContainer}>
@@ -183,7 +184,7 @@ export default function SkinGoalsScreen({ onBack, onNavigateHome }) {
                   styles.goalLabel,
                   isSelected && { color: goal.color, fontWeight: '600' }
                 ]}>
-                  {goal.label}
+                  {t(goal.label)}
                 </Text>
               </TouchableOpacity>
             );
@@ -192,20 +193,23 @@ export default function SkinGoalsScreen({ onBack, onNavigateHome }) {
 
         <View style={styles.selectionInfo}>
           <Text style={styles.selectionText}>
-            {selectedGoals.length} goal{selectedGoals.length !== 1 ? 's' : ''} selected
+            {selectedGoals.length === 1 
+              ? t('skinGoals.selection', { count: selectedGoals.length })
+              : t('skinGoals.selection_plural', { count: selectedGoals.length })
+            }
           </Text>
         </View>
       </ScrollView>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title={hasChanges ? "Save Changes" : "No Changes"}
+          title={hasChanges ? t('skinGoals.save_changes') : t('skinGoals.no_changes')}
           onPress={handleSave}
           disabled={!hasChanges || selectedGoals.length === 0}
           style={styles.saveButton}
         />
         {selectedGoals.length === 0 && (
-          <Text style={styles.helperText}>Select at least one goal</Text>
+          <Text style={styles.helperText}>{t('skinGoals.helper')}</Text>
         )}
       </View>
     </View>

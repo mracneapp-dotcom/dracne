@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { DrAcneButton } from '../../components/ui/DrAcneButton';
 import { getRoutinesForSkinType } from '../../constants/routinesData';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -118,30 +119,60 @@ export default function OnboardingPlanReady({ onNext }) {
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
 
+  const getTranslatedRoutineName = () => {
+    return t(`routines.${skinType}.name`);
+  };
+
+  const getTranslatedRoutineDescription = () => {
+    return t(`routines.${skinType}.description`);
+  };
+
+  const getTranslatedLevelTitle = (level) => {
+    return t(`routines.${skinType}.${level}_title`);
+  };
+
+  const getTranslatedLevelDescription = (level) => {
+    return t(`routines.${skinType}.${level}_description`);
+  };
+
+  const getTranslatedSteps = (level, period) => {
+    const steps = routineData[level].steps[period];
+    return steps.map((_, index) => {
+      return t(`routines.${skinType}.${level}_${period}_${index + 1}`);
+    });
+  };
+
+  const getTranslatedBenefits = (level) => {
+    const benefits = routineData[level].keyBenefits;
+    return benefits.map((_, index) => {
+      return t(`routines.${skinType}.${level}_benefit_${index + 1}`);
+    });
+  };
+
   const getHeroTitle = () => {
     if (skinType === 'unknown') {
       return (
         <Text style={styles.questionTitle}>
-          Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
-            Gentle Balanced
-          </Text>{'\n'}routine is ready!
+          {t('onboarding.planReady.unknown_title')} <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
+            {t('onboarding.planReady.unknown_highlight')}
+          </Text>{'\n'}{t('onboarding.planReady.title3')}
         </Text>
       );
     }
     return (
       <Text style={styles.questionTitle}>
-        Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
-          {routineData?.name}
-        </Text>{'\n'}routine is ready!
+        {t('onboarding.planReady.title1')} <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
+          {getTranslatedRoutineName()}
+        </Text>{'\n'}{t('onboarding.planReady.title3')}
       </Text>
     );
   };
 
   const getHeroSubtitle = () => {
     if (skinType === 'unknown') {
-      return "We'll help you discover your skin type as we go. This gentle routine works for everyone!";
+      return t('onboarding.planReady.unknown_subtitle');
     }
-    return routineData?.description;
+    return getTranslatedRoutineDescription();
   };
 
   if (!routineData) {
@@ -196,7 +227,7 @@ export default function OnboardingPlanReady({ onNext }) {
 
           {/* Routine Level Selection */}
           <View style={styles.routineLevelsContainer}>
-            <Text style={styles.sectionTitle}>Choose Your Starting Level</Text>
+            <Text style={styles.sectionTitle}>{t('onboarding.planReady.section_title')}</Text>
             
             {/* Basic Card */}
             <TouchableOpacity
@@ -209,7 +240,7 @@ export default function OnboardingPlanReady({ onNext }) {
               <View style={styles.routineHeader}>
                 <View style={[styles.routineBadge, { backgroundColor: '#E8F5E9' }]}>
                   <Text style={[styles.routineBadgeText, { color: BRAND_COLORS.primary }]}>
-                    BASIC
+                    {t('onboarding.planReady.basic_badge')}
                   </Text>
                 </View>
                 {selectedLevel === 'basic' && (
@@ -218,18 +249,18 @@ export default function OnboardingPlanReady({ onNext }) {
                   </View>
                 )}
               </View>
-              <Text style={styles.routineTitle}>{routineData.basic.title}</Text>
-              <Text style={styles.routineDescription}>{routineData.basic.description}</Text>
+              <Text style={styles.routineTitle}>{getTranslatedLevelTitle('basic')}</Text>
+              <Text style={styles.routineDescription}>{getTranslatedLevelDescription('basic')}</Text>
               
               <View style={styles.routineSteps}>
-                <Text style={styles.stepsTitle}>Morning:</Text>
-                {routineData.basic.steps.am.map((step, index) => (
+                <Text style={styles.stepsTitle}>{t('onboarding.planReady.morning_label')}</Text>
+                {getTranslatedSteps('basic', 'am').map((step, index) => (
                   <Text key={index} style={styles.stepText}>• {step}</Text>
                 ))}
               </View>
 
               <View style={styles.benefitsContainer}>
-                {routineData.basic.keyBenefits.map((benefit, index) => (
+                {getTranslatedBenefits('basic').map((benefit, index) => (
                   <View key={index} style={styles.benefitPill}>
                     <Text style={styles.benefitText}>{benefit}</Text>
                   </View>
@@ -248,7 +279,7 @@ export default function OnboardingPlanReady({ onNext }) {
               <View style={styles.routineHeader}>
                 <View style={[styles.routineBadge, { backgroundColor: '#FFF4E5' }]}>
                   <Text style={[styles.routineBadgeText, { color: '#F39C12' }]}>
-                    MODERATE
+                    {t('onboarding.planReady.moderate_badge')}
                   </Text>
                 </View>
                 {selectedLevel === 'moderate' && (
@@ -257,19 +288,19 @@ export default function OnboardingPlanReady({ onNext }) {
                   </View>
                 )}
               </View>
-              <Text style={styles.routineTitle}>{routineData.moderate.title}</Text>
-              <Text style={styles.routineDescription}>{routineData.moderate.description}</Text>
+              <Text style={styles.routineTitle}>{getTranslatedLevelTitle('moderate')}</Text>
+              <Text style={styles.routineDescription}>{getTranslatedLevelDescription('moderate')}</Text>
               
               <View style={styles.routineSteps}>
-                <Text style={styles.stepsTitle}>Morning:</Text>
-                {routineData.moderate.steps.am.slice(0, 3).map((step, index) => (
+                <Text style={styles.stepsTitle}>{t('onboarding.planReady.morning_label')}</Text>
+                {getTranslatedSteps('moderate', 'am').slice(0, 3).map((step, index) => (
                   <Text key={index} style={styles.stepText}>• {step}</Text>
                 ))}
-                <Text style={styles.moreSteps}>+ evening routine</Text>
+                <Text style={styles.moreSteps}>{t('onboarding.planReady.more_steps')}</Text>
               </View>
 
               <View style={styles.benefitsContainer}>
-                {routineData.moderate.keyBenefits.map((benefit, index) => (
+                {getTranslatedBenefits('moderate').map((benefit, index) => (
                   <View key={index} style={styles.benefitPill}>
                     <Text style={styles.benefitText}>{benefit}</Text>
                   </View>
@@ -288,7 +319,7 @@ export default function OnboardingPlanReady({ onNext }) {
               <View style={styles.routineHeader}>
                 <View style={[styles.routineBadge, { backgroundColor: '#F3E5F5' }]}>
                   <Text style={[styles.routineBadgeText, { color: '#9B59B6' }]}>
-                    COMPREHENSIVE
+                    {t('onboarding.planReady.comprehensive_badge')}
                   </Text>
                 </View>
                 {selectedLevel === 'comprehensive' && (
@@ -297,19 +328,19 @@ export default function OnboardingPlanReady({ onNext }) {
                   </View>
                 )}
               </View>
-              <Text style={styles.routineTitle}>{routineData.comprehensive.title}</Text>
-              <Text style={styles.routineDescription}>{routineData.comprehensive.description}</Text>
+              <Text style={styles.routineTitle}>{getTranslatedLevelTitle('comprehensive')}</Text>
+              <Text style={styles.routineDescription}>{getTranslatedLevelDescription('comprehensive')}</Text>
               
               <View style={styles.routineSteps}>
-                <Text style={styles.stepsTitle}>Full Treatment:</Text>
-                {routineData.comprehensive.steps.am.slice(0, 3).map((step, index) => (
+                <Text style={styles.stepsTitle}>{t('onboarding.planReady.full_treatment')}</Text>
+                {getTranslatedSteps('comprehensive', 'am').slice(0, 3).map((step, index) => (
                   <Text key={index} style={styles.stepText}>• {step}</Text>
                 ))}
-                <Text style={styles.moreSteps}>+ advanced actives & more</Text>
+                <Text style={styles.moreSteps}>{t('onboarding.planReady.more_steps_comprehensive')}</Text>
               </View>
 
               <View style={styles.benefitsContainer}>
-                {routineData.comprehensive.keyBenefits.map((benefit, index) => (
+                {getTranslatedBenefits('comprehensive').map((benefit, index) => (
                   <View key={index} style={styles.benefitPill}>
                     <Text style={styles.benefitText}>{benefit}</Text>
                   </View>
@@ -321,13 +352,13 @@ export default function OnboardingPlanReady({ onNext }) {
           {/* Trust Indicators */}
           <View style={styles.trustSection}>
             <View style={styles.trustItem}>
-              <Text style={styles.trustText}>• Science-backed formulations</Text>
+              <Text style={styles.trustText}>{t('onboarding.planReady.trust1')}</Text>
             </View>
             <View style={styles.trustItem}>
-              <Text style={styles.trustText}>• Personalized for your skin</Text>
+              <Text style={styles.trustText}>{t('onboarding.planReady.trust2')}</Text>
             </View>
             <View style={styles.trustItem}>
-              <Text style={styles.trustText}>• Results in 4-12 weeks</Text>
+              <Text style={styles.trustText}>{t('onboarding.planReady.trust3')}</Text>
             </View>
           </View>
         </Animated.View>
@@ -336,13 +367,13 @@ export default function OnboardingPlanReady({ onNext }) {
       {/* Fixed Bottom Section */}
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="Let's Do This!"
+          title={t('onboarding.planReady.button')}
           onPress={handleGetStarted}
           style={styles.getStartedButton}
         />
         
         <Text style={styles.helperText}>
-          You can change your routine level anytime
+          {t('onboarding.planReady.helper')}
         </Text>
       </View>
     </View>

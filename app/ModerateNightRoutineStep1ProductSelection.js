@@ -1,9 +1,10 @@
 // app/ModerateNightRoutineStep1ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
+import { t } from './i18n';
 import {
   Image,
-  Linking,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -202,6 +203,7 @@ export default function ModerateNightRoutineStep1ProductSelection({
   currentStep = 1,
   internalStep = 2
 }) {
+  const { t } = useTranslation();
   const [skinType, setSkinType] = useState('normal');
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [products, setProducts] = useState([]);
@@ -273,12 +275,21 @@ export default function ModerateNightRoutineStep1ProductSelection({
 
   const getButtonText = () => {
     if (selectedProducts.length === 0) {
-      return 'Choose My Cleanser';
+      return t('moderateNightRoutineStep1Products.choose_cleanser');
     } else if (selectedProducts.length === 1) {
-      return 'Continue with My Selection';
+      return t('moderateNightRoutineStep1Products.continue_selection');
     } else {
-      return 'Continue with My Selections';
+      return t('moderateNightRoutineStep1Products.continue_selections');
     }
+  };
+
+  const getHelperText = () => {
+    if (selectedProducts.length === 0) {
+      return t('moderateNightRoutineStep1Products.helper_0');
+    } else if (selectedProducts.length === 2) {
+      return t('moderateNightRoutineStep1Products.helper_2');
+    }
+    return '';
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -303,11 +314,16 @@ export default function ModerateNightRoutineStep1ProductSelection({
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Night Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('nightRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('nightRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -326,7 +342,9 @@ export default function ModerateNightRoutineStep1ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('moderateNightRoutineStep1Products.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -347,21 +365,21 @@ export default function ModerateNightRoutineStep1ProductSelection({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('moderateNightRoutineStep1Products.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Product Recommendations</Text>
+          <Text style={styles.sectionTitle}>{t('moderateNightRoutineStep1Products.section_title')}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose 1-2 cleansers to give you options when shopping. Having alternatives helps you find what works best for your skin and budget.
+              {t('moderateNightRoutineStep1Products.explanation')}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Select 1-2 Products {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
+              {t('moderateNightRoutineStep1Products.select_products', { count: selectedProducts.length })}
             </Text>
             
             {products.map((product) => {
@@ -402,42 +420,15 @@ export default function ModerateNightRoutineStep1ProductSelection({
             })}
           </View>
 
-          {selectedProducts.length === 0 && (
+          {getHelperText() && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select at least 1 product to continue</Text>
-            </View>
-          )}
-
-          {selectedProducts.length === 2 && (
-            <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Maximum 2 products selected</Text>
+              <Text style={styles.helperText}>{getHelperText()}</Text>
             </View>
           )}
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Product selections curated using safety data from the{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.cir-safety.org/ingredients')}
-              >
-                Cosmetic Ingredient Review
-              </Text>
-              , formulation research from the{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://onlinelibrary.wiley.com/journal/14682494')}
-              >
-                International Journal of Cosmetic Science
-              </Text>
-              , and clinical studies on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5849435/')}
-              >
-                skin type-specific evening cleansing
-              </Text>
-              . These are educational suggestions - always patch test new products and consult a dermatologist for personalized treatment.
+              {t('moderateNightRoutineStep1Products.citation')}
             </Text>
           </View>
 
@@ -483,6 +474,21 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  bannerText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   scrollView: {
     flex: 1,

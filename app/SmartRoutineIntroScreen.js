@@ -1,7 +1,8 @@
-// app/SmartRoutineIntroScreen.js - UPDATED WITH CITATIONS
+// app/SmartRoutineIntroScreen.js - FULLY TRANSLATED WITH PROPER BANNER
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Linking,
   ScrollView,
   StyleSheet,
@@ -10,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -83,7 +85,7 @@ export default function SmartRoutineIntroScreen({
   if (!concernData) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorText}>Concern data not found</Text>
+        <Text style={styles.errorText}>{t('smartRoutineIntro.error')}</Text>
       </View>
     );
   }
@@ -105,16 +107,22 @@ export default function SmartRoutineIntroScreen({
         </TouchableOpacity>
       </View>
 
+      {/* ✅ FIXED: Smart Routine Banner with Proper Two-Line Format */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateBack}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Smart Routine.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
+        <ImageBackground
+          source={require('../assets/images/banner-scan-skin-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.smartBannerTextContainer}>
+            <Text style={styles.smartBannerLine1}>{t('smartRoutineBanners.smart')}</Text>
+            <Text style={styles.smartBannerLine2}>{t('smartRoutineBanners.routine')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -133,7 +141,9 @@ export default function SmartRoutineIntroScreen({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('smartRoutineIntro.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={onContinue}
@@ -162,12 +172,12 @@ export default function SmartRoutineIntroScreen({
           </View>
 
           <View style={[styles.approachBox, { borderLeftColor: concernData.color }]}>
-            <Text style={styles.approachTitle}>Treatment Approach</Text>
+            <Text style={styles.approachTitle}>{t('smartRoutineIntro.treatment_approach')}</Text>
             <Text style={styles.approachText}>{concernData.approach}</Text>
           </View>
 
           <View style={styles.ingredientsSection}>
-            <Text style={styles.ingredientsTitle}>Key Ingredients</Text>
+            <Text style={styles.ingredientsTitle}>{t('smartRoutineIntro.key_ingredients')}</Text>
             {concernData.keyIngredients.map((ingredient, index) => (
               <View key={index} style={styles.ingredientItem}>
                 <View style={[styles.ingredientDot, { backgroundColor: concernData.color }]} />
@@ -183,7 +193,7 @@ export default function SmartRoutineIntroScreen({
               resizeMode="contain"
             />
             <Text style={styles.infoText}>
-              This targeted routine complements your existing Day & Night routines. Apply these products after cleansing, before moisturizing.
+              {t('smartRoutineIntro.info_text')}
             </Text>
           </View>
 
@@ -220,7 +230,7 @@ export default function SmartRoutineIntroScreen({
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="Continue to Product Selection"
+          title={t('smartRoutineIntro.continue_button')}
           onPress={() => onContinue && onContinue()}
           style={styles.continueButton}
         />
@@ -252,9 +262,45 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  // ✅ FIXED: Smart Routine Banner Text Styles - Proper Two-Line Format
+  smartBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 20,
+    paddingBottom: 20,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  smartBannerLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 38,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  smartBannerLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 38,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,
+    includeFontPadding: false,
   },
   scrollView: {
     flex: 1,

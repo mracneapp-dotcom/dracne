@@ -2,13 +2,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -87,11 +89,13 @@ export default function ComprehensiveNightRoutineStep1Info({
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
+        <ImageBackground
+          source={require('../assets/images/banner-night-routine-base.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <Text style={styles.bannerText}>{t('routines.night_routine')}</Text>
+        </ImageBackground>
       </TouchableOpacity>
 
       <View style={styles.content}>
@@ -105,7 +109,9 @@ export default function ComprehensiveNightRoutineStep1Info({
               <Text style={styles.arrowText}>‹</Text>
             </TouchableOpacity>
 
-            <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+            <Text style={styles.progressText}>
+              {t('basicRoutine.step_of', { current: currentStep, total: totalSteps })}
+            </Text>
 
             <TouchableOpacity
               onPress={handleNextStep}
@@ -123,7 +129,7 @@ export default function ComprehensiveNightRoutineStep1Info({
 
         <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
           <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-            For {skinTypeInfo.name}
+            {t('basicRoutine.for_skin', { skinType: skinTypeInfo.name })}
           </Text>
         </View>
 
@@ -136,29 +142,29 @@ export default function ComprehensiveNightRoutineStep1Info({
             />
           </View>
           <View style={styles.productTextContainer}>
-            <Text style={styles.productTitle}>Gentle Cleanser</Text>
-            <Text style={styles.productSubtitle}>Evening Step 1</Text>
+            <Text style={styles.productTitle}>{t('basicRoutine.gentle_cleanser')}</Text>
+            <Text style={styles.productSubtitle}>{t('basicRoutine.evening_step_1')}</Text>
           </View>
         </View>
 
         <View style={styles.introBox}>
-          <Text style={styles.introTitle}>Professional-Grade Selection</Text>
+          <Text style={styles.introTitle}>{t('comprehensiveNightRoutine.professional_grade')}</Text>
           <Text style={styles.introText}>
-            We've selected cleansers specifically for {skinTypeInfo.name.toLowerCase()}. Each product is dermatologist-recommended and proven effective for comprehensive evening routines.
+            {t('comprehensiveNightRoutine.selected_for_skin', { skinType: skinTypeInfo.name.toLowerCase() })}
           </Text>
         </View>
 
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>Why this matters</Text>
+          <Text style={styles.explanationTitle}>{t('comprehensiveNightRoutine.why_matters')}</Text>
           <Text style={styles.explanationText}>
-            Evening cleansing removes the day's buildup, makeup, and sunscreen. Look for low-pH formulas (pH 4.5-6.5) that thoroughly cleanse without stripping your skin's protective barrier.
+            {t('comprehensiveNightRoutine.evening_cleansing_text')}
           </Text>
         </View>
       </View>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('basicRoutine.see_products_button')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -193,6 +199,17 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   content: {
     flex: 1,

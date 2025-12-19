@@ -7,6 +7,7 @@ import {
   BackHandler,
   Image,
   PanResponder,
+  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -23,6 +24,7 @@ import { DrAcneButton } from '../components/ui/DrAcneButton';
 import { FeatureCards } from '../components/ui/FeatureCards';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { analyzeImageWithRoboflow, analyzeImageWithRoboflowVisual, handleAPIError } from '../services/RoboflowAPI';
+import { initializeLanguage } from './i18n';
 import { initializeProgress, logRoutine, logSkinScan } from './utils/progressManager';
 
 // Basic Routine Screens
@@ -322,6 +324,10 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       try {
+        // ✅ Initialize language FIRST
+        const currentLanguage = await initializeLanguage();
+        console.log('🌐 Language initialized:', currentLanguage);
+        
         console.log('🔍 Checking if user has completed onboarding...');
         
         const onboardingComplete = await AsyncStorage.getItem('onboardingComplete');
@@ -3002,11 +3008,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   homeContentContainer: {
-    paddingBottom: 140,
+    paddingBottom: Platform.OS === 'android' ? 160 : 140, // ← Android gets more space
   },
   header: {
     alignItems: 'center',
-    paddingTop: 20,
+    paddingTop: Platform.OS === 'android' ? 40 : 20, // ← Android: more top space
     paddingHorizontal: 20,
     paddingBottom: 10,
     backgroundColor: 'transparent',
@@ -3043,7 +3049,7 @@ const styles = StyleSheet.create({
   captureContainer: {
     flex: 1,
     backgroundColor: 'transparent',
-    paddingBottom: 140,
+    paddingBottom: Platform.OS === 'android' ? 160 : 140, // ← Android spacing
   },
   photoCapture: {
     flex: 1,
@@ -3057,7 +3063,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 40,
-    paddingBottom: 140,
+    paddingBottom: Platform.OS === 'android' ? 160 : 140, // ← Android spacing
   },
   analysisStepsContainer: {
     marginTop: 40,
@@ -3105,7 +3111,7 @@ const styles = StyleSheet.create({
   },
   resultsActionsRow: {
     position: 'absolute',
-    bottom: 90,
+    bottom: Platform.OS === 'android' ? 110 : 90, // ← Android: higher position
     left: 0,
     right: 0,
     flexDirection: 'row',

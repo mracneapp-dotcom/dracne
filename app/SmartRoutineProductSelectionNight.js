@@ -1,8 +1,9 @@
-// app/SmartRoutineProductSelectionNight.js - UPDATED WITH VERIFIED WORKING LINKS
+// app/SmartRoutineProductSelectionNight.js - CORRECTED WITH DYNAMIC BANNER
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Linking,
   ScrollView,
   StyleSheet,
@@ -12,6 +13,7 @@ import {
 } from 'react-native';
 import SmartRoutineCompletionModal from '../components/modals/SmartRoutineCompletionModal';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -142,11 +144,16 @@ export default function SmartRoutineProductSelectionNight({
         onPress={onNavigateBack}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Smart Routine.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
+        <ImageBackground
+          source={require('../assets/images/banner-scan-skin-base.png')}
+          style={styles.bannerImageBg}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText1}>{t('smartRoutineBanner.smart')}</Text>
+            <Text style={styles.bannerText2}>{t('smartRoutineBanner.routine')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -165,7 +172,9 @@ export default function SmartRoutineProductSelectionNight({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('smartRoutineProductNight.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <View style={styles.arrowButton} />
             </View>
@@ -182,7 +191,7 @@ export default function SmartRoutineProductSelectionNight({
               resizeMode="contain"
             />
             <Text style={styles.infoText}>
-              Select evening products for your smart routine. You can choose multiple options to alternate between.
+              {t('smartRoutineProductNight.info_text')}
             </Text>
           </View>
 
@@ -193,7 +202,7 @@ export default function SmartRoutineProductSelectionNight({
               resizeMode="contain"
             />
             <Text style={styles.sectionTitle}>
-              Evening Products ({selectedProducts.length} selected)
+              {t('smartRoutineProductNight.evening_products_count', { count: selectedProducts.length })}
             </Text>
           </View>
 
@@ -236,28 +245,28 @@ export default function SmartRoutineProductSelectionNight({
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Evening treatment recommendations based on{' '}
+              {t('smartRoutineProductNight.citation_part1')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/28661865/')}
               >
-                research on nighttime skin repair and circadian rhythms for optimal active application
+                {t('smartRoutineProductNight.citation_link1')}
               </Text>
-              , clinical studies on{' '}
+              {t('smartRoutineProductNight.citation_part2')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/26201312/')}
               >
-                chemical exfoliant and retinoid efficacy during evening routines
+                {t('smartRoutineProductNight.citation_link2')}
               </Text>
-              , and{' '}
+              {t('smartRoutineProductNight.citation_part3')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://www.aad.org/public/diseases/acne/skin-care/treatment')}
               >
-                dermatological protocols for safe overnight treatment application
+                {t('smartRoutineProductNight.citation_link3')}
               </Text>
-              . Start with 2-3 times per week and adjust based on tolerance - consult a dermatologist for personalized guidance.
+              {t('smartRoutineProductNight.citation_part4')}
             </Text>
           </View>
 
@@ -267,7 +276,7 @@ export default function SmartRoutineProductSelectionNight({
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="Save Smart Routine"
+          title={t('smartRoutineProductNight.save_button')}
           onPress={handleSaveRoutine}
           disabled={selectedProducts.length === 0}
           style={styles.saveButton}
@@ -311,9 +320,39 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBg: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  bannerTextContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 10,
+  },
+  bannerText1: {
+    fontFamily: 'BalooBhai2',
+    fontSize: 36,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    lineHeight: 38,
+  },
+  bannerText2: {
+    fontFamily: 'BalooBhai2',
+    fontSize: 36,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    lineHeight: 38,
+    marginTop: -8,
   },
   scrollView: {
     flex: 1,

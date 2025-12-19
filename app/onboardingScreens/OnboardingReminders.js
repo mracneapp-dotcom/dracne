@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { DrAcneButton } from '../../components/ui/DrAcneButton';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -106,32 +107,32 @@ export default function OnboardingReminders({ onNext }) {
   return (
     <View style={styles.container}>
       <View style={styles.mainContent}>
-        {/* ✓ UPDATED: Modern Header with highlighted word */}
+        {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>
-            Stay on <Text style={styles.titleHighlight}>track</Text>
+            {t('onboarding.reminders.title1')} <Text style={styles.titleHighlight}>{t('onboarding.reminders.title2')}</Text>
           </Text>
           <Text style={styles.subtitle}>
-            Get gentle reminders for your skincare routine
+            {t('onboarding.reminders.subtitle')}
           </Text>
         </View>
 
-        {/* ✓ KEPT: Instruction Text */}
+        {/* Instruction Text */}
         <View style={styles.instructionContainer}>
           <Text style={styles.instructionText}>
-            Tap "Continue" and allow notifications to stay on track
+            {t('onboarding.reminders.instruction')}
           </Text>
         </View>
 
-        {/* ✓ KEPT: Simple Notification Dialog */}
+        {/* Simple Notification Dialog */}
         <View style={styles.mockDialogContainer}>
           <View style={styles.mockDialog}>
             <View style={styles.mockDialogContent}>
               <Text style={styles.mockDialogTitle}>
-                Dr. Acne would like to send you
+                {t('onboarding.reminders.dialog_title1')}
               </Text>
               <Text style={styles.mockDialogTitle}>
-                Notifications
+                {t('onboarding.reminders.dialog_title2')}
               </Text>
             </View>
 
@@ -140,19 +141,19 @@ export default function OnboardingReminders({ onNext }) {
                 style={styles.mockButtonLeft}
                 onPress={handleDontAllow}
               >
-                <Text style={styles.mockButtonTextLeft}>Don't Allow</Text>
+                <Text style={styles.mockButtonTextLeft}>{t('onboarding.reminders.dialog_dont_allow')}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity 
                 style={styles.mockButtonRight}
                 onPress={handleAllow}
               >
-                <Text style={styles.mockButtonTextRight}>Allow</Text>
+                <Text style={styles.mockButtonTextRight}>{t('onboarding.reminders.dialog_allow')}</Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* ✓ KEPT: Animated Pointing Hand */}
+          {/* Animated Pointing Hand */}
           <Animated.View 
             style={[
               styles.pointingImageContainer,
@@ -169,26 +170,26 @@ export default function OnboardingReminders({ onNext }) {
           </Animated.View>
         </View>
 
-        {/* ✓ KEPT: Why This Helps Section */}
+        {/* Why This Helps Section */}
         <View style={styles.benefitsContainer}>
-          <Text style={styles.benefitsTitle}>Why this helps:</Text>
-          <Text style={styles.benefitItem}>• Consistency is the key to clear skin</Text>
-          <Text style={styles.benefitItem}>• Build lasting skincare habits</Text>
-          <Text style={styles.benefitItem}>• Track your progress easily</Text>
+          <Text style={styles.benefitsTitle}>{t('onboarding.reminders.benefits_title')}</Text>
+          <Text style={styles.benefitItem}>{t('onboarding.reminders.benefit1')}</Text>
+          <Text style={styles.benefitItem}>{t('onboarding.reminders.benefit2')}</Text>
+          <Text style={styles.benefitItem}>{t('onboarding.reminders.benefit3')}</Text>
         </View>
       </View>
 
-      {/* ✓ KEPT: Fixed Bottom Section */}
+      {/* Fixed Bottom Section */}
       <View style={styles.bottomSection}>
         {/* Skip Option */}
         <TouchableOpacity onPress={handleSkip} style={styles.skipContainer}>
-          <Text style={styles.skipText}>I'll set this up later</Text>
+          <Text style={styles.skipText}>{t('onboarding.reminders.skip')}</Text>
         </TouchableOpacity>
 
         {/* Continue Button */}
         <View style={styles.buttonContainer}>
           <DrAcneButton
-            title="Continue"
+            title={t('onboarding.reminders.button')}
             onPress={handleContinue}
             style={styles.button}
           />
@@ -213,7 +214,6 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     alignItems: 'center',
   },
-  // ✓ UPDATED: Modern title style
   title: {
     fontSize: 28,
     fontWeight: '700',
@@ -222,12 +222,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     lineHeight: 34,
   },
-  // ✓ ADDED: Highlight style for green word
   titleHighlight: {
     color: BRAND_COLORS.primary,
     fontWeight: '800',
   },
-  // ✓ ADDED: Modern subtitle style
   subtitle: {
     fontSize: 16,
     color: '#666',

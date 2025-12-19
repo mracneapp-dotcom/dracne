@@ -1,4 +1,4 @@
-// app/Test2Screen.js - Blotting Paper Test Part 1 (SINGLE SCREEN FIT)
+// app/Test2Screen.js - Blotting Paper Test Part 1 (SINGLE SCREEN FIT) - UPDATED WITH i18n
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -53,12 +54,12 @@ export const Test2Screen = ({
 
   const question = {
     id: 'tzone_results',
-    question: 'What does the blotting paper show in your T-zone (forehead, nose, chin)?',
+    question: t('test2.question'),
     options: [
-      { id: 'very_oily', text: 'Very oily - paper is soaked/transparent', points: 4 },
-      { id: 'moderately_oily', text: 'Moderately oily - clear oil spots', points: 3 },
-      { id: 'slight_oil', text: 'Slight oil - barely visible marks', points: 2 },
-      { id: 'no_oil', text: 'No oil - paper stays dry', points: 1 }
+      { id: 'very_oily', text: t('test2.option_1'), points: 4 },
+      { id: 'moderately_oily', text: t('test2.option_2'), points: 3 },
+      { id: 'slight_oil', text: t('test2.option_3'), points: 2 },
+      { id: 'no_oil', text: t('test2.option_4'), points: 1 }
     ]
   };
 
@@ -115,34 +116,30 @@ export const Test2Screen = ({
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            Blotting Paper <Text style={styles.titleHighlight}>Test</Text>
+            {t('test2.title')} <Text style={styles.titleHighlight}>{t('test2.title_highlight')}</Text>
           </Text>
           <Text style={styles.subtitle}>
-            Use blotting paper to determine your skin's oil production
+            {t('test2.subtitle')}
           </Text>
         </View>
 
         {renderOptimizedImage()}
 
         <View style={styles.instructionsBox}>
-          <Text style={styles.instructionsTitle}>What is blotting paper?</Text>
+          <Text style={styles.instructionsTitle}>{t('test2.what_is_title')}</Text>
           <Text style={styles.instructionsText}>
-            Thin, absorbent paper sheets that soak up oil from your skin. You can find them at drugstores, beauty stores, or use clean tissue paper as an alternative.
+            {t('test2.what_is_text')}
           </Text>
           
-          <Text style={styles.instructionsTitle}>How to do this test:</Text>
+          <Text style={styles.instructionsTitle}>{t('test2.how_to_title')}</Text>
           <Text style={styles.instructionsText}>
-            1. Start with clean skin (wash your face){'\n'}
-            2. Wait 1-2 hours without applying products{'\n'}
-            3. Gently press blotting paper on different areas{'\n'}
-            4. Hold the paper up to light to see oil absorption{'\n\n'}
-            Complete these steps, then come back to record your results!
+            {t('test2.how_to_text')}
           </Text>
         </View>
 
         <View style={styles.buttonContainer}>
           <DrAcneButton
-            title="Record My Results"
+            title={t('test2.button_record')}
             onPress={() => setCurrentScreen('question')}
             style={styles.continueButton}
           />
@@ -161,9 +158,9 @@ export const Test2Screen = ({
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            Record Your <Text style={styles.titleHighlight}>Results</Text>
+            {t('test2.question_title')} <Text style={styles.titleHighlight}>{t('test2.question_title_highlight')}</Text>
           </Text>
-          <Text style={styles.subtitle}>Question 1 of 2</Text>
+          <Text style={styles.subtitle}>{t('test2.question_subtitle')}</Text>
         </View>
 
         <View style={styles.questionCard}>
@@ -198,7 +195,7 @@ export const Test2Screen = ({
 
         <View style={styles.buttonContainer}>
           <DrAcneButton
-            title={selectedAnswer ? "Next Question (1/2)" : "Answer question (0/2)"}
+            title={selectedAnswer ? t('test2.button_next') : t('test2.button_answer')}
             onPress={handleContinue}
             disabled={!selectedAnswer}
             style={styles.continueButton}

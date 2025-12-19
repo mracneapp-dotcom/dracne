@@ -1,16 +1,17 @@
-// app/LanguageScreen.js
+// app/LanguageScreen.js - WITH SPANISH I18N (COMPLETE)
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -34,48 +35,6 @@ const LANGUAGES = [
     name: 'Spanish',
     nativeName: 'Español',
     code: 'ES',
-  },
-  {
-    id: 'fr',
-    name: 'French',
-    nativeName: 'Français',
-    code: 'FR',
-  },
-  {
-    id: 'de',
-    name: 'German',
-    nativeName: 'Deutsch',
-    code: 'DE',
-  },
-  {
-    id: 'pt',
-    name: 'Portuguese',
-    nativeName: 'Português',
-    code: 'PT',
-  },
-  {
-    id: 'it',
-    name: 'Italian',
-    nativeName: 'Italiano',
-    code: 'IT',
-  },
-  {
-    id: 'ja',
-    name: 'Japanese',
-    nativeName: '日本語',
-    code: 'JA',
-  },
-  {
-    id: 'ko',
-    name: 'Korean',
-    nativeName: '한국어',
-    code: 'KO',
-  },
-  {
-    id: 'zh',
-    name: 'Chinese',
-    nativeName: '中文',
-    code: 'ZH',
   },
 ];
 
@@ -112,11 +71,11 @@ export default function LanguageScreen({ onBack, onNavigateHome }) {
       const selectedLang = LANGUAGES.find(lang => lang.id === selectedLanguage);
       
       Alert.alert(
-        'Language Updated',
-        `App language has been changed to ${selectedLang?.name || 'English'}. The app will reload.`,
+        t('language.alert_updated_title'),
+        t('language.alert_updated_message', { language: selectedLang?.name || 'English' }),
         [
           {
-            text: 'OK',
+            text: t('language.alert_ok'),
             onPress: () => {
               if (onBack) onBack();
             }
@@ -124,7 +83,7 @@ export default function LanguageScreen({ onBack, onNavigateHome }) {
         ]
       );
     } catch (error) {
-      Alert.alert('Error', 'Unable to save language preference. Please try again.');
+      Alert.alert(t('language.alert_error_title'), t('language.alert_error'));
     }
   };
 
@@ -132,7 +91,7 @@ export default function LanguageScreen({ onBack, onNavigateHome }) {
     <View style={styles.container}>
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backText}>‹ Back</Text>
+          <Text style={styles.backText}>{t('language.back')}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
@@ -150,9 +109,9 @@ export default function LanguageScreen({ onBack, onNavigateHome }) {
       >
         <View style={styles.header}>
           <Text style={styles.title}>
-            Choose Your <Text style={styles.titleHighlight}>Language</Text>
+            {t('language.title')} <Text style={styles.titleHighlight}>{t('language.title_highlight')}</Text>
           </Text>
-          <Text style={styles.subtitle}>Select your preferred language</Text>
+          <Text style={styles.subtitle}>{t('language.subtitle')}</Text>
         </View>
 
         <View style={styles.languagesContainer}>
@@ -207,14 +166,14 @@ export default function LanguageScreen({ onBack, onNavigateHome }) {
 
         <View style={styles.infoBox}>
           <Text style={styles.infoText}>
-            Language changes will be applied throughout the app. Some medical terms may remain in English for accuracy.
+            {t('language.info')}
           </Text>
         </View>
       </ScrollView>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title={hasChanges ? "Apply Language" : "No Changes"}
+          title={hasChanges ? t('language.apply') : t('language.no_changes')}
           onPress={handleSave}
           disabled={!hasChanges}
           style={styles.saveButton}

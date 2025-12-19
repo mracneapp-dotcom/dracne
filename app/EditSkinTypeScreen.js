@@ -1,4 +1,4 @@
-// app/EditSkinTypeScreen.js
+// app/EditSkinTypeScreen.js - WITH SPANISH I18N (COMPLETE)
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -25,43 +26,43 @@ const BRAND_COLORS = {
 const SKIN_TYPES = [
   {
     id: 'oily',
-    label: 'Oily',
-    description: 'Shiny throughout the day',
+    label: 'editSkinType.types.oily',
+    description: 'editSkinType.types.oily_desc',
     icon: require('../assets/images/check.png'),
     color: '#4A90E2',
   },
   {
     id: 'dry',
-    label: 'Dry',
-    description: 'Tight, flaky, or rough',
+    label: 'editSkinType.types.dry',
+    description: 'editSkinType.types.dry_desc',
     icon: require('../assets/images/check.png'),
     color: '#F39C12',
   },
   {
     id: 'combination',
-    label: 'Combination',
-    description: 'Oily T-zone, dry cheeks',
+    label: 'editSkinType.types.combination',
+    description: 'editSkinType.types.combination_desc',
     icon: require('../assets/images/check.png'),
     color: BRAND_COLORS.primary,
   },
   {
     id: 'normal',
-    label: 'Normal',
-    description: 'Balanced, not too oily or dry',
+    label: 'editSkinType.types.normal',
+    description: 'editSkinType.types.normal_desc',
     icon: require('../assets/images/check.png'),
     color: '#9B59B6',
   },
   {
     id: 'sensitive',
-    label: 'Sensitive',
-    description: 'Easily irritated or red',
+    label: 'editSkinType.types.sensitive',
+    description: 'editSkinType.types.sensitive_desc',
     icon: require('../assets/images/check.png'),
     color: BRAND_COLORS.secondary,
   },
   {
     id: 'unknown',
-    label: "I'm Not Sure",
-    description: "We'll help you find out",
+    label: 'editSkinType.types.unknown',
+    description: 'editSkinType.types.unknown_desc',
     icon: require('../assets/images/check.png'),
     color: '#757575',
   },
@@ -98,7 +99,7 @@ export default function EditSkinTypeScreen({ onBack, onNavigateHome, onNavigateT
 
   const handleSave = async () => {
     if (!selectedType) {
-      Alert.alert('Error', 'Please select a skin type');
+      Alert.alert(t('editSkinType.alert_error_title'), t('editSkinType.alert_error_message'));
       return;
     }
 
@@ -108,11 +109,11 @@ export default function EditSkinTypeScreen({ onBack, onNavigateHome, onNavigateT
       const selectedSkinType = SKIN_TYPES.find(type => type.id === selectedType);
       
       Alert.alert(
-        'Skin Type Updated',
-        `Your skin type has been updated to ${selectedSkinType?.label}. Your routines will be personalized accordingly.`,
+        t('editSkinType.alert_saved_title'),
+        t('editSkinType.alert_saved_message', { skinType: t(selectedSkinType?.label || 'editSkinType.types.normal') }),
         [
           {
-            text: 'OK',
+            text: t('editSkinType.alert_ok'),
             onPress: () => {
               if (onBack) onBack();
             }
@@ -120,7 +121,7 @@ export default function EditSkinTypeScreen({ onBack, onNavigateHome, onNavigateT
         ]
       );
     } catch (error) {
-      Alert.alert('Error', 'Unable to save your skin type. Please try again.');
+      Alert.alert(t('editSkinType.alert_error_title'), t('editSkinType.alert_save_error'));
     }
   };
 
@@ -128,7 +129,7 @@ export default function EditSkinTypeScreen({ onBack, onNavigateHome, onNavigateT
     <View style={styles.container}>
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backText}>‹ Back</Text>
+          <Text style={styles.backText}>{t('editSkinType.back')}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
@@ -146,9 +147,9 @@ export default function EditSkinTypeScreen({ onBack, onNavigateHome, onNavigateT
       >
         <View style={styles.header}>
           <Text style={styles.title}>
-            Your <Text style={styles.titleHighlight}>Skin Type</Text>
+            {t('editSkinType.title')} <Text style={styles.titleHighlight}>{t('editSkinType.title_highlight')}</Text>
           </Text>
-          <Text style={styles.subtitle}>Update your skin type profile</Text>
+          <Text style={styles.subtitle}>{t('editSkinType.subtitle')}</Text>
         </View>
 
         <TouchableOpacity 
@@ -164,16 +165,16 @@ export default function EditSkinTypeScreen({ onBack, onNavigateHome, onNavigateT
             />
           </View>
           <View style={styles.testBannerTextContainer}>
-            <Text style={styles.testBannerTitle}>Take the Skin Test First</Text>
+            <Text style={styles.testBannerTitle}>{t('editSkinType.test_banner_title')}</Text>
             <Text style={styles.testBannerText}>
-              Get a more accurate skin type assessment through our comprehensive test before manually selecting.
+              {t('editSkinType.test_banner_text')}
             </Text>
           </View>
           <Text style={styles.testBannerArrow}>›</Text>
         </TouchableOpacity>
 
         <View style={styles.currentTypeContainer}>
-          <Text style={styles.sectionLabel}>Current Skin Type</Text>
+          <Text style={styles.sectionLabel}>{t('editSkinType.current_label')}</Text>
           {initialType && (
             <View style={[
               styles.currentTypeBadge,
@@ -183,13 +184,13 @@ export default function EditSkinTypeScreen({ onBack, onNavigateHome, onNavigateT
                 styles.currentTypeText,
                 { color: SKIN_TYPES.find(t => t.id === initialType)?.color }
               ]}>
-                {SKIN_TYPES.find(t => t.id === initialType)?.label}
+                {t(SKIN_TYPES.find(t => t.id === initialType)?.label || 'editSkinType.types.normal')}
               </Text>
             </View>
           )}
         </View>
 
-        <Text style={styles.sectionLabel}>Select Skin Type</Text>
+        <Text style={styles.sectionLabel}>{t('editSkinType.select_label')}</Text>
         <View style={styles.typesContainer}>
           {SKIN_TYPES.map((type) => {
             const isSelected = selectedType === type.id;
@@ -225,9 +226,9 @@ export default function EditSkinTypeScreen({ onBack, onNavigateHome, onNavigateT
                     styles.typeLabel,
                     isSelected && { color: type.color, fontWeight: '600' }
                   ]}>
-                    {type.label}
+                    {t(type.label)}
                   </Text>
-                  <Text style={styles.typeDescription}>{type.description}</Text>
+                  <Text style={styles.typeDescription}>{t(type.description)}</Text>
                 </View>
               </TouchableOpacity>
             );
@@ -237,7 +238,7 @@ export default function EditSkinTypeScreen({ onBack, onNavigateHome, onNavigateT
         {hasChanges && (
           <View style={styles.changeInfo}>
             <Text style={styles.changeInfoText}>
-              Your routines will be updated based on your new skin type
+              {t('editSkinType.change_info')}
             </Text>
           </View>
         )}
@@ -245,7 +246,7 @@ export default function EditSkinTypeScreen({ onBack, onNavigateHome, onNavigateT
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title={hasChanges ? "Save Changes" : "No Changes"}
+          title={hasChanges ? t('editSkinType.save_changes') : t('editSkinType.no_changes')}
           onPress={handleSave}
           disabled={!hasChanges}
           style={styles.saveButton}

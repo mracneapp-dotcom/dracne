@@ -1,4 +1,4 @@
-// utils/progressManager.js
+// utils/progressManager.js - WITH I18N SUPPORT
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PROGRESS_KEY = 'userProgress';
@@ -6,6 +6,8 @@ const PROGRESS_KEY = 'userProgress';
 export const BADGE_DEFINITIONS = {
     firstScan: {
       id: 'firstScan',
+      titleKey: 'badges.first_scan.title',           // ← ADDED
+      descriptionKey: 'badges.first_scan.description', // ← ADDED
       title: 'First Scan',
       description: 'Complete your first skin analysis',
       image: require('../../assets/images/badge-first-scan.png'),
@@ -15,6 +17,8 @@ export const BADGE_DEFINITIONS = {
     },
     skinScanner: {
       id: 'skinScanner',
+      titleKey: 'badges.skin_scanner.title',           // ← ADDED
+      descriptionKey: 'badges.skin_scanner.description', // ← ADDED
       title: 'Skin Scanner',
       description: 'Regular skin monitoring',
       image: require('../../assets/images/badge-skin-scanner.png'),
@@ -24,6 +28,8 @@ export const BADGE_DEFINITIONS = {
     },
     routineWarrior: {
       id: 'routineWarrior',
+      titleKey: 'badges.routine_warrior.title',           // ← ADDED
+      descriptionKey: 'badges.routine_warrior.description', // ← ADDED
       title: 'Routine Warrior',
       description: 'Build consistent habits',
       image: require('../../assets/images/badge-routine-warrior.png'),
@@ -33,6 +39,8 @@ export const BADGE_DEFINITIONS = {
     },
     perfectWeek: {
       id: 'perfectWeek',
+      titleKey: 'badges.perfect_week.title',           // ← ADDED
+      descriptionKey: 'badges.perfect_week.description', // ← ADDED
       title: 'Perfect Week',
       description: 'Complete 7 consecutive days',
       image: require('../../assets/images/badge-perfect-week.png'),
@@ -42,6 +50,8 @@ export const BADGE_DEFINITIONS = {
     },
     glowUpTracker: {
       id: 'glowUpTracker',
+      titleKey: 'badges.glow_up_tracker.title',           // ← ADDED
+      descriptionKey: 'badges.glow_up_tracker.description', // ← ADDED
       title: 'Glow Up Tracker',
       description: 'Track your improvements',
       image: require('../../assets/images/badge-glow-up-tracker.png'),

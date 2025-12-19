@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -44,10 +45,10 @@ export default function OnboardingBarrierHealth2({ onNext }) {
 
         <View style={styles.header}>
           <Text style={styles.title}>
-            Does your skin have a <Text style={styles.titleHighlight}>sandy texture?</Text>
+            {t('onboarding.barrierHealth2.title1')} <Text style={styles.titleHighlight}>{t('onboarding.barrierHealth2.title2')}</Text>
           </Text>
           <Text style={styles.subtitle}>
-            Continuing our skin barrier assessment
+            {t('onboarding.barrierHealth2.subtitle')}
           </Text>
         </View>
 
@@ -81,9 +82,9 @@ export default function OnboardingBarrierHealth2({ onNext }) {
                 styles.optionLabel,
                 hasGrittyTexture === true && { color: BRAND_COLORS.secondary, fontWeight: '600' }
               ]}>
-                Yes, it does
+                {t('onboarding.barrierHealth2.yes')}
               </Text>
-              <Text style={styles.optionDescription}>My skin feels rough or gritty to the touch</Text>
+              <Text style={styles.optionDescription}>{t('onboarding.barrierHealth2.yes_desc')}</Text>
             </View>
           </TouchableOpacity>
 
@@ -116,16 +117,16 @@ export default function OnboardingBarrierHealth2({ onNext }) {
                 styles.optionLabel,
                 hasGrittyTexture === false && { color: BRAND_COLORS.primary, fontWeight: '600' }
               ]}>
-                No, it's smooth
+                {t('onboarding.barrierHealth2.no')}
               </Text>
-              <Text style={styles.optionDescription}>My skin texture feels normal and smooth</Text>
+              <Text style={styles.optionDescription}>{t('onboarding.barrierHealth2.no_desc')}</Text>
             </View>
           </TouchableOpacity>
         </View>
 
         <View style={styles.infoBox}>
           <Text style={styles.infoText}>
-            These questions help us create a safe, effective routine for you
+            {t('onboarding.barrierHealth2.info')}
           </Text>
         </View>
       </View>
@@ -143,10 +144,10 @@ export default function OnboardingBarrierHealth2({ onNext }) {
             styles.continueButtonText,
             hasGrittyTexture === null && styles.continueButtonTextDisabled
           ]}>
-            Continue
+            {t('onboarding.barrierHealth2.button')}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.helperText}>Select one option</Text>
+        <Text style={styles.helperText}>{t('onboarding.barrierHealth2.helper')}</Text>
       </View>
     </View>
   );

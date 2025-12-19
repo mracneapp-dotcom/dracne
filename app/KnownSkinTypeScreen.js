@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -30,36 +31,36 @@ export const KnownSkinTypeScreen = ({
   const skinTypes = [
     {
       id: 'normal',
-      title: 'Normal',
-      description: 'Well-balanced with minimal concerns',
+      title: t('profile.skin_labels.normal'),
+      description: t('knownSkinType.normal_desc'),
       icon: require('../assets/images/check.png'),
       color: '#4CAF50'
     },
     {
       id: 'oily',
-      title: 'Oily',
-      description: 'Excess oil production, especially T-zone',
+      title: t('profile.skin_labels.oily'),
+      description: t('knownSkinType.oily_desc'),
       icon: require('../assets/images/check.png'),
       color: '#FF9800'
     },
     {
       id: 'dry',
-      title: 'Dry',
-      description: 'Lacks moisture, may feel tight',
+      title: t('profile.skin_labels.dry'),
+      description: t('knownSkinType.dry_desc'),
       icon: require('../assets/images/check.png'),
       color: '#2196F3'
     },
     {
       id: 'combination',
-      title: 'Combination',
-      description: 'Mix of oily and dry areas',
+      title: t('profile.skin_labels.combination'),
+      description: t('knownSkinType.combination_desc'),
       icon: require('../assets/images/check.png'),
       color: '#9C27B0'
     },
     {
       id: 'sensitive',
-      title: 'Sensitive',
-      description: 'Easily irritated or reactive',
+      title: t('profile.skin_labels.sensitive'),
+      description: t('knownSkinType.sensitive_desc'),
       icon: require('../assets/images/check.png'),
       color: '#FF7A7A'
     }
@@ -147,15 +148,15 @@ export const KnownSkinTypeScreen = ({
 
   const getButtonText = () => {
     if (selectedSkinTypes.length === 0) {
-      return "You can select up to 2 skin types";
+      return t('knownSkinType.select_up_to_two');
     }
     
     if (selectedSkinTypes.length === 1) {
-      return `Continue with ${selectedSkinTypes[0].title}`;
+      return t('knownSkinType.continue_with', { skinType: selectedSkinTypes[0].title });
     }
     
     const skinTypeNames = selectedSkinTypes.map(type => type.title).join(' + ');
-    return `Continue with ${skinTypeNames}`;
+    return t('knownSkinType.continue_with', { skinType: skinTypeNames });
   };
 
   return (
@@ -178,10 +179,10 @@ export const KnownSkinTypeScreen = ({
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>
-            Select Your <Text style={styles.titleHighlight}>Skin Type</Text>
+            {t('knownSkinType.select')} <Text style={styles.titleHighlight}>{t('knownSkinType.skin_type')}</Text>
           </Text>
           <Text style={styles.subtitle}>
-            Choose 1 or 2 types that best describe your skin
+            {t('knownSkinType.subtitle')}
           </Text>
         </View>
 

@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -166,11 +167,11 @@ export default function OnboardingWelcome({ onNext }) {
 
         <View style={styles.heroSection}>
           <Text style={styles.mainTitle}>
-            Welcome to{'\n'}
-            <Text style={styles.brandHighlight}>Dr. Acne</Text>
+            {t('onboarding.welcome.title')}{'\n'}
+            <Text style={styles.brandHighlight}>{t('onboarding.welcome.appName')}</Text>
           </Text>
           <Text style={styles.subtitle}>
-            Your AI-powered skincare companion for clear, healthy skin
+            {t('onboarding.welcome.subtitle')}
           </Text>
         </View>
 
@@ -189,7 +190,7 @@ export default function OnboardingWelcome({ onNext }) {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.featureTitle}>AI Analysis</Text>
+            <Text style={styles.featureTitle}>{t('onboarding.welcome.feature1')}</Text>
           </Animated.View>
 
           <Animated.View 
@@ -206,7 +207,7 @@ export default function OnboardingWelcome({ onNext }) {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.featureTitle}>Personalized</Text>
+            <Text style={styles.featureTitle}>{t('onboarding.welcome.feature2')}</Text>
           </Animated.View>
 
           <Animated.View 
@@ -223,12 +224,12 @@ export default function OnboardingWelcome({ onNext }) {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.featureTitle}>Fast Results</Text>
+            <Text style={styles.featureTitle}>{t('onboarding.welcome.feature3')}</Text>
           </Animated.View>
         </View>
 
         <View style={styles.trustBadge}>
-          <Text style={styles.trustText}>Trusted by thousands worldwide</Text>
+          <Text style={styles.trustText}>{t('onboarding.welcome.trust')}</Text>
         </View>
       </Animated.View>
 
@@ -237,10 +238,10 @@ export default function OnboardingWelcome({ onNext }) {
           style={styles.continueButton}
           onPress={handleGetStarted}
         >
-          <Text style={styles.continueButtonText}>Get Started</Text>
+          <Text style={styles.continueButtonText}>{t('onboarding.welcome.button')}</Text>
         </TouchableOpacity>
         
-        <Text style={styles.helperText}>Takes less than 2 minutes</Text>
+        <Text style={styles.helperText}>{t('onboarding.welcome.helper')}</Text>
       </View>
     </View>
   );
@@ -350,10 +351,11 @@ const styles = StyleSheet.create({
     tintColor: BRAND_COLORS.black,
   },
   featureTitle: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
     color: BRAND_COLORS.black,
     textAlign: 'center',
+    lineHeight: 16,
   },
   trustBadge: {
     alignItems: 'center',

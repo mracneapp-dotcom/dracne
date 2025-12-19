@@ -1,8 +1,9 @@
-// app/NightRoutineScreen.js - WITH CENTRALIZED PROGRESSIVE UNLOCK
+// app/NightRoutineScreen.js - WITH FIXED BANNER TEXT SPACING
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Modal,
   PanResponder,
   ScrollView,
@@ -13,6 +14,7 @@ import {
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 import { getRoutinesForSkinType } from '../constants/routinesData';
+import { t } from './i18n';
 import { checkRoutineUnlockStatus } from './utils/routineUnlock';
 
 const BRAND_COLORS = {
@@ -118,7 +120,6 @@ export default function NightRoutineScreen({
       return;
     }
 
-    // Check unlock status
     const status = await checkRoutineUnlockStatus();
     
     if (level === 'moderate') {
@@ -129,10 +130,13 @@ export default function NightRoutineScreen({
         const daysNeeded = Math.max(0, 7 - (status.stats?.daysSinceInstall || 0));
         
         setLockMessage(
-          `🔒 Moderate Routine Locked\n\n` +
-          `Unlock by completing:\n• ${routinesNeeded} more routines, OR\n• ${daysNeeded} more days in the app\n\n` +
-          `Current Progress:\n✓ ${status.stats?.completedRoutines || 0}/5 routines\n✓ ${status.stats?.daysSinceInstall || 0}/7 days\n\n` +
-          `Build your foundation first - your skin will thank you!`
+          t('nightRoutine.lock_moderate_title') +
+          t('nightRoutine.lock_moderate_unlock', { routines: routinesNeeded, days: daysNeeded }) +
+          t('nightRoutine.lock_moderate_progress', { 
+            completedRoutines: status.stats?.completedRoutines || 0, 
+            daysSinceInstall: status.stats?.daysSinceInstall || 0 
+          }) +
+          t('nightRoutine.lock_moderate_message')
         );
         setShowLockModal(true);
       }
@@ -144,10 +148,13 @@ export default function NightRoutineScreen({
         const daysNeeded = Math.max(0, 14 - (status.stats?.daysSinceInstall || 0));
         
         setLockMessage(
-          `🔒 Comprehensive Routine Locked\n\n` +
-          `Unlock by completing:\n• ${routinesNeeded} more routines, OR\n• ${daysNeeded} more days in the app\n\n` +
-          `Current Progress:\n✓ ${status.stats?.completedRoutines || 0}/10 routines\n✓ ${status.stats?.daysSinceInstall || 0}/14 days\n\n` +
-          `Advanced routines need a strong foundation. Keep building!`
+          t('nightRoutine.lock_comprehensive_title') +
+          t('nightRoutine.lock_comprehensive_unlock', { routines: routinesNeeded, days: daysNeeded }) +
+          t('nightRoutine.lock_comprehensive_progress', { 
+            completedRoutines: status.stats?.completedRoutines || 0, 
+            daysSinceInstall: status.stats?.daysSinceInstall || 0 
+          }) +
+          t('nightRoutine.lock_comprehensive_message')
         );
         setShowLockModal(true);
       }
@@ -169,7 +176,7 @@ export default function NightRoutineScreen({
 
   const getButtonText = () => {
     const levelText = selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1);
-    return `Save ${levelText} Routine & Continue`;
+    return t(`nightRoutine.save_button_${selectedLevel}`);
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -177,6 +184,18 @@ export default function NightRoutineScreen({
   if (!routineData) {
     return null;
   }
+
+  const getTranslatedRoutineName = () => t(`routines.${skinType}.name`);
+  const getTranslatedRoutineTitle = (level) => t(`routines.${skinType}.${level}_title`);
+  const getTranslatedRoutineDescription = (level) => t(`routines.${skinType}.${level}_description`);
+  const getTranslatedSteps = (level, period) => {
+    const steps = routineData[level].steps[period];
+    return steps.map((_, index) => t(`routines.${skinType}.${level}_${period}_${index + 1}`));
+  };
+  const getTranslatedBenefits = (level) => {
+    const benefits = routineData[level].keyBenefits;
+    return benefits.map((_, index) => t(`routines.${skinType}.${level}_benefit_${index + 1}`));
+  };
 
   const renderInitialScreen = () => (
     <View style={styles.container} {...panResponder.panHandlers}>
@@ -190,23 +209,29 @@ export default function NightRoutineScreen({
         </TouchableOpacity>
       </View>
 
+      {/* Night Routine Banner - Dynamic */}
       <View style={styles.bannerContainer}>
-        <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
+        <ImageBackground
+          source={require('../assets/images/banner-night-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.nightRoutineBannerTextContainer}>
+            <Text style={styles.nightRoutineLine1}>{t('nightRoutineBanners.line1')}</Text>
+            <Text style={styles.nightRoutineLine2}>{t('nightRoutineBanners.line2')}</Text>
+          </View>
+        </ImageBackground>
       </View>
 
       <View style={styles.contentFixed}>
         <View style={styles.heroSection}>
           <Text style={styles.questionTitle}>
-            Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
-              {routineData.name}
-            </Text>{'\n'}Evening Routine
+            {t('nightRoutine.title')} <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
+              {getTranslatedRoutineName()}
+            </Text>{'\n'}{t('nightRoutine.title_end')}
           </Text>
           <Text style={styles.questionSubtitle}>
-            Build a personalized routine or view your saved routine
+            {t('nightRoutine.subtitle')}
           </Text>
         </View>
 
@@ -222,25 +247,32 @@ export default function NightRoutineScreen({
             </View>
           </View>
           <View style={styles.reminderContent}>
-            <Text style={styles.reminderTitle}>Not sure about your skin type?</Text>
-            <Text style={styles.reminderSubtitle}>Take our quick skin test for accurate results</Text>
+            <Text style={styles.reminderTitle}>{t('nightRoutine.skin_test_title')}</Text>
+            <Text style={styles.reminderSubtitle}>{t('nightRoutine.skin_test_subtitle')}</Text>
           </View>
           <Text style={styles.reminderArrow}>→</Text>
         </TouchableOpacity>
 
         <View style={styles.bannerButtonsContainer}>
+          {/* Create Routine Banner - Dynamic */}
           <TouchableOpacity
             onPress={() => setCurrentView('createRoutine')}
             activeOpacity={0.8}
             style={styles.bannerButton}
           >
-            <Image 
-              source={require('../assets/images/Banner Create Routine.png')}
-              style={styles.bannerButtonImage}
-              resizeMode="cover"
-            />
+            <ImageBackground
+              source={require('../assets/images/banner-create-routine-base.png')}
+              style={styles.bannerButtonImageBackground}
+              imageStyle={styles.bannerButtonImage}
+            >
+              <View style={styles.createRoutineBannerTextContainer}>
+                <Text style={styles.createRoutineLine1}>{t('nightRoutineBanners.create_line1')}</Text>
+                <Text style={styles.createRoutineLine2}>{t('nightRoutineBanners.create_line2')}</Text>
+              </View>
+            </ImageBackground>
           </TouchableOpacity>
           
+          {/* My Routine Banner - Dynamic */}
           <TouchableOpacity
             onPress={onNavigateToMyNightRoutine}
             activeOpacity={0.8}
@@ -249,19 +281,27 @@ export default function NightRoutineScreen({
               hasNightRoutine && styles.bannerButtonActive
             ]}
           >
-            <Image 
-              source={require('../assets/images/Banner My Routine.png')}
-              style={styles.bannerButtonImage}
-              resizeMode="cover"
-            />
+            <ImageBackground
+              source={require('../assets/images/banner-my-routine-base.png')}
+              style={styles.bannerButtonImageBackground}
+              imageStyle={styles.bannerButtonImage}
+            >
+              <View style={styles.myRoutineBannerTextContainer}>
+                <Text style={styles.myRoutineMyText}>{t('nightRoutineBanners.my')}</Text>
+                <Text style={styles.myRoutineLine2}>{t('nightRoutineBanners.routine')}</Text>
+              </View>
+            </ImageBackground>
             {hasNightRoutine && (
               <View style={styles.savedRoutineOverlay}>
                 <View style={styles.savedRoutineBadge}>
                   <Text style={styles.savedRoutineText}>
-                    ✓ {savedRoutineLevel.charAt(0).toUpperCase() + savedRoutineLevel.slice(1)}
+                    {t('nightRoutine.saved_routine_badge', { level: savedRoutineLevel.charAt(0).toUpperCase() + savedRoutineLevel.slice(1) })}
                   </Text>
                   <Text style={styles.savedRoutineProducts}>
-                    {productCount} product{productCount !== 1 ? 's' : ''}
+                    {productCount === 1 
+                      ? t('nightRoutine.saved_routine_products', { count: productCount })
+                      : t('nightRoutine.saved_routine_products_plural', { count: productCount })
+                    }
                   </Text>
                 </View>
               </View>
@@ -289,11 +329,16 @@ export default function NightRoutineScreen({
         onPress={() => setCurrentView('initial')}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
+        <ImageBackground
+          source={require('../assets/images/banner-night-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.nightRoutineBannerTextContainer}>
+            <Text style={styles.nightRoutineLine1}>{t('nightRoutineBanners.line1')}</Text>
+            <Text style={styles.nightRoutineLine2}>{t('nightRoutineBanners.line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <View style={styles.unknownPromptContainer}>
@@ -306,17 +351,15 @@ export default function NightRoutineScreen({
           </View>
           
           <Text style={styles.unknownPromptTitle}>
-            Let's discover your skin type!
+            {t('nightRoutine.unknown_prompt_title')}
           </Text>
           
           <Text style={styles.unknownPromptMessage}>
-            For the best personalized routine experience, we recommend taking at least 1 of our 3 super easy skin tests. 
-            {'\n\n'}
-            This will help us create the perfect routine tailored specifically for your skin's unique needs!
+            {t('nightRoutine.unknown_prompt_message')}
           </Text>
 
           <DrAcneButton
-            title="Take Skin Test Now"
+            title={t('nightRoutine.unknown_prompt_button')}
             onPress={onNavigateToSkinTest}
             style={styles.unknownPromptButton}
           />
@@ -325,7 +368,7 @@ export default function NightRoutineScreen({
             onPress={() => setCurrentView('initial')}
             style={styles.unknownPromptBackButton}
           >
-            <Text style={styles.unknownPromptBackText}>Maybe Later</Text>
+            <Text style={styles.unknownPromptBackText}>{t('nightRoutine.unknown_prompt_back')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -354,11 +397,16 @@ export default function NightRoutineScreen({
           onPress={() => setCurrentView('initial')}
           activeOpacity={0.9}
         >
-          <Image 
-            source={require('../assets/images/Banner Night Routine 1.png')}
-            style={styles.bannerImage}
-            resizeMode="cover"
-          />
+          <ImageBackground
+            source={require('../assets/images/banner-night-routine-base.png')}
+            style={styles.bannerImageBackground}
+            imageStyle={styles.bannerImage}
+          >
+            <View style={styles.nightRoutineBannerTextContainer}>
+              <Text style={styles.nightRoutineLine1}>{t('nightRoutineBanners.line1')}</Text>
+              <Text style={styles.nightRoutineLine2}>{t('nightRoutineBanners.line2')}</Text>
+            </View>
+          </ImageBackground>
         </TouchableOpacity>
 
         <ScrollView 
@@ -369,12 +417,12 @@ export default function NightRoutineScreen({
           <View style={styles.content}>
             <View style={styles.heroSection}>
               <Text style={styles.questionTitle}>
-                Your <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
-                  {routineData.name}
-                </Text>{'\n'}Evening Routine
+                {t('nightRoutine.create_title')} <Text style={[styles.aiHighlight, { color: skinTypeInfo.color }]}>
+                  {getTranslatedRoutineName()}
+                </Text>{'\n'}{t('nightRoutine.create_title_end')}
               </Text>
               <Text style={styles.questionSubtitle}>
-                Choose the routine level that fits your skincare goals. Build your foundation first!
+                {t('nightRoutine.create_subtitle')}
               </Text>
             </View>
 
@@ -390,14 +438,14 @@ export default function NightRoutineScreen({
                 </View>
               </View>
               <View style={styles.reminderContent}>
-                <Text style={styles.reminderTitle}>Not sure about your skin type?</Text>
-                <Text style={styles.reminderSubtitle}>Take our quick skin test for accurate results</Text>
+                <Text style={styles.reminderTitle}>{t('nightRoutine.skin_test_title')}</Text>
+                <Text style={styles.reminderSubtitle}>{t('nightRoutine.skin_test_subtitle')}</Text>
               </View>
               <Text style={styles.reminderArrow}>→</Text>
             </TouchableOpacity>
 
             <View style={styles.routineLevelsContainer}>
-              <Text style={styles.sectionTitle}>Choose Your Starting Level</Text>
+              <Text style={styles.sectionTitle}>{t('nightRoutine.section_title')}</Text>
               
               {/* Basic Card - ALWAYS UNLOCKED */}
               <TouchableOpacity
@@ -410,7 +458,7 @@ export default function NightRoutineScreen({
                 <View style={styles.routineHeader}>
                   <View style={[styles.routineBadge, { backgroundColor: '#E8F5E9' }]}>
                     <Text style={[styles.routineBadgeText, { color: BRAND_COLORS.primary }]}>
-                      BASIC
+                      {t('nightRoutine.basic_badge')}
                     </Text>
                   </View>
                   {selectedLevel === 'basic' && (
@@ -419,18 +467,18 @@ export default function NightRoutineScreen({
                     </View>
                   )}
                 </View>
-                <Text style={styles.routineTitle}>{routineData.basic.title}</Text>
-                <Text style={styles.routineDescription}>{routineData.basic.description}</Text>
+                <Text style={styles.routineTitle}>{getTranslatedRoutineTitle('basic')}</Text>
+                <Text style={styles.routineDescription}>{getTranslatedRoutineDescription('basic')}</Text>
                 
                 <View style={styles.routineSteps}>
-                  <Text style={styles.stepsTitle}>Evening:</Text>
-                  {routineData.basic.steps.pm.map((step, index) => (
+                  <Text style={styles.stepsTitle}>{t('nightRoutine.evening_label')}</Text>
+                  {getTranslatedSteps('basic', 'pm').map((step, index) => (
                     <Text key={index} style={styles.stepText}>• {step}</Text>
                   ))}
                 </View>
 
                 <View style={styles.benefitsContainer}>
-                  {routineData.basic.keyBenefits.map((benefit, index) => (
+                  {getTranslatedBenefits('basic').map((benefit, index) => (
                     <View key={index} style={styles.benefitPill}>
                       <Text style={styles.benefitText}>{benefit}</Text>
                     </View>
@@ -451,7 +499,7 @@ export default function NightRoutineScreen({
                 <View style={styles.routineHeader}>
                   <View style={[styles.routineBadge, { backgroundColor: '#FFF4E5' }]}>
                     <Text style={[styles.routineBadgeText, { color: '#F39C12' }]}>
-                      MODERATE
+                      {t('nightRoutine.moderate_badge')}
                     </Text>
                   </View>
                   {!unlockStatus.moderate && (
@@ -469,19 +517,19 @@ export default function NightRoutineScreen({
                     </View>
                   )}
                 </View>
-                <Text style={styles.routineTitle}>{routineData.moderate.title}</Text>
-                <Text style={styles.routineDescription}>{routineData.moderate.description}</Text>
+                <Text style={styles.routineTitle}>{getTranslatedRoutineTitle('moderate')}</Text>
+                <Text style={styles.routineDescription}>{getTranslatedRoutineDescription('moderate')}</Text>
                 
                 <View style={styles.routineSteps}>
-                  <Text style={styles.stepsTitle}>Evening:</Text>
-                  {routineData.moderate.steps.pm.slice(0, 3).map((step, index) => (
+                  <Text style={styles.stepsTitle}>{t('nightRoutine.evening_label')}</Text>
+                  {getTranslatedSteps('moderate', 'pm').slice(0, 3).map((step, index) => (
                     <Text key={index} style={styles.stepText}>• {step}</Text>
                   ))}
-                  <Text style={styles.moreSteps}>+ additional steps</Text>
+                  <Text style={styles.moreSteps}>{t('nightRoutine.more_steps')}</Text>
                 </View>
 
                 <View style={styles.benefitsContainer}>
-                  {routineData.moderate.keyBenefits.map((benefit, index) => (
+                  {getTranslatedBenefits('moderate').map((benefit, index) => (
                     <View key={index} style={styles.benefitPill}>
                       <Text style={styles.benefitText}>{benefit}</Text>
                     </View>
@@ -496,7 +544,7 @@ export default function NightRoutineScreen({
                       resizeMode="contain"
                     />
                     <Text style={styles.lockOverlayText}>
-                      1 week OR 5 routines to unlock
+                      {t('nightRoutine.moderate_unlock')}
                     </Text>
                   </View>
                 )}
@@ -515,7 +563,7 @@ export default function NightRoutineScreen({
                 <View style={styles.routineHeader}>
                   <View style={[styles.routineBadge, { backgroundColor: '#F3E5F5' }]}>
                     <Text style={[styles.routineBadgeText, { color: '#9B59B6' }]}>
-                      COMPREHENSIVE
+                      {t('nightRoutine.comprehensive_badge')}
                     </Text>
                   </View>
                   {!unlockStatus.comprehensive && (
@@ -533,19 +581,19 @@ export default function NightRoutineScreen({
                     </View>
                   )}
                 </View>
-                <Text style={styles.routineTitle}>{routineData.comprehensive.title}</Text>
-                <Text style={styles.routineDescription}>{routineData.comprehensive.description}</Text>
+                <Text style={styles.routineTitle}>{getTranslatedRoutineTitle('comprehensive')}</Text>
+                <Text style={styles.routineDescription}>{getTranslatedRoutineDescription('comprehensive')}</Text>
                 
                 <View style={styles.routineSteps}>
-                  <Text style={styles.stepsTitle}>Full Treatment:</Text>
-                  {routineData.comprehensive.steps.pm.slice(0, 3).map((step, index) => (
+                  <Text style={styles.stepsTitle}>{t('nightRoutine.full_treatment')}</Text>
+                  {getTranslatedSteps('comprehensive', 'pm').slice(0, 3).map((step, index) => (
                     <Text key={index} style={styles.stepText}>• {step}</Text>
                   ))}
-                  <Text style={styles.moreSteps}>+ advanced treatments & more</Text>
+                  <Text style={styles.moreSteps}>{t('nightRoutine.more_steps_comprehensive')}</Text>
                 </View>
 
                 <View style={styles.benefitsContainer}>
-                  {routineData.comprehensive.keyBenefits.map((benefit, index) => (
+                  {getTranslatedBenefits('comprehensive').map((benefit, index) => (
                     <View key={index} style={styles.benefitPill}>
                       <Text style={styles.benefitText}>{benefit}</Text>
                     </View>
@@ -560,7 +608,7 @@ export default function NightRoutineScreen({
                       resizeMode="contain"
                     />
                     <Text style={styles.lockOverlayText}>
-                      2 weeks OR 10 routines to unlock
+                      {t('nightRoutine.comprehensive_unlock')}
                     </Text>
                   </View>
                 )}
@@ -569,13 +617,13 @@ export default function NightRoutineScreen({
 
             <View style={styles.trustSection}>
               <View style={styles.trustItem}>
-                <Text style={styles.trustText}>• Science-backed formulations</Text>
+                <Text style={styles.trustText}>{t('nightRoutine.trust1')}</Text>
               </View>
               <View style={styles.trustItem}>
-                <Text style={styles.trustText}>• Personalized for your skin</Text>
+                <Text style={styles.trustText}>{t('nightRoutine.trust2')}</Text>
               </View>
               <View style={styles.trustItem}>
-                <Text style={styles.trustText}>• Results in 4-12 weeks</Text>
+                <Text style={styles.trustText}>{t('nightRoutine.trust3')}</Text>
               </View>
             </View>
 
@@ -591,7 +639,7 @@ export default function NightRoutineScreen({
           />
           
           <Text style={styles.helperText}>
-            Build your routine progressively - your skin will thank you!
+            {t('nightRoutine.helper')}
           </Text>
         </View>
 
@@ -621,11 +669,11 @@ export default function NightRoutineScreen({
                   />
                 </View>
                 
-                <Text style={styles.modalTitle}>Routine Locked</Text>
+                <Text style={styles.modalTitle}>{t('nightRoutine.modal_locked_title')}</Text>
                 <Text style={styles.modalMessage}>{lockMessage}</Text>
                 
                 <DrAcneButton
-                  title="Got it!"
+                  title={t('nightRoutine.modal_button')}
                   onPress={() => setShowLockModal(false)}
                   style={styles.modalButton}
                 />
@@ -663,9 +711,45 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 15,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  // ✅ FIXED: Night Routine Banner Text Styles - Better Spacing
+  nightRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 20,
+    paddingBottom: 20,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  nightRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 38,          // ✅ INCREASED from 34
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  nightRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 38,          // ✅ INCREASED from 34
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,           // ✅ CHANGED from -8 to -4
+    includeFontPadding: false,
   },
   scrollView: {
     flex: 1,
@@ -785,9 +869,76 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     elevation: 5,
   },
-  bannerButtonImage: {
+  bannerButtonImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerButtonImage: {
+    borderRadius: 12,
+  },
+  // ✅ FIXED: Create Routine Banner Text Styles - Better Spacing
+  createRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 22,
+    paddingBottom: 22,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  createRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 36,
+    fontWeight: '900',
+    lineHeight: 42,          // ✅ INCREASED from 38
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  createRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 36,
+    fontWeight: '900',
+    lineHeight: 42,          // ✅ INCREASED from 38
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,           // ✅ CHANGED from -8 to -4
+    includeFontPadding: false,
+  },
+  // ✅ FIXED: My Routine Banner Text Styles - Better Spacing
+  myRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 22,
+    paddingBottom: 22,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  myRoutineMyText: {
+    fontFamily: 'Brittany',
+    fontSize: 38,
+    lineHeight: 48,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  myRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 36,
+    fontWeight: '900',
+    lineHeight: 42,          // ✅ INCREASED from 38
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -2,           // ✅ CHANGED from -8 to -4
+    includeFontPadding: false,
   },
   savedRoutineOverlay: {
     position: 'absolute',

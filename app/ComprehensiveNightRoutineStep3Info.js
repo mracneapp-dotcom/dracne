@@ -2,14 +2,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -30,61 +32,56 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
 };
 
-const STEP_3_CONTENT = {
+const STEP_3_CONTENT_MAPPING = {
   oily: {
-    title: 'Pore Care Treatment',
-    subtitle: 'Night Step 3 (2-4x per week)',
+    titleKey: 'pore_care_treatment',
+    subtitleKey: 'night_step_3_frequency',
     icon: require('../assets/images/cream.png'),
-    introTitle: 'Targeted Pore Management',
-    introText: 'BHA (salicylic acid) or mandelic acid helps keep pores clear and prevents breakouts overnight. This is your active treatment step for managing oil and preventing congestion while you sleep.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply 2-4 times per week in the evening on T-zone or full face as tolerated. Start with 2x per week and increase gradually. Always follow with moisturizer. Let it work while you sleep.',
-    warningTitle: 'Important Guidelines',
-    warningText: 'Start slowly (2x per week)\nUse in evening only\nMandatory SPF during day\nSkip if skin feels irritated',
+    introTitleKey: 'targeted_pore_title',
+    introTextKey: 'targeted_pore_text',
+    usageKey: 'pore_care_usage',
+    warningTitleKey: 'important_guidelines',
+    warningTipsKey: 'guidelines_pore',
   },
   dry: {
-    title: 'Hydrating Essence',
-    subtitle: 'Night Step 3',
+    titleKey: 'hydrating_essence',
+    subtitleKey: 'night_step_3',
     icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Extra Moisture Layer',
-    introText: 'Hydrating essences with panthenol, beta-glucan, and hyaluronic acid provide an extra moisture boost for dry skin overnight. This step helps your moisturizer work more effectively during sleep.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply on damp skin after cleansing, before moisturizer. Pat gently until absorbed. This creates a moisture sandwich that locks in hydration throughout the night.',
-    warningTitle: 'Application Tip',
-    warningText: 'Apply to damp skin for best results\nPat, do not rub\nLayer under moisturizer\nUse every night',
+    introTitleKey: 'extra_moisture_title',
+    introTextKey: 'extra_moisture_text',
+    usageKey: 'hydrating_usage',
+    warningTitleKey: 'application_tip',
+    warningTipsKey: 'tips_hydrating',
   },
   combination: {
-    title: 'Targeted Zone Treatment',
-    subtitle: 'Night Step 3',
+    titleKey: 'targeted_zone_treatment',
+    subtitleKey: 'night_step_3',
     icon: require('../assets/images/cream.png'),
-    introTitle: 'Zone-Specific Night Care',
-    introText: 'Combination skin needs different treatments for different zones at night: BHA or mandelic acid on oily T-zone, hydrating essence on dry cheeks. This customized approach balances your skin overnight.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply BHA/mandelic acid only on T-zone 2-4x per week. Apply hydrating essence on cheeks every night. This zone-specific approach prevents over-treatment while providing benefits where needed.',
-    warningTitle: 'Zone Application',
-    warningText: 'BHA/Mandelic: T-zone only, 2-4x/week\nHydrating essence: Cheeks nightly\nStart 2x per week\nAdjust based on response',
+    introTitleKey: 'zone_specific_title',
+    introTextKey: 'zone_specific_text',
+    usageKey: 'zone_treatment_usage',
+    warningTitleKey: 'zone_application',
+    warningTipsKey: 'tips_zone',
   },
   normal: {
-    title: 'Gentle Exfoliation',
-    subtitle: 'Night Step 3 (weekly)',
+    titleKey: 'gentle_exfoliation',
+    subtitleKey: 'night_step_3_weekly',
     icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Maintenance Exfoliation',
-    introText: 'Your healthy skin benefits from gentle weekly exfoliation to maintain clarity and brightness. Enzyme or mild AHA treatments remove dead cells without irritation, revealing fresh skin overnight.',
-    explanationTitle: 'How to use',
-    explanationText: 'Use 1-2 times per week in the evening. Apply after cleansing, before moisturizer. Let work for 5-10 minutes then rinse (if wash-off type) or leave on. Your skin renews while you sleep.',
-    warningTitle: 'Weekly Protocol',
-    warningText: 'Use 1-2x per week only\nAlways follow with moisturizer\nUse SPF during day\nGentle is enough',
+    introTitleKey: 'maintenance_exfoliation_title',
+    introTextKey: 'maintenance_exfoliation_text',
+    usageKey: 'gentle_exfoliation_usage',
+    warningTitleKey: 'weekly_protocol',
+    warningTipsKey: 'tips_weekly',
   },
   sensitive: {
-    title: 'Barrier Support Serum',
-    subtitle: 'Night Step 3',
+    titleKey: 'barrier_support_serum',
+    subtitleKey: 'night_step_3',
     icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Overnight Barrier Strengthening',
-    introText: 'Rich barrier support serums with ceramides work overnight to strengthen sensitive skin. Skip traditional exfoliants and focus on building resilience while you sleep.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply every night after cleansing, before moisturizer. Ceramide and panthenol-rich serums calm and strengthen without irritation. Your barrier repairs best during sleep.',
-    warningTitle: 'Gentle Night Care',
-    warningText: 'Safe for nightly use\nNo exfoliants needed\nFocus on barrier support\nStrengthens overnight',
+    introTitleKey: 'barrier_strengthening_title',
+    introTextKey: 'barrier_strengthening_text',
+    usageKey: 'barrier_serum_usage',
+    warningTitleKey: 'gentle_night_care',
+    warningTipsKey: 'tips_gentle_night',
   },
 };
 
@@ -126,7 +123,7 @@ export default function ComprehensiveNightRoutineStep3Info({
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const content = STEP_3_CONTENT[skinType] || STEP_3_CONTENT.normal;
+  const contentMapping = STEP_3_CONTENT_MAPPING[skinType] || STEP_3_CONTENT_MAPPING.normal;
   const totalSteps = 4;
   const totalInternalSteps = 8;
 
@@ -147,11 +144,13 @@ export default function ComprehensiveNightRoutineStep3Info({
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
+        <ImageBackground
+          source={require('../assets/images/banner-night-routine-base.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <Text style={styles.bannerText}>{t('routines.night_routine')}</Text>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -170,7 +169,9 @@ export default function ComprehensiveNightRoutineStep3Info({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('basicRoutine.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -188,37 +189,53 @@ export default function ComprehensiveNightRoutineStep3Info({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('basicRoutine.for_skin', { skinType: skinTypeInfo.name })}
             </Text>
           </View>
 
           <View style={styles.productHeader}>
             <View style={styles.productIconContainer}>
               <Image 
-                source={content.icon}
+                source={contentMapping.icon}
                 style={styles.productIcon}
                 resizeMode="contain"
               />
             </View>
             <View style={styles.productTextContainer}>
-              <Text style={styles.productTitle}>{content.title}</Text>
-              <Text style={styles.productSubtitle}>{content.subtitle}</Text>
+              <Text style={styles.productTitle}>
+                {t(`comprehensiveNightRoutine.${contentMapping.titleKey}`)}
+              </Text>
+              <Text style={styles.productSubtitle}>
+                {t(`comprehensiveNightRoutine.${contentMapping.subtitleKey}`)}
+              </Text>
             </View>
           </View>
 
           <View style={styles.introBox}>
-            <Text style={styles.introTitle}>{content.introTitle}</Text>
-            <Text style={styles.introText}>{content.introText}</Text>
+            <Text style={styles.introTitle}>
+              {t(`comprehensiveNightRoutine.${contentMapping.introTitleKey}`)}
+            </Text>
+            <Text style={styles.introText}>
+              {t(`comprehensiveNightRoutine.${contentMapping.introTextKey}`)}
+            </Text>
           </View>
 
           <View style={styles.explanationBox}>
-            <Text style={styles.explanationTitle}>{content.explanationTitle}</Text>
-            <Text style={styles.explanationText}>{content.explanationText}</Text>
+            <Text style={styles.explanationTitle}>
+              {t('comprehensiveNightRoutine.how_to_use')}
+            </Text>
+            <Text style={styles.explanationText}>
+              {t(`comprehensiveNightRoutine.${contentMapping.usageKey}`)}
+            </Text>
           </View>
 
           <View style={styles.warningBox}>
-            <Text style={styles.warningTitle}>{content.warningTitle}</Text>
-            <Text style={styles.warningText}>{content.warningText}</Text>
+            <Text style={styles.warningTitle}>
+              {t(`comprehensiveNightRoutine.${contentMapping.warningTitleKey}`)}
+            </Text>
+            <Text style={styles.warningText}>
+              {t(`comprehensiveNightRoutine.${contentMapping.warningTipsKey}`)}
+            </Text>
           </View>
 
           <View style={styles.bottomSpacing} />
@@ -227,7 +244,7 @@ export default function ComprehensiveNightRoutineStep3Info({
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('basicRoutine.see_products_button')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -262,6 +279,17 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,

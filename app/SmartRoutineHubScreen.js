@@ -1,12 +1,14 @@
-// app/SmartRoutineHubScreen.js - HUB SCREEN WITH 2 OPTIONS
+// app/SmartRoutineHubScreen.js - FULLY TRANSLATED WITH PROPER BANNER
 import React from 'react';
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -36,21 +38,27 @@ export default function SmartRoutineHubScreen({
         </TouchableOpacity>
       </View>
 
+      {/* ✅ FIXED: Smart Routine Banner with Proper Two-Line Format */}
       <View style={styles.bannerContainer}>
-        <Image 
-          source={require('../assets/images/Banner Smart Routine.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
+        <ImageBackground
+          source={require('../assets/images/banner-scan-skin-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.smartBannerTextContainer}>
+            <Text style={styles.smartBannerLine1}>{t('smartRoutineBanners.smart')}</Text>
+            <Text style={styles.smartBannerLine2}>{t('smartRoutineBanners.routine')}</Text>
+          </View>
+        </ImageBackground>
       </View>
 
       <View style={styles.contentFixed}>
         <View style={styles.heroSection}>
           <Text style={styles.questionTitle}>
-            Your <Text style={styles.smartHighlight}>Smart Routine</Text>
+            {t('smartRoutineHub.title')} <Text style={styles.smartHighlight}>{t('smartRoutineHub.title_highlight')}</Text>
           </Text>
           <Text style={styles.questionSubtitle}>
-            Target specific concerns with specialized treatments
+            {t('smartRoutineHub.subtitle')}
           </Text>
         </View>
 
@@ -61,7 +69,7 @@ export default function SmartRoutineHubScreen({
             resizeMode="contain"
           />
           <Text style={styles.infoText}>
-            Smart Routines complement your Day & Night routines. Focus on one concern at a time for best results.
+            {t('smartRoutineHub.info')}
           </Text>
         </View>
 
@@ -71,11 +79,16 @@ export default function SmartRoutineHubScreen({
             activeOpacity={0.8}
             style={styles.bannerButton}
           >
-            <Image 
-              source={require('../assets/images/Banner Create Routine.png')}
-              style={styles.bannerButtonImage}
-              resizeMode="cover"
-            />
+            <ImageBackground
+              source={require('../assets/images/banner-create-routine-base.png')}
+              style={styles.bannerButtonImageBg}
+              imageStyle={styles.bannerButtonImage}
+            >
+              <View style={styles.createBannerTextContainer}>
+                <Text style={styles.createBannerText1}>{t('routineBanners.create')}</Text>
+                <Text style={styles.createBannerText2}>{t('routineBanners.create_routine')}</Text>
+              </View>
+            </ImageBackground>
           </TouchableOpacity>
           
           <TouchableOpacity
@@ -83,11 +96,16 @@ export default function SmartRoutineHubScreen({
             activeOpacity={0.8}
             style={styles.bannerButton}
           >
-            <Image 
-              source={require('../assets/images/Banner My Routine.png')}
-              style={styles.bannerButtonImage}
-              resizeMode="cover"
-            />
+            <ImageBackground
+              source={require('../assets/images/banner-my-routine-base.png')}
+              style={styles.bannerButtonImageBg}
+              imageStyle={styles.bannerButtonImage}
+            >
+              <View style={styles.myRoutineBannerTextContainer}>
+                <Text style={styles.myRoutineBannerMyText}>{t('routineBanners.my')}</Text>
+                <Text style={styles.myRoutineBannerText}>{t('routineBanners.routine')}</Text>
+              </View>
+            </ImageBackground>
           </TouchableOpacity>
         </View>
       </View>
@@ -118,9 +136,45 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 15,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  // ✅ FIXED: Smart Routine Banner Text Styles - Proper Two-Line Format
+  smartBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 20,
+    paddingBottom: 20,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  smartBannerLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 38,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  smartBannerLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 38,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,
+    includeFontPadding: false,
   },
   contentFixed: {
     flex: 1,
@@ -190,8 +244,63 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  bannerButtonImage: {
+  bannerButtonImageBg: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+  },
+  bannerButtonImage: {
+    borderRadius: 12,
+  },
+  createBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 15,
+  },
+  createBannerText1: {
+    fontFamily: 'BalooBhai2',
+    fontSize: 36,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    lineHeight: 38,
+  },
+  createBannerText2: {
+    fontFamily: 'BalooBhai2',
+    fontSize: 36,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    lineHeight: 38,
+    marginTop: -8,
+  },
+  myRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 15,
+  },
+  myRoutineBannerMyText: {
+    fontFamily: 'Brittany',
+    fontSize: 42,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    lineHeight: 44,
+  },
+  myRoutineBannerText: {
+    fontFamily: 'BalooBhai2',
+    fontSize: 36,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    lineHeight: 38,
+    marginTop: -8,
   },
 });

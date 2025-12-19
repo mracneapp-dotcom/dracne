@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { DrAcneButton } from '../../components/ui/DrAcneButton';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -73,7 +74,6 @@ export default function OnboardingReady({ onNext }) {
   }, []);
 
   const handleGetStarted = () => {
-    // Step 14 → Step 15
     onNext('onboardingPrivacy', { ready: true });
   };
 
@@ -110,11 +110,11 @@ export default function OnboardingReady({ onNext }) {
         {/* Hero Section */}
         <View style={styles.heroSection}>
           <Text style={styles.questionTitle}>
-            Ready to unlock your skin's{'\n'}
-            <Text style={styles.aiHighlight}>AI insights?</Text>
+            {t('onboarding.ready.title1')}{'\n'}
+            <Text style={styles.aiHighlight}>{t('onboarding.ready.title2')}</Text>
           </Text>
           <Text style={styles.questionSubtitle}>
-            Our advanced AI will analyze your skin and create a personalized routine just for you
+            {t('onboarding.ready.subtitle')}
           </Text>
         </View>
 
@@ -134,8 +134,8 @@ export default function OnboardingReady({ onNext }) {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.featureTitle}>AI Detection</Text>
-            <Text style={styles.featureDesc}>Advanced computer vision</Text>
+            <Text style={styles.featureTitle}>{t('onboarding.ready.feature1_title')}</Text>
+            <Text style={styles.featureDesc}>{t('onboarding.ready.feature1_desc')}</Text>
           </Animated.View>
 
           <View style={[styles.featureCard, styles.featureCard2]}>
@@ -146,8 +146,8 @@ export default function OnboardingReady({ onNext }) {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.featureTitle}>Instant Results</Text>
-            <Text style={styles.featureDesc}>Analysis in seconds</Text>
+            <Text style={styles.featureTitle}>{t('onboarding.ready.feature2_title')}</Text>
+            <Text style={styles.featureDesc}>{t('onboarding.ready.feature2_desc')}</Text>
           </View>
 
           <View style={[styles.featureCard, styles.featureCard3]}>
@@ -158,14 +158,14 @@ export default function OnboardingReady({ onNext }) {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.featureTitle}>Personalized</Text>
-            <Text style={styles.featureDesc}>Tailored just for you</Text>
+            <Text style={styles.featureTitle}>{t('onboarding.ready.feature3_title')}</Text>
+            <Text style={styles.featureDesc}>{t('onboarding.ready.feature3_desc')}</Text>
           </View>
         </View>
 
         {/* AI Processing Preview */}
         <View style={styles.processingPreview}>
-          <Text style={styles.processingText}>AI Processing Preview:</Text>
+          <Text style={styles.processingText}>{t('onboarding.ready.processing_title')}</Text>
           <View style={styles.processingSteps}>
             <View style={styles.processingStep}>
               <Animated.View 
@@ -175,17 +175,17 @@ export default function OnboardingReady({ onNext }) {
                   { opacity: glowAnim }
                 ]}
               />
-              <Text style={styles.stepText}>Scan</Text>
+              <Text style={styles.stepText}>{t('onboarding.ready.step1')}</Text>
             </View>
             <View style={styles.processingArrow} />
             <View style={styles.processingStep}>
               <View style={[styles.processingDot, styles.activeDot]} />
-              <Text style={styles.stepText}>Analyze</Text>
+              <Text style={styles.stepText}>{t('onboarding.ready.step2')}</Text>
             </View>
             <View style={styles.processingArrow} />
             <View style={styles.processingStep}>
               <View style={styles.processingDot} />
-              <Text style={styles.stepText}>Recommend</Text>
+              <Text style={styles.stepText}>{t('onboarding.ready.step3')}</Text>
             </View>
           </View>
         </View>
@@ -194,13 +194,13 @@ export default function OnboardingReady({ onNext }) {
       {/* Enhanced Bottom Section */}
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="I'm Ready!"
+          title={t('onboarding.ready.button')}
           onPress={handleGetStarted}
           style={styles.getStartedButton}
         />
         
         <Text style={styles.helperText}>
-          Takes less than 30 seconds • 100% Private
+          {t('onboarding.ready.helper')}
         </Text>
       </View>
     </View>

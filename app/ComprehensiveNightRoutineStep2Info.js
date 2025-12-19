@@ -2,13 +2,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -29,61 +31,46 @@ const SKIN_TYPE_INFO = {
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
 };
 
-const STEP_2_CONTENT = {
+const STEP_2_CONTENT_MAPPING = {
   oily: {
-    title: 'Lightweight Night Moisturizer',
-    subtitle: 'Night Step 2',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Night Hydration Without Heaviness',
-    introText: 'Even oily skin needs overnight moisture. Gel-creams with humectants and light occlusives provide hydration while you sleep without clogging pores or feeling greasy.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply after cleansing and before any treatments. Even if using pore care products later, this base layer prevents over-drying. Look for glycerin/HA + dimethicone/squalane.',
-    warningTitle: 'Night Application',
-    warningText: 'Use slightly more than daytime\nPrevents overnight dehydration\nEven oily skin needs moisture\nThin layer is enough',
+    titleKey: 'lightweight_night_moisturizer',
+    introTitleKey: 'night_hydration_title',
+    introTextKey: 'night_hydration_text',
+    usageKey: 'night_application_oily',
+    warningTitleKey: 'night_application',
+    warningTipsKey: 'night_application_tips_oily',
   },
   dry: {
-    title: 'Rich Night Moisturizer',
-    subtitle: 'Night Step 2',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Deep Overnight Repair',
-    introText: 'Night is when your skin repairs itself. Rich moisturizers with ceramides, cholesterol, and fatty acids work while you sleep to strengthen your barrier and lock in hydration.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply generously after cleansing. Night is the time for richer textures. Look for humectants + richer occlusives like petrolatum or shea butter. This creates the perfect repair environment.',
-    warningTitle: 'Overnight Repair',
-    warningText: 'Richer texture is good for night\nBarrier repair happens during sleep\nApply to damp skin for best results\nThin layer still effective',
+    titleKey: 'rich_night_moisturizer',
+    introTitleKey: 'deep_repair_title',
+    introTextKey: 'deep_repair_text',
+    usageKey: 'night_application_dry',
+    warningTitleKey: 'overnight_repair',
+    warningTipsKey: 'overnight_repair_tips',
   },
   combination: {
-    title: 'Balanced Night Moisturizer',
-    subtitle: 'Night Step 2',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Zone-Adapted Night Care',
-    introText: 'Combination skin can use a single product at night with zone-specific amounts. Apply more on dry areas, less on T-zone. Your skin loses less water overnight, so lighter than you think is often enough.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply lightweight moisturizer all over, then add extra on dry patches. Night is more forgiving than day - you can use one product instead of zone-specific formulas.',
-    warningTitle: 'Zone Strategy',
-    warningText: 'One product, different amounts\nMore on cheeks, less on T-zone\nNight allows slight extra moisture\nAdjust based on morning feel',
+    titleKey: 'balanced_night_moisturizer',
+    introTitleKey: 'zone_adapted_title',
+    introTextKey: 'zone_adapted_text',
+    usageKey: 'night_application_combo',
+    warningTitleKey: 'zone_strategy',
+    warningTipsKey: 'zone_strategy_tips',
   },
   normal: {
-    title: 'Balanced Night Moisturizer',
-    subtitle: 'Night Step 2',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Overnight Maintenance',
-    introText: 'Your healthy skin barrier just needs consistent support. Light to medium moisturizers provide the perfect balance for overnight repair without being too heavy or too light.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply after cleansing. Your skin will tell you if you need more or less - if you wake up tight, use slightly more. If you wake up oily, use slightly less. Find your sweet spot.',
-    warningTitle: 'Listen to Your Skin',
-    warningText: 'Adjust amount based on morning feel\nNormal skin is flexible\nSeasonal adjustments okay\nConsistency is key',
+    titleKey: 'balanced_night_moisturizer',
+    introTitleKey: 'overnight_maintenance_title',
+    introTextKey: 'overnight_maintenance_text',
+    usageKey: 'night_application_normal',
+    warningTitleKey: 'listen_skin',
+    warningTipsKey: 'listen_skin_tips',
   },
   sensitive: {
-    title: 'Barrier Repair Night Moisturizer',
-    subtitle: 'Night Step 2',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Intensive Overnight Support',
-    introText: 'Sensitive skin needs barrier repair around the clock. Rich moisturizers with ceramides, panthenol, and minimal ingredients work overnight to calm and strengthen reactive skin.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply generously after cleansing. Night is the best time for richer, more supportive formulas. Look for ceramides, cholesterol, and calming ingredients. Your skin repairs most at night.',
-    warningTitle: 'Gentle Approach',
-    warningText: 'Rich texture helps barrier repair\nMinimal ingredients preferred\nFragrance-free essential\nPatch test new products',
+    titleKey: 'barrier_repair_night_moisturizer',
+    introTitleKey: 'intensive_support_title',
+    introTextKey: 'intensive_support_text',
+    usageKey: 'night_application_sensitive',
+    warningTitleKey: 'gentle_approach',
+    warningTipsKey: 'gentle_approach_tips',
   },
 };
 
@@ -125,7 +112,7 @@ export default function ComprehensiveNightRoutineStep2Info({
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const content = STEP_2_CONTENT[skinType] || STEP_2_CONTENT.normal;
+  const contentMapping = STEP_2_CONTENT_MAPPING[skinType] || STEP_2_CONTENT_MAPPING.normal;
   const totalSteps = 4;
   const totalInternalSteps = 8;
 
@@ -146,11 +133,13 @@ export default function ComprehensiveNightRoutineStep2Info({
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
+        <ImageBackground
+          source={require('../assets/images/banner-night-routine-base.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <Text style={styles.bannerText}>{t('routines.night_routine')}</Text>
+        </ImageBackground>
       </TouchableOpacity>
 
       <View style={styles.content}>
@@ -164,7 +153,9 @@ export default function ComprehensiveNightRoutineStep2Info({
               <Text style={styles.arrowText}>‹</Text>
             </TouchableOpacity>
 
-            <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+            <Text style={styles.progressText}>
+              {t('basicRoutine.step_of', { current: currentStep, total: totalSteps })}
+            </Text>
 
             <TouchableOpacity
               onPress={handleNextStep}
@@ -182,43 +173,59 @@ export default function ComprehensiveNightRoutineStep2Info({
 
         <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
           <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-            For {skinTypeInfo.name}
+            {t('basicRoutine.for_skin', { skinType: skinTypeInfo.name })}
           </Text>
         </View>
 
         <View style={styles.productHeader}>
           <View style={styles.productIconContainer}>
             <Image 
-              source={content.icon}
+              source={require('../assets/images/jar cream.png')}
               style={styles.productIcon}
               resizeMode="contain"
             />
           </View>
           <View style={styles.productTextContainer}>
-            <Text style={styles.productTitle}>{content.title}</Text>
-            <Text style={styles.productSubtitle}>{content.subtitle}</Text>
+            <Text style={styles.productTitle}>
+              {t(`comprehensiveNightRoutine.${contentMapping.titleKey}`)}
+            </Text>
+            <Text style={styles.productSubtitle}>
+              {t('comprehensiveNightRoutine.night_step_2')}
+            </Text>
           </View>
         </View>
 
         <View style={styles.introBox}>
-          <Text style={styles.introTitle}>{content.introTitle}</Text>
-          <Text style={styles.introText}>{content.introText}</Text>
+          <Text style={styles.introTitle}>
+            {t(`comprehensiveNightRoutine.${contentMapping.introTitleKey}`)}
+          </Text>
+          <Text style={styles.introText}>
+            {t(`comprehensiveNightRoutine.${contentMapping.introTextKey}`)}
+          </Text>
         </View>
 
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>{content.explanationTitle}</Text>
-          <Text style={styles.explanationText}>{content.explanationText}</Text>
+          <Text style={styles.explanationTitle}>
+            {t('comprehensiveNightRoutine.how_to_use')}
+          </Text>
+          <Text style={styles.explanationText}>
+            {t(`comprehensiveNightRoutine.${contentMapping.usageKey}`)}
+          </Text>
         </View>
 
         <View style={styles.warningBox}>
-          <Text style={styles.warningTitle}>{content.warningTitle}</Text>
-          <Text style={styles.warningText}>{content.warningText}</Text>
+          <Text style={styles.warningTitle}>
+            {t(`comprehensiveNightRoutine.${contentMapping.warningTitleKey}`)}
+          </Text>
+          <Text style={styles.warningText}>
+            {t(`comprehensiveNightRoutine.${contentMapping.warningTipsKey}`)}
+          </Text>
         </View>
       </View>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('basicRoutine.see_products_button')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -253,6 +260,17 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   content: {
     flex: 1,

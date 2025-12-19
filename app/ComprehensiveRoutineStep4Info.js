@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -28,64 +30,6 @@ const SKIN_TYPE_INFO = {
   combination: { color: BRAND_COLORS.primary, name: 'Combination Skin' },
   normal: { color: '#9B59B6', name: 'Normal Skin' },
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
-};
-
-const STEP_4_CONTENT = {
-  oily: {
-    title: 'High-Performance Actives',
-    subtitle: 'Evening Step 4 (2-4x per week)',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Intensive Oil Control & Refinement',
-    introText: 'High-concentration niacinamide (5-10%) and retinol products provide advanced pore refinement and oil control. This is your power step for transformative results.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply 2-4 times per week in the evening after specialized treatment. Start with 2x per week and increase gradually. These concentrated actives work synergistically with your pore care routine.',
-    warningTitle: 'Important Guidelines',
-    warningText: 'Start slowly (2x per week)\nUse in evening only\nMandatory sunscreen during the day\nDo not combine multiple high-strength actives initially',
-  },
-  dry: {
-    title: 'Deep Hydration Boosters',
-    subtitle: 'Morning & Evening Step 4',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Multi-Level Hydration System',
-    introText: 'Multi-molecular weight hyaluronic acid and peptide treatments penetrate different skin depths for comprehensive hydration. This intensive layer ensures lasting moisture.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply morning and evening after hydrating essence, before moisturizer. Layer peptides first, then HA serums. This creates a hydration reservoir that sustains your barrier throughout the day.',
-    warningTitle: 'Application Strategy',
-    warningText: 'Apply on slightly damp skin\nLayer from thinnest to thickest\nFollow with occlusive moisturizer\nPerfect for twice-daily intensive hydration',
-  },
-  combination: {
-    title: 'Balancing Multi-Actives',
-    subtitle: 'Evening Step 4',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Advanced Zone Balancing',
-    introText: 'Moderate-strength niacinamide (5%) and lightweight retinol alternatives provide balanced treatment without over-treating any zone. This sophisticated approach maintains equilibrium.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply niacinamide serum on entire face 2-3x per week. On alternate nights, use lightweight retinol alternative on T-zone only. This prevents both oil overproduction and dry patch development.',
-    warningTitle: 'Zone Application',
-    warningText: 'Niacinamide: Full face 2-3x/week\nRetinol alternative: T-zone only\nNever combine on same night initially\nAdjust based on zone response',
-  },
-  normal: {
-    title: 'Advanced Anti-Aging Serums',
-    subtitle: 'Morning & Evening Step 4',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Professional Collagen Stimulation',
-    introText: 'Advanced vitamin C formulations (morning) and retinol products (evening) provide professional-level anti-aging benefits. Your healthy skin can handle these powerful actives.',
-    explanationTitle: 'How to use',
-    explanationText: 'Morning: Apply advanced vitamin C after antioxidant serum. Evening: Apply retinol 2-4x per week, starting slowly. Always follow with appropriate moisturizer and mandatory morning sunscreen.',
-    warningTitle: 'Professional Protocol',
-    warningText: 'AM: Vitamin C advanced formulations\nPM: Retinol 2-4x per week\nAlways use sunscreen (mandatory)\nResults visible after 12+ weeks',
-  },
-  sensitive: {
-    title: 'Intensive Barrier Support',
-    subtitle: 'Morning & Evening Step 4',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Deep Barrier Fortification',
-    introText: 'Concentrated centella asiatica and barrier repair ampoules provide intensive support for reactive skin. These gentle yet powerful ingredients strengthen your defense system.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply morning and evening after soothing serum, before moisturizer. Centella concentrates calm inflammation while barrier ampoules rebuild lipid structure. Safe for twice-daily intensive care.',
-    warningTitle: 'Gentle Intensive Care',
-    warningText: 'Safe for daily use\nNo irritation potential\nComplements all other steps\nIdeal for reactive skin strengthening',
-  },
 };
 
 function ComprehensiveRoutineStep4Info({ 
@@ -125,8 +69,126 @@ function ComprehensiveRoutineStep4Info({
     }
   };
 
+  const getTitle = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep4Info.high_performance');
+      case 'dry':
+        return t('comprehensiveRoutineStep4Info.deep_hydration');
+      case 'combination':
+        return t('comprehensiveRoutineStep4Info.balancing_multi');
+      case 'normal':
+        return t('comprehensiveRoutineStep4Info.advanced_anti_aging');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep4Info.intensive_barrier');
+      default:
+        return t('comprehensiveRoutineStep4Info.advanced_anti_aging');
+    }
+  };
+
+  const getSubtitle = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep4Info.evening_step_2_4x');
+      case 'dry':
+        return t('comprehensiveRoutineStep4Info.morning_evening_step');
+      case 'combination':
+        return t('comprehensiveRoutineStep4Info.evening_step');
+      case 'normal':
+        return t('comprehensiveRoutineStep4Info.morning_evening_step');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep4Info.morning_evening_step');
+      default:
+        return t('comprehensiveRoutineStep4Info.morning_evening_step');
+    }
+  };
+
+  const getIntroTitle = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep4Info.intensive_oil');
+      case 'dry':
+        return t('comprehensiveRoutineStep4Info.multi_level_hydration');
+      case 'combination':
+        return t('comprehensiveRoutineStep4Info.advanced_zone');
+      case 'normal':
+        return t('comprehensiveRoutineStep4Info.professional_collagen');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep4Info.deep_barrier');
+      default:
+        return t('comprehensiveRoutineStep4Info.professional_collagen');
+    }
+  };
+
+  const getIntroText = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep4Info.oily_intro');
+      case 'dry':
+        return t('comprehensiveRoutineStep4Info.dry_intro');
+      case 'combination':
+        return t('comprehensiveRoutineStep4Info.combo_intro');
+      case 'normal':
+        return t('comprehensiveRoutineStep4Info.normal_intro');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep4Info.sensitive_intro');
+      default:
+        return t('comprehensiveRoutineStep4Info.normal_intro');
+    }
+  };
+
+  const getExplanationText = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep4Info.oily_how');
+      case 'dry':
+        return t('comprehensiveRoutineStep4Info.dry_how');
+      case 'combination':
+        return t('comprehensiveRoutineStep4Info.combo_how');
+      case 'normal':
+        return t('comprehensiveRoutineStep4Info.normal_how');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep4Info.sensitive_how');
+      default:
+        return t('comprehensiveRoutineStep4Info.normal_how');
+    }
+  };
+
+  const getWarningTitle = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep4Info.important_guidelines');
+      case 'dry':
+        return t('comprehensiveRoutineStep4Info.application_strategy');
+      case 'combination':
+        return t('comprehensiveRoutineStep4Info.zone_application');
+      case 'normal':
+        return t('comprehensiveRoutineStep4Info.professional_protocol');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep4Info.gentle_intensive');
+      default:
+        return t('comprehensiveRoutineStep4Info.professional_protocol');
+    }
+  };
+
+  const getWarningText = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveRoutineStep4Info.oily_warning');
+      case 'dry':
+        return t('comprehensiveRoutineStep4Info.dry_warning');
+      case 'combination':
+        return t('comprehensiveRoutineStep4Info.combo_warning');
+      case 'normal':
+        return t('comprehensiveRoutineStep4Info.normal_warning');
+      case 'sensitive':
+        return t('comprehensiveRoutineStep4Info.sensitive_warning');
+      default:
+        return t('comprehensiveRoutineStep4Info.normal_warning');
+    }
+  };
+
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const content = STEP_4_CONTENT[skinType] || STEP_4_CONTENT.normal;
   const totalSteps = 5;
   const totalInternalSteps = 10;
 
@@ -147,11 +209,16 @@ function ComprehensiveRoutineStep4Info({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -170,7 +237,9 @@ function ComprehensiveRoutineStep4Info({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('comprehensiveRoutineStep4Info.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -188,37 +257,37 @@ function ComprehensiveRoutineStep4Info({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('comprehensiveRoutineStep4Info.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
             </Text>
           </View>
 
           <View style={styles.productHeader}>
             <View style={styles.productIconContainer}>
               <Image 
-                source={content.icon}
+                source={require('../assets/images/jar cream.png')}
                 style={styles.productIcon}
                 resizeMode="contain"
               />
             </View>
             <View style={styles.productTextContainer}>
-              <Text style={styles.productTitle}>{content.title}</Text>
-              <Text style={styles.productSubtitle}>{content.subtitle}</Text>
+              <Text style={styles.productTitle}>{getTitle()}</Text>
+              <Text style={styles.productSubtitle}>{getSubtitle()}</Text>
             </View>
           </View>
 
           <View style={styles.introBox}>
-            <Text style={styles.introTitle}>{content.introTitle}</Text>
-            <Text style={styles.introText}>{content.introText}</Text>
+            <Text style={styles.introTitle}>{getIntroTitle()}</Text>
+            <Text style={styles.introText}>{getIntroText()}</Text>
           </View>
 
           <View style={styles.explanationBox}>
-            <Text style={styles.explanationTitle}>{content.explanationTitle}</Text>
-            <Text style={styles.explanationText}>{content.explanationText}</Text>
+            <Text style={styles.explanationTitle}>{t('comprehensiveRoutineStep4Info.how_to_use')}</Text>
+            <Text style={styles.explanationText}>{getExplanationText()}</Text>
           </View>
 
           <View style={styles.warningBox}>
-            <Text style={styles.warningTitle}>{content.warningTitle}</Text>
-            <Text style={styles.warningText}>{content.warningText}</Text>
+            <Text style={styles.warningTitle}>{getWarningTitle()}</Text>
+            <Text style={styles.warningText}>{getWarningText()}</Text>
           </View>
 
           <View style={styles.bottomSpacing} />
@@ -227,7 +296,7 @@ function ComprehensiveRoutineStep4Info({
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('comprehensiveRoutineStep4Info.see_products')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -262,6 +331,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,

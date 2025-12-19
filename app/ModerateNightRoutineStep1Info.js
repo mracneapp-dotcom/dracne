@@ -3,13 +3,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
-  Linking,
+  ImageBackground,
   StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -88,11 +89,16 @@ export default function ModerateNightRoutineStep1Info({
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Night Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('nightRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('nightRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <View style={styles.content}>
@@ -106,7 +112,9 @@ export default function ModerateNightRoutineStep1Info({
               <Text style={styles.arrowText}>‹</Text>
             </TouchableOpacity>
 
-            <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+            <Text style={styles.progressText}>
+              {t('moderateNightRoutineStep1Info.step_of', { current: currentStep, total: totalSteps })}
+            </Text>
 
             <TouchableOpacity
               onPress={handleNextStep}
@@ -124,7 +132,7 @@ export default function ModerateNightRoutineStep1Info({
 
         <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
           <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-            For {skinTypeInfo.name}
+            {t('moderateNightRoutineStep1Info.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
           </Text>
         </View>
 
@@ -137,56 +145,35 @@ export default function ModerateNightRoutineStep1Info({
             />
           </View>
           <View style={styles.productTextContainer}>
-            <Text style={styles.productTitle}>Gentle Cleanser</Text>
-            <Text style={styles.productSubtitle}>Evening Step 1</Text>
+            <Text style={styles.productTitle}>{t('moderateNightRoutineStep1Info.product_title')}</Text>
+            <Text style={styles.productSubtitle}>{t('moderateNightRoutineStep1Info.evening_step_1')}</Text>
           </View>
         </View>
 
         <View style={styles.introBox}>
-          <Text style={styles.introTitle}>Curated for Your Skin</Text>
+          <Text style={styles.introTitle}>{t('moderateNightRoutineStep1Info.curated_title')}</Text>
           <Text style={styles.introText}>
-            We've selected gentle cleansers specifically for {skinTypeInfo.name.toLowerCase()}. Each product is proven effective and dermatologist-recommended for your evening routine.
+            {t('moderateNightRoutineStep1Info.curated_text', { skinType: t(`profile.skin_labels.${skinType}`).toLowerCase() })}
           </Text>
         </View>
 
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>Why this matters</Text>
+          <Text style={styles.explanationTitle}>{t('moderateNightRoutineStep1Info.why_matters')}</Text>
           <Text style={styles.explanationText}>
-            A gentle evening cleanser removes the day's buildup without stripping your skin. Look for low-pH formulas that leave skin clean but never tight, preparing it for overnight repair.
+            {t('moderateNightRoutineStep1Info.explanation')}
           </Text>
         </View>
 
         <View style={styles.citationContainer}>
           <Text style={styles.citationText}>
-            Evening cleanser recommendations based on{' '}
-            <Text 
-              style={styles.citationLink}
-              onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/care/face-washing-101')}
-            >
-              American Academy of Dermatology guidelines on proper face washing
-            </Text>
-            , research on{' '}
-            <Text 
-              style={styles.citationLink}
-              onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4158622/')}
-            >
-              optimal skin pH and barrier function
-            </Text>
-            , and clinical studies on{' '}
-            <Text 
-              style={styles.citationLink}
-              onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5849435/')}
-            >
-              evening cleansing for skin type-specific needs
-            </Text>
-            . Individual results may vary - consult a dermatologist for personalized advice.
+            {t('moderateNightRoutineStep1Info.citation')}
           </Text>
         </View>
       </View>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('moderateNightRoutineStep1Info.see_products')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -221,6 +208,21 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  bannerText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   content: {
     flex: 1,

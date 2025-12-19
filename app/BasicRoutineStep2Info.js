@@ -1,8 +1,9 @@
-// app/BasicRoutineStep2Info.js - COMPLETE WITH CITATIONS
+// app/BasicRoutineStep2Info.js - FULLY TRANSLATED WITH PROPER BANNER
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Linking,
   StyleSheet,
   Text,
@@ -10,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -23,11 +25,11 @@ const BRAND_COLORS = {
 };
 
 const SKIN_TYPE_INFO = {
-  oily: { color: '#4A90E2', name: 'Oily Skin' },
-  dry: { color: '#F39C12', name: 'Dry Skin' },
-  combination: { color: BRAND_COLORS.primary, name: 'Combination Skin' },
-  normal: { color: '#9B59B6', name: 'Normal Skin' },
-  sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
+  oily: { color: '#4A90E2' },
+  dry: { color: '#F39C12' },
+  combination: { color: BRAND_COLORS.primary },
+  normal: { color: '#9B59B6' },
+  sensitive: { color: BRAND_COLORS.primary },
 };
 
 export default function BasicRoutineStep2Info({ 
@@ -67,20 +69,25 @@ export default function BasicRoutineStep2Info({
     }
   };
 
+  // ✅ GET TRANSLATED SKIN TYPE NAME
+  const getTranslatedSkinTypeName = () => {
+    return t(`skinTypes.${skinType}`);
+  };
+
   const getProductTitle = () => {
-    if (skinType === 'oily') return 'Lightweight Gel-Cream';
-    if (skinType === 'dry') return 'Rich Moisturizer';
-    return 'Light/Medium Moisturizer';
+    if (skinType === 'oily') return t('basicRoutine.lightweight_gel_cream');
+    if (skinType === 'dry') return t('basicRoutine.rich_moisturizer');
+    return t('basicRoutine.light_medium_moisturizer');
   };
 
   const getExplanationText = () => {
     if (skinType === 'oily') {
-      return 'Lightweight gel-creams provide essential hydration without adding excess oil. Look for humectants like hyaluronic acid and glycerin with light occlusives like dimethicone or squalane.';
+      return t('basicRoutine.moisturizer_day_text_oily');
     }
     if (skinType === 'dry') {
-      return 'Rich moisturizers lock in hydration with nourishing ingredients. Look for ceramides, cholesterol, and richer occlusives like petrolatum or shea butter to strengthen your skin barrier.';
+      return t('basicRoutine.moisturizer_day_text_dry');
     }
-    return 'A balanced moisturizer provides optimal hydration without being too heavy or too light. Look for versatile formulas that adapt to your skin\'s needs.';
+    return t('basicRoutine.moisturizer_day_text_normal');
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -99,16 +106,22 @@ export default function BasicRoutineStep2Info({
         </TouchableOpacity>
       </View>
 
+      {/* ✅ FIXED: Day Routine Banner with Proper Two-Line Format */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Day Routine 1.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
+        <ImageBackground
+          source={require('../assets/images/banner-day-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.dayRoutineBannerTextContainer}>
+            <Text style={styles.dayRoutineLine1}>{t('dayRoutineBanners.line1')}</Text>
+            <Text style={styles.dayRoutineLine2}>{t('dayRoutineBanners.line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <View style={styles.content}>
@@ -122,7 +135,9 @@ export default function BasicRoutineStep2Info({
               <Text style={styles.arrowText}>‹</Text>
             </TouchableOpacity>
 
-            <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+            <Text style={styles.progressText}>
+              {t('basicRoutine.step_of', { current: currentStep, total: totalSteps })}
+            </Text>
 
             <TouchableOpacity
               onPress={handleNextStep}
@@ -138,9 +153,10 @@ export default function BasicRoutineStep2Info({
           </View>
         </View>
 
+        {/* ✅ FIXED: Skin type badge with translated name */}
         <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
           <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-            For {skinTypeInfo.name}
+            {t('basicRoutine.for_skin', { skinType: getTranslatedSkinTypeName() })}
           </Text>
         </View>
 
@@ -154,19 +170,19 @@ export default function BasicRoutineStep2Info({
           </View>
           <View style={styles.productTextContainer}>
             <Text style={styles.productTitle}>{getProductTitle()}</Text>
-            <Text style={styles.productSubtitle}>Morning Step 2</Text>
+            <Text style={styles.productSubtitle}>{t('basicRoutine.morning_step_2')}</Text>
           </View>
         </View>
 
         <View style={styles.introBox}>
-          <Text style={styles.introTitle}>Curated for Your Skin</Text>
+          <Text style={styles.introTitle}>{t('basicRoutine.curated_title')}</Text>
           <Text style={styles.introText}>
-            We've selected moisturizers specifically for {skinTypeInfo.name.toLowerCase()}. Each product is proven effective and dermatologist-recommended for your skin type.
+            {t('basicRoutine.curated_text_moisturizers', { skinType: getTranslatedSkinTypeName().toLowerCase() })}
           </Text>
         </View>
 
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>Why this matters</Text>
+          <Text style={styles.explanationTitle}>{t('basicRoutine.why_this_matters')}</Text>
           <Text style={styles.explanationText}>
             {getExplanationText()}
           </Text>
@@ -174,35 +190,35 @@ export default function BasicRoutineStep2Info({
 
         <View style={styles.citationContainer}>
           <Text style={styles.citationText}>
-            Morning moisturizer recommendations based on research on{' '}
+            {t('basicRoutine.citation_moisturizer_part1')}{' '}
             <Text 
               style={styles.citationLink}
               onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6628577/')}
             >
-              skin barrier function and hydration
+              {t('basicRoutine.citation_moisturizer_link1')}
             </Text>
-            , clinical studies on{' '}
+            {t('basicRoutine.citation_moisturizer_part2')}{' '}
             <Text 
               style={styles.citationLink}
               onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(03)02617-4/fulltext')}
             >
-              trans-epidermal water loss prevention
+              {t('basicRoutine.citation_moisturizer_link2')}
             </Text>
-            , and guidelines from the{' '}
+            {t('basicRoutine.citation_moisturizer_part3')}{' '}
             <Text 
               style={styles.citationLink}
               onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/dry/dermatologists-tips-relieve-dry-skin')}
             >
-              American Academy of Dermatology on daily moisturization
+              {t('basicRoutine.citation_moisturizer_link3')}
             </Text>
-            . Individual results may vary - consult a dermatologist for personalized advice.
+            {t('basicRoutine.citation_moisturizer_part4')}
           </Text>
         </View>
       </View>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('basicRoutine.see_products_button')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -234,9 +250,44 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  // ✅ FIXED: Day Routine Banner Text Styles - Proper Two-Line Format
+  dayRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 10,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  dayRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  dayRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,
+    includeFontPadding: false,
   },
   content: {
     flex: 1,

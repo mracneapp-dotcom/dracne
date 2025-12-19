@@ -1,14 +1,15 @@
-// app/Test1Part2Screen.js - End-of-Day Check Part 2 (Modern Design)
+// app/Test1Part2Screen.js - UPDATED WITH i18n
 import React, { useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -32,12 +33,12 @@ export const Test1Part2Screen = ({
 
   const question = {
     id: 'appearance',
-    question: 'How does your skin look?',
+    question: t('test1Part2.question'),
     options: [
-      { id: 'very_shiny', text: 'Very shiny, especially T-zone', points: 4 },
-      { id: 'some_shine', text: 'Some shine on forehead/nose', points: 3 },
-      { id: 'matte', text: 'Matte and even', points: 2 },
-      { id: 'dull_flaky', text: 'Dull or flaky patches', points: 1 }
+      { id: 'very_shiny', text: t('test1Part2.option_1'), points: 4 },
+      { id: 'some_shine', text: t('test1Part2.option_2'), points: 3 },
+      { id: 'matte', text: t('test1Part2.option_3'), points: 2 },
+      { id: 'dull_flaky', text: t('test1Part2.option_4'), points: 1 }
     ]
   };
 
@@ -104,10 +105,10 @@ export const Test1Part2Screen = ({
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>
-              End-of-Day <Text style={styles.titleHighlight}>Check</Text>
+              {t('test1Part2.title')} <Text style={styles.titleHighlight}>{t('test1Part2.title_highlight')}</Text>
             </Text>
             <Text style={styles.subtitle}>
-              Question 2 of 2
+              {t('test1Part2.subtitle')}
             </Text>
           </View>
 
@@ -145,7 +146,7 @@ export const Test1Part2Screen = ({
           {/* Continue Button */}
           <View style={styles.buttonContainer}>
             <DrAcneButton
-              title={selectedAnswer ? "Reveal My Skin Type (2/2)" : "Answer question (1/2)"}
+              title={selectedAnswer ? t('test1Part2.button_reveal') : t('test1Part2.button_answer')}
               onPress={handleContinue}
               disabled={!selectedAnswer}
               style={styles.continueButton}

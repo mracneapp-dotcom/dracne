@@ -3,12 +3,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
     Image,
+    ImageBackground,
     StyleSheet,
     Text,
     TouchableOpacity,
     View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -87,11 +89,16 @@ export default function ComprehensiveRoutineStep1Info({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <View style={styles.content}>
@@ -105,7 +112,9 @@ export default function ComprehensiveRoutineStep1Info({
               <Text style={styles.arrowText}>‹</Text>
             </TouchableOpacity>
 
-            <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+            <Text style={styles.progressText}>
+              {t('comprehensiveRoutineStep1Info.step_of', { current: currentStep, total: totalSteps })}
+            </Text>
 
             <TouchableOpacity
               onPress={handleNextStep}
@@ -123,7 +132,7 @@ export default function ComprehensiveRoutineStep1Info({
 
         <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
           <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-            For {skinTypeInfo.name}
+            {t('comprehensiveRoutineStep1Info.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
           </Text>
         </View>
 
@@ -136,29 +145,29 @@ export default function ComprehensiveRoutineStep1Info({
             />
           </View>
           <View style={styles.productTextContainer}>
-            <Text style={styles.productTitle}>Gentle Cleanser</Text>
-            <Text style={styles.productSubtitle}>Morning Step 1</Text>
+            <Text style={styles.productTitle}>{t('basicRoutine.gentle_cleanser')}</Text>
+            <Text style={styles.productSubtitle}>{t('comprehensiveRoutineStep2Info.morning_step')} 1</Text>
           </View>
         </View>
 
         <View style={styles.introBox}>
-          <Text style={styles.introTitle}>Professional-Grade Selection</Text>
+          <Text style={styles.introTitle}>{t('comprehensiveRoutineStep1Info.professional_selection')}</Text>
           <Text style={styles.introText}>
-            We've selected cleansers specifically for {skinTypeInfo.name.toLowerCase()}. Each product is dermatologist-recommended and proven effective for intensive skincare routines.
+            {t('comprehensiveRoutineStep1Info.selection_text', { skinType: t(`profile.skin_labels.${skinType}`) })}
           </Text>
         </View>
 
         <View style={styles.explanationBox}>
-          <Text style={styles.explanationTitle}>Why this matters</Text>
+          <Text style={styles.explanationTitle}>{t('comprehensiveRoutineStep1Info.why_matters')}</Text>
           <Text style={styles.explanationText}>
-            A gentle cleanser removes impurities without stripping your skin's natural moisture. Look for low-pH formulas (pH 4.5-6.5) that leave skin clean but never tight.
+            {t('comprehensiveRoutineStep1Info.why_text')}
           </Text>
         </View>
       </View>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('comprehensiveRoutineStep1Info.see_products')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -193,6 +202,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   content: {
     flex: 1,

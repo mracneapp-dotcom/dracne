@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
-  Linking,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -89,11 +90,16 @@ export default function ModerateRoutineStep4Info({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -112,7 +118,9 @@ export default function ModerateRoutineStep4Info({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('moderateRoutineStep4Info.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -130,7 +138,7 @@ export default function ModerateRoutineStep4Info({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('moderateRoutineStep4Info.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
             </Text>
           </View>
 
@@ -143,59 +151,35 @@ export default function ModerateRoutineStep4Info({
               />
             </View>
             <View style={styles.productTextContainer}>
-              <Text style={styles.productTitle}>Sunscreen (SPF 30+)</Text>
-              <Text style={styles.productSubtitle}>Morning Final Step</Text>
+              <Text style={styles.productTitle}>{t('moderateRoutineStep4Info.product_title')}</Text>
+              <Text style={styles.productSubtitle}>{t('moderateRoutineStep4Info.morning_final_step')}</Text>
             </View>
           </View>
 
           <View style={styles.introBox}>
-            <Text style={styles.introTitle}>Most Important Step</Text>
+            <Text style={styles.introTitle}>{t('moderateRoutineStep4Info.most_important')}</Text>
             <Text style={styles.introText}>
-              Sunscreen is the number one anti-aging and skin protection step. We've selected SPF 30+ options that work perfectly for {skinTypeInfo.name.toLowerCase()}.
+              {t('moderateRoutineStep4Info.intro_text', { skinType: skinTypeInfo.name.toLowerCase() })}
             </Text>
           </View>
 
           <View style={styles.explanationBox}>
-            <Text style={styles.explanationTitle}>Why this matters</Text>
+            <Text style={styles.explanationTitle}>{t('moderateRoutineStep4Info.why_matters')}</Text>
             <Text style={styles.explanationText}>
-              Apply 2-3 fingers worth for face and neck. Never mix with skincare or makeup - it must be a standalone layer for full protection. Reapply every 2 hours when exposed to sun.
+              {t('moderateRoutineStep4Info.explanation')}
             </Text>
           </View>
 
           <View style={styles.warningBox}>
-            <Text style={styles.warningTitle}>Critical Application Rules</Text>
+            <Text style={styles.warningTitle}>{t('moderateRoutineStep4Info.critical_rules')}</Text>
             <Text style={styles.warningText}>
-              Use enough: 2-3 fingers worth (most people use only 25%){'\n'}
-              Apply as final step - never mix with other products{'\n'}
-              Wait 15 minutes before sun exposure{'\n'}
-              Reapply every 2 hours outdoors
+              {t('moderateRoutineStep4Info.warning_text')}
             </Text>
           </View>
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Sunscreen recommendations based on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.fda.gov/drugs/understanding-over-counter-medicines/sunscreen-how-help-protect-your-skin-sun')}
-              >
-                FDA guidance on sunscreen application and SPF protection
-              </Text>
-              , research on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/sun-protection/sunscreen/how-to-apply-sunscreen')}
-              >
-                proper application amounts from the American Academy of Dermatology
-              </Text>
-              , and clinical studies on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3543289/')}
-              >
-                sunscreen efficacy and photoprotection
-              </Text>
-              . Daily sunscreen use is essential - consult a dermatologist for personalized skin protection advice.
+              {t('moderateRoutineStep4Info.citation')}
             </Text>
           </View>
 
@@ -205,7 +189,7 @@ export default function ModerateRoutineStep4Info({
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('moderateRoutineStep4Info.see_products')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -240,6 +224,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,

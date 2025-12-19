@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -19,29 +20,29 @@ const BRAND_COLORS = {
 const TIMELINE_OPTIONS = [
   {
     id: 'asap',
-    label: 'As soon as possible',
-    description: 'I want results fast',
+    labelKey: 'onboarding.timeline.asap',
+    descKey: 'onboarding.timeline.asap_desc',
     icon: require('../../assets/images/thunder.png'),
     color: BRAND_COLORS.secondary,
   },
   {
     id: 'months_3',
-    label: 'Within 3 months',
-    description: 'Steady, sustainable progress',
+    labelKey: 'onboarding.timeline.months_3',
+    descKey: 'onboarding.timeline.months_3_desc',
     icon: require('../../assets/images/check.png'),
     color: BRAND_COLORS.primary,
   },
   {
     id: 'months_6',
-    label: 'Within 6 months',
-    description: 'Long-term transformation',
+    labelKey: 'onboarding.timeline.months_6',
+    descKey: 'onboarding.timeline.months_6_desc',
     icon: require('../../assets/images/check.png'),
     color: '#4A90E2',
   },
   {
     id: 'no_rush',
-    label: 'No rush',
-    description: "I'm focused on consistency", // ✓ FIXED: Escaped apostrophe with double quotes
+    labelKey: 'onboarding.timeline.no_rush',
+    descKey: 'onboarding.timeline.no_rush_desc',
     icon: require('../../assets/images/check.png'),
     color: '#9B59B6',
   },
@@ -65,10 +66,10 @@ export default function OnboardingTimeline({ onNext }) {
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            When do you want to see <Text style={styles.titleHighlight}>results?</Text>
+            {t('onboarding.timeline.title1')} <Text style={styles.titleHighlight}>{t('onboarding.timeline.title2')}</Text>
           </Text>
           <Text style={styles.subtitle}>
-            This helps us set realistic expectations
+            {t('onboarding.timeline.subtitle')}
           </Text>
         </View>
 
@@ -106,9 +107,9 @@ export default function OnboardingTimeline({ onNext }) {
                     styles.optionLabel,
                     isSelected && { color: option.color, fontWeight: '600' }
                   ]}>
-                    {option.label}
+                    {t(option.labelKey)}
                   </Text>
-                  <Text style={styles.optionDescription}>{option.description}</Text>
+                  <Text style={styles.optionDescription}>{t(option.descKey)}</Text>
                 </View>
               </TouchableOpacity>
             );
@@ -129,10 +130,10 @@ export default function OnboardingTimeline({ onNext }) {
             styles.continueButtonText,
             !selectedTimeline && styles.continueButtonTextDisabled
           ]}>
-            Continue
+            {t('onboarding.timeline.button')}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.helperText}>Select your timeline</Text>
+        <Text style={styles.helperText}>{t('onboarding.timeline.helper')}</Text>
       </View>
     </View>
   );

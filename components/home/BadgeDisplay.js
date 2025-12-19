@@ -1,6 +1,7 @@
-// components/home/BadgeDisplay.js - UPDATED COMPACT LAYOUT
+// components/home/BadgeDisplay.js - WITH SPANISH I18N
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { t } from '../../app/i18n';
 import { getLatestBadges } from '../../app/utils/progressManager';
 import { BadgeCard } from '../badges/BadgeCard';
 
@@ -33,7 +34,7 @@ export const BadgeDisplay = ({ onViewAllPress, onBadgePress }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Latest Badges:</Text>
+      <Text style={styles.title}>{t('home.badges.latest')}</Text>
       
       <View style={styles.badgesRow}>
         {displayBadges.map((badge, index) => (

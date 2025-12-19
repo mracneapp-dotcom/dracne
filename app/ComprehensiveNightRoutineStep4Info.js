@@ -1,15 +1,16 @@
-// app/ComprehensiveNightRoutineStep4Info.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -28,64 +29,6 @@ const SKIN_TYPE_INFO = {
   combination: { color: BRAND_COLORS.primary, name: 'Combination Skin' },
   normal: { color: '#9B59B6', name: 'Normal Skin' },
   sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
-};
-
-const STEP_4_CONTENT = {
-  oily: {
-    title: 'Advanced Evening Treatment',
-    subtitle: 'Night Step 4 (2-3x per week)',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Intensive Pore Refinement',
-    introText: 'Retinoids provide powerful pore refinement and texture improvement for oily skin. Start slowly and buffer if needed to build tolerance.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply 2-3 times per week after pore care treatment. Consider adapalene if acne-prone. Always use sandwich method: moisturizer → wait 5 min → retinoid → wait → moisturizer.',
-    warningTitle: 'Important Guidelines',
-    warningText: 'Start 2-3x per week\nUse in evening only\nMandatory SPF during day\nNo waxing while using retinoids',
-  },
-  dry: {
-    title: 'Restorative Night Treatment',
-    subtitle: 'Night Step 4',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Deep Repair & Renewal',
-    introText: 'Buffered retinoids or peptide serums provide anti-aging benefits while supporting barrier health. Choose peptides if skin is too reactive for retinoids.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply after hydrating essence. If using retinoid, buffer heavily: moisturizer → wait → retinoid → rich cream. Peptides can be used more frequently without buffering.',
-    warningTitle: 'Gentle Approach',
-    warningText: 'Always buffer retinoids on dry skin\nPeptides are gentler alternative\nUse rich moisturizer on top\nMonitor for any irritation',
-  },
-  combination: {
-    title: 'Zone-Targeted Night Treatment',
-    subtitle: 'Night Step 4',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Balanced Evening Care',
-    introText: 'Zone-specific retinoid application provides targeted treatment without over-drying. Buffer on dry areas, lighter application on T-zone.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply retinoid lightly on T-zone, buffer heavily on dry cheek areas. This zone-specific approach prevents over-treatment while providing benefits where needed.',
-    warningTitle: 'Zone Application',
-    warningText: 'T-zone: lighter application\nCheeks: buffer with moisturizer\nStart 2-3x per week\nAdjust based on zone response',
-  },
-  normal: {
-    title: 'Premium Night Treatment',
-    subtitle: 'Night Step 4',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Professional Anti-Aging Care',
-    introText: 'Your healthy skin can handle potent retinoids or peptide night creams for maximum anti-aging benefits. Choose based on tolerance and goals.',
-    explanationTitle: 'How to use',
-    explanationText: 'Start with retinoid 2-3 times per week, increasing as tolerated. Peptide night creams can be used more frequently. Results visible after 12+ weeks of consistent use.',
-    warningTitle: 'Advanced Protocol',
-    warningText: 'Build tolerance gradually\nAlways use SPF during day\nResults take 12+ weeks\nConsistent use is key',
-  },
-  sensitive: {
-    title: 'Ultra-Gentle Night Boost',
-    subtitle: 'Night Step 4',
-    icon: require('../assets/images/jar cream.png'),
-    introTitle: 'Barrier-Friendly Enhancement',
-    introText: 'Rich ceramide creams or gentle bakuchiol alternatives provide benefits without irritation. Postpone traditional retinoids until barrier stays consistently calm.',
-    explanationTitle: 'How to use',
-    explanationText: 'Apply after soothing serum. Ceramide creams strengthen barrier while gentle peptides or bakuchiol provide mild anti-aging benefits without retinoid irritation risk.',
-    warningTitle: 'Safety First',
-    warningText: 'Avoid traditional retinoids until barrier stable\nBakuchiol is gentle alternative\nFocus on barrier support\nResults come slowly but safely',
-  },
 };
 
 export default function ComprehensiveNightRoutineStep4Info({ 
@@ -125,8 +68,109 @@ export default function ComprehensiveNightRoutineStep4Info({
     }
   };
 
+  const getTitle = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveNightStep4Info.advanced_treatment');
+      case 'dry':
+        return t('comprehensiveNightStep4Info.restorative_treatment');
+      case 'combination':
+        return t('comprehensiveNightStep4Info.zone_treatment');
+      case 'normal':
+        return t('comprehensiveNightStep4Info.premium_treatment');
+      case 'sensitive':
+        return t('comprehensiveNightStep4Info.gentle_boost');
+      default:
+        return t('comprehensiveNightStep4Info.premium_treatment');
+    }
+  };
+
+  const getIntroTitle = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveNightStep4Info.intensive_title');
+      case 'dry':
+        return t('comprehensiveNightStep4Info.repair_title');
+      case 'combination':
+        return t('comprehensiveNightStep4Info.balanced_title');
+      case 'normal':
+        return t('comprehensiveNightStep4Info.professional_title');
+      case 'sensitive':
+        return t('comprehensiveNightStep4Info.barrier_title');
+      default:
+        return t('comprehensiveNightStep4Info.professional_title');
+    }
+  };
+
+  const getIntroText = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveNightStep4Info.intensive_text');
+      case 'dry':
+        return t('comprehensiveNightStep4Info.repair_text');
+      case 'combination':
+        return t('comprehensiveNightStep4Info.balanced_text');
+      case 'normal':
+        return t('comprehensiveNightStep4Info.professional_text');
+      case 'sensitive':
+        return t('comprehensiveNightStep4Info.barrier_text');
+      default:
+        return t('comprehensiveNightStep4Info.professional_text');
+    }
+  };
+
+  const getExplanationText = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveNightStep4Info.oily_how');
+      case 'dry':
+        return t('comprehensiveNightStep4Info.dry_how');
+      case 'combination':
+        return t('comprehensiveNightStep4Info.combo_how');
+      case 'normal':
+        return t('comprehensiveNightStep4Info.normal_how');
+      case 'sensitive':
+        return t('comprehensiveNightStep4Info.sensitive_how');
+      default:
+        return t('comprehensiveNightStep4Info.normal_how');
+    }
+  };
+
+  const getWarningTitle = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveNightStep4Info.guidelines');
+      case 'dry':
+        return t('comprehensiveNightStep4Info.gentle_approach');
+      case 'combination':
+        return t('comprehensiveNightStep4Info.zone_application');
+      case 'normal':
+        return t('comprehensiveNightStep4Info.advanced_protocol');
+      case 'sensitive':
+        return t('comprehensiveNightStep4Info.safety_first');
+      default:
+        return t('comprehensiveNightStep4Info.advanced_protocol');
+    }
+  };
+
+  const getWarningText = () => {
+    switch (skinType) {
+      case 'oily':
+        return t('comprehensiveNightStep4Info.oily_warning');
+      case 'dry':
+        return t('comprehensiveNightStep4Info.dry_warning');
+      case 'combination':
+        return t('comprehensiveNightStep4Info.combo_warning');
+      case 'normal':
+        return t('comprehensiveNightStep4Info.normal_warning');
+      case 'sensitive':
+        return t('comprehensiveNightStep4Info.sensitive_warning');
+      default:
+        return t('comprehensiveNightStep4Info.normal_warning');
+    }
+  };
+
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
-  const content = STEP_4_CONTENT[skinType] || STEP_4_CONTENT.normal;
   const totalSteps = 4;
   const totalInternalSteps = 8;
 
@@ -147,11 +191,16 @@ export default function ComprehensiveNightRoutineStep4Info({
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Night Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('nightRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('nightRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -170,7 +219,9 @@ export default function ComprehensiveNightRoutineStep4Info({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('comprehensiveNightStep4Info.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -188,37 +239,37 @@ export default function ComprehensiveNightRoutineStep4Info({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('comprehensiveNightStep4Info.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
             </Text>
           </View>
 
           <View style={styles.productHeader}>
             <View style={styles.productIconContainer}>
               <Image 
-                source={content.icon}
+                source={require('../assets/images/jar cream.png')}
                 style={styles.productIcon}
                 resizeMode="contain"
               />
             </View>
             <View style={styles.productTextContainer}>
-              <Text style={styles.productTitle}>{content.title}</Text>
-              <Text style={styles.productSubtitle}>{content.subtitle}</Text>
+              <Text style={styles.productTitle}>{getTitle()}</Text>
+              <Text style={styles.productSubtitle}>{t('comprehensiveNightStep4Info.night_step')}</Text>
             </View>
           </View>
 
           <View style={styles.introBox}>
-            <Text style={styles.introTitle}>{content.introTitle}</Text>
-            <Text style={styles.introText}>{content.introText}</Text>
+            <Text style={styles.introTitle}>{getIntroTitle()}</Text>
+            <Text style={styles.introText}>{getIntroText()}</Text>
           </View>
 
           <View style={styles.explanationBox}>
-            <Text style={styles.explanationTitle}>{content.explanationTitle}</Text>
-            <Text style={styles.explanationText}>{content.explanationText}</Text>
+            <Text style={styles.explanationTitle}>{t('comprehensiveNightStep4Info.how_to_use')}</Text>
+            <Text style={styles.explanationText}>{getExplanationText()}</Text>
           </View>
 
           <View style={styles.warningBox}>
-            <Text style={styles.warningTitle}>{content.warningTitle}</Text>
-            <Text style={styles.warningText}>{content.warningText}</Text>
+            <Text style={styles.warningTitle}>{getWarningTitle()}</Text>
+            <Text style={styles.warningText}>{getWarningText()}</Text>
           </View>
 
           <View style={styles.bottomSpacing} />
@@ -227,7 +278,7 @@ export default function ComprehensiveNightRoutineStep4Info({
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('comprehensiveNightStep4Info.see_products')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -262,6 +313,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,

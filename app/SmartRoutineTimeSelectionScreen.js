@@ -1,13 +1,14 @@
-// app/SmartRoutineTimeSelectionScreen.js - SELECT DAY OR NIGHT
+// app/SmartRoutineTimeSelectionScreen.js - UPDATED WITH i18n
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -51,7 +52,7 @@ export default function SmartRoutineTimeSelectionScreen({
   if (!concernData) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorText}>Concern data not found</Text>
+        <Text style={styles.errorText}>{t('smartRoutineTimeSelection.error')}</Text>
       </View>
     );
   }
@@ -77,8 +78,10 @@ export default function SmartRoutineTimeSelectionScreen({
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.title}>When would you like to apply this treatment?</Text>
-          <Text style={styles.subtitle}>Choose the best time to target {concernData.name.toLowerCase()}</Text>
+          <Text style={styles.title}>{t('smartRoutineTimeSelection.title')}</Text>
+          <Text style={styles.subtitle}>
+            {t('smartRoutineTimeSelection.subtitle', { concernName: concernData.name.toLowerCase() })}
+          </Text>
         </View>
 
         <View style={styles.timeOptionsContainer}>
@@ -98,10 +101,10 @@ export default function SmartRoutineTimeSelectionScreen({
               />
             </View>
             <Text style={[styles.timeTitle, selectedTime === 'morning' && { color: concernData.color }]}>
-              Morning Routine
+              {t('smartRoutineTimeSelection.morning_title')}
             </Text>
             <Text style={styles.timeDescription}>
-              Apply after cleansing, before moisturizer and SPF
+              {t('smartRoutineTimeSelection.morning_description')}
             </Text>
             {selectedTime === 'morning' && (
               <View style={[styles.checkmark, { backgroundColor: concernData.color }]}>
@@ -126,10 +129,10 @@ export default function SmartRoutineTimeSelectionScreen({
               />
             </View>
             <Text style={[styles.timeTitle, selectedTime === 'evening' && { color: concernData.color }]}>
-              Evening Routine
+              {t('smartRoutineTimeSelection.evening_title')}
             </Text>
             <Text style={styles.timeDescription}>
-              Apply after cleansing, before night moisturizer
+              {t('smartRoutineTimeSelection.evening_description')}
             </Text>
             {selectedTime === 'evening' && (
               <View style={[styles.checkmark, { backgroundColor: concernData.color }]}>
@@ -146,20 +149,20 @@ export default function SmartRoutineTimeSelectionScreen({
             resizeMode="contain"
           />
           <Text style={styles.infoText}>
-            Evening application is often recommended for active treatments, as your skin repairs itself overnight and you avoid sun exposure.
+            {t('smartRoutineTimeSelection.info_text')}
           </Text>
         </View>
       </View>
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title={selectedTime ? "Continue to Products" : "Select Time of Day"}
+          title={selectedTime ? t('smartRoutineTimeSelection.button_continue') : t('smartRoutineTimeSelection.button_select')}
           onPress={handleContinue}
           disabled={!selectedTime}
           style={[styles.continueButton, !selectedTime && styles.continueButtonDisabled]}
         />
         <TouchableOpacity onPress={onNavigateBack} style={styles.backLink}>
-          <Text style={styles.backLinkText}>Back</Text>
+          <Text style={styles.backLinkText}>{t('smartRoutineTimeSelection.back_link')}</Text>
         </TouchableOpacity>
       </View>
     </View>

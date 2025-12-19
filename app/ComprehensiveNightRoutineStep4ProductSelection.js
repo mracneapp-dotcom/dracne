@@ -1,8 +1,9 @@
-// app/ComprehensiveNightRoutineStep4ProductSelection.js - WITH CITATIONS
+// app/ComprehensiveNightRoutineStep4ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Linking,
   ScrollView,
   StyleSheet,
@@ -12,6 +13,7 @@ import {
 } from 'react-native';
 import RoutineCompletionModal from '../components/modals/RoutineCompletionModal';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -195,22 +197,6 @@ const STEP_4_PRODUCTS = {
   ],
 };
 
-const STEP_4_TITLES = {
-  oily: 'Advanced Evening Treatments',
-  dry: 'Restorative Night Treatments',
-  combination: 'Zone-Targeted Treatments',
-  normal: 'Premium Night Treatments',
-  sensitive: 'Ultra-Gentle Night Boost',
-};
-
-const STEP_4_EXPLANATIONS = {
-  oily: 'Choose 1 advanced treatment to use 2-3 times per week. Retinoids provide powerful pore refinement. Start slowly and buffer if needed to build tolerance.',
-  dry: 'Choose 1 treatment: buffered retinoid OR peptide serum. Peptides are gentler and can be used more frequently. Always layer with rich moisturizer on top.',
-  combination: 'Choose 1 treatment for zone-specific application. Apply lightly on T-zone, buffer heavily on dry cheeks. This balanced approach prevents over-treatment.',
-  normal: 'Choose 1 advanced treatment for maximum anti-aging benefits. Your healthy skin can handle potent actives. Start 2-3x per week and increase as tolerated.',
-  sensitive: 'Choose 1 ultra-gentle treatment. Focus on barrier support with ceramides or try bakuchiol instead of traditional retinoids. Postpone retinoids until barrier is consistently calm.',
-};
-
 export default function ComprehensiveNightRoutineStep4ProductSelection({ 
   onNavigateHome,
   onNavigateToNightRoutine,
@@ -314,9 +300,9 @@ export default function ComprehensiveNightRoutineStep4ProductSelection({
 
   const getButtonText = () => {
     if (selectedProducts.length === 0) {
-      return 'Choose My Advanced Treatment';
+      return t('comprehensiveNightRoutine.choose_advanced_treatment');
     } else {
-      return 'Complete My Comprehensive Night Routine';
+      return t('comprehensiveNightRoutine.complete_comprehensive_night');
     }
   };
 
@@ -342,11 +328,13 @@ export default function ComprehensiveNightRoutineStep4ProductSelection({
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
+        <ImageBackground
+          source={require('../assets/images/banner-night-routine-base.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <Text style={styles.bannerText}>{t('routines.night_routine')}</Text>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -365,7 +353,9 @@ export default function ComprehensiveNightRoutineStep4ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('basicRoutine.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -386,21 +376,23 @@ export default function ComprehensiveNightRoutineStep4ProductSelection({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('basicRoutine.for_skin', { skinType: skinTypeInfo.name })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>{STEP_4_TITLES[skinType]}</Text>
+          <Text style={styles.sectionTitle}>
+            {t(`comprehensiveNightRoutine.step_4_titles.${skinType}`)}
+          </Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              {STEP_4_EXPLANATIONS[skinType]}
+              {t(`comprehensiveNightRoutine.step_4_explanations.${skinType}`)}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Select 1 Product {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
+              {t('comprehensiveNightRoutine.select_1_product')} {selectedProducts.length > 0 && `(${selectedProducts.length} ${t('basicRoutine.selected')})`}
             </Text>
             
             {products.map((product) => {
@@ -442,7 +434,9 @@ export default function ComprehensiveNightRoutineStep4ProductSelection({
 
           {selectedProducts.length === 0 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select 1 product to complete your comprehensive night routine</Text>
+              <Text style={styles.helperText}>
+                {t('comprehensiveNightRoutine.select_1_complete_routine')}
+              </Text>
             </View>
           )}
 
@@ -524,6 +518,17 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,

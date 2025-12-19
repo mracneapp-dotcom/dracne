@@ -1,15 +1,13 @@
 // app/onboardingScreens/OnboardingStruggle.js
 import React, { useState } from 'react';
 import {
-  Dimensions,
   Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-
-const { width } = Dimensions.get('window');
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -17,71 +15,65 @@ const BRAND_COLORS = {
   cream: '#FDF5E6',
   black: '#000000',
   white: '#FFFFFF',
-  gray: '#999999',
-  darkGray: '#666666',
-  lightGray: '#E5E5E5',
 };
 
 const STRUGGLE_OPTIONS = [
-  { 
-    id: 'breakouts', 
-    label: 'Breakouts won\'t stop',
-    description: 'Persistent acne issues',
+  {
+    id: 'breakouts',
+    labelKey: 'onboarding.struggle.breakouts',
+    descKey: 'onboarding.struggle.breakouts_desc',
     icon: require('../../assets/images/no_icon.png'),
     color: BRAND_COLORS.secondary,
   },
-  { 
-    id: 'nothing_works', 
-    label: 'Nothing seems to work',
-    description: 'Tried many products',
+  {
+    id: 'nothing_works',
+    labelKey: 'onboarding.struggle.nothing_works',
+    descKey: 'onboarding.struggle.nothing_works_desc',
+    icon: require('../../assets/images/no_icon.png'),
+    color: '#E74C3C',
+  },
+  {
+    id: 'too_many',
+    labelKey: 'onboarding.struggle.too_many',
+    descKey: 'onboarding.struggle.too_many_desc',
     icon: require('../../assets/images/no_icon.png'),
     color: '#F39C12',
   },
-  { 
-    id: 'too_many_options', 
-    label: 'Too many options, I\'m overwhelmed',
-    description: 'Need guidance',
+  {
+    id: 'dont_know',
+    labelKey: 'onboarding.struggle.dont_know',
+    descKey: 'onboarding.struggle.dont_know_desc',
     icon: require('../../assets/images/no_icon.png'),
     color: '#9B59B6',
-  },
-  { 
-    id: 'dont_know', 
-    label: 'Don\'t know where to start',
-    description: 'New to skincare',
-    icon: require('../../assets/images/no_icon.png'),
-    color: '#4A90E2',
   },
 ];
 
 export default function OnboardingStruggle({ onNext }) {
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedStruggle, setSelectedStruggle] = useState(null);
 
-  const handleOptionSelect = (option) => {
-    setSelectedOption(option);
+  const handleSelect = (struggleId) => {
+    setSelectedStruggle(struggleId);
   };
 
   const handleContinue = () => {
-    if (selectedOption) {
-      onNext('onboardingBarrierHealth1', { struggle: selectedOption });
+    if (selectedStruggle) {
+      onNext('onboardingBarrierHealth1', { struggle: selectedStruggle });
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Main Content */}
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            What's your biggest <Text style={styles.titleHighlight}>skin frustration?</Text>
+            {t('onboarding.struggle.title')} <Text style={styles.titleHighlight}>{t('onboarding.struggle.titleHighlight')}</Text>
           </Text>
-          <Text style={styles.subtitle}>
-            Let's tackle what's bothering you most
-          </Text>
+          <Text style={styles.subtitle}>{t('onboarding.struggle.subtitle')}</Text>
         </View>
 
         <View style={styles.optionsContainer}>
           {STRUGGLE_OPTIONS.map((option) => {
-            const isSelected = selectedOption === option.id;
+            const isSelected = selectedStruggle === option.id;
             return (
               <TouchableOpacity
                 key={option.id}
@@ -93,7 +85,7 @@ export default function OnboardingStruggle({ onNext }) {
                     backgroundColor: `${option.color}10`,
                   }
                 ]}
-                onPress={() => handleOptionSelect(option.id)}
+                onPress={() => handleSelect(option.id)}
               >
                 <View style={[
                   styles.iconContainer,
@@ -113,9 +105,9 @@ export default function OnboardingStruggle({ onNext }) {
                     styles.optionLabel,
                     isSelected && { color: option.color, fontWeight: '600' }
                   ]}>
-                    {option.label}
+                    {t(option.labelKey)}
                   </Text>
-                  <Text style={styles.optionDescription}>{option.description}</Text>
+                  <Text style={styles.optionDescription}>{t(option.descKey)}</Text>
                 </View>
               </TouchableOpacity>
             );
@@ -123,25 +115,23 @@ export default function OnboardingStruggle({ onNext }) {
         </View>
       </View>
 
-      {/* Fixed Bottom Section */}
       <View style={styles.bottomSection}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[
             styles.continueButton,
-            !selectedOption && styles.continueButtonDisabled
+            !selectedStruggle && styles.continueButtonDisabled
           ]}
           onPress={handleContinue}
-          disabled={!selectedOption}
+          disabled={!selectedStruggle}
         >
           <Text style={[
             styles.continueButtonText,
-            !selectedOption && styles.continueButtonTextDisabled
+            !selectedStruggle && styles.continueButtonTextDisabled
           ]}>
-            Continue
+            {t('onboarding.struggle.button')}
           </Text>
         </TouchableOpacity>
-        
-        <Text style={styles.helperText}>Select your biggest frustration</Text>
+        <Text style={styles.helperText}>{t('onboarding.struggle.helper')}</Text>
       </View>
     </View>
   );
@@ -156,8 +146,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
     paddingHorizontal: 24,
-    paddingTop: 40,
-    paddingBottom: 140,
+    paddingTop: 60,
     justifyContent: 'flex-start',
   },
   header: {
@@ -187,11 +176,10 @@ const styles = StyleSheet.create({
   },
   optionCard: {
     flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: BRAND_COLORS.white,
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+    padding: 18,
+    marginBottom: 14,
     borderWidth: 2,
     borderColor: 'transparent',
     shadowColor: '#000',
@@ -201,24 +189,25 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 14,
+    marginRight: 16,
   },
   icon: {
-    width: 22,
-    height: 22,
+    width: 26,
+    height: 26,
   },
   textContainer: {
     flex: 1,
+    justifyContent: 'center',
   },
   optionLabel: {
-    fontSize: 16,
+    fontSize: 17,
     color: BRAND_COLORS.black,
-    marginBottom: 3,
+    marginBottom: 4,
   },
   optionDescription: {
     fontSize: 14,

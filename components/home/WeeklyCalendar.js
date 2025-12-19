@@ -1,10 +1,11 @@
-// components/home/WeeklyCalendar.js - FULL CODE WITH STRONGER CHECK
+// components/home/WeeklyCalendar.js - WITH SPANISH I18N
 import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { t } from '../../app/i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -28,9 +29,18 @@ const getWeekData = () => {
   const monday = new Date(today);
   monday.setDate(today.getDate() - adjustedDay);
   
-  // Generate week array
-  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const weekData = weekDays.map((day, index) => {
+  // Generate week array with translation keys
+  const weekDays = [
+    'home.days.mon',
+    'home.days.tue', 
+    'home.days.wed',
+    'home.days.thu',
+    'home.days.fri',
+    'home.days.sat',
+    'home.days.sun'
+  ];
+  
+  const weekData = weekDays.map((dayKey, index) => {
     const date = new Date(monday);
     date.setDate(monday.getDate() + index);
     
@@ -38,7 +48,7 @@ const getWeekData = () => {
     const isToday = index === adjustedDay;
     
     return {
-      day,
+      dayKey,
       date: date.getDate(),
       active: isPast,
       isToday: isToday,
@@ -60,7 +70,7 @@ export const WeeklyCalendar = ({ weeklyActivity }) => {
     <View style={styles.container}>
       {weekData.map((day, index) => (
         <View key={index} style={styles.dayContainer}>
-          <Text style={styles.dayText}>{day.day}</Text>
+          <Text style={styles.dayText}>{t(day.dayKey)}</Text>
           <View style={[
             styles.dateCircle,
             day.active ? styles.activeCircle : null,

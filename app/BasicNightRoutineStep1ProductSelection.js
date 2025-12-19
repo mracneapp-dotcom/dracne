@@ -1,8 +1,9 @@
-// app/BasicNightRoutineStep1ProductSelection.js - SPECIFIC CITATIONS WITH EMBEDDED LINKS
+// app/BasicNightRoutineStep1ProductSelection.js - FULLY UPDATED WITH TRANSLATIONS & PROPER BANNER
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
+  ImageBackground,
   Linking,
   ScrollView,
   StyleSheet,
@@ -11,6 +12,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -24,11 +26,11 @@ const BRAND_COLORS = {
 };
 
 const SKIN_TYPE_INFO = {
-  oily: { color: '#4A90E2', name: 'Oily Skin' },
-  dry: { color: '#F39C12', name: 'Dry Skin' },
-  combination: { color: BRAND_COLORS.primary, name: 'Combination Skin' },
-  normal: { color: '#9B59B6', name: 'Normal Skin' },
-  sensitive: { color: BRAND_COLORS.primary, name: 'Sensitive Skin' },
+  oily: { color: '#4A90E2' },
+  dry: { color: '#F39C12' },
+  combination: { color: BRAND_COLORS.primary },
+  normal: { color: '#9B59B6' },
+  sensitive: { color: BRAND_COLORS.primary },
 };
 
 const CLEANSER_PRODUCTS = {
@@ -36,160 +38,160 @@ const CLEANSER_PRODUCTS = {
     {
       id: 'cleanser_night_oily_1',
       name: 'KraveBeauty Matcha Hemp',
-      description: 'Low-pH gel cleanser with matcha and hemp seed oil',
-      benefits: ['Gentle', 'Balancing', 'Non-stripping'],
+      descriptionKey: 'products.cleansers.oily_1_desc',
+      benefitKeys: ['gentle', 'balancing', 'non_stripping'],
     },
     {
       id: 'cleanser_night_oily_2',
       name: 'COSRX Low pH Good Morning',
-      description: 'Mild gel cleanser with tea tree oil and BHA',
-      benefits: ['pH 5.0-6.0', 'Refreshing', 'Daily use'],
+      descriptionKey: 'products.cleansers.oily_2_desc',
+      benefitKeys: ['ph_5_6', 'refreshing', 'daily_use'],
     },
     {
       id: 'cleanser_night_oily_3',
       name: 'Round Lab 1025 Dokdo Cleanser',
-      description: 'Mineral-rich gel cleanser from deep sea water',
-      benefits: ['Hydrating', 'Soothing', 'K-Beauty'],
+      descriptionKey: 'products.cleansers.oily_3_desc',
+      benefitKeys: ['hydrating', 'soothing', 'k_beauty'],
     },
     {
       id: 'cleanser_night_oily_4',
       name: 'La Roche-Posay Toleriane Purifying',
-      description: 'Foaming cleanser for sensitive oily skin',
-      benefits: ['Dermatologist-tested', 'Fragrance-free', 'Gentle'],
+      descriptionKey: 'products.cleansers.oily_4_desc',
+      benefitKeys: ['dermatologist_tested', 'fragrance_free', 'gentle'],
     },
     {
       id: 'cleanser_night_oily_5',
       name: 'CeraVe Foaming',
-      description: 'Gentle foaming cleanser with ceramides',
-      benefits: ['Affordable', 'Ceramides', 'Non-comedogenic'],
+      descriptionKey: 'products.cleansers.oily_5_desc',
+      benefitKeys: ['affordable', 'ceramides', 'non_comedogenic'],
     },
   ],
   dry: [
     {
       id: 'cleanser_night_dry_1',
       name: 'KraveBeauty Oat So Simple Cleanser',
-      description: 'Ultra-gentle cream cleanser with oat extract',
-      benefits: ['Nourishing', 'Calming', 'Creamy texture'],
+      descriptionKey: 'products.cleansers.dry_1_desc',
+      benefitKeys: ['nourishing', 'calming', 'creamy_texture'],
     },
     {
       id: 'cleanser_night_dry_2',
       name: 'Etude SoonJung pH 6.5 Whip',
-      description: 'Whipped cream cleanser for sensitive dry skin',
-      benefits: ['pH 6.5', 'Hypoallergenic', 'Moisturizing'],
+      descriptionKey: 'products.cleansers.dry_2_desc',
+      benefitKeys: ['ph_6_5', 'hypoallergenic', 'moisturizing'],
     },
     {
       id: 'cleanser_night_dry_3',
       name: 'Vanicream Gentle Cleanser',
-      description: 'Dermatologist-recommended gentle cleanser',
-      benefits: ['Fragrance-free', 'Dye-free', 'Non-irritating'],
+      descriptionKey: 'products.cleansers.dry_3_desc',
+      benefitKeys: ['fragrance_free', 'dye_free', 'non_irritating'],
     },
     {
       id: 'cleanser_night_dry_4',
       name: 'Avene Tolerance',
-      description: 'Ultra-gentle cream cleanser for reactive skin',
-      benefits: ['Thermal water', 'Minimal ingredients', 'Soothing'],
+      descriptionKey: 'products.cleansers.dry_4_desc',
+      benefitKeys: ['thermal_water', 'minimal_ingredients', 'soothing'],
     },
     {
       id: 'cleanser_night_dry_5',
       name: 'Cetaphil Gentle Cleanser',
-      description: 'Classic gentle cleanser for dry sensitive skin',
-      benefits: ['Budget-friendly', 'Soap-free', 'Mild'],
+      descriptionKey: 'products.cleansers.dry_5_desc',
+      benefitKeys: ['budget_friendly', 'soap_free', 'mild'],
     },
   ],
   combination: [
     {
       id: 'cleanser_night_combo_1',
       name: 'KraveBeauty Matcha Hemp',
-      description: 'Balanced gel cleanser suitable for all zones',
-      benefits: ['Balancing', 'Gentle', 'Low pH'],
+      descriptionKey: 'products.cleansers.combo_1_desc',
+      benefitKeys: ['balancing', 'gentle', 'low_ph'],
     },
     {
       id: 'cleanser_night_combo_2',
       name: 'Etude SoonJung pH 6.5 Whip',
-      description: 'Gentle cleanser that respects skin barrier',
-      benefits: ['pH-balanced', 'Soft foam', 'Non-drying'],
+      descriptionKey: 'products.cleansers.combo_2_desc',
+      benefitKeys: ['ph_balanced', 'soft_foam', 'non_drying'],
     },
     {
       id: 'cleanser_night_combo_3',
       name: 'La Roche-Posay Toleriane Purifying',
-      description: 'Balanced cleansing for combination skin',
-      benefits: ['Purifying', 'Comfortable', 'Tested'],
+      descriptionKey: 'products.cleansers.combo_3_desc',
+      benefitKeys: ['purifying', 'comfortable', 'tested'],
     },
     {
       id: 'cleanser_night_combo_4',
       name: 'Round Lab Dokdo Cleanser',
-      description: 'Mineral-balanced gentle cleanser',
-      benefits: ['Hydrating', 'Fresh', 'K-Beauty'],
+      descriptionKey: 'products.cleansers.combo_4_desc',
+      benefitKeys: ['hydrating', 'fresh', 'k_beauty'],
     },
     {
       id: 'cleanser_night_combo_5',
       name: 'Neutrogena Ultra Gentle',
-      description: 'Simple effective cleanser for daily use',
-      benefits: ['Affordable', 'Effective', 'Gentle'],
+      descriptionKey: 'products.cleansers.combo_5_desc',
+      benefitKeys: ['affordable', 'effective', 'gentle'],
     },
   ],
   normal: [
     {
       id: 'cleanser_night_normal_1',
       name: 'KraveBeauty Matcha Hemp',
-      description: 'Perfect low-pH cleanser for healthy skin',
-      benefits: ['Maintains balance', 'Gentle', 'Daily use'],
+      descriptionKey: 'products.cleansers.normal_1_desc',
+      benefitKeys: ['maintains_balance', 'gentle', 'daily_use'],
     },
     {
       id: 'cleanser_night_normal_2',
       name: 'Round Lab Dokdo Cleanser',
-      description: 'Mineral-rich refreshing cleanser',
-      benefits: ['Hydrating', 'Clean finish', 'Popular'],
+      descriptionKey: 'products.cleansers.normal_2_desc',
+      benefitKeys: ['hydrating', 'clean_finish', 'popular'],
     },
     {
       id: 'cleanser_night_normal_3',
       name: 'Cetaphil Gentle Cleanser',
-      description: 'Classic gentle daily cleanser',
-      benefits: ['Simple', 'Reliable', 'Budget-friendly'],
+      descriptionKey: 'products.cleansers.normal_3_desc',
+      benefitKeys: ['simple', 'reliable', 'budget_friendly'],
     },
     {
       id: 'cleanser_night_normal_4',
       name: 'La Roche-Posay Toleriane',
-      description: 'Dermatologist-recommended daily cleanser',
-      benefits: ['Professional', 'Gentle', 'Effective'],
+      descriptionKey: 'products.cleansers.normal_4_desc',
+      benefitKeys: ['professional', 'gentle', 'effective'],
     },
     {
       id: 'cleanser_night_normal_5',
       name: 'COSRX Low pH Good Morning',
-      description: 'Refreshing evening cleanser',
-      benefits: ['Low pH', 'Energizing', 'Light'],
+      descriptionKey: 'products.cleansers.normal_5_desc',
+      benefitKeys: ['low_ph', 'energizing', 'light'],
     },
   ],
   sensitive: [
     {
       id: 'cleanser_night_sens_1',
       name: 'Avene Tolerance Extremely Gentle',
-      description: 'Ultra-gentle cream cleanser for reactive skin',
-      benefits: ['Minimal ingredients', 'Soothing', 'Safe'],
+      descriptionKey: 'products.cleansers.sens_1_desc',
+      benefitKeys: ['minimal_ingredients', 'soothing', 'safe'],
     },
     {
       id: 'cleanser_night_sens_2',
       name: 'Etude SoonJung pH 6.5 Whip',
-      description: 'Hypoallergenic whipped cleanser',
-      benefits: ['pH 6.5', 'Tested', 'Soft'],
+      descriptionKey: 'products.cleansers.sens_2_desc',
+      benefitKeys: ['ph_6_5', 'tested', 'soft_foam'],
     },
     {
       id: 'cleanser_night_sens_3',
       name: 'Vanicream Gentle Cleanser',
-      description: 'Free of common irritants',
-      benefits: ['Fragrance-free', 'Safe', 'Simple'],
+      descriptionKey: 'products.cleansers.sens_3_desc',
+      benefitKeys: ['fragrance_free', 'safe', 'simple'],
     },
     {
       id: 'cleanser_night_sens_4',
       name: 'La Roche-Posay Toleriane',
-      description: 'Dermatologist-recommended for sensitive skin',
-      benefits: ['Tested', 'Gentle', 'Reliable'],
+      descriptionKey: 'products.cleansers.sens_4_desc',
+      benefitKeys: ['tested', 'gentle', 'reliable'],
     },
     {
       id: 'cleanser_night_sens_5',
       name: 'CeraVe Hydrating',
-      description: 'Gentle hydrating cleanser with ceramides',
-      benefits: ['Ceramides', 'Affordable', 'Non-irritating'],
+      descriptionKey: 'products.cleansers.sens_5_desc',
+      benefitKeys: ['ceramides', 'affordable', 'non_irritating'],
     },
   ],
 };
@@ -223,6 +225,11 @@ export default function BasicNightRoutineStep1ProductSelection({
       console.error('Error loading skin type:', error);
       setProducts(CLEANSER_PRODUCTS.normal);
     }
+  };
+
+  // ✅ GET TRANSLATED SKIN TYPE NAME
+  const getTranslatedSkinTypeName = () => {
+    return t(`basicRoutine.skin_type_${skinType}`);
   };
 
   const toggleProductSelection = (product) => {
@@ -273,11 +280,11 @@ export default function BasicNightRoutineStep1ProductSelection({
 
   const getButtonText = () => {
     if (selectedProducts.length === 0) {
-      return 'Choose My Cleanser';
+      return t('basicRoutine.choose_cleanser');
     } else if (selectedProducts.length === 1) {
-      return 'Continue with My Selection';
+      return t('basicRoutine.continue_selection');
     } else {
-      return 'Continue with My Selections';
+      return t('basicRoutine.continue_selections');
     }
   };
 
@@ -298,16 +305,22 @@ export default function BasicNightRoutineStep1ProductSelection({
         </TouchableOpacity>
       </View>
 
+      {/* ✅ FIXED: Night Routine Banner with Proper Two-Line Format */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
-          source={require('../assets/images/Banner Night Routine 1.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
+        <ImageBackground
+          source={require('../assets/images/banner-night-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
+        >
+          <View style={styles.nightRoutineBannerTextContainer}>
+            <Text style={styles.nightRoutineLine1}>{t('nightRoutineBanners.line1')}</Text>
+            <Text style={styles.nightRoutineLine2}>{t('nightRoutineBanners.line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -326,7 +339,9 @@ export default function BasicNightRoutineStep1ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('basicRoutine.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -345,23 +360,24 @@ export default function BasicNightRoutineStep1ProductSelection({
             </View>
           </View>
 
+          {/* ✅ FIXED: Now uses translated skin type name */}
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('basicRoutine.for_skin', { skinType: getTranslatedSkinTypeName() })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Product Recommendations</Text>
+          <Text style={styles.sectionTitle}>{t('basicRoutine.product_recommendations')}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose 1-2 cleansers to give you options when shopping. Having alternatives helps you find what works best for your skin and budget. You can always swap products later.
+              {t('basicRoutine.explanation_1_2')}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Select 1-2 Products {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
+              {t('basicRoutine.select_1_2')} {selectedProducts.length > 0 && t('basicRoutine.selected_count', { count: selectedProducts.length })}
             </Text>
             
             {products.map((product, index) => {
@@ -381,7 +397,9 @@ export default function BasicNightRoutineStep1ProductSelection({
                   <View style={styles.productCardHeader}>
                     <View style={styles.productCardLeft}>
                       <Text style={styles.productName}>{product.name}</Text>
-                      <Text style={styles.productDescription}>{product.description}</Text>
+                      <Text style={styles.productDescription}>
+                        {t(product.descriptionKey)}
+                      </Text>
                     </View>
                     {isSelected && (
                       <View style={[styles.checkmark, { backgroundColor: skinTypeInfo.color }]}>
@@ -391,9 +409,11 @@ export default function BasicNightRoutineStep1ProductSelection({
                   </View>
                   
                   <View style={styles.benefitsRow}>
-                    {product.benefits.map((benefit, idx) => (
+                    {product.benefitKeys.map((benefitKey, idx) => (
                       <View key={idx} style={styles.benefitTag}>
-                        <Text style={styles.benefitTagText}>{benefit}</Text>
+                        <Text style={styles.benefitTagText}>
+                          {t(`productBenefits.${benefitKey}`)}
+                        </Text>
                       </View>
                     ))}
                   </View>
@@ -404,40 +424,40 @@ export default function BasicNightRoutineStep1ProductSelection({
 
           {selectedProducts.length === 0 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select at least 1 product to continue</Text>
+              <Text style={styles.helperText}>{t('basicRoutine.select_1_continue')}</Text>
             </View>
           )}
 
           {selectedProducts.length === 2 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Maximum 2 products selected</Text>
+              <Text style={styles.helperText}>{t('basicRoutine.max_2_selected')}</Text>
             </View>
           )}
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Product selections curated using safety data from the{' '}
+              {t('basicRoutine.citation_products_intro')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://www.cir-safety.org/ingredients')}
               >
-                Cosmetic Ingredient Review
+                {t('basicRoutine.citation_products_link1')}
               </Text>
-              , formulation research from the{' '}
+              , {t('basicRoutine.citation_products_research')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://onlinelibrary.wiley.com/journal/14682494')}
               >
-                International Journal of Cosmetic Science
+                {t('basicRoutine.citation_products_link2')}
               </Text>
-              , and clinical studies on{' '}
+              , {t('basicRoutine.citation_products_studies')}{' '}
               <Text 
                 style={styles.citationLink}
                 onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5849435/')}
               >
-                skin type-specific cleansing
+                {t('basicRoutine.citation_products_link3')}
               </Text>
-              . These are educational suggestions - always patch test new products and consult a dermatologist for personalized treatment.
+              . {t('basicRoutine.citation_products_disclaimer')}
             </Text>
           </View>
 
@@ -450,7 +470,7 @@ export default function BasicNightRoutineStep1ProductSelection({
           title={getButtonText()}
           onPress={handleContinue}
           disabled={selectedProducts.length === 0}
-          style={[styles.continueButton, selectedProducts.length === 0 && styles.continueButtonDisabled]}
+          style={styles.continueButton}
         />
       </View>
     </View>
@@ -480,9 +500,44 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  // ✅ FIXED: Night Routine Banner Text Styles - Proper Two-Line Format
+  nightRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 10,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  nightRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  nightRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,
+    includeFontPadding: false,
   },
   scrollView: {
     flex: 1,

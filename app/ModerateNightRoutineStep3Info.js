@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
-  Linking,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -89,11 +90,16 @@ export default function ModerateNightRoutineStep3Info({
         onPress={onNavigateToNightRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Night Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('nightRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('nightRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -112,7 +118,9 @@ export default function ModerateNightRoutineStep3Info({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('moderateNightRoutineStep3Info.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -130,7 +138,9 @@ export default function ModerateNightRoutineStep3Info({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('moderateNightRoutineStep3Info.for_skin', { 
+                skinType: t(`profile.skin_labels.${skinType}`)
+              })}
             </Text>
           </View>
 
@@ -143,59 +153,35 @@ export default function ModerateNightRoutineStep3Info({
               />
             </View>
             <View style={styles.productTextContainer}>
-              <Text style={styles.productTitle}>Pore Care Treatment</Text>
-              <Text style={styles.productSubtitle}>Evening Step 3 (2-4x per week)</Text>
+              <Text style={styles.productTitle}>{t('moderateNightRoutineStep3Info.product_title')}</Text>
+              <Text style={styles.productSubtitle}>{t('moderateNightRoutineStep3Info.evening_step_3')}</Text>
             </View>
           </View>
 
           <View style={styles.introBox}>
-            <Text style={styles.introTitle}>Targeted Pore Management</Text>
+            <Text style={styles.introTitle}>{t('moderateNightRoutineStep3Info.targeted_title')}</Text>
             <Text style={styles.introText}>
-              BHA (salicylic acid) or mandelic acid helps keep pores clear and prevents breakouts. This is your active treatment step for managing oil and preventing congestion in your T-zone or full face.
+              {t('moderateNightRoutineStep3Info.targeted_text')}
             </Text>
           </View>
 
           <View style={styles.explanationBox}>
-            <Text style={styles.explanationTitle}>How to use</Text>
+            <Text style={styles.explanationTitle}>{t('moderateNightRoutineStep3Info.how_to_use')}</Text>
             <Text style={styles.explanationText}>
-              Apply 2-4 times per week in the evening on T-zone or full face as tolerated. Start with 2x per week and increase gradually based on your skin's response. Always follow with moisturizer.
+              {t('moderateNightRoutineStep3Info.usage_text')}
             </Text>
           </View>
 
           <View style={styles.warningBox}>
-            <Text style={styles.warningTitle}>Important Guidelines</Text>
+            <Text style={styles.warningTitle}>{t('moderateNightRoutineStep3Info.guidelines_title')}</Text>
             <Text style={styles.warningText}>
-              Start slowly (2x per week){'\n'}
-              Use in evening only{'\n'}
-              Always use sunscreen during the day{'\n'}
-              Skip if skin feels irritated
+              {t('moderateNightRoutineStep3Info.guidelines_text')}
             </Text>
           </View>
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Pore care treatment recommendations based on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4554394/')}
-              >
-                clinical research on salicylic acid and beta hydroxy acids for acne-prone skin
-              </Text>
-              , studies on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.jaad.org/article/S0190-9622(06)02559-X/fulltext')}
-              >
-                chemical exfoliation safety and efficacy for evening application
-              </Text>
-              , and{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5574737/')}
-              >
-                dermatological guidance on gradual introduction of active ingredients
-              </Text>
-              . Individual tolerance varies - consult a dermatologist for personalized treatment protocols.
+              {t('moderateNightRoutineStep3Info.citation')}
             </Text>
           </View>
 
@@ -205,7 +191,7 @@ export default function ModerateNightRoutineStep3Info({
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title="See Product Recommendations"
+          title={t('moderateNightRoutineStep3Info.see_products')}
           onPress={handleNextStep}
           style={styles.continueButton}
         />
@@ -240,6 +226,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerTextContainer: {
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,
@@ -411,12 +411,6 @@ const styles = StyleSheet.create({
     color: '#999999',
     lineHeight: 16,
     textAlign: 'center',
-  },
-  citationLink: {
-    fontSize: 11,
-    color: '#666666',
-    textDecorationLine: 'underline',
-    fontWeight: '600',
   },
   bottomSpacing: {
     height: 80,

@@ -1,4 +1,4 @@
-// app/SkinTypeResultsScreen.js - UPDATED WITH VERIFIED WORKING LINKS
+// app/SkinTypeResultsScreen.js - WITH SPANISH I18N
 import React, { useEffect, useRef } from 'react';
 import {
   Animated,
@@ -11,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -254,9 +255,9 @@ export const SkinTypeResultsScreen = ({
         {/* Title with Highlight */}
         <View style={styles.header}>
           <Text style={styles.title}>
-            Your Skin Type <Text style={styles.titleHighlight}>Analysis</Text>
+            {t('skinTypeResults.title')} <Text style={styles.titleHighlight}>{t('skinTypeResults.title_highlight')}</Text>
           </Text>
-          <Text style={styles.subtitle}>You have:</Text>
+          <Text style={styles.subtitle}>{t('skinTypeResults.subtitle')}</Text>
         </View>
 
         {/* Animated skin type result card */}
@@ -299,7 +300,7 @@ export const SkinTypeResultsScreen = ({
             transform: [{ translateY: slideAnim }]
           }
         ]}>
-          <Text style={styles.explanationTitle}>What this means for you</Text>
+          <Text style={styles.explanationTitle}>{t('skinTypeResults.what_means_title')}</Text>
           <Text style={styles.explanationText}>
             {skinData.explanation}
           </Text>
@@ -344,7 +345,7 @@ export const SkinTypeResultsScreen = ({
           { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
         ]}>
           <DrAcneButton
-            title="Continue Building My Routine"
+            title={t('skinTypeResults.continue_button')}
             onPress={onContinue}
             style={styles.continueButton}
           />
@@ -356,7 +357,7 @@ export const SkinTypeResultsScreen = ({
           { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
         ]}>
           <TouchableOpacity onPress={onGoHome} style={styles.skipContainer}>
-            <Text style={styles.skipText}>I'll do it later, go to main menu</Text>
+            <Text style={styles.skipText}>{t('skinTypeResults.skip_button')}</Text>
           </TouchableOpacity>
         </Animated.View>
 

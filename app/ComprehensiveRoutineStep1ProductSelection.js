@@ -1,9 +1,9 @@
-// app/ComprehensiveRoutineStep1ProductSelection.js - WITH CITATIONS
+// app/ComprehensiveRoutineStep1ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
-  Linking,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -273,11 +274,11 @@ export default function ComprehensiveRoutineStep1ProductSelection({
 
   const getButtonText = () => {
     if (selectedProducts.length === 0) {
-      return 'Choose My Cleanser';
+      return t('comprehensiveRoutineStep1Products.choose_cleanser');
     } else if (selectedProducts.length === 1) {
-      return 'Continue with My Selection';
+      return t('comprehensiveRoutineStep1Products.continue_selection');
     } else {
-      return 'Continue with My Selections';
+      return t('comprehensiveRoutineStep1Products.continue_selections');
     }
   };
 
@@ -303,11 +304,16 @@ export default function ComprehensiveRoutineStep1ProductSelection({
         onPress={onNavigateToDayRoutine}
         activeOpacity={0.9}
       >
-        <Image 
+        <ImageBackground
           source={require('../assets/images/Banner Day Routine 1.png')}
           style={styles.bannerImage}
           resizeMode="cover"
-        />
+        >
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
 
       <ScrollView 
@@ -326,7 +332,9 @@ export default function ComprehensiveRoutineStep1ProductSelection({
                 <Text style={styles.arrowText}>‹</Text>
               </TouchableOpacity>
 
-              <Text style={styles.progressText}>Step {currentStep} of {totalSteps}</Text>
+              <Text style={styles.progressText}>
+                {t('comprehensiveRoutineStep1Products.step_of', { current: currentStep, total: totalSteps })}
+              </Text>
 
               <TouchableOpacity
                 onPress={handleNextStep}
@@ -347,21 +355,21 @@ export default function ComprehensiveRoutineStep1ProductSelection({
 
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
-              For {skinTypeInfo.name}
+              {t('comprehensiveRoutineStep1Products.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) })}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Product Recommendations</Text>
+          <Text style={styles.sectionTitle}>{t('comprehensiveRoutineStep1Products.product_recommendations')}</Text>
 
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>
-              Choose 1-2 cleansers to give you options when shopping. Having alternatives helps you find what works best for your skin and budget. You can always swap products later.
+              {t('comprehensiveRoutineStep1Products.explanation')}
             </Text>
           </View>
 
           <View style={styles.selectionContainer}>
             <Text style={styles.selectionTitle}>
-              Select 1-2 Products {selectedProducts.length > 0 && `(${selectedProducts.length} selected)`}
+              {t('comprehensiveRoutineStep1Products.select_products')} {selectedProducts.length > 0 && t('comprehensiveRoutineStep1Products.selected_count', { count: selectedProducts.length })}
             </Text>
             
             {products.map((product) => {
@@ -404,40 +412,19 @@ export default function ComprehensiveRoutineStep1ProductSelection({
 
           {selectedProducts.length === 0 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Select at least 1 product to continue</Text>
+              <Text style={styles.helperText}>{t('comprehensiveRoutineStep1Products.select_one')}</Text>
             </View>
           )}
 
           {selectedProducts.length === 2 && (
             <View style={styles.helperBox}>
-              <Text style={styles.helperText}>Maximum 2 products selected</Text>
+              <Text style={styles.helperText}>{t('comprehensiveRoutineStep1Products.maximum_two')}</Text>
             </View>
           )}
 
           <View style={styles.citationContainer}>
             <Text style={styles.citationText}>
-              Morning cleanser recommendations based on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.aad.org/public/everyday-care/skin-care-basics/care/face-washing-101')}
-              >
-                American Academy of Dermatology guidelines for proper facial cleansing
-              </Text>
-              , research on{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://pubmed.ncbi.nlm.nih.gov/18489300/')}
-              >
-                pH-balanced cleansing and skin barrier preservation
-              </Text>
-              , and{' '}
-              <Text 
-                style={styles.citationLink}
-                onPress={() => Linking.openURL('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4158622/')}
-              >
-                gentle surfactants in maintaining skin health
-              </Text>
-              . Morning cleansing prepares skin for daily protection - consult a dermatologist for persistent skin concerns.
+              {t('comprehensiveRoutineStep1Products.citation')}
             </Text>
           </View>
 
@@ -483,6 +470,20 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: '100%',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: BRAND_COLORS.white,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,

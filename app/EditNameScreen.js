@@ -1,18 +1,19 @@
-// app/EditNameScreen.js
+// app/EditNameScreen.js - WITH SPANISH I18N (COMPLETE)
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -54,18 +55,18 @@ export default function EditNameScreen({ onBack, onNavigateHome }) {
     const trimmedName = name.trim();
     
     if (trimmedName.length === 0) {
-      Alert.alert('Error', 'Please enter a valid name');
+      Alert.alert(t('editName.alert_error_title'), t('editName.alert_error_message'));
       return;
     }
 
     try {
       await AsyncStorage.setItem('userName', trimmedName);
       Alert.alert(
-        'Name Updated',
-        'Your name has been updated successfully!',
+        t('editName.alert_saved_title'),
+        t('editName.alert_saved_message'),
         [
           {
-            text: 'OK',
+            text: t('editName.alert_ok'),
             onPress: () => {
               if (onBack) onBack();
             }
@@ -73,7 +74,7 @@ export default function EditNameScreen({ onBack, onNavigateHome }) {
         ]
       );
     } catch (error) {
-      Alert.alert('Error', 'Unable to save your name. Please try again.');
+      Alert.alert(t('editName.alert_error_title'), t('editName.alert_save_error'));
     }
   };
 
@@ -85,7 +86,7 @@ export default function EditNameScreen({ onBack, onNavigateHome }) {
       <View style={styles.content}>
         <View style={styles.topNavigation}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
-            <Text style={styles.backText}>‹ Back</Text>
+            <Text style={styles.backText}>{t('editName.back')}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
             <Image 
@@ -98,29 +99,29 @@ export default function EditNameScreen({ onBack, onNavigateHome }) {
 
         <View style={styles.header}>
           <Text style={styles.title}>
-            Edit Your <Text style={styles.titleHighlight}>Name</Text>
+            {t('editName.title')} <Text style={styles.titleHighlight}>{t('editName.title_highlight')}</Text>
           </Text>
-          <Text style={styles.subtitle}>Update your display name</Text>
+          <Text style={styles.subtitle}>{t('editName.subtitle')}</Text>
         </View>
 
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Your Name</Text>
+          <Text style={styles.label}>{t('editName.label')}</Text>
           <TextInput
             style={styles.input}
             value={name}
             onChangeText={handleNameChange}
-            placeholder="Enter your name"
+            placeholder={t('editName.placeholder')}
             placeholderTextColor={BRAND_COLORS.gray}
             autoFocus
             maxLength={50}
           />
           <Text style={styles.helperText}>
-            {name.length}/50 characters
+            {t('editName.characters', { count: name.length })}
           </Text>
         </View>
 
         <View style={styles.avatarPreview}>
-          <Text style={styles.previewLabel}>Avatar Preview</Text>
+          <Text style={styles.previewLabel}>{t('editName.preview')}</Text>
           <View style={styles.avatarContainer}>
             <Text style={styles.avatarText}>
               {name.trim().length > 0 ? name.trim().charAt(0).toUpperCase() : '?'}
@@ -131,7 +132,7 @@ export default function EditNameScreen({ onBack, onNavigateHome }) {
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title={hasChanges ? "Save Changes" : "No Changes"}
+          title={hasChanges ? t('editName.save_changes') : t('editName.no_changes')}
           onPress={handleSave}
           disabled={!hasChanges}
           style={styles.saveButton}

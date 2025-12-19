@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { t } from '../i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -19,31 +20,31 @@ const BRAND_COLORS = {
 const GOALS = [
   { 
     id: 'clear_acne', 
-    label: 'Clear existing acne',
+    labelKey: 'onboarding.goals.clear_acne',
     icon: require('../../assets/images/check.png'),
     color: BRAND_COLORS.primary,
   },
   { 
     id: 'prevent_breakouts', 
-    label: 'Prevent future breakouts',
+    labelKey: 'onboarding.goals.prevent_breakouts',
     icon: require('../../assets/images/check.png'),
     color: '#4A90E2',
   },
   { 
     id: 'reduce_scars', 
-    label: 'Reduce acne scars',
+    labelKey: 'onboarding.goals.reduce_scars',
     icon: require('../../assets/images/check.png'),
     color: BRAND_COLORS.secondary,
   },
   { 
     id: 'even_tone', 
-    label: 'Even out skin tone',
+    labelKey: 'onboarding.goals.even_tone',
     icon: require('../../assets/images/check.png'),
     color: '#9B59B6',
   },
   { 
     id: 'healthy_glow', 
-    label: 'Achieve healthy glow',
+    labelKey: 'onboarding.goals.healthy_glow',
     icon: require('../../assets/images/check.png'),
     color: '#F39C12',
   },
@@ -66,14 +67,24 @@ export default function OnboardingGoals({ onNext }) {
     }
   };
 
+  // ✅ BEST APPROACH: Simple conditional logic
+  const getSelectionMessage = () => {
+    const count = selectedGoals.length;
+    if (count === 1) {
+      return `1 ${t('onboarding.goals.goal')} ${t('onboarding.goals.selected')}`;
+    } else {
+      return `${count} ${t('onboarding.goals.goals')} ${t('onboarding.goals.selected')}`;
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            What are your <Text style={styles.titleHighlight}>skincare goals?</Text>
+            {t('onboarding.goals.title1')} <Text style={styles.titleHighlight}>{t('onboarding.goals.title2')}</Text>
           </Text>
-          <Text style={styles.subtitle}>Select all that apply</Text>
+          <Text style={styles.subtitle}>{t('onboarding.goals.subtitle')}</Text>
         </View>
 
         <View style={styles.goalsContainer}>
@@ -109,7 +120,7 @@ export default function OnboardingGoals({ onNext }) {
                   styles.goalLabel,
                   isSelected && { color: goal.color, fontWeight: '600' }
                 ]}>
-                  {goal.label}
+                  {t(goal.labelKey)}
                 </Text>
               </TouchableOpacity>
             );
@@ -118,7 +129,7 @@ export default function OnboardingGoals({ onNext }) {
 
         <View style={styles.selectionInfo}>
           <Text style={styles.selectionText}>
-            {selectedGoals.length} goal{selectedGoals.length !== 1 ? 's' : ''} selected
+            {getSelectionMessage()}
           </Text>
         </View>
       </View>
@@ -136,10 +147,10 @@ export default function OnboardingGoals({ onNext }) {
             styles.continueButtonText,
             selectedGoals.length === 0 && styles.continueButtonTextDisabled
           ]}>
-            Continue
+            {t('onboarding.goals.button')}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.helperText}>Choose at least one goal</Text>
+        <Text style={styles.helperText}>{t('onboarding.goals.helper')}</Text>
       </View>
     </View>
   );

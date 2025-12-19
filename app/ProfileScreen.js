@@ -1,4 +1,4 @@
-// app/ProfileScreen.js
+// app/ProfileScreen.js - WITH SPANISH I18N (COMPLETE)
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -25,12 +26,12 @@ const BRAND_COLORS = {
 };
 
 const SKIN_TYPE_LABELS = {
-  oily: 'Oily',
-  dry: 'Dry',
-  combination: 'Combination',
-  normal: 'Normal',
-  sensitive: 'Sensitive',
-  unknown: "I'm Not Sure",
+  oily: 'profile.skin_labels.oily',
+  dry: 'profile.skin_labels.dry',
+  combination: 'profile.skin_labels.combination',
+  normal: 'profile.skin_labels.normal',
+  sensitive: 'profile.skin_labels.sensitive',
+  unknown: 'profile.skin_labels.unknown',
 };
 
 const SKIN_TYPE_COLORS = {
@@ -45,35 +46,35 @@ const SKIN_TYPE_COLORS = {
 const PROFILE_OPTIONS = [
   {
     id: 'achievements',
-    label: 'Achievements',
+    label: 'profile.options.achievements',
     iconText: 'AC',
     color: '#FFD700',
     action: 'navigate',
   },
   {
     id: 'skin_goals',
-    label: 'Skin Goals',
+    label: 'profile.options.skin_goals',
     iconText: 'SG',
     color: BRAND_COLORS.primary,
     action: 'navigate',
   },
   {
     id: 'language',
-    label: 'Language',
+    label: 'profile.options.language',
     iconText: 'LG',
     color: '#4A90E2',
     action: 'navigate',
   },
   {
     id: 'skin_type',
-    label: 'Skin Type',
+    label: 'profile.options.skin_type',
     iconText: 'ST',
     color: '#9B59B6',
     action: 'navigate',
   },
   {
     id: 'terms',
-    label: 'Terms and Conditions',
+    label: 'profile.options.terms',
     iconText: 'TC',
     color: '#F39C12',
     action: 'external',
@@ -81,7 +82,7 @@ const PROFILE_OPTIONS = [
   },
   {
     id: 'privacy',
-    label: 'Privacy Policy',
+    label: 'profile.options.privacy',
     iconText: 'PP',
     color: '#E74C3C',
     action: 'external',
@@ -89,7 +90,7 @@ const PROFILE_OPTIONS = [
   },
   {
     id: 'support',
-    label: 'Support Email',
+    label: 'profile.options.support',
     iconText: 'SE',
     color: BRAND_COLORS.secondary,
     action: 'email',
@@ -97,7 +98,7 @@ const PROFILE_OPTIONS = [
   },
   {
     id: 'feature_request',
-    label: 'Feature Request',
+    label: 'profile.options.feature_request',
     iconText: 'FR',
     color: '#3498DB',
     action: 'email',
@@ -105,14 +106,14 @@ const PROFILE_OPTIONS = [
   },
   {
     id: 'delete_account',
-    label: 'Delete Account',
+    label: 'profile.options.delete_account',
     iconText: 'DA',
     color: '#95A5A6',
     action: 'delete',
   },
   {
     id: 'logout',
-    label: 'Logout',
+    label: 'profile.options.logout',
     iconText: 'LO',
     color: '#666666',
     action: 'logout',
@@ -172,10 +173,10 @@ export default function ProfileScreen({
             if (supported) {
               await Linking.openURL(option.url);
             } else {
-              Alert.alert('Error', `Cannot open URL: ${option.url}`);
+              Alert.alert(t('profile.alert_link_error'), `Cannot open URL: ${option.url}`);
             }
           } catch (error) {
-            Alert.alert('Error', 'Unable to open link');
+            Alert.alert(t('profile.alert_link_error'), t('profile.alert_link_error'));
           }
         }
         break;
@@ -189,33 +190,33 @@ export default function ProfileScreen({
             if (supported) {
               await Linking.openURL(url);
             } else {
-              Alert.alert('Error', 'Unable to open email client');
+              Alert.alert(t('profile.alert_email_error'), t('profile.alert_email_error'));
             }
           } catch (error) {
-            Alert.alert('Error', 'Unable to send email');
+            Alert.alert(t('profile.alert_email_error'), t('profile.alert_email_error'));
           }
         }
         break;
 
       case 'delete':
         Alert.alert(
-          'Delete Account',
-          'Are you sure you want to delete your account? This action cannot be undone.',
+          t('profile.alert_delete_title'),
+          t('profile.alert_delete_message'),
           [
             {
-              text: 'Cancel',
+              text: t('profile.alert_cancel'),
               style: 'cancel',
             },
             {
-              text: 'Delete',
+              text: t('profile.alert_delete'),
               style: 'destructive',
               onPress: async () => {
                 try {
                   await AsyncStorage.clear();
-                  Alert.alert('Account Deleted', 'Your account has been deleted successfully.');
+                  Alert.alert(t('profile.alert_delete_success'), t('profile.alert_delete_success_message'));
                   if (onLogout) onLogout();
                 } catch (error) {
-                  Alert.alert('Error', 'Unable to delete account');
+                  Alert.alert(t('profile.alert_delete_error'), t('profile.alert_delete_error'));
                 }
               },
             },
@@ -225,15 +226,15 @@ export default function ProfileScreen({
 
       case 'logout':
         Alert.alert(
-          'Logout',
-          'Are you sure you want to logout?',
+          t('profile.alert_logout_title'),
+          t('profile.alert_logout_message'),
           [
             {
-              text: 'Cancel',
+              text: t('profile.alert_cancel'),
               style: 'cancel',
             },
             {
-              text: 'Logout',
+              text: t('profile.alert_logout'),
               onPress: async () => {
                 try {
                   await AsyncStorage.removeItem('userSession');
@@ -241,7 +242,7 @@ export default function ProfileScreen({
                     onLogout();
                   }
                 } catch (error) {
-                  Alert.alert('Error', 'Unable to logout');
+                  Alert.alert(t('profile.alert_logout_error'), t('profile.alert_logout_error'));
                 }
               },
             },
@@ -254,7 +255,7 @@ export default function ProfileScreen({
     }
   };
 
-  const skinTypeLabel = SKIN_TYPE_LABELS[skinType] || 'Normal';
+  const skinTypeLabel = t(SKIN_TYPE_LABELS[skinType] || SKIN_TYPE_LABELS.normal);
   const skinTypeColor = SKIN_TYPE_COLORS[skinType] || '#9B59B6';
 
   return (
@@ -301,12 +302,12 @@ export default function ProfileScreen({
               />
             </TouchableOpacity>
           </View>
-          <Text style={styles.userSubtitle}>Your skincare journey</Text>
+          <Text style={styles.userSubtitle}>{t('profile.journey')}</Text>
           
           {/* Current Skin Type Display */}
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeColor}15` }]}>
             <Text style={[styles.skinTypeBadgeText, { color: skinTypeColor }]}>
-              {skinTypeLabel} Skin
+            {t('profile.skin_prefix')} {skinTypeLabel}
             </Text>
           </View>
         </View>
@@ -340,11 +341,11 @@ export default function ProfileScreen({
                       styles.optionLabel,
                       isDanger && styles.optionLabelDanger
                     ]}>
-                      {option.label}
+                      {t(option.label)}
                     </Text>
                     {isSkinType && (
                       <Text style={styles.optionSubtext}>
-                        Currently: {skinTypeLabel}
+                        {t('profile.options.currently', { skinType: skinTypeLabel })}
                       </Text>
                     )}
                   </View>
@@ -356,8 +357,8 @@ export default function ProfileScreen({
         </View>
 
         <View style={styles.versionContainer}>
-          <Text style={styles.versionText}>Dr.Acne v1.0.0</Text>
-          <Text style={styles.versionSubtext}>AI-Powered Skincare Analysis</Text>
+          <Text style={styles.versionText}>{t('profile.version')}</Text>
+          <Text style={styles.versionSubtext}>{t('profile.version_sub')}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
