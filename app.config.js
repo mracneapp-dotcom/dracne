@@ -1,60 +1,38 @@
 export default ({ config }) => {
-  // Base plugins that work on all platforms
+  // Detect platform from environment
+  const isAndroid = process.env.EAS_BUILD_PLATFORM === 'android';
+  
+  console.log('🔍 Build platform:', process.env.EAS_BUILD_PLATFORM);
+  console.log('📱 Is Android build:', isAndroid);
+
+  // Base plugins for all platforms
   const basePlugins = [
     "expo-apple-authentication",
-    [
-      "expo-camera",
-      {
-        "cameraPermission": "Allow DrAcne to access your camera for AI acne analysis."
-      }
-    ],
-    [
-      "expo-image-picker",
-      {
-        "photosPermission": "Allow DrAcne to access your photos for AI acne analysis."
-      }
-    ],
-    [
-      "expo-notifications",
-      {
-        "icon": "./assets/images/icon.png",
-        "color": "#7CB342",
-        "sounds": []
-      }
-    ],
-    [
-      "expo-font",
-      {
-        "fonts": [
-          "./assets/images/fonts/Baloo-Regular.ttf"
-        ]
-      }
-    ],
+    ["expo-camera", { cameraPermission: "Allow DrAcne to access your camera for AI acne analysis." }],
+    ["expo-image-picker", { photosPermission: "Allow DrAcne to access your photos for AI acne analysis." }],
+    ["expo-notifications", { icon: "./assets/images/icon.png", color: "#7CB342", sounds: [] }],
+    ["expo-font", { fonts: ["./assets/images/fonts/Baloo-Regular.ttf"] }],
     "expo-router",
     "expo-web-browser",
     "expo-localization"
   ];
 
-  // iOS-only plugins (Facebook SDK has Android gradle compatibility issues)
-  const iosPlugins = [
-    [
-      "expo-facebook",
-      {
-        "userTrackingPermission": "This app uses data for personalized ads and analytics.",
-        "advertiserIDCollectionEnabled": true,
-        "autoLogAppEventsEnabled": true
-      }
-    ]
+  // Facebook plugin - iOS ONLY
+  const facebookPlugin = [
+    "expo-facebook",
+    {
+      userTrackingPermission: "This app uses data for personalized ads and analytics.",
+      advertiserIDCollectionEnabled: true,
+      autoLogAppEventsEnabled: true
+    }
   ];
 
-  // Determine which plugins to include
-  const platform = process.env.EAS_BUILD_PLATFORM;
-  const allPlugins = platform === 'android' 
-    ? basePlugins 
-    : [...basePlugins, ...iosPlugins];
+  // Conditionally add Facebook
+  const allPlugins = isAndroid ? basePlugins : [...basePlugins, facebookPlugin];
+  
+  console.log('✅ Total plugins:', allPlugins.length);
 
   return {
-    ...config,
     expo: {
       name: "DrAcne",
       slug: "dracne",
