@@ -1,4 +1,5 @@
 // app/onboardingScreens/OnboardingPaywall.js
+import * as Facebook from 'expo-facebook';
 import { getAuth } from 'firebase/auth';
 import { doc, getFirestore, serverTimestamp, setDoc } from 'firebase/firestore';
 import React, { useEffect, useRef, useState } from 'react';
@@ -62,10 +63,16 @@ const BENEFITS = [
 
 const IS_TEST_MODE = !InAppPurchases;
 
-const PRODUCT_IDS = {
-  monthly: 'com.aleboshi.dracne.monthly.premium',
-  annual: 'com.aleboshi.dracne.annual.premium',
-};
+const PRODUCT_IDS = Platform.select({
+  ios: {
+    monthly: 'com.aleboshi.dracne.monthly.premium',
+    annual: 'com.aleboshi.dracne.annual.premium',
+  },
+  android: {
+    monthly: 'com.aleboshi.dracne.monthly.premium',
+    annual: 'com.aleboshi.dracne.yearly.premium',  // Matches Play Console
+  }
+});
 
 export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -80,6 +87,9 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   const hasNavigatedRef = useRef(false);
 
   useEffect(() => {
+    // Track paywall view
+    trackPaywallView();
+    
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -122,6 +132,17 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       }
     };
   }, [fadeAnim, scaleAnim]);
+
+  const trackPaywallView = async () => {
+    try {
+      await Facebook.logEvent('ViewContent', {
+        content_type: 'paywall',
+        screen_name: 'onboarding_paywall'
+      });
+    } catch (error) {
+      console.log('FB tracking:', error.message);
+    }
+  };
 
   const initializeIAP = async () => {
     if (!InAppPurchases) {
@@ -183,7 +204,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     }
   };
 
-  const handlePurchaseSuccess = (purchase) => {
+  const handlePurchaseSuccess = async (purchase) => {
     if (hasNavigatedRef.current) {
       console.log('⚠️ Already navigated');
       return;
@@ -193,6 +214,18 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     hasNavigatedRef.current = true;
     
     const planType = purchase.productId === PRODUCT_IDS.annual ? 'annual' : 'monthly';
+    const price = planType === 'annual' ? 37.90 : 7.79;
+    
+    // Track purchase
+    try {
+      await Facebook.logPurchase(price, 'USD', {
+        content_type: 'subscription',
+        content_id: planType,
+        product_id: purchase.productId
+      });
+    } catch (error) {
+      console.log('FB tracking:', error.message);
+    }
     
     // CRITICAL: Navigate FIRST - don't wait for anything
     setLoading(false);
@@ -324,6 +357,18 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   };
 
   const handleContinue = async () => {
+    // Track initiate checkout
+    try {
+      await Facebook.logEvent('InitiateCheckout', {
+        content_type: 'subscription',
+        content_id: selectedPlan,
+        value: selectedPlan === 'annual' ? 37.90 : 7.79,
+        currency: 'USD'
+      });
+    } catch (error) {
+      console.log('FB tracking:', error.message);
+    }
+    
     // CRITICAL: Reset navigation ref on each button press
     hasNavigatedRef.current = false;
     
