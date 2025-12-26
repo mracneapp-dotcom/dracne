@@ -4,7 +4,7 @@
     "slug": "dracne",
     "owner": "aleb",
     "scheme": "dracne",
-    "version": "1.0.4",
+    "version": "1.0.9",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "backgroundColor": "#FAFBFC",
@@ -12,29 +12,42 @@
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "backgroundColor": "#FAFBFC",
-      "resizeMode": "contain"
+      "resizeMode": "contain",
+      "hideAsync": true
     },
     "ios": {
       "bundleIdentifier": "com.aleboshi.dracne",
-      "buildNumber": "1",
+      "buildNumber": "3",
       "usesAppleSignIn": true,
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "DrAcne uses the camera to take photos for AI acne analysis.",
         "NSPhotoLibraryUsageDescription": "DrAcne accesses your photo library to select images for AI acne analysis.",
+        "NSUserTrackingUsageDescription": "This app uses data for personalized ads and analytics.",
+        "FacebookAppID": "4296363337358170",
+        "FacebookDisplayName": "Dr. Acne",
+        "FacebookAdvertiserIDCollectionEnabled": true,
+        "FacebookAutoLogAppEventsEnabled": true,
         "UIBackgroundModes": [
           "remote-notification"
         ],
         "SKAdNetworkItems": [
           {
             "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork"
+          },
+          {
+            "SKAdNetworkIdentifier": "v9wttpbfk9.skadnetwork"
+          },
+          {
+            "SKAdNetworkIdentifier": "n38lu8286q.skadnetwork"
           }
-        ]
+        ],
+        "UILaunchStoryboardName": "SplashScreen"
       }
     },
     "android": {
       "package": "com.aleboshi.dracne",
-      "versionCode": 1,
+      "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
@@ -44,8 +57,14 @@
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.INTERNET",
-        "android.permission.POST_NOTIFICATIONS"
-      ]
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "googleServicesFile": "./google-services.json",
+      "splash": {
+        "backgroundColor": "#FAFBFC",
+        "resizeMode": "contain"
+      }
     },
     "plugins": [
       "expo-apple-authentication",
@@ -69,8 +88,35 @@
           "sounds": []
         }
       ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/images/fonts/Baloo-Regular.ttf"
+          ]
+        }
+      ],
       "expo-router",
-      "expo-web-browser"
-    ]
+      "expo-web-browser",
+      "expo-localization",
+      [
+        "expo-facebook",
+        {
+          "userTrackingPermission": "This app uses data for personalized ads and analytics.",
+          "advertiserIDCollectionEnabled": true,
+          "autoLogAppEventsEnabled": true,
+          "platforms": ["ios"]
+        }
+      ]
+    ],
+    "extra": {
+      "iosClientId": "338991525353-kvd8elr7d227p8493is5qnda0aq2cd5e.apps.googleusercontent.com",
+      "androidClientId": "338991525353-kvd8elr7d227p8493is5qnda0aq2cd5e.apps.googleusercontent.com",
+      "webClientId": "338991525353-1r9lu6pl024a1vrf7mlg7k77pqj6vrvc.apps.googleusercontent.com",
+      "router": {},
+      "eas": {
+        "projectId": "5a2844bb-64f1-48ab-ac84-13c7f3e4c665"
+      }
+    }
   }
 }
