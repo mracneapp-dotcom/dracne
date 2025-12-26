@@ -104,7 +104,8 @@
         {
           "userTrackingPermission": "This app uses data for personalized ads and analytics.",
           "advertiserIDCollectionEnabled": true,
-          "autoLogAppEventsEnabled": true
+          "autoLogAppEventsEnabled": true,
+          "platforms": ["ios"]
         }
       ]
     ],
