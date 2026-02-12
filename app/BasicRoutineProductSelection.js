@@ -227,7 +227,6 @@ export default function BasicRoutineStep1ProductSelection({
     }
   };
 
-  // ✅ GET TRANSLATED SKIN TYPE NAME
   const getTranslatedSkinTypeName = () => {
     return t(`skinTypes.${skinType}`);
   };
@@ -250,16 +249,16 @@ export default function BasicRoutineStep1ProductSelection({
   const handleContinue = async () => {
     if (selectedProducts.length > 0 && onContinue) {
       try {
-        const routineData = await AsyncStorage.getItem('myDayRoutine');
+        const routineData = await AsyncStorage.getItem('myBasicRoutine');
         const currentRoutine = routineData ? JSON.parse(routineData) : {};
         
         currentRoutine.cleansers = selectedProducts;
         currentRoutine.lastUpdated = new Date().toISOString();
         
-        await AsyncStorage.setItem('myDayRoutine', JSON.stringify(currentRoutine));
-        console.log('✅ Saved cleansers to My Day Routine:', selectedProducts);
+        await AsyncStorage.setItem('myBasicRoutine', JSON.stringify(currentRoutine));
+        console.log('✅ Saved cleansers to My Basic Routine:', selectedProducts);
       } catch (error) {
-        console.error('Error saving to My Day Routine:', error);
+        console.error('Error saving to My Basic Routine:', error);
       }
       
       onContinue(selectedProducts);
@@ -305,7 +304,6 @@ export default function BasicRoutineStep1ProductSelection({
         </TouchableOpacity>
       </View>
 
-      {/* ✅ FIXED: Day Routine Banner with Proper Two-Line Format */}
       <TouchableOpacity 
         style={styles.bannerContainer}
         onPress={onNavigateToDayRoutine}
@@ -360,7 +358,6 @@ export default function BasicRoutineStep1ProductSelection({
             </View>
           </View>
 
-          {/* ✅ FIXED: Now uses translated skin type name */}
           <View style={[styles.skinTypeBadge, { backgroundColor: `${skinTypeInfo.color}15` }]}>
             <Text style={[styles.skinTypeText, { color: skinTypeInfo.color }]}>
               {t('basicRoutine.for_skin', { skinType: getTranslatedSkinTypeName() })}
@@ -508,7 +505,6 @@ const styles = StyleSheet.create({
   bannerImage: {
     borderRadius: 0,
   },
-  // ✅ FIXED: Day Routine Banner Text Styles - Proper Two-Line Format
   dayRoutineBannerTextContainer: {
     alignItems: 'flex-end',
     paddingRight: 24,

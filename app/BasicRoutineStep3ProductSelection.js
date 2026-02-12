@@ -237,14 +237,16 @@ export default function BasicRoutineStep3ProductSelection({
   const handleComplete = async () => {
     if (selectedProduct) {
       try {
-        const routineData = await AsyncStorage.getItem('myDayRoutine');
+        const routineData = await AsyncStorage.getItem('myBasicRoutine');
         const currentRoutine = routineData ? JSON.parse(routineData) : {};
         
         currentRoutine.sunscreens = [selectedProduct];
         currentRoutine.lastUpdated = new Date().toISOString();
         currentRoutine.completedAt = new Date().toISOString();
+        currentRoutine.level = 'basic';
+        currentRoutine.timeOfDay = 'morning';
         
-        await AsyncStorage.setItem('myDayRoutine', JSON.stringify(currentRoutine));
+        await AsyncStorage.setItem('myBasicRoutine', JSON.stringify(currentRoutine));
         
         console.log('✅ Complete Routine Saved:', currentRoutine);
         console.log('📦 Cleansers:', currentRoutine.cleansers);

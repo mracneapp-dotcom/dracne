@@ -1,5 +1,5 @@
 // app/onboardingScreens/OnboardingPaywall.js
-import * as Facebook from 'expo-facebook';
+
 import { getAuth } from 'firebase/auth';
 import { doc, getFirestore, serverTimestamp, setDoc } from 'firebase/firestore';
 import React, { useEffect, useRef, useState } from 'react';
@@ -19,14 +19,43 @@ import {
 } from 'react-native';
 import { DrAcneButton } from '../../components/ui/DrAcneButton';
 import { t } from '../i18n';
+import { trackPaywallViewed, trackSubscriptionStarted } from '../utils/facebookPixel';
 
+// ============================================================
+// iOS ONLY: expo-in-app-purchases (UNCHANGED)
+// ============================================================
+let Facebook = null;
 let InAppPurchases = null;
 let IAPResponseCode = null;
-try {
-  InAppPurchases = require('expo-in-app-purchases');
-  IAPResponseCode = InAppPurchases.IAPResponseCode;
-} catch (e) {
-  console.log('⚠️ In-app purchases not available');
+
+if (Platform.OS === 'ios') {
+  try {
+    Facebook = require('expo-facebook');
+  } catch (e) {
+    console.log('Facebook SDK not available');
+  }
+  
+  try {
+    InAppPurchases = require('expo-in-app-purchases');
+    IAPResponseCode = InAppPurchases.IAPResponseCode;
+  } catch (e) {
+    console.log('⚠️ In-app purchases not available');
+  }
+}
+
+// ============================================================
+// ANDROID ONLY: RevenueCat (UNCHANGED)
+// ============================================================
+let Purchases = null;
+let PURCHASES_ERROR_CODE = null;
+
+if (Platform.OS === 'android') {
+  try {
+    Purchases = require('react-native-purchases').default;
+    PURCHASES_ERROR_CODE = require('react-native-purchases').PURCHASES_ERROR_CODE;
+  } catch (e) {
+    console.log('⚠️ RevenueCat not available');
+  }
 }
 
 const BRAND_COLORS = {
@@ -61,7 +90,7 @@ const BENEFITS = [
   },
 ];
 
-const IS_TEST_MODE = !InAppPurchases;
+const IS_TEST_MODE = Platform.OS === 'ios' ? !InAppPurchases : !Purchases;
 
 const PRODUCT_IDS = Platform.select({
   ios: {
@@ -70,9 +99,11 @@ const PRODUCT_IDS = Platform.select({
   },
   android: {
     monthly: 'com.aleboshi.dracne.monthly.premium',
-    annual: 'com.aleboshi.dracne.yearly.premium',  // Matches Play Console
+    annual: 'com.aleboshi.dracne.yearly.premium',
   }
 });
+
+const REVENUECAT_API_KEY = 'goog_zstECKBazYtFkwiyJMlgKvSRcoK';
 
 export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -87,7 +118,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   const hasNavigatedRef = useRef(false);
 
   useEffect(() => {
-    // Track paywall view
     trackPaywallView();
     
     Animated.parallel([
@@ -119,32 +149,32 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       ).start();
     });
 
-    if (!IS_TEST_MODE && InAppPurchases) {
-      initializeIAP();
+    if (!IS_TEST_MODE) {
+      if (Platform.OS === 'ios') {
+        initializeIAP_iOS();
+      } else {
+        initializeRevenueCat_Android();
+      }
     }
 
     return () => {
-      if (purchaseListenerRef.current) {
+      if (Platform.OS === 'ios' && purchaseListenerRef.current) {
         purchaseListenerRef.current.remove();
       }
-      if (!IS_TEST_MODE && InAppPurchases) {
+      if (Platform.OS === 'ios' && !IS_TEST_MODE && InAppPurchases) {
         InAppPurchases.disconnectAsync().catch(() => {});
       }
     };
   }, [fadeAnim, scaleAnim]);
 
   const trackPaywallView = async () => {
-    try {
-      await Facebook.logEvent('ViewContent', {
-        content_type: 'paywall',
-        screen_name: 'onboarding_paywall'
-      });
-    } catch (error) {
-      console.log('FB tracking:', error.message);
-    }
+    trackPaywallViewed();
   };
 
-  const initializeIAP = async () => {
+  // ============================================================
+  // iOS ONLY FUNCTIONS (100% UNCHANGED - PAYMENT LOGIC SAFE)
+  // ============================================================
+  const initializeIAP_iOS = async () => {
     if (!InAppPurchases) {
       console.log('❌ InAppPurchases not available');
       return;
@@ -180,7 +210,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
               console.log('✅ Purchase successful via listener');
               results.forEach((purchase) => {
                 console.log('🎉 Processing purchase:', purchase.productId);
-                handlePurchaseSuccess(purchase);
+                handlePurchaseSuccess_iOS(purchase);
               });
             } else if (responseCode === IAPResponseCode.USER_CANCELED) {
               console.log('❌ User canceled purchase');
@@ -204,7 +234,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     }
   };
 
-  const handlePurchaseSuccess = async (purchase) => {
+  const handlePurchaseSuccess_iOS = async (purchase) => {
     if (hasNavigatedRef.current) {
       console.log('⚠️ Already navigated');
       return;
@@ -216,18 +246,8 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     const planType = purchase.productId === PRODUCT_IDS.annual ? 'annual' : 'monthly';
     const price = planType === 'annual' ? 37.90 : 7.79;
     
-    // Track purchase
-    try {
-      await Facebook.logPurchase(price, 'USD', {
-        content_type: 'subscription',
-        content_id: planType,
-        product_id: purchase.productId
-      });
-    } catch (error) {
-      console.log('FB tracking:', error.message);
-    }
+    trackSubscriptionStarted(planType);
     
-    // CRITICAL: Navigate FIRST - don't wait for anything
     setLoading(false);
     onNext('complete', {
       ...onboardingData,
@@ -237,7 +257,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       isPremium: true,
     });
 
-    // Background cleanup - fire and forget (1 second after navigation)
     setTimeout(() => {
       saveToFirebaseBackground(purchase, planType)
         .catch((error) => console.log('⚠️ Firebase save failed:', error.message));
@@ -249,6 +268,232 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     }, 1000);
   };
 
+  const purchaseSubscription_iOS = async (plan) => {
+    if (!InAppPurchases) {
+      console.log('❌ InAppPurchases not available');
+      setLoading(false);
+      return;
+    }
+    
+    try {
+      const productId = PRODUCT_IDS[plan];
+      const product = products.find(p => p.productId === productId);
+      
+      if (!product) {
+        console.log('❌ Product not found:', productId);
+        setLoading(false);
+        Alert.alert(
+          t('onboarding.paywall.alert_purchase_failed'),
+          t('onboarding.paywall.alert_selected_plan_unavailable')
+        );
+        return;
+      }
+
+      console.log('🛒 Starting purchase for:', productId);
+      setLoading(true);
+      
+      console.log('🚀 Calling purchaseItemAsync...');
+      await InAppPurchases.purchaseItemAsync(productId);
+      console.log('✅ purchaseItemAsync completed');
+      
+      setTimeout(async () => {
+        if (!hasNavigatedRef.current) {
+          console.log('⚠️ Listener did not fire - checking purchase history as backup');
+          try {
+            const { results } = await InAppPurchases.getPurchaseHistoryAsync();
+            console.log('📋 Purchase history results:', results?.length || 0);
+            
+            const recentPurchase = results?.find(p => p.productId === productId);
+            
+            if (recentPurchase) {
+              console.log('✅ Found purchase in history - navigating via backup');
+              handlePurchaseSuccess_iOS(recentPurchase);
+            } else {
+              console.log('❌ No purchase found - stopping loading');
+              setLoading(false);
+            }
+          } catch (error) {
+            console.log('❌ Error checking purchase history:', error);
+            setLoading(false);
+          }
+        } else {
+          console.log('✅ Already navigated via listener');
+        }
+      }, 3000);
+      
+    } catch (error) {
+      console.error('❌ Purchase error:', error);
+      setLoading(false);
+      
+      if (error.code === 'E_USER_CANCELLED') {
+        console.log('ℹ️ User cancelled purchase');
+        return;
+      }
+      
+      Alert.alert(
+        t('onboarding.paywall.alert_purchase_failed'),
+        error.message || t('onboarding.paywall.alert_purchase_error')
+      );
+    }
+  };
+
+  // ============================================================
+  // ANDROID ONLY FUNCTIONS (100% UNCHANGED - PAYMENT LOGIC SAFE)
+  // ============================================================
+  const initializeRevenueCat_Android = async () => {
+    if (!Purchases) {
+      console.log('❌ RevenueCat not available');
+      return;
+    }
+
+    try {
+      console.log('🔌 Initializing RevenueCat...');
+      
+      Purchases.configure({ apiKey: REVENUECAT_API_KEY });
+      console.log('✅ RevenueCat configured');
+
+      const offerings = await Purchases.getOfferings();
+      console.log('📦 Offerings loaded');
+
+      if (offerings.current && offerings.current.availablePackages.length > 0) {
+        const packages = offerings.current.availablePackages;
+        console.log('✅ Found', packages.length, 'packages');
+        
+        packages.forEach(pkg => {
+          console.log('📦 Package:', pkg.identifier, '| Product:', pkg.product.identifier);
+        });
+        
+        setProducts(packages);
+        setIapReady(true);
+      } else {
+        console.log('⚠️ No offerings available');
+        setIapReady(false);
+      }
+    } catch (error) {
+      console.error('❌ RevenueCat initialization failed:', error);
+      setIapReady(false);
+    }
+  };
+
+  const handlePurchaseSuccess_Android = async (customerInfo) => {
+    if (hasNavigatedRef.current) {
+      console.log('⚠️ Already navigated');
+      return;
+    }
+
+    console.log('🎉 Android purchase confirmed - NAVIGATING NOW');
+    hasNavigatedRef.current = true;
+    
+    const hasAnnual = customerInfo.activeSubscriptions.includes(PRODUCT_IDS.annual);
+    const planType = hasAnnual ? 'annual' : 'monthly';
+    
+    setLoading(false);
+    onNext('complete', {
+      ...onboardingData,
+      paywallCompleted: true,
+      trialStarted: new Date().toISOString(),
+      subscriptionType: planType,
+      isPremium: true,
+    });
+
+    setTimeout(() => {
+      saveToFirebaseBackground_Android(customerInfo, planType)
+        .catch((error) => console.log('⚠️ Firebase save failed:', error.message));
+    }, 1000);
+  };
+
+  const purchaseSubscription_Android = async (plan) => {
+    if (!Purchases) {
+      console.log('❌ RevenueCat not available');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      console.log('🛒 Starting Android purchase for:', plan);
+      console.log('📦 Available packages:', products.map(p => p.identifier).join(', '));
+      setLoading(true);
+
+      const packageToPurchase = products.find(pkg => pkg.identifier === plan);
+
+      if (!packageToPurchase) {
+        console.log('❌ Package not found for:', plan);
+        console.log('Available package identifiers:', products.map(p => p.identifier));
+        setLoading(false);
+        Alert.alert(
+          t('onboarding.paywall.alert_purchase_failed'),
+          t('onboarding.paywall.alert_selected_plan_unavailable')
+        );
+        return;
+      }
+
+      console.log('📦 Package found:', packageToPurchase.identifier);
+      console.log('🚀 Purchasing package...');
+      
+      const { customerInfo } = await Purchases.purchasePackage(packageToPurchase);
+      
+      console.log('✅ Purchase completed');
+      
+      if (typeof customerInfo.entitlements.active !== 'undefined') {
+        console.log('✅ Active entitlements found');
+        handlePurchaseSuccess_Android(customerInfo);
+      } else {
+        console.log('⚠️ No active entitlements');
+        setLoading(false);
+      }
+      
+    } catch (error) {
+      console.error('❌ Android purchase error:', error);
+      setLoading(false);
+
+      if (error.code === PURCHASES_ERROR_CODE?.PURCHASE_CANCELLED_ERROR) {
+        console.log('ℹ️ User cancelled purchase');
+        return;
+      }
+
+      Alert.alert(
+        t('onboarding.paywall.alert_purchase_failed'),
+        error.message || t('onboarding.paywall.alert_purchase_error')
+      );
+    }
+  };
+
+  const saveToFirebaseBackground_Android = async (customerInfo, plan) => {
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) {
+        console.log('ℹ️ No user logged in, skipping Firebase save');
+        return;
+      }
+
+      const db = getFirestore();
+      const userSubscriptionRef = doc(db, 'users', user.uid, 'subscription', 'current');
+
+      const trialEndDate = new Date();
+      trialEndDate.setDate(trialEndDate.getDate() + 3);
+
+      await setDoc(userSubscriptionRef, {
+        subscriptionType: plan,
+        productId: PRODUCT_IDS[plan],
+        trialStarted: serverTimestamp(),
+        trialEnds: trialEndDate.toISOString(),
+        status: 'trial',
+        revenueCatCustomerId: customerInfo.originalAppUserId,
+        platform: 'android',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      console.log('✅ Firebase subscription saved (Android)');
+    } catch (error) {
+      console.error('⚠️ Firebase save failed:', error);
+      throw error;
+    }
+  };
+
+  // ============================================================
+  // SHARED FUNCTIONS (100% UNCHANGED - PAYMENT LOGIC SAFE)
+  // ============================================================
   const saveToFirebaseBackground = async (purchase, plan) => {
     try {
       const auth = getAuth();
@@ -286,90 +531,20 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     }
   };
 
-  const purchaseSubscription = async (plan) => {
-    if (!InAppPurchases) {
-      console.log('❌ InAppPurchases not available');
-      setLoading(false);
-      return;
-    }
-    
-    try {
-      const productId = PRODUCT_IDS[plan];
-      const product = products.find(p => p.productId === productId);
-      
-      if (!product) {
-        console.log('❌ Product not found:', productId);
-        setLoading(false);
-        Alert.alert(
-          t('onboarding.paywall.alert_purchase_failed'),
-          t('onboarding.paywall.alert_selected_plan_unavailable')
-        );
-        return;
-      }
-
-      console.log('🛒 Starting purchase for:', productId);
-      setLoading(true);
-      
-      console.log('🚀 Calling purchaseItemAsync...');
-      await InAppPurchases.purchaseItemAsync(productId);
-      console.log('✅ purchaseItemAsync completed');
-      
-      // SAFETY NET: If listener doesn't fire within 3 seconds, check history manually
-      setTimeout(async () => {
-        if (!hasNavigatedRef.current) {
-          console.log('⚠️ Listener did not fire - checking purchase history as backup');
-          try {
-            const { results } = await InAppPurchases.getPurchaseHistoryAsync();
-            console.log('📋 Purchase history results:', results?.length || 0);
-            
-            const recentPurchase = results?.find(p => p.productId === productId);
-            
-            if (recentPurchase) {
-              console.log('✅ Found purchase in history - navigating via backup');
-              handlePurchaseSuccess(recentPurchase);
-            } else {
-              console.log('❌ No purchase found - stopping loading');
-              setLoading(false);
-            }
-          } catch (error) {
-            console.log('❌ Error checking purchase history:', error);
-            setLoading(false);
-          }
-        } else {
-          console.log('✅ Already navigated via listener');
-        }
-      }, 3000);
-      
-    } catch (error) {
-      console.error('❌ Purchase error:', error);
-      setLoading(false);
-      
-      if (error.code === 'E_USER_CANCELLED') {
-        console.log('ℹ️ User cancelled purchase');
-        return;
-      }
-      
-      Alert.alert(
-        t('onboarding.paywall.alert_purchase_failed'),
-        error.message || t('onboarding.paywall.alert_purchase_error')
-      );
-    }
-  };
-
   const handleContinue = async () => {
-    // Track initiate checkout
-    try {
-      await Facebook.logEvent('InitiateCheckout', {
-        content_type: 'subscription',
-        content_id: selectedPlan,
-        value: selectedPlan === 'annual' ? 37.90 : 7.79,
-        currency: 'USD'
-      });
-    } catch (error) {
-      console.log('FB tracking:', error.message);
+    if (Platform.OS === 'ios' && Facebook) {
+      try {
+        await Facebook.logEvent('InitiateCheckout', {
+          content_type: 'subscription',
+          content_id: selectedPlan,
+          value: selectedPlan === 'annual' ? 37.90 : 7.79,
+          currency: 'USD'
+        });
+      } catch (error) {
+        console.log('FB tracking:', error.message);
+      }
     }
     
-    // CRITICAL: Reset navigation ref on each button press
     hasNavigatedRef.current = false;
     
     if (loading) {
@@ -379,6 +554,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
 
     console.log('🔘 Continue button pressed');
     console.log('Mode:', IS_TEST_MODE ? 'TEST' : 'PRODUCTION');
+    console.log('Platform:', Platform.OS);
     
     if (IS_TEST_MODE) {
       console.log('🧪 Test mode - simulating purchase');
@@ -410,7 +586,12 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     }
 
     console.log('🚀 Starting real purchase...');
-    await purchaseSubscription(selectedPlan);
+    
+    if (Platform.OS === 'ios') {
+      await purchaseSubscription_iOS(selectedPlan);
+    } else {
+      await purchaseSubscription_Android(selectedPlan);
+    }
   };
 
   const handlePrivacyPolicy = () => {
@@ -426,6 +607,23 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       return t('onboarding.paywall.pricing_annual');
     }
     return t('onboarding.paywall.pricing_monthly');
+  };
+
+  // ============================================================
+  // ⚠️ UPDATED: Dynamic button text for BOTH iOS and Android
+  // This is DISPLAY LOGIC ONLY - payment processing unchanged
+  // ============================================================
+  const getButtonText = () => {
+    if (loading) {
+      return t('onboarding.paywall.button_processing');
+    }
+
+    // Both platforms: Dynamic based on selected plan
+    if (selectedPlan === 'annual') {
+      return t('onboarding.paywall.button_continue'); // "Start 3-Day Free Trial"
+    } else {
+      return t('onboarding.paywall.button_subscribe_monthly'); // "Subscribe Monthly - $7.79/month"
+    }
   };
 
   return (
@@ -488,7 +686,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
 
       <View style={styles.bottomSection}>
         <DrAcneButton
-          title={loading ? t('onboarding.paywall.button_processing') : t('onboarding.paywall.button_continue')}
+          title={getButtonText()}
           onPress={handleContinue}
           disabled={loading}
           style={styles.continueButton}

@@ -203,17 +203,24 @@ export default function ModerateRoutineStep1ProductSelection({
   currentStep = 1,
   internalStep = 2
 }) {
+  console.log('🟡 ModerateRoutineStep1ProductSelection RENDER START');
+  
   const [skinType, setSkinType] = useState('normal');
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [products, setProducts] = useState([]);
 
+  console.log('🟡 Step1 State:', { skinType, selectedCount: selectedProducts.length });
+
   useEffect(() => {
+    console.log('🟡 Step1 useEffect running');
     loadSkinType();
   }, []);
 
   const loadSkinType = async () => {
+    console.log('🟡 Step1 loadSkinType START');
     try {
       const savedSkinType = await AsyncStorage.getItem('userSkinType');
+      console.log('🟡 Step1 loadSkinType got:', savedSkinType);
       if (savedSkinType) {
         setSkinType(savedSkinType);
         setProducts(CLEANSER_PRODUCTS[savedSkinType] || CLEANSER_PRODUCTS.normal);
@@ -221,29 +228,39 @@ export default function ModerateRoutineStep1ProductSelection({
         setProducts(CLEANSER_PRODUCTS.normal);
       }
     } catch (error) {
-      console.error('Error loading skin type:', error);
+      console.error('❌ Step1 Error loading skin type:', error);
       setProducts(CLEANSER_PRODUCTS.normal);
     }
   };
 
   const toggleProductSelection = (product) => {
+    console.log('🟡 Step1 toggleProductSelection:', product.id);
     setSelectedProducts(prev => {
       const isSelected = prev.some(p => p.id === product.id);
       
       if (isSelected) {
-        return prev.filter(p => p.id !== product.id);
+        const newSelection = prev.filter(p => p.id !== product.id);
+        console.log('🟡 Step1 Deselected, new count:', newSelection.length);
+        return newSelection;
       } else {
         if (prev.length >= 2) {
-          return [prev[1], product];
+          const newSelection = [prev[1], product];
+          console.log('🟡 Step1 Replaced first selection, count:', newSelection.length);
+          return newSelection;
         }
-        return [...prev, product];
+        const newSelection = [...prev, product];
+        console.log('🟡 Step1 Added selection, new count:', newSelection.length);
+        return newSelection;
       }
     });
   };
 
   const handleContinue = async () => {
+    console.log('🟡 Step1 handleContinue called with', selectedProducts.length, 'products');
+    
     if (selectedProducts.length > 0 && onContinue) {
       try {
+        console.log('🟡 Step1 Saving to AsyncStorage...');
         const routineData = await AsyncStorage.getItem('myModerateRoutine');
         const currentRoutine = routineData ? JSON.parse(routineData) : {};
         
@@ -251,22 +268,28 @@ export default function ModerateRoutineStep1ProductSelection({
         currentRoutine.lastUpdated = new Date().toISOString();
         
         await AsyncStorage.setItem('myModerateRoutine', JSON.stringify(currentRoutine));
-        console.log('Saved cleansers to Moderate Routine:', selectedProducts);
+        console.log('🟡 Step1 Saved cleansers successfully');
       } catch (error) {
-        console.error('Error saving to Moderate Routine:', error);
+        console.error('❌ Step1 Error saving to Moderate Routine:', error);
       }
       
+      console.log('🟡 Step1 Calling onContinue callback...');
       onContinue(selectedProducts);
+      console.log('🟡 Step1 onContinue callback completed');
+    } else {
+      console.log('❌ Step1 Cannot continue - missing products or callback');
     }
   };
 
   const handlePreviousStep = () => {
+    console.log('🟡 Step1 handlePreviousStep called');
     if (onBack) {
       onBack();
     }
   };
 
   const handleNextStep = () => {
+    console.log('🟡 Step1 handleNextStep called');
     if (selectedProducts.length > 0) {
       handleContinue();
     }
@@ -287,6 +310,19 @@ export default function ModerateRoutineStep1ProductSelection({
   const totalInternalSteps = 8;
   const canGoNext = selectedProducts.length > 0;
 
+  console.log('🟡 Step1 About to render with translation values:', {
+    banner1: t('dayRoutineBanners.line1'),
+    banner2: t('dayRoutineBanners.line2'),
+    stepOf: t('moderateRoutineStep1Products.step_of', { current: currentStep, total: totalSteps }),
+    forSkin: t('moderateRoutineStep1Products.for_skin', { skinType: t(`profile.skin_labels.${skinType}`) }),
+    sectionTitle: t('moderateRoutineStep1Products.section_title'),
+    explanation: t('moderateRoutineStep1Products.explanation'),
+    selectProducts: t('moderateRoutineStep1Products.select_products', { count: selectedProducts.length }),
+    canGoNext
+  });
+
+  console.log('🟡 Step1 About to return JSX');
+
   return (
     <View style={styles.container}>
       <View style={styles.topNavigation}>
@@ -305,13 +341,14 @@ export default function ModerateRoutineStep1ProductSelection({
         activeOpacity={0.9}
       >
         <ImageBackground
-          source={require('../assets/images/Banner Day Routine 1.png')}
-          style={styles.bannerImage}
+          source={require('../assets/images/banner-day-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
           resizeMode="cover"
         >
-          <View style={styles.bannerTextContainer}>
-            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
-            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          <View style={styles.dayRoutineBannerTextContainer}>
+            <Text style={styles.dayRoutineLine1}>{t('dayRoutineBanners.line1')}</Text>
+            <Text style={styles.dayRoutineLine2}>{t('dayRoutineBanners.line2')}</Text>
           </View>
         </ImageBackground>
       </TouchableOpacity>
@@ -469,23 +506,43 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  dayRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 10,
+    flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
   },
-  bannerTextContainer: {
-    alignItems: 'center',
-  },
-  bannerText: {
-    fontSize: 28,
-    fontWeight: '700',
+  dayRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
     color: BRAND_COLORS.white,
-    textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  dayRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,
+    includeFontPadding: false,
   },
   scrollView: {
     flex: 1,

@@ -1,16 +1,17 @@
 // app/ModerateRoutineStep2Info.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { t } from './i18n';
 import {
   Image,
   ImageBackground,
+  Linking,
   StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -37,9 +38,9 @@ export default function ModerateRoutineStep2Info({
   onBack, 
   onContinue, 
   currentStep = 2,
-  internalStep = 3
+  internalStep = 3,
+  style
 }) {
-  const { t } = useTranslation();
   const [skinType, setSkinType] = useState('normal');
 
   useEffect(() => {
@@ -70,19 +71,23 @@ export default function ModerateRoutineStep2Info({
   };
 
   const getProductTitle = () => {
-    if (skinType === 'oily') return t('moderateRoutineStep2Info.product_title_oily');
-    if (skinType === 'dry') return t('moderateRoutineStep2Info.product_title_dry');
-    return t('moderateRoutineStep2Info.product_title_default');
+    if (skinType === 'oily') {
+      return t('moderateRoutineStep2Info.product_title_oily');
+    } else if (skinType === 'dry') {
+      return t('moderateRoutineStep2Info.product_title_dry');
+    } else {
+      return t('moderateRoutineStep2Info.product_title_default');
+    }
   };
 
   const getExplanationText = () => {
     if (skinType === 'oily') {
       return t('moderateRoutineStep2Info.explanation_oily');
-    }
-    if (skinType === 'dry') {
+    } else if (skinType === 'dry') {
       return t('moderateRoutineStep2Info.explanation_dry');
+    } else {
+      return t('moderateRoutineStep2Info.explanation_default');
     }
-    return t('moderateRoutineStep2Info.explanation_default');
   };
 
   const skinTypeInfo = SKIN_TYPE_INFO[skinType] || SKIN_TYPE_INFO.normal;
@@ -90,7 +95,7 @@ export default function ModerateRoutineStep2Info({
   const totalInternalSteps = 8;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       <View style={styles.topNavigation}>
         <TouchableOpacity onPress={onNavigateHome} style={styles.logoButton}>
           <Image 
@@ -107,13 +112,13 @@ export default function ModerateRoutineStep2Info({
         activeOpacity={0.9}
       >
         <ImageBackground
-          source={require('../assets/images/Banner Day Routine 1.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
+          source={require('../assets/images/banner-day-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
         >
-          <View style={styles.bannerTextContainer}>
-            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
-            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          <View style={styles.dayRoutineBannerTextContainer}>
+            <Text style={styles.dayRoutineLine1}>{t('dayRoutineBanners.line1')}</Text>
+            <Text style={styles.dayRoutineLine2}>{t('dayRoutineBanners.line2')}</Text>
           </View>
         </ImageBackground>
       </TouchableOpacity>
@@ -226,23 +231,43 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  dayRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 10,
+    flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
   },
-  bannerTextContainer: {
-    alignItems: 'center',
-  },
-  bannerText: {
-    fontSize: 28,
-    fontWeight: '700',
+  dayRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
     color: BRAND_COLORS.white,
-    textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  dayRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,
+    includeFontPadding: false,
   },
   content: {
     flex: 1,

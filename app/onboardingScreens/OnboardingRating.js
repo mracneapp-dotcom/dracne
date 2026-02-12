@@ -1,4 +1,4 @@
-// app/onboardingScreens/OnboardingRating.js - FIXED SPANISH OVERLAP
+// app/onboardingScreens/OnboardingRating.js - ANDROID DEBUG FIX
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -50,6 +50,8 @@ export default function OnboardingRating({ onNext }) {
   const testimonialsAnim = useRef(TESTIMONIALS.map(() => new Animated.Value(0))).current;
 
   useEffect(() => {
+    console.log('📱 OnboardingRating mounted - Platform:', Platform.OS);
+    
     const animations = [
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -69,6 +71,7 @@ export default function OnboardingRating({ onNext }) {
     Animated.parallel(animations).start();
 
     const timer = setTimeout(() => {
+      console.log('⏰ Showing rating popup');
       setShowPopup(true);
     }, 2500);
 
@@ -76,19 +79,28 @@ export default function OnboardingRating({ onNext }) {
   }, []);
 
   const openAppStore = async () => {
+    console.log('🏪 Opening app store - Platform:', Platform.OS);
+    
     const storeUrl = Platform.select({
       ios: 'itms-apps://itunes.apple.com/app/id6741170145',
       android: 'market://details?id=com.aleboshi.dracne',
     });
 
+    console.log('🔗 Store URL:', storeUrl);
+
     try {
       const canOpen = await Linking.canOpenURL(storeUrl);
+      console.log('✅ Can open store URL:', canOpen);
+      
       if (canOpen) {
         await Linking.openURL(storeUrl);
+        console.log('✅ Store opened successfully');
       } else {
         throw new Error('Store app not available');
       }
-    } catch {
+    } catch (error) {
+      console.log('⚠️ Store app failed, trying web URL:', error.message);
+      
       const webUrl = Platform.select({
         ios: 'https://apps.apple.com/app/id6741170145',
         android: 'https://play.google.com/store/apps/details?id=com.aleboshi.dracne',
@@ -96,7 +108,9 @@ export default function OnboardingRating({ onNext }) {
       
       try {
         await Linking.openURL(webUrl);
-      } catch {
+        console.log('✅ Web store opened successfully');
+      } catch (webError) {
+        console.error('❌ Both store URLs failed:', webError);
         Alert.alert(
           'Store Not Available',
           'Unable to open the app store. Please search for "Dr. Acne" in your app store manually.',
@@ -107,60 +121,78 @@ export default function OnboardingRating({ onNext }) {
   };
 
   const handleStarPress = async (rating) => {
+    console.log('⭐ Star pressed:', rating);
     setUserRating(rating);
     setShowPopup(false);
     
-    if (rating === 5) {
-      // 5 stars - Open store immediately
-      await openAppStore();
-      onNext('onboardingSaveProgress', {
-        rating: rating,
-        ratedInStore: true,
-        ratingCompleted: true,
-      });
-    } else {
-      // 4 stars or less - Thank them without forcing store visit
-      Alert.alert(
-        t('onboarding.rating.thank_you_title'),
-        t('onboarding.rating.thank_you_message'),
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              onNext('onboardingSaveProgress', {
-                rating: rating,
-                ratedInStore: false,
-                ratingCompleted: true,
-              });
-            }
-          }
-        ]
-      );
+    try {
+      if (rating === 5) {
+        console.log('🎉 5 stars - opening store');
+        await openAppStore();
+        console.log('✅ Store opened, user stays on screen');
+      } else {
+        console.log('👍 ' + rating + ' stars - showing thank you');
+        Alert.alert(
+          t('onboarding.rating.thank_you_title'),
+          t('onboarding.rating.thank_you_message'),
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('❌ Error in handleStarPress:', error);
     }
   };
 
   const handleNotNow = () => {
+    console.log('⏭️ Not now pressed - closing popup');
     setShowPopup(false);
-    onNext('onboardingSaveProgress', {
-      rating: 0,
-      ratedInStore: false,
-      ratingSkipped: true,
-    });
   };
 
-  const handleRateUs = () => {
-    setShowPopup(true);
+  const handleContinue = () => {
+    console.log('▶️ Continue pressed');
+    console.log('📊 Rating data:', {
+      userRating,
+      ratedInStore: userRating === 5,
+      ratingCompleted: userRating > 0,
+      ratingSkipped: userRating === 0,
+    });
+    
+    try {
+      console.log('🚀 Calling onNext with screen: onboardingSaveProgress');
+      onNext('onboardingSaveProgress', {
+        rating: userRating,
+        ratedInStore: userRating === 5,
+        ratingCompleted: userRating > 0,
+        ratingSkipped: userRating === 0,
+      });
+      console.log('✅ onNext called successfully');
+    } catch (error) {
+      console.error('❌ Error calling onNext:', error);
+      Alert.alert('Navigation Error', error.message);
+    }
   };
 
   const handleSkip = () => {
-    onNext('onboardingSaveProgress', {
-      rating: 0,
-      ratedInStore: false,
-      ratingSkipped: true,
-    });
+    console.log('⏩ Skip pressed');
+    try {
+      onNext('onboardingSaveProgress', {
+        rating: 0,
+        ratedInStore: false,
+        ratingSkipped: true,
+      });
+      console.log('✅ Skip navigation called');
+    } catch (error) {
+      console.error('❌ Error in skip:', error);
+    }
+  };
+
+  const handleRateUs = () => {
+    console.log('⭐ Rate us pressed - showing popup');
+    setShowPopup(true);
   };
 
   const closePopup = () => {
+    console.log('❌ Popup closed');
     setShowPopup(false);
   };
 
@@ -250,7 +282,6 @@ export default function OnboardingRating({ onNext }) {
         </View>
       </Animated.View>
 
-      {/* ✅ FIXED: Wrapped in ScrollView to prevent overlap */}
       <ScrollView 
         style={styles.testimonialsScrollView}
         contentContainerStyle={styles.testimonialsContainer}
@@ -266,12 +297,11 @@ export default function OnboardingRating({ onNext }) {
         
         <DrAcneButton
           title={t('onboarding.rating.button')}
-          onPress={handleRateUs}
+          onPress={handleContinue}
           style={styles.button}
         />
       </View>
 
-      {/* Native iOS/Android Rating Popup */}
       {showPopup && (
         <Modal transparent={true} animationType="fade">
           <TouchableOpacity
@@ -377,7 +407,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
-  // ✅ FIXED: Added ScrollView wrapper for testimonials
   testimonialsScrollView: {
     flex: 1,
   },

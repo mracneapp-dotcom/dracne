@@ -34,6 +34,7 @@ export default function OnboardingSaveProgress({ onNext, onboardingData = {} }) 
   const [request, response, promptAsync] = Google.useAuthRequest({
     expoClientId: '338991525353-1r9lu6pl024a1vrf7mlg7k77pqj6vrvc.apps.googleusercontent.com',
     iosClientId: '338991525353-kvd8elr7d227p8493is5qnda0aq2cd5e.apps.googleusercontent.com',
+    androidClientId: '338991525353-kvd8elr7d227p8493is5qnda0aq2cd5e.apps.googleusercontent.com',
     webClientId: '338991525353-1r9lu6pl024a1vrf7mlg7k77pqj6vrvc.apps.googleusercontent.com',
   });
 

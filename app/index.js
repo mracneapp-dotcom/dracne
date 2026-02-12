@@ -989,15 +989,21 @@ const handleNightMoisturizerSelected = async (products) => {
 
   // Moderate Routine Handlers
   const handleModerateCleanserSelected = (products) => {
-    console.log('Moderate - Cleansers selected:', products);
+    console.log('🟢 STEP 1: Cleansers selected:', products);
+    console.log('🟢 STEP 2: Setting products to state');
+    setSelectedProducts(prev => ({ ...prev, cleansers: products }));
+    console.log('🟢 STEP 3: Hiding product selection screens');
     setShowModerateProductSelectionStep2(false);
     setShowModerateProductSelectionStep3(false);
     setShowModerateProductSelectionStep4(false);
+    console.log('🟢 STEP 4: Navigating to moderateRoutineStep2');
     setCurrentStep('moderateRoutineStep2');
+    console.log('✅ COMPLETE: Should now be on step 2');
   };
 
   const handleModerateMoisturizerSelected = (products) => {
     console.log('Moderate - Moisturizers selected:', products);
+    setSelectedProducts(prev => ({ ...prev, moisturizers: products }));
     setShowModerateProductSelectionStep3(false);
     setShowModerateProductSelectionStep4(false);
     setCurrentStep('moderateRoutineStep3');
@@ -1005,12 +1011,14 @@ const handleNightMoisturizerSelected = async (products) => {
 
   const handleModerateSpecializedSelected = (products) => {
     console.log('Moderate - Specialized products selected:', products);
+    setSelectedProducts(prev => ({ ...prev, specializedProducts: products }));
     setShowModerateProductSelectionStep4(false);
     setCurrentStep('moderateRoutineStep4');
   };
 
   const handleModerateSunscreenSelected = (products) => {
     console.log('Moderate - Sunscreens selected:', products);
+    setSelectedProducts(prev => ({ ...prev, sunscreens: products }));
   };
 
   // Comprehensive Night Routine Handlers

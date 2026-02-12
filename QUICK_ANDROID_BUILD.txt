@@ -1,0 +1,14 @@
+QUICK ANDROID BUILD REFERENCE
+==============================
+
+1. Increment version: android/app/build.gradle (versionCode)
+2. cd ~/Desktop/DrAcne/android
+3. ./gradlew bundleRelease
+4. Upload: android/app/build/outputs/bundle/release/app-release.aab
+
+Keystore: upload-keystore.jks
+Password: dracne2025secure
+Alias: upload
+
+NEVER DELETE: upload-keystore.jks
+NEVER CHANGE: Passwords in build.gradle

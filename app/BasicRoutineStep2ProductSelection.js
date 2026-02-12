@@ -249,16 +249,16 @@ export default function BasicRoutineStep2ProductSelection({
   const handleContinue = async () => {
     if (selectedProducts.length > 0 && onContinue) {
       try {
-        const routineData = await AsyncStorage.getItem('myDayRoutine');
+        const routineData = await AsyncStorage.getItem('myBasicRoutine');
         const currentRoutine = routineData ? JSON.parse(routineData) : {};
         
         currentRoutine.moisturizers = selectedProducts;
         currentRoutine.lastUpdated = new Date().toISOString();
         
-        await AsyncStorage.setItem('myDayRoutine', JSON.stringify(currentRoutine));
-        console.log('✅ Saved moisturizers to My Day Routine:', selectedProducts);
+        await AsyncStorage.setItem('myBasicRoutine', JSON.stringify(currentRoutine));
+        console.log('✅ Saved moisturizers to My Basic Routine:', selectedProducts);
       } catch (error) {
-        console.error('Error saving to My Day Routine:', error);
+        console.error('Error saving to My Basic Routine:', error);
       }
       
       onContinue(selectedProducts);

@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { t } from '../../app/i18n'; // ✅ ADD THIS IMPORT
+import { t } from '../../app/i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -290,19 +290,25 @@ export default function RoutineCompletionModal({
               </View>
             )}
 
-            {/* COMPREHENSIVE DAY: PORE CARE + SPECIALIZED */}
+            {/* COMPREHENSIVE DAY: MOISTURIZER + PORE CARE + ADVANCED */}
             {isComprehensive && !isNight && (
               <>
                 <View style={styles.stepCard}>
-                  <Text style={styles.stepTitle}>{t('routineCompletion.step_2_pore_care')}</Text>
+                  <Text style={styles.stepTitle}>{t('routineCompletion.step_2_moisturizer')}</Text>
+                  <Text style={[styles.productName, moisturizers.length === 0 && styles.emptyText]}>
+                    {moisturizers[0]?.name || t('routineCompletion.no_moisturizer_selected')}
+                  </Text>
+                </View>
+                <View style={styles.stepCard}>
+                  <Text style={styles.stepTitle}>{t('routineCompletion.step_3_pore_care')}</Text>
                   <Text style={[styles.productName, poreCare.length === 0 && styles.emptyText]}>
                     {poreCare[0]?.name || poreCareProducts[0]?.name || t('routineCompletion.no_pore_care_selected')}
                   </Text>
                 </View>
                 <View style={styles.stepCard}>
-                  <Text style={styles.stepTitle}>{t('routineCompletion.step_3_specialized')}</Text>
-                  <Text style={[styles.productName, specializedProducts.length === 0 && styles.emptyText]}>
-                    {specializedProducts[0]?.name || t('routineCompletion.no_specialized_selected')}
+                  <Text style={styles.stepTitle}>{t('routineCompletion.step_4_advanced')}</Text>
+                  <Text style={[styles.productName, advancedTreatments.length === 0 && styles.emptyText]}>
+                    {advancedTreatments[0]?.name || t('routineCompletion.no_treatment_selected')}
                   </Text>
                 </View>
               </>
@@ -336,18 +342,20 @@ export default function RoutineCompletionModal({
               </View>
             )}
 
-            {/* MOISTURIZER STEP */}
-            <View style={styles.stepCard}>
-              <Text style={styles.stepTitle}>
-                {t('routineCompletion.step_x_moisturizer', { 
-                  step: isComprehensive ? (isNight ? 4 : 4) : (isModerate ? (isNight ? 3 : 3) : 2),
-                  type: isNight ? t('routineCompletion.night_moisturizer') : t('routineCompletion.moisturizer')
-                })}
-              </Text>
-              <Text style={[styles.productName, moisturizers.length === 0 && styles.emptyText]}>
-                {moisturizers[0]?.name || t('routineCompletion.no_moisturizer_selected')}
-              </Text>
-            </View>
+            {/* MOISTURIZER STEP (Basic and Moderate only - Comprehensive already showed it) */}
+            {!isComprehensive && (
+              <View style={styles.stepCard}>
+                <Text style={styles.stepTitle}>
+                  {t('routineCompletion.step_x_moisturizer', { 
+                    step: isModerate ? (isNight ? 3 : 3) : 2,
+                    type: isNight ? t('routineCompletion.night_moisturizer') : t('routineCompletion.moisturizer')
+                  })}
+                </Text>
+                <Text style={[styles.productName, moisturizers.length === 0 && styles.emptyText]}>
+                  {moisturizers[0]?.name || t('routineCompletion.no_moisturizer_selected')}
+                </Text>
+              </View>
+            )}
 
             {/* SUNSCREEN (DAY ONLY) */}
             {!isNight && (

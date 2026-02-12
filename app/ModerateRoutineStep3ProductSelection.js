@@ -266,11 +266,11 @@ export default function ModerateRoutineStep3ProductSelection({
         const routineData = await AsyncStorage.getItem('myModerateRoutine');
         const currentRoutine = routineData ? JSON.parse(routineData) : {};
         
-        currentRoutine.specializedProducts = selectedProducts;
+        currentRoutine.poreCare = selectedProducts;
         currentRoutine.lastUpdated = new Date().toISOString();
         
         await AsyncStorage.setItem('myModerateRoutine', JSON.stringify(currentRoutine));
-        console.log('Saved specialized products to Moderate Routine:', selectedProducts);
+        console.log('Saved pore care to Moderate Routine:', selectedProducts);
       } catch (error) {
         console.error('Error saving to Moderate Routine:', error);
       }
@@ -486,13 +486,14 @@ export default function ModerateRoutineStep3ProductSelection({
         activeOpacity={0.9}
       >
         <ImageBackground
-          source={require('../assets/images/Banner Day Routine 1.png')}
-          style={styles.bannerImage}
+          source={require('../assets/images/banner-day-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
           resizeMode="cover"
         >
-          <View style={styles.bannerTextContainer}>
-            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
-            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          <View style={styles.dayRoutineBannerTextContainer}>
+            <Text style={styles.dayRoutineLine1}>{t('dayRoutineBanners.line1')}</Text>
+            <Text style={styles.dayRoutineLine2}>{t('dayRoutineBanners.line2')}</Text>
           </View>
         </ImageBackground>
       </TouchableOpacity>
@@ -643,23 +644,43 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  dayRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 10,
+    flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
   },
-  bannerTextContainer: {
-    alignItems: 'center',
-  },
-  bannerText: {
-    fontSize: 28,
-    fontWeight: '700',
+  dayRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
     color: BRAND_COLORS.white,
-    textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  dayRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,
+    includeFontPadding: false,
   },
   scrollView: {
     flex: 1,

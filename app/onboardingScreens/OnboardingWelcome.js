@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { t } from '../i18n';
+import { trackOnboardingWelcome } from '../utils/facebookPixel'; // ⬅️ ADD THIS LINE
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -30,6 +31,8 @@ export default function OnboardingWelcome({ onNext }) {
   const card3Anim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
+    trackOnboardingWelcome(); // ⬅️ ADD THIS LINE (safe - does nothing if disabled)
+
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,

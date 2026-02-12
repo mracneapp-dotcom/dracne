@@ -1,10 +1,10 @@
 // app/ModerateRoutineStep2ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { t } from './i18n';
 import {
   Image,
   ImageBackground,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,6 +12,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -203,7 +204,6 @@ export default function ModerateRoutineStep2ProductSelection({
   currentStep = 2,
   internalStep = 4
 }) {
-  const { t } = useTranslation();
   const [skinType, setSkinType] = useState('normal');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [products, setProducts] = useState([]);
@@ -288,13 +288,13 @@ export default function ModerateRoutineStep2ProductSelection({
         activeOpacity={0.9}
       >
         <ImageBackground
-          source={require('../assets/images/Banner Day Routine 1.png')}
-          style={styles.bannerImage}
-          resizeMode="cover"
+          source={require('../assets/images/banner-day-routine-base.png')}
+          style={styles.bannerImageBackground}
+          imageStyle={styles.bannerImage}
         >
-          <View style={styles.bannerTextContainer}>
-            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
-            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
+          <View style={styles.dayRoutineBannerTextContainer}>
+            <Text style={styles.dayRoutineLine1}>{t('dayRoutineBanners.line1')}</Text>
+            <Text style={styles.dayRoutineLine2}>{t('dayRoutineBanners.line2')}</Text>
           </View>
         </ImageBackground>
       </TouchableOpacity>
@@ -447,23 +447,43 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImage: {
+  bannerImageBackground: {
     width: '100%',
     height: '100%',
+    justifyContent: 'flex-start',
+  },
+  bannerImage: {
+    borderRadius: 0,
+  },
+  dayRoutineBannerTextContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 24,
+    paddingTop: 10,
+    flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
   },
-  bannerTextContainer: {
-    alignItems: 'center',
-  },
-  bannerText: {
-    fontSize: 28,
-    fontWeight: '700',
+  dayRoutineLine1: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
     color: BRAND_COLORS.white,
-    textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    includeFontPadding: false,
+  },
+  dayRoutineLine2: {
+    fontFamily: 'Baloo',
+    fontSize: 32,
+    fontWeight: '900',
+    lineHeight: 36,
+    color: BRAND_COLORS.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginTop: -4,
+    includeFontPadding: false,
   },
   scrollView: {
     flex: 1,

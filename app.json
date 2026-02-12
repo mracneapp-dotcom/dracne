@@ -4,7 +4,7 @@
     "slug": "dracne",
     "owner": "aleb",
     "scheme": "dracne",
-    "version": "1.0.9",
+    "version": "1.0.13",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "backgroundColor": "#FAFBFC",
@@ -17,29 +17,18 @@
     },
     "ios": {
       "bundleIdentifier": "com.aleboshi.dracne",
-      "buildNumber": "3",
+      "buildNumber": "16",
       "usesAppleSignIn": true,
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "DrAcne uses the camera to take photos for AI acne analysis.",
         "NSPhotoLibraryUsageDescription": "DrAcne accesses your photo library to select images for AI acne analysis.",
-        "NSUserTrackingUsageDescription": "This app uses data for personalized ads and analytics.",
-        "FacebookAppID": "4296363337358170",
-        "FacebookDisplayName": "Dr. Acne",
-        "FacebookAdvertiserIDCollectionEnabled": true,
-        "FacebookAutoLogAppEventsEnabled": true,
         "UIBackgroundModes": [
           "remote-notification"
         ],
         "SKAdNetworkItems": [
           {
             "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork"
-          },
-          {
-            "SKAdNetworkIdentifier": "v9wttpbfk9.skadnetwork"
-          },
-          {
-            "SKAdNetworkIdentifier": "n38lu8286q.skadnetwork"
           }
         ],
         "UILaunchStoryboardName": "SplashScreen"
@@ -47,7 +36,7 @@
     },
     "android": {
       "package": "com.aleboshi.dracne",
-      "versionCode": 2,
+      "versionCode": 13,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
@@ -62,6 +51,7 @@
       ],
       "googleServicesFile": "./google-services.json",
       "splash": {
+        "image": "./assets/images/android-icon-foreground.png",
         "backgroundColor": "#FAFBFC",
         "resizeMode": "contain"
       }
@@ -99,15 +89,8 @@
       "expo-router",
       "expo-web-browser",
       "expo-localization",
-      [
-        "expo-facebook",
-        {
-          "userTrackingPermission": "This app uses data for personalized ads and analytics.",
-          "advertiserIDCollectionEnabled": true,
-          "autoLogAppEventsEnabled": true,
-          "platforms": ["ios"]
-        }
-      ]
+      "./expo-plugins/exclude-iap-android.js",
+      "expo-tracking-transparency"
     ],
     "extra": {
       "iosClientId": "338991525353-kvd8elr7d227p8493is5qnda0aq2cd5e.apps.googleusercontent.com",

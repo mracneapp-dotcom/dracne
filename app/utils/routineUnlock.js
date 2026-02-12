@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // ==========================================
 // 🔧 ROUTINE ACCESS CONTROL
 // ==========================================
-export const APPLE_REVIEW_MODE = false; // ⬅️ TOGGLE HERE FOR ENTIRE APP
+export const APPLE_REVIEW_MODE = true; // ⬅️ TOGGLE HERE FOR ENTIRE APP, ROUTINES UNBLOCKED
 
 // 📊 PROGRESSIVE UNLOCK SYSTEM
 export const checkRoutineUnlockStatus = async () => {
