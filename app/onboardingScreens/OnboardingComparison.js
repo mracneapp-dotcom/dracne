@@ -23,7 +23,7 @@ const BRAND_COLORS = {
 
 export default function OnboardingComparison({ onNext }) {
   const handleContinue = () => {
-    onNext('onboardingReady', { sawComparison: true });
+    onNext('onboardingValueLock', { sawComparison: true });
   };
 
   return (

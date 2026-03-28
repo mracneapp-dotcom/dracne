@@ -110,7 +110,13 @@ import SkinGoalsScreen from './SkinGoalsScreen';
 import OnboardingBarrierHealth1 from './onboardingScreens/OnboardingBarrierHealth1';
 import OnboardingBarrierHealth2 from './onboardingScreens/OnboardingBarrierHealth2';
 import OnboardingComparison from './onboardingScreens/OnboardingComparison';
+import OnboardingValueLock from './onboardingScreens/OnboardingValueLock';
 import OnboardingConsistency from './onboardingScreens/OnboardingConsistency';
+import OnboardingSkinHistory from './onboardingScreens/OnboardingSkinHistory';
+import OnboardingSensitivities from './onboardingScreens/OnboardingSensitivities';
+import OnboardingAllergies from './onboardingScreens/OnboardingAllergies';
+import OnboardingSkinConcerns from './onboardingScreens/OnboardingSkinConcerns';
+import OnboardingProducts from './onboardingScreens/OnboardingProducts';
 import OnboardingDiscovery from './onboardingScreens/OnboardingDiscovery';
 import OnboardingExperience from './onboardingScreens/OnboardingExperience';
 import OnboardingGenerating from './onboardingScreens/OnboardingGenerating';
@@ -324,7 +330,7 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       try {
-        // ✅ Initialize language FIRST
+// ✅ Initialize language FIRST
         const currentLanguage = await initializeLanguage();
         console.log('🌐 Language initialized:', currentLanguage);
         
@@ -420,10 +426,22 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
       setCurrentOnboardingStep('onboardingTimeline');
     } else if (currentOnboardingStep === 'onboardingConsistency') {
       setCurrentOnboardingStep('onboardingResultsTimeline');
-    } else if (currentOnboardingStep === 'onboardingComparison') {
+    } else if (currentOnboardingStep === 'onboardingSkinHistory') {
       setCurrentOnboardingStep('onboardingConsistency');
-    } else if (currentOnboardingStep === 'onboardingReady') {
+    } else if (currentOnboardingStep === 'onboardingSensitivities') {
+      setCurrentOnboardingStep('onboardingSkinHistory');
+    } else if (currentOnboardingStep === 'onboardingAllergies') {
+      setCurrentOnboardingStep('onboardingSensitivities');
+    } else if (currentOnboardingStep === 'onboardingSkinConcerns') {
+      setCurrentOnboardingStep('onboardingAllergies');
+    } else if (currentOnboardingStep === 'onboardingProducts') {
+      setCurrentOnboardingStep('onboardingSkinConcerns');
+    } else if (currentOnboardingStep === 'onboardingComparison') {
+      setCurrentOnboardingStep('onboardingProducts');
+    } else if (currentOnboardingStep === 'onboardingValueLock') {
       setCurrentOnboardingStep('onboardingComparison');
+    } else if (currentOnboardingStep === 'onboardingReady') {
+      setCurrentOnboardingStep('onboardingValueLock');
     } else if (currentOnboardingStep === 'onboardingPrivacy') {
       setCurrentOnboardingStep('onboardingReady');
     } else if (currentOnboardingStep === 'onboardingGenerating') {
@@ -455,7 +473,13 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
       'onboardingTimeline': 47.6,
       'onboardingResultsTimeline': 52.4,
       'onboardingConsistency': 57.1,
+      'onboardingSkinHistory': 55,
+      'onboardingSensitivities': 57,
+      'onboardingAllergies': 59,
+      'onboardingSkinConcerns': 61,
+      'onboardingProducts': 63,
       'onboardingComparison': 61.9,
+      'onboardingValueLock': 64,
       'onboardingReady': 66.6,
       'onboardingPrivacy': 71.4,
       'onboardingGenerating': 76.2,
@@ -1445,9 +1469,32 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
   const renderOnboardingConsistency = () => (
     <OnboardingConsistency onNext={handleOnboardingNext} style={styles.screenContent} />
   );
+  const renderOnboardingSkinHistory = () => (
+    <OnboardingSkinHistory onNext={handleOnboardingNext} style={styles.screenContent} />
+  );
+  const renderOnboardingSensitivities = () => (
+    <OnboardingSensitivities onNext={handleOnboardingNext} style={styles.screenContent} />
+  );
+  const renderOnboardingAllergies = () => (
+    <OnboardingAllergies onNext={handleOnboardingNext} style={styles.screenContent} />
+  );
+  const renderOnboardingSkinConcerns = () => (
+    <OnboardingSkinConcerns onNext={handleOnboardingNext} style={styles.screenContent} />
+  );
+  const renderOnboardingProducts = () => (
+    <OnboardingProducts onNext={handleOnboardingNext} style={styles.screenContent} />
+  );
 
   const renderOnboardingComparison = () => (
     <OnboardingComparison onNext={handleOnboardingNext} style={styles.screenContent} />
+  );
+
+  const renderOnboardingValueLock = () => (
+    <OnboardingValueLock
+      onNext={handleOnboardingNext}
+      onboardingData={onboardingData}
+      style={styles.screenContent}
+    />
   );
 
   const renderOnboardingReady = () => (
@@ -1459,7 +1506,11 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
   );
 
   const renderOnboardingGenerating = () => (
-    <OnboardingGenerating onNext={handleOnboardingNext} style={styles.screenContent} />
+    <OnboardingGenerating
+      onNext={handleOnboardingNext}
+      onboardingData={onboardingData}
+      style={styles.screenContent}
+    />
   );
 
   const renderOnboardingPlanReady = () => (
@@ -2785,7 +2836,13 @@ const renderComprehensiveNightRoutineStep4 = () => {
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingTimeline' && renderOnboardingTimeline()}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingResultsTimeline' && renderOnboardingResultsTimeline()}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingConsistency' && renderOnboardingConsistency()}
+        {!isOnboardingComplete && currentOnboardingStep === 'onboardingSkinHistory' && renderOnboardingSkinHistory()}
+        {!isOnboardingComplete && currentOnboardingStep === 'onboardingSensitivities' && renderOnboardingSensitivities()}
+        {!isOnboardingComplete && currentOnboardingStep === 'onboardingAllergies' && renderOnboardingAllergies()}
+        {!isOnboardingComplete && currentOnboardingStep === 'onboardingSkinConcerns' && renderOnboardingSkinConcerns()}
+        {!isOnboardingComplete && currentOnboardingStep === 'onboardingProducts' && renderOnboardingProducts()}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingComparison' && renderOnboardingComparison()}
+        {!isOnboardingComplete && currentOnboardingStep === 'onboardingValueLock' && renderOnboardingValueLock()}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingReady' && renderOnboardingReady()}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingPrivacy' && renderOnboardingPrivacy()}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingGenerating' && renderOnboardingGenerating()}

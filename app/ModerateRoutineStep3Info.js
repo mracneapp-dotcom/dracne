@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Image,
   ImageBackground,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -150,14 +151,13 @@ export default function ModerateRoutineStep3Info({
         activeOpacity={0.9}
       >
         <ImageBackground
-          source={require('../assets/images/banner-day-routine-base.png')}
-          style={styles.bannerImageBackground}
-          imageStyle={styles.bannerImage}
+          source={require('../assets/images/Banner Day Routine 1.png')}
+          style={styles.bannerImage}
           resizeMode="cover"
         >
-          <View style={styles.dayRoutineBannerTextContainer}>
-            <Text style={styles.dayRoutineLine1}>{t('dayRoutineBanners.line1')}</Text>
-            <Text style={styles.dayRoutineLine2}>{t('dayRoutineBanners.line2')}</Text>
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line1')}</Text>
+            <Text style={styles.bannerText}>{t('dayRoutineBanners.create_line2')}</Text>
           </View>
         </ImageBackground>
       </TouchableOpacity>
@@ -277,43 +277,23 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 20,
   },
-  bannerImageBackground: {
+  bannerImage: {
     width: '100%',
     height: '100%',
-    justifyContent: 'flex-start',
-  },
-  bannerImage: {
-    borderRadius: 0,
-  },
-  dayRoutineBannerTextContainer: {
-    alignItems: 'flex-end',
-    paddingRight: 24,
-    paddingTop: 10,
-    flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  dayRoutineLine1: {
-    fontFamily: 'Baloo',
-    fontSize: 32,
-    fontWeight: '900',
-    lineHeight: 36,
-    color: BRAND_COLORS.white,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
-    includeFontPadding: false,
+  bannerTextContainer: {
+    alignItems: 'center',
   },
-  dayRoutineLine2: {
-    fontFamily: 'Baloo',
-    fontSize: 32,
-    fontWeight: '900',
-    lineHeight: 36,
+  bannerText: {
+    fontSize: 28,
+    fontWeight: '700',
     color: BRAND_COLORS.white,
+    textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
-    marginTop: -4,
-    includeFontPadding: false,
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   scrollView: {
     flex: 1,

@@ -1,7 +1,8 @@
-// app/onboardingScreens/OnboardingStruggle.js
+// app/onboardingScreens/OnboardingSkinHistory.js
 import React, { useState } from 'react';
 import {
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -17,63 +18,78 @@ const BRAND_COLORS = {
   white: '#FFFFFF',
 };
 
-const STRUGGLE_OPTIONS = [
+const SKIN_HISTORY_OPTIONS = [
   {
-    id: 'breakouts',
-    labelKey: 'onboarding.struggle.breakouts',
-    descKey: 'onboarding.struggle.breakouts_desc',
-    icon: require('../../assets/images/no_icon.png'),
+    id: 'severe',
+    labelKey: 'onboarding.skinHistory.severe',
+    descKey: 'onboarding.skinHistory.severe_desc',
+    icon: require('../../assets/images/check.png'),
     color: BRAND_COLORS.secondary,
   },
   {
-    id: 'nothing_works',
-    labelKey: 'onboarding.struggle.nothing_works',
-    descKey: 'onboarding.struggle.nothing_works_desc',
-    icon: require('../../assets/images/no_icon.png'),
-    color: '#4A90E2',
-  },
-  {
-    id: 'too_many',
-    labelKey: 'onboarding.struggle.too_many',
-    descKey: 'onboarding.struggle.too_many_desc',
-    icon: require('../../assets/images/no_icon.png'),
+    id: 'moderate',
+    labelKey: 'onboarding.skinHistory.moderate',
+    descKey: 'onboarding.skinHistory.moderate_desc',
+    icon: require('../../assets/images/check.png'),
     color: '#F39C12',
   },
   {
-    id: 'dont_know',
-    labelKey: 'onboarding.struggle.dont_know',
-    descKey: 'onboarding.struggle.dont_know_desc',
-    icon: require('../../assets/images/no_icon.png'),
-    color: '#9B59B6',
+    id: 'mild',
+    labelKey: 'onboarding.skinHistory.mild',
+    descKey: 'onboarding.skinHistory.mild_desc',
+    icon: require('../../assets/images/check.png'),
+    color: '#7CB342',
+  },
+  {
+    id: 'none',
+    labelKey: 'onboarding.skinHistory.none',
+    descKey: 'onboarding.skinHistory.none_desc',
+    icon: require('../../assets/images/check.png'),
+    color: '#4A90E2',
   },
 ];
 
-export default function OnboardingStruggle({ onNext }) {
-  const [selectedStruggle, setSelectedStruggle] = useState(null);
+export default function OnboardingSkinHistory({ onNext }) {
+  const [selectedLevel, setSelectedLevel] = useState(null);
 
-  const handleSelect = (struggleId) => {
-    setSelectedStruggle(struggleId);
+  const handleSelect = (levelId) => {
+    setSelectedLevel(levelId);
   };
 
   const handleContinue = () => {
-    if (selectedStruggle) {
-      onNext('onboardingBarrierHealth1', { struggle: selectedStruggle });
+    if (selectedLevel) {
+      onNext('onboardingSensitivities', { acneHistory: selectedLevel });
     }
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.iconContainer}>
+          <View style={styles.mainCircle}>
+            <Image
+              source={require('../../assets/images/check.png')}
+              style={styles.mainIcon}
+              resizeMode="contain"
+            />
+          </View>
+        </View>
+
         <View style={styles.header}>
           <Text style={styles.title}>
-            {t('onboarding.struggle.title')} <Text style={styles.titleHighlight}>{t('onboarding.struggle.titleHighlight')}</Text>
+            {t('onboarding.skinHistory.title1')}{' '}
+            <Text style={styles.titleHighlight}>{t('onboarding.skinHistory.title2')}</Text>
           </Text>
-          <Text style={styles.subtitle}>{t('onboarding.struggle.subtitle')}</Text>
+          <Text style={styles.subtitle}>{t('onboarding.skinHistory.subtitle')}</Text>
         </View>
 
         <View style={styles.optionsContainer}>
-          {STRUGGLE_OPTIONS.map((option) => {
-            const isSelected = selectedStruggle === option.id;
+          {SKIN_HISTORY_OPTIONS.map((option) => {
+            const isSelected = selectedLevel === option.id;
             return (
               <TouchableOpacity
                 key={option.id}
@@ -83,27 +99,24 @@ export default function OnboardingStruggle({ onNext }) {
                     borderColor: option.color,
                     borderWidth: 2,
                     backgroundColor: `${option.color}10`,
-                  }
+                  },
                 ]}
                 onPress={() => handleSelect(option.id)}
               >
                 <View style={[
-                  styles.iconContainer,
-                  { backgroundColor: isSelected ? option.color : '#F5F5F5' }
+                  styles.iconCircle,
+                  { backgroundColor: isSelected ? option.color : '#F5F5F5' },
                 ]}>
                   <Image
                     source={option.icon}
-                    style={[
-                      styles.icon,
-                      { tintColor: isSelected ? BRAND_COLORS.white : '#999' }
-                    ]}
+                    style={[styles.icon, { tintColor: isSelected ? BRAND_COLORS.white : '#999' }]}
                     resizeMode="contain"
                   />
                 </View>
                 <View style={styles.textContainer}>
                   <Text style={[
                     styles.optionLabel,
-                    isSelected && { color: option.color, fontWeight: '600' }
+                    isSelected && { color: option.color, fontWeight: '600' },
                   ]}>
                     {t(option.labelKey)}
                   </Text>
@@ -113,25 +126,26 @@ export default function OnboardingStruggle({ onNext }) {
             );
           })}
         </View>
-      </View>
+
+        <View style={styles.infoBox}>
+          <Text style={styles.infoText}>{t('onboarding.skinHistory.info')}</Text>
+        </View>
+      </ScrollView>
 
       <View style={styles.bottomSection}>
         <TouchableOpacity
-          style={[
-            styles.continueButton,
-            !selectedStruggle && styles.continueButtonDisabled
-          ]}
+          style={[styles.continueButton, !selectedLevel && styles.continueButtonDisabled]}
           onPress={handleContinue}
-          disabled={!selectedStruggle}
+          disabled={!selectedLevel}
         >
           <Text style={[
             styles.continueButtonText,
-            !selectedStruggle && styles.continueButtonTextDisabled
+            !selectedLevel && styles.continueButtonTextDisabled,
           ]}>
-            {t('onboarding.struggle.button')}
+            {t('onboarding.skinHistory.button')}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.helperText}>{t('onboarding.struggle.helper')}</Text>
+        <Text style={styles.helperText}>{t('onboarding.skinHistory.helper')}</Text>
       </View>
     </View>
   );
@@ -142,16 +156,40 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     backgroundColor: 'transparent',
     paddingHorizontal: 24,
-    paddingTop: 60,
-    justifyContent: 'flex-start',
+    paddingTop: 40,
+    paddingBottom: 140,
+  },
+  iconContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  mainCircle: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: BRAND_COLORS.secondary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: BRAND_COLORS.secondary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  mainIcon: {
+    width: 35,
+    height: 35,
+    tintColor: BRAND_COLORS.white,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 30,
   },
   title: {
     fontSize: 28,
@@ -178,8 +216,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: BRAND_COLORS.white,
     borderRadius: 16,
-    padding: 18,
-    marginBottom: 14,
+    padding: 16,
+    marginBottom: 10,
     borderWidth: 2,
     borderColor: 'transparent',
     shadowColor: '#000',
@@ -188,31 +226,45 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  iconContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+  iconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 14,
   },
   icon: {
-    width: 26,
-    height: 26,
+    width: 22,
+    height: 22,
   },
   textContainer: {
     flex: 1,
     justifyContent: 'center',
   },
   optionLabel: {
-    fontSize: 17,
+    fontSize: 16,
     color: BRAND_COLORS.black,
     marginBottom: 4,
   },
   optionDescription: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#666',
+    lineHeight: 18,
+  },
+  infoBox: {
+    backgroundColor: `${BRAND_COLORS.primary}10`,
+    borderRadius: 12,
+    padding: 14,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  infoText: {
+    fontSize: 13,
+    color: BRAND_COLORS.primary,
+    textAlign: 'center',
     lineHeight: 19,
+    fontWeight: '500',
   },
   bottomSection: {
     paddingHorizontal: 20,

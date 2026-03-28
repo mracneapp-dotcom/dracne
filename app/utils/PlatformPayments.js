@@ -1,4 +1,3 @@
-cat > app/utils/PlatformPayments.js << 'EOF'
 import { Platform } from 'react-native';
 
 // Platform-specific payment handling
@@ -22,4 +21,3 @@ export const getPurchaseModule = () => {
   }
   return null;
 };
-EOF

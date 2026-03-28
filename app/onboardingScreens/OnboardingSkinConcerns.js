@@ -1,4 +1,4 @@
-// app/onboardingScreens/OnboardingConsistency.js
+// app/onboardingScreens/OnboardingSkinConcerns.js
 import React, { useState } from 'react';
 import {
   Image,
@@ -18,53 +18,49 @@ const BRAND_COLORS = {
   white: '#FFFFFF',
 };
 
-const CONSISTENCY_OPTIONS = [
-  {
-    id: 'very_committed',
-    labelKey: 'onboarding.consistency.very_committed',
-    descKey: 'onboarding.consistency.very_committed_desc',
-    icon: require('../../assets/images/check.png'),
-    color: BRAND_COLORS.primary,
-  },
-  {
-    id: 'mostly_committed',
-    labelKey: 'onboarding.consistency.mostly_committed',
-    descKey: 'onboarding.consistency.mostly_committed_desc',
-    icon: require('../../assets/images/check.png'),
-    color: '#4A90E2',
-  },
-  {
-    id: 'trying_best',
-    labelKey: 'onboarding.consistency.trying_best',
-    descKey: 'onboarding.consistency.trying_best_desc',
-    icon: require('../../assets/images/check.png'),
-    color: '#F39C12',
-  },
-  {
-    id: 'not_sure',
-    labelKey: 'onboarding.consistency.not_sure',
-    descKey: 'onboarding.consistency.not_sure_desc',
-    icon: require('../../assets/images/check.png'),
-    color: '#9B59B6',
-  },
+const MAX_SELECTIONS = 3;
+
+const SKIN_CONCERN_OPTIONS = [
+  { id: 'pih',         labelKey: 'onboarding.skinConcerns.pih',         descKey: 'onboarding.skinConcerns.pih_desc',         color: '#9B59B6' },
+  { id: 'dryness',     labelKey: 'onboarding.skinConcerns.dryness',     descKey: 'onboarding.skinConcerns.dryness_desc',     color: '#4A90E2' },
+  { id: 'aging',       labelKey: 'onboarding.skinConcerns.aging',       descKey: 'onboarding.skinConcerns.aging_desc',       color: '#F39C12' },
+  { id: 'pores',       labelKey: 'onboarding.skinConcerns.pores',       descKey: 'onboarding.skinConcerns.pores_desc',       color: '#1ABC9C' },
+  { id: 'texture',     labelKey: 'onboarding.skinConcerns.texture',     descKey: 'onboarding.skinConcerns.texture_desc',     color: '#E67E22' },
+  { id: 'redness',     labelKey: 'onboarding.skinConcerns.redness',     descKey: 'onboarding.skinConcerns.redness_desc',     color: BRAND_COLORS.secondary },
+  { id: 'oiliness',    labelKey: 'onboarding.skinConcerns.oiliness',    descKey: 'onboarding.skinConcerns.oiliness_desc',    color: '#27AE60' },
+  { id: 'sensitivity', labelKey: 'onboarding.skinConcerns.sensitivity', descKey: 'onboarding.skinConcerns.sensitivity_desc', color: '#E74C3C' },
+  { id: 'glow',        labelKey: 'onboarding.skinConcerns.glow',        descKey: 'onboarding.skinConcerns.glow_desc',        color: '#F1C40F' },
+  { id: 'breakouts',   labelKey: 'onboarding.skinConcerns.breakouts',   descKey: 'onboarding.skinConcerns.breakouts_desc',   color: BRAND_COLORS.primary },
 ];
 
-export default function OnboardingConsistency({ onNext }) {
-  const [selectedLevel, setSelectedLevel] = useState(null);
+export default function OnboardingSkinConcerns({ onNext }) {
+  const [selectedItems, setSelectedItems] = useState([]);
 
-  const handleSelect = (levelId) => {
-    setSelectedLevel(levelId);
+  const handleSelect = (id) => {
+    setSelectedItems((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((item) => item !== id);
+      }
+      if (prev.length >= MAX_SELECTIONS) {
+        return prev;
+      }
+      return [...prev, id];
+    });
   };
 
+  const isEnabled = selectedItems.length > 0;
+
   const handleContinue = () => {
-    if (selectedLevel) {
-      onNext('onboardingSkinHistory', { consistency: selectedLevel });
+    if (isEnabled) {
+      onNext('onboardingProducts', { skinConcerns: selectedItems });
     }
   };
 
+  const isMaxReached = selectedItems.length >= MAX_SELECTIONS;
+
   return (
     <View style={styles.container}>
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -81,16 +77,24 @@ export default function OnboardingConsistency({ onNext }) {
 
         <View style={styles.header}>
           <Text style={styles.title}>
-            {t('onboarding.consistency.title1')} <Text style={styles.titleHighlight}>{t('onboarding.consistency.title2')}</Text>
+            {t('onboarding.skinConcerns.title1')}{' '}
+            <Text style={styles.titleHighlight}>{t('onboarding.skinConcerns.title2')}</Text>
           </Text>
-          <Text style={styles.subtitle}>
-            {t('onboarding.consistency.subtitle')}
-          </Text>
+          <Text style={styles.subtitle}>{t('onboarding.skinConcerns.subtitle')}</Text>
         </View>
 
+        {isMaxReached && (
+          <View style={styles.maxHintBox}>
+            <Text style={styles.maxHintText}>
+              {t('onboarding.skinConcerns.max_hint', { count: selectedItems.length })}
+            </Text>
+          </View>
+        )}
+
         <View style={styles.optionsContainer}>
-          {CONSISTENCY_OPTIONS.map((option) => {
-            const isSelected = selectedLevel === option.id;
+          {SKIN_CONCERN_OPTIONS.map((option) => {
+            const isSelected = selectedItems.includes(option.id);
+            const isDimmed = isMaxReached && !isSelected;
             return (
               <TouchableOpacity
                 key={option.id}
@@ -100,61 +104,54 @@ export default function OnboardingConsistency({ onNext }) {
                     borderColor: option.color,
                     borderWidth: 2,
                     backgroundColor: `${option.color}10`,
-                  }
+                  },
+                  isDimmed && styles.optionCardDimmed,
                 ]}
                 onPress={() => handleSelect(option.id)}
+                activeOpacity={isDimmed ? 0.4 : 0.8}
               >
                 <View style={[
                   styles.iconCircle,
-                  { backgroundColor: isSelected ? option.color : '#F5F5F5' }
+                  { backgroundColor: isSelected ? option.color : '#F5F5F5' },
                 ]}>
                   <Image
-                    source={option.icon}
-                    style={[
-                      styles.icon,
-                      { tintColor: isSelected ? BRAND_COLORS.white : '#999' }
-                    ]}
+                    source={require('../../assets/images/check.png')}
+                    style={[styles.icon, { tintColor: isSelected ? BRAND_COLORS.white : '#999' }]}
                     resizeMode="contain"
                   />
                 </View>
                 <View style={styles.textContainer}>
                   <Text style={[
                     styles.optionLabel,
-                    isSelected && { color: option.color, fontWeight: '600' }
+                    isSelected && { color: option.color, fontWeight: '600' },
+                    isDimmed && styles.textDimmed,
                   ]}>
                     {t(option.labelKey)}
                   </Text>
-                  <Text style={styles.optionDescription}>{t(option.descKey)}</Text>
+                  <Text style={[styles.optionDescription, isDimmed && styles.textDimmed]}>
+                    {t(option.descKey)}
+                  </Text>
                 </View>
               </TouchableOpacity>
             );
           })}
         </View>
-
-        <View style={styles.infoBox}>
-          <Text style={styles.infoText}>
-            {t('onboarding.consistency.info')}
-          </Text>
-        </View>
       </ScrollView>
 
       <View style={styles.bottomSection}>
         <TouchableOpacity
-          style={[
-            styles.continueButton,
-            !selectedLevel && styles.continueButtonDisabled
-          ]}
+          style={[styles.continueButton, !isEnabled && styles.continueButtonDisabled]}
           onPress={handleContinue}
-          disabled={!selectedLevel}
+          disabled={!isEnabled}
         >
           <Text style={[
             styles.continueButtonText,
-            !selectedLevel && styles.continueButtonTextDisabled
+            !isEnabled && styles.continueButtonTextDisabled,
           ]}>
-            {t('onboarding.consistency.button')}
+            {t('onboarding.skinConcerns.button')}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.helperText}>{t('onboarding.consistency.helper')}</Text>
+        <Text style={styles.helperText}>{t('onboarding.skinConcerns.helper')}</Text>
       </View>
     </View>
   );
@@ -198,7 +195,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
   },
   title: {
     fontSize: 28,
@@ -218,6 +215,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
   },
+  maxHintBox: {
+    backgroundColor: `${BRAND_COLORS.primary}15`,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  maxHintText: {
+    fontSize: 13,
+    color: BRAND_COLORS.primary,
+    fontWeight: '600',
+  },
   optionsContainer: {
     marginBottom: 20,
   },
@@ -234,6 +244,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 2,
+  },
+  optionCardDimmed: {
+    opacity: 0.4,
   },
   iconCircle: {
     width: 44,
@@ -261,19 +274,8 @@ const styles = StyleSheet.create({
     color: '#666',
     lineHeight: 18,
   },
-  infoBox: {
-    backgroundColor: `${BRAND_COLORS.primary}10`,
-    borderRadius: 12,
-    padding: 14,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  infoText: {
-    fontSize: 13,
-    color: BRAND_COLORS.primary,
-    textAlign: 'center',
-    lineHeight: 19,
-    fontWeight: '500',
+  textDimmed: {
+    color: '#AAA',
   },
   bottomSection: {
     paddingHorizontal: 20,

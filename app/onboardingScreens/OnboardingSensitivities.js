@@ -1,4 +1,4 @@
-// app/onboardingScreens/OnboardingConsistency.js
+// app/onboardingScreens/OnboardingSensitivities.js
 import React, { useState } from 'react';
 import {
   Image,
@@ -18,53 +18,48 @@ const BRAND_COLORS = {
   white: '#FFFFFF',
 };
 
-const CONSISTENCY_OPTIONS = [
-  {
-    id: 'very_committed',
-    labelKey: 'onboarding.consistency.very_committed',
-    descKey: 'onboarding.consistency.very_committed_desc',
-    icon: require('../../assets/images/check.png'),
-    color: BRAND_COLORS.primary,
-  },
-  {
-    id: 'mostly_committed',
-    labelKey: 'onboarding.consistency.mostly_committed',
-    descKey: 'onboarding.consistency.mostly_committed_desc',
-    icon: require('../../assets/images/check.png'),
-    color: '#4A90E2',
-  },
-  {
-    id: 'trying_best',
-    labelKey: 'onboarding.consistency.trying_best',
-    descKey: 'onboarding.consistency.trying_best_desc',
-    icon: require('../../assets/images/check.png'),
-    color: '#F39C12',
-  },
-  {
-    id: 'not_sure',
-    labelKey: 'onboarding.consistency.not_sure',
-    descKey: 'onboarding.consistency.not_sure_desc',
-    icon: require('../../assets/images/check.png'),
-    color: '#9B59B6',
-  },
+const NONE_ID = 'none_above';
+
+const SENSITIVITY_OPTIONS = [
+  { id: 'fragrance',      labelKey: 'onboarding.sensitivities.fragrance',      color: '#FF7A7A' },
+  { id: 'alcohol',        labelKey: 'onboarding.sensitivities.alcohol',        color: '#F39C12' },
+  { id: 'essential_oils', labelKey: 'onboarding.sensitivities.essential_oils', color: '#9B59B6' },
+  { id: 'silicones',      labelKey: 'onboarding.sensitivities.silicones',      color: '#4A90E2' },
+  { id: 'sulfates',       labelKey: 'onboarding.sensitivities.sulfates',       color: '#7CB342' },
+  { id: 'parabens',       labelKey: 'onboarding.sensitivities.parabens',       color: '#E74C3C' },
+  { id: 'comedogenic',    labelKey: 'onboarding.sensitivities.comedogenic',    color: '#1ABC9C' },
+  { id: 'acids',          labelKey: 'onboarding.sensitivities.acids',          color: '#E67E22' },
+  { id: NONE_ID,          labelKey: 'onboarding.sensitivities.none_above',     color: '#95A5A6' },
 ];
 
-export default function OnboardingConsistency({ onNext }) {
-  const [selectedLevel, setSelectedLevel] = useState(null);
+export default function OnboardingSensitivities({ onNext }) {
+  const [selectedItems, setSelectedItems] = useState([]);
 
-  const handleSelect = (levelId) => {
-    setSelectedLevel(levelId);
+  const handleSelect = (id) => {
+    if (id === NONE_ID) {
+      setSelectedItems([NONE_ID]);
+    } else {
+      setSelectedItems((prev) => {
+        const withoutNone = prev.filter((item) => item !== NONE_ID);
+        if (withoutNone.includes(id)) {
+          return withoutNone.filter((item) => item !== id);
+        }
+        return [...withoutNone, id];
+      });
+    }
   };
 
+  const isEnabled = selectedItems.length > 0;
+
   const handleContinue = () => {
-    if (selectedLevel) {
-      onNext('onboardingSkinHistory', { consistency: selectedLevel });
+    if (isEnabled) {
+      onNext('onboardingAllergies', { sensitivities: selectedItems });
     }
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -81,16 +76,15 @@ export default function OnboardingConsistency({ onNext }) {
 
         <View style={styles.header}>
           <Text style={styles.title}>
-            {t('onboarding.consistency.title1')} <Text style={styles.titleHighlight}>{t('onboarding.consistency.title2')}</Text>
+            {t('onboarding.sensitivities.title1')}{' '}
+            <Text style={styles.titleHighlight}>{t('onboarding.sensitivities.title2')}</Text>
           </Text>
-          <Text style={styles.subtitle}>
-            {t('onboarding.consistency.subtitle')}
-          </Text>
+          <Text style={styles.subtitle}>{t('onboarding.sensitivities.subtitle')}</Text>
         </View>
 
         <View style={styles.optionsContainer}>
-          {CONSISTENCY_OPTIONS.map((option) => {
-            const isSelected = selectedLevel === option.id;
+          {SENSITIVITY_OPTIONS.map((option) => {
+            const isSelected = selectedItems.includes(option.id);
             return (
               <TouchableOpacity
                 key={option.id}
@@ -100,61 +94,46 @@ export default function OnboardingConsistency({ onNext }) {
                     borderColor: option.color,
                     borderWidth: 2,
                     backgroundColor: `${option.color}10`,
-                  }
+                  },
                 ]}
                 onPress={() => handleSelect(option.id)}
               >
                 <View style={[
                   styles.iconCircle,
-                  { backgroundColor: isSelected ? option.color : '#F5F5F5' }
+                  { backgroundColor: isSelected ? option.color : '#F5F5F5' },
                 ]}>
                   <Image
-                    source={option.icon}
-                    style={[
-                      styles.icon,
-                      { tintColor: isSelected ? BRAND_COLORS.white : '#999' }
-                    ]}
+                    source={require('../../assets/images/check.png')}
+                    style={[styles.icon, { tintColor: isSelected ? BRAND_COLORS.white : '#999' }]}
                     resizeMode="contain"
                   />
                 </View>
-                <View style={styles.textContainer}>
-                  <Text style={[
-                    styles.optionLabel,
-                    isSelected && { color: option.color, fontWeight: '600' }
-                  ]}>
-                    {t(option.labelKey)}
-                  </Text>
-                  <Text style={styles.optionDescription}>{t(option.descKey)}</Text>
-                </View>
+                <Text style={[
+                  styles.optionLabel,
+                  isSelected && { color: option.color, fontWeight: '600' },
+                ]}>
+                  {t(option.labelKey)}
+                </Text>
               </TouchableOpacity>
             );
           })}
-        </View>
-
-        <View style={styles.infoBox}>
-          <Text style={styles.infoText}>
-            {t('onboarding.consistency.info')}
-          </Text>
         </View>
       </ScrollView>
 
       <View style={styles.bottomSection}>
         <TouchableOpacity
-          style={[
-            styles.continueButton,
-            !selectedLevel && styles.continueButtonDisabled
-          ]}
+          style={[styles.continueButton, !isEnabled && styles.continueButtonDisabled]}
           onPress={handleContinue}
-          disabled={!selectedLevel}
+          disabled={!isEnabled}
         >
           <Text style={[
             styles.continueButtonText,
-            !selectedLevel && styles.continueButtonTextDisabled
+            !isEnabled && styles.continueButtonTextDisabled,
           ]}>
-            {t('onboarding.consistency.button')}
+            {t('onboarding.sensitivities.button')}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.helperText}>{t('onboarding.consistency.helper')}</Text>
+        <Text style={styles.helperText}>{t('onboarding.sensitivities.helper')}</Text>
       </View>
     </View>
   );
@@ -182,10 +161,10 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: BRAND_COLORS.primary,
+    backgroundColor: '#4A90E2',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: BRAND_COLORS.primary,
+    shadowColor: '#4A90E2',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -223,8 +202,9 @@ const styles = StyleSheet.create({
   },
   optionCard: {
     flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: BRAND_COLORS.white,
-    borderRadius: 16,
+    borderRadius: 14,
     padding: 16,
     marginBottom: 10,
     borderWidth: 2,
@@ -247,33 +227,10 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
   },
-  textContainer: {
-    flex: 1,
-    justifyContent: 'center',
-  },
   optionLabel: {
     fontSize: 16,
     color: BRAND_COLORS.black,
-    marginBottom: 4,
-  },
-  optionDescription: {
-    fontSize: 13,
-    color: '#666',
-    lineHeight: 18,
-  },
-  infoBox: {
-    backgroundColor: `${BRAND_COLORS.primary}10`,
-    borderRadius: 12,
-    padding: 14,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  infoText: {
-    fontSize: 13,
-    color: BRAND_COLORS.primary,
-    textAlign: 'center',
-    lineHeight: 19,
-    fontWeight: '500',
+    flex: 1,
   },
   bottomSection: {
     paddingHorizontal: 20,

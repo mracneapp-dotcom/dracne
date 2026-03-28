@@ -1,7 +1,6 @@
 // app/ModerateNightRoutineStep1ProductSelection.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { t } from './i18n';
 import {
   Image,
   ImageBackground,
@@ -12,6 +11,7 @@ import {
   View
 } from 'react-native';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -203,7 +203,6 @@ export default function ModerateNightRoutineStep1ProductSelection({
   currentStep = 1,
   internalStep = 2
 }) {
-  const { t } = useTranslation();
   const [skinType, setSkinType] = useState('normal');
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [products, setProducts] = useState([]);

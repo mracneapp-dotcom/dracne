@@ -1,10 +1,11 @@
-// app/onboardingScreens/OnboardingConsistency.js
+// app/onboardingScreens/OnboardingAllergies.js
 import React, { useState } from 'react';
 import {
   Image,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -18,56 +19,64 @@ const BRAND_COLORS = {
   white: '#FFFFFF',
 };
 
-const CONSISTENCY_OPTIONS = [
-  {
-    id: 'very_committed',
-    labelKey: 'onboarding.consistency.very_committed',
-    descKey: 'onboarding.consistency.very_committed_desc',
-    icon: require('../../assets/images/check.png'),
-    color: BRAND_COLORS.primary,
-  },
-  {
-    id: 'mostly_committed',
-    labelKey: 'onboarding.consistency.mostly_committed',
-    descKey: 'onboarding.consistency.mostly_committed_desc',
-    icon: require('../../assets/images/check.png'),
-    color: '#4A90E2',
-  },
-  {
-    id: 'trying_best',
-    labelKey: 'onboarding.consistency.trying_best',
-    descKey: 'onboarding.consistency.trying_best_desc',
-    icon: require('../../assets/images/check.png'),
-    color: '#F39C12',
-  },
-  {
-    id: 'not_sure',
-    labelKey: 'onboarding.consistency.not_sure',
-    descKey: 'onboarding.consistency.not_sure_desc',
-    icon: require('../../assets/images/check.png'),
-    color: '#9B59B6',
-  },
+const NONE_ID = 'none_known';
+
+const ALLERGY_OPTIONS = [
+  { id: 'nickel',   labelKey: 'onboarding.allergies.nickel',     color: '#95A5A6' },
+  { id: 'latex',    labelKey: 'onboarding.allergies.latex',      color: '#E74C3C' },
+  { id: 'nuts',     labelKey: 'onboarding.allergies.nuts',       color: '#F39C12' },
+  { id: 'propolis', labelKey: 'onboarding.allergies.propolis',   color: '#F1C40F' },
+  { id: 'lanolin',  labelKey: 'onboarding.allergies.lanolin',    color: '#1ABC9C' },
+  { id: 'gluten',   labelKey: 'onboarding.allergies.gluten',     color: '#E67E22' },
+  { id: 'soy',      labelKey: 'onboarding.allergies.soy',        color: '#27AE60' },
+  { id: NONE_ID,    labelKey: 'onboarding.allergies.none_known', color: '#4A90E2' },
 ];
 
-export default function OnboardingConsistency({ onNext }) {
-  const [selectedLevel, setSelectedLevel] = useState(null);
+export default function OnboardingAllergies({ onNext }) {
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [customText, setCustomText] = useState('');
 
-  const handleSelect = (levelId) => {
-    setSelectedLevel(levelId);
+  const handleSelect = (id) => {
+    if (id === NONE_ID) {
+      setSelectedItems([NONE_ID]);
+      setCustomText('');
+    } else {
+      setSelectedItems((prev) => {
+        const withoutNone = prev.filter((item) => item !== NONE_ID);
+        if (withoutNone.includes(id)) {
+          return withoutNone.filter((item) => item !== id);
+        }
+        return [...withoutNone, id];
+      });
+    }
   };
 
+  const handleCustomTextChange = (text) => {
+    setCustomText(text);
+    if (text.trim().length > 0) {
+      setSelectedItems((prev) => prev.filter((item) => item !== NONE_ID));
+    }
+  };
+
+  const isEnabled =
+    selectedItems.length > 0 || customText.trim().length > 0;
+
   const handleContinue = () => {
-    if (selectedLevel) {
-      onNext('onboardingSkinHistory', { consistency: selectedLevel });
+    if (isEnabled) {
+      const allergies = customText.trim().length > 0
+        ? [...selectedItems, customText.trim()]
+        : selectedItems;
+      onNext('onboardingSkinConcerns', { allergies });
     }
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         <View style={styles.iconContainer}>
           <View style={styles.mainCircle}>
@@ -81,16 +90,15 @@ export default function OnboardingConsistency({ onNext }) {
 
         <View style={styles.header}>
           <Text style={styles.title}>
-            {t('onboarding.consistency.title1')} <Text style={styles.titleHighlight}>{t('onboarding.consistency.title2')}</Text>
+            {t('onboarding.allergies.title1')}{' '}
+            <Text style={styles.titleHighlight}>{t('onboarding.allergies.title2')}</Text>
           </Text>
-          <Text style={styles.subtitle}>
-            {t('onboarding.consistency.subtitle')}
-          </Text>
+          <Text style={styles.subtitle}>{t('onboarding.allergies.subtitle')}</Text>
         </View>
 
         <View style={styles.optionsContainer}>
-          {CONSISTENCY_OPTIONS.map((option) => {
-            const isSelected = selectedLevel === option.id;
+          {ALLERGY_OPTIONS.map((option) => {
+            const isSelected = selectedItems.includes(option.id);
             return (
               <TouchableOpacity
                 key={option.id}
@@ -100,61 +108,58 @@ export default function OnboardingConsistency({ onNext }) {
                     borderColor: option.color,
                     borderWidth: 2,
                     backgroundColor: `${option.color}10`,
-                  }
+                  },
                 ]}
                 onPress={() => handleSelect(option.id)}
               >
                 <View style={[
                   styles.iconCircle,
-                  { backgroundColor: isSelected ? option.color : '#F5F5F5' }
+                  { backgroundColor: isSelected ? option.color : '#F5F5F5' },
                 ]}>
                   <Image
-                    source={option.icon}
-                    style={[
-                      styles.icon,
-                      { tintColor: isSelected ? BRAND_COLORS.white : '#999' }
-                    ]}
+                    source={require('../../assets/images/check.png')}
+                    style={[styles.icon, { tintColor: isSelected ? BRAND_COLORS.white : '#999' }]}
                     resizeMode="contain"
                   />
                 </View>
-                <View style={styles.textContainer}>
-                  <Text style={[
-                    styles.optionLabel,
-                    isSelected && { color: option.color, fontWeight: '600' }
-                  ]}>
-                    {t(option.labelKey)}
-                  </Text>
-                  <Text style={styles.optionDescription}>{t(option.descKey)}</Text>
-                </View>
+                <Text style={[
+                  styles.optionLabel,
+                  isSelected && { color: option.color, fontWeight: '600' },
+                ]}>
+                  {t(option.labelKey)}
+                </Text>
               </TouchableOpacity>
             );
           })}
         </View>
 
-        <View style={styles.infoBox}>
-          <Text style={styles.infoText}>
-            {t('onboarding.consistency.info')}
-          </Text>
-        </View>
+        <TextInput
+          style={[
+            styles.textInput,
+            customText.trim().length > 0 && styles.textInputActive,
+          ]}
+          placeholder={t('onboarding.allergies.placeholder')}
+          placeholderTextColor="#AAA"
+          value={customText}
+          onChangeText={handleCustomTextChange}
+          returnKeyType="done"
+        />
       </ScrollView>
 
       <View style={styles.bottomSection}>
         <TouchableOpacity
-          style={[
-            styles.continueButton,
-            !selectedLevel && styles.continueButtonDisabled
-          ]}
+          style={[styles.continueButton, !isEnabled && styles.continueButtonDisabled]}
           onPress={handleContinue}
-          disabled={!selectedLevel}
+          disabled={!isEnabled}
         >
           <Text style={[
             styles.continueButtonText,
-            !selectedLevel && styles.continueButtonTextDisabled
+            !isEnabled && styles.continueButtonTextDisabled,
           ]}>
-            {t('onboarding.consistency.button')}
+            {t('onboarding.allergies.button')}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.helperText}>{t('onboarding.consistency.helper')}</Text>
+        <Text style={styles.helperText}>{t('onboarding.allergies.helper')}</Text>
       </View>
     </View>
   );
@@ -182,10 +187,10 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: BRAND_COLORS.primary,
+    backgroundColor: BRAND_COLORS.secondary,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: BRAND_COLORS.primary,
+    shadowColor: BRAND_COLORS.secondary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -219,12 +224,13 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   optionsContainer: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   optionCard: {
     flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: BRAND_COLORS.white,
-    borderRadius: 16,
+    borderRadius: 14,
     padding: 16,
     marginBottom: 10,
     borderWidth: 2,
@@ -247,33 +253,28 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
   },
-  textContainer: {
-    flex: 1,
-    justifyContent: 'center',
-  },
   optionLabel: {
     fontSize: 16,
     color: BRAND_COLORS.black,
-    marginBottom: 4,
+    flex: 1,
   },
-  optionDescription: {
-    fontSize: 13,
-    color: '#666',
-    lineHeight: 18,
-  },
-  infoBox: {
-    backgroundColor: `${BRAND_COLORS.primary}10`,
-    borderRadius: 12,
-    padding: 14,
-    alignItems: 'center',
+  textInput: {
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 14,
+    padding: 16,
+    fontSize: 15,
+    color: BRAND_COLORS.black,
+    borderWidth: 2,
+    borderColor: '#E5E5E5',
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 1,
   },
-  infoText: {
-    fontSize: 13,
-    color: BRAND_COLORS.primary,
-    textAlign: 'center',
-    lineHeight: 19,
-    fontWeight: '500',
+  textInputActive: {
+    borderColor: BRAND_COLORS.primary,
   },
   bottomSection: {
     paddingHorizontal: 20,

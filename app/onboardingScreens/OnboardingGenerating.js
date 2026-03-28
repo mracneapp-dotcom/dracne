@@ -7,6 +7,9 @@ import {
   Text,
   View,
 } from 'react-native';
+import * as Application from 'expo-application';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { app, auth } from '../../config/firebase';
 import { t } from '../i18n';
 
 const BRAND_COLORS = {
@@ -24,12 +27,16 @@ const GENERATION_STEPS = [
   { textKey: 'onboarding.generating.step4', delay: 2400 },
 ];
 
-export default function OnboardingGenerating({ onNext }) {
+export default function OnboardingGenerating({ onNext, onboardingData }) {
   const spinValue = useRef(new Animated.Value(0)).current;
   const fadeAnims = useRef(GENERATION_STEPS.map(() => new Animated.Value(0))).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
   useEffect(() => {
+    let isMounted = true;
+    const startTime = Date.now();
+    const MIN_DISPLAY_MS = 3200;
+
     // Entry animation
     Animated.spring(scaleAnim, {
       toValue: 1,
@@ -59,12 +66,63 @@ export default function OnboardingGenerating({ onNext }) {
 
     Animated.parallel(stepAnimations).start();
 
-    // Navigate after 3 seconds
-    const timer = setTimeout(() => {
-      onNext('onboardingPlanReady', { planGenerated: true });
-    }, 3200);
+    const generateRoutine = async () => {
+      try {
+        // Get device ID - works for both authenticated and guest users
+        const deviceId = Application.applicationId + '_' +
+          (await Application.getIosIdForVendorAsync() ||
+           Application.getAndroidId() ||
+           'unknown');
 
-    return () => clearTimeout(timer);
+        // Wait for auth state to resolve
+        await new Promise((resolve) => {
+          const unsubscribe = auth.onAuthStateChanged((user) => {
+            unsubscribe();
+            resolve(user);
+          });
+        });
+
+        const functions = getFunctions(app, 'us-central1');
+        const generateSkinRoutine = httpsCallable(functions, 'generateSkinRoutine');
+
+        const skinProfile = {
+          acneHistory: onboardingData?.acneHistory || 'none',
+          skinType: onboardingData?.userSkinType || 'normal',
+          skinConcerns: onboardingData?.skinConcerns || [],
+          sensitivities: onboardingData?.sensitivities || [],
+          allergies: onboardingData?.allergies || [],
+          products: onboardingData?.products || [],
+          routineLevel: onboardingData?.selectedRoutineLevel || 'moderate',
+        };
+
+        console.log('Calling generateSkinRoutine...');
+        const result = await generateSkinRoutine({
+          skinProfile,
+          deviceId,
+        });
+        console.log('Routine generated:',
+          result.data?.cached ? 'cached' : 'new');
+
+      } catch (error) {
+        console.log('Routine generation error:', error.message);
+      } finally {
+        if (isMounted) {
+          const elapsed = Date.now() - startTime;
+          const remaining = Math.max(0, MIN_DISPLAY_MS - elapsed);
+          setTimeout(() => {
+            if (isMounted) {
+              onNext('onboardingPlanReady', { planGenerated: true });
+            }
+          }, remaining);
+        }
+      }
+    };
+
+    generateRoutine();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const spin = spinValue.interpolate({
