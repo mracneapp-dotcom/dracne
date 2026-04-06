@@ -1,6 +1,6 @@
 // components/ui/BottomNavigation.js - WITH SPANISH I18N
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { Animated, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { t } from '../../app/i18n';
 
@@ -48,6 +48,54 @@ const ProfileIcon = ({ color = "#666" }) => (
 );
 
 export const BottomNavigation = ({ activeTab = 'routines', onTabPress }) => {
+  const [popupVisible, setPopupVisible] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
+
+  const openPopup = () => {
+    setPopupVisible(true);
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const closePopup = () => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 20,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setPopupVisible(false));
+  };
+
+  const handlePlusPress = () => {
+    if (popupVisible) {
+      closePopup();
+    } else {
+      openPopup();
+    }
+  };
+
+  const handleAction = (action) => {
+    closePopup();
+    if (onTabPress) onTabPress(action);
+  };
+
   const tabs = [
     { id: 'routines', icon: RoutinesIcon, label: 'navigation.routines' },
     { id: 'calendar', icon: CalendarIcon, label: 'navigation.calendar' },
@@ -62,7 +110,7 @@ export const BottomNavigation = ({ activeTab = 'routines', onTabPress }) => {
       <View style={styles.plusButtonContainer}>
         <TouchableOpacity
           style={styles.mainTab}
-          onPress={() => onTabPress('upload')}
+          onPress={handlePlusPress}
           activeOpacity={0.85}
         >
           <View style={styles.mainIconContainer}>
@@ -110,6 +158,77 @@ export const BottomNavigation = ({ activeTab = 'routines', onTabPress }) => {
           })}
         </View>
       </View>
+
+      {popupVisible && (
+        <TouchableOpacity
+          style={styles.popupBackdrop}
+          activeOpacity={1}
+          onPress={closePopup}
+        >
+          <Animated.View style={[
+            styles.popup,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            }
+          ]}>
+            <TouchableOpacity
+              style={styles.popupItem}
+              onPress={() => handleAction('upload')}
+            >
+              <View style={[styles.popupIcon, { backgroundColor: '#4A90E215' }]}>
+                <Image
+                  source={require('../../assets/images/Scan.png')}
+                  style={styles.popupIconImage}
+                  resizeMode="contain"
+                />
+              </View>
+              <View style={styles.popupTextContainer}>
+                <Text style={styles.popupItemTitle}>Scan My Skin</Text>
+                <Text style={styles.popupItemSub}>AI acne detection</Text>
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.popupDivider} />
+
+            <TouchableOpacity
+              style={styles.popupItem}
+              onPress={() => handleAction('aiRoutineAM')}
+            >
+              <View style={[styles.popupIcon, { backgroundColor: '#7CB34215' }]}>
+                <Image
+                  source={require('../../assets/images/Plus.png')}
+                  style={styles.popupIconImage}
+                  resizeMode="contain"
+                />
+              </View>
+              <View style={styles.popupTextContainer}>
+                <Text style={styles.popupItemTitle}>Start Morning Routine</Text>
+                <Text style={styles.popupItemSub}>AI personalized</Text>
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.popupDivider} />
+
+            <TouchableOpacity
+              style={styles.popupItem}
+              onPress={() => handleAction('aiRoutinePM')}
+            >
+              <View style={[styles.popupIcon, { backgroundColor: '#1a1a2e15' }]}>
+                <Image
+                  source={require('../../assets/images/Bottle1.png')}
+                  style={styles.popupIconImage}
+                  resizeMode="contain"
+                />
+              </View>
+              <View style={styles.popupTextContainer}>
+                <Text style={styles.popupItemTitle}>Start Night Routine</Text>
+                <Text style={styles.popupItemSub}>AI personalized</Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -214,5 +333,62 @@ const styles = StyleSheet.create({
   activeLabel: {
     color: BRAND_COLORS.primary,
     fontWeight: '600',
+  },
+  popupBackdrop: {
+    position: 'absolute',
+    bottom: 90,
+    left: 0,
+    right: 0,
+    top: -1000,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 16,
+  },
+  popup: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    paddingVertical: 8,
+    width: 280,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 12,
+  },
+  popupItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  popupIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  popupIconImage: {
+    width: 26,
+    height: 26,
+  },
+  popupTextContainer: {
+    flex: 1,
+  },
+  popupItemTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  popupItemSub: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
+  },
+  popupDivider: {
+    height: 1,
+    backgroundColor: '#F5F5F5',
+    marginHorizontal: 16,
   },
 });

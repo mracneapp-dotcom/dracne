@@ -87,6 +87,7 @@ import { HomeScreen } from './HomeScreen';
 import { KnownSkinTypeScreen } from './KnownSkinTypeScreen';
 import MyDayRoutine from './MyDayRoutine';
 import MyNightRoutine from './MyNightRoutine';
+import AIRoutineTimerScreen from './AIRoutineTimerScreen';
 import NightRoutineScreen from './NightRoutineScreen';
 import RoutinesScreen from './RoutinesScreen';
 import { SkinTestScreen } from './SkinTestScreen';
@@ -591,6 +592,10 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
       setCurrentStep('comprehensiveRoutineStep4');
     } else if (currentStep === 'myNightRoutine') {
       setCurrentStep('nightRoutine');
+    } else if (currentStep === 'aiRoutineAM') {
+      setCurrentStep('home');
+    } else if (currentStep === 'aiRoutinePM') {
+      setCurrentStep('home');
     } else if (currentStep === 'basicNightRoutineStep1') {
       setShowNightProductSelection(false);
       setCurrentStep('nightRoutine');
@@ -704,6 +709,9 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
     console.log('Navigate to My Night Routine');
     setCurrentStep('myNightRoutine');
   };
+
+  const handleNavigateToAIRoutineAM = () => setCurrentStep('aiRoutineAM');
+  const handleNavigateToAIRoutinePM = () => setCurrentStep('aiRoutinePM');
 
  // Smart Routine Navigation Handlers
 const handleNavigateToSmartRoutineHub = () => {
@@ -1172,6 +1180,10 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
       setCurrentStep('calendar');
     } else if (tabId === 'profile') {
       setCurrentStep('profile');
+    } else if (tabId === 'aiRoutineAM') {
+      setCurrentStep('aiRoutineAM');
+    } else if (tabId === 'aiRoutinePM') {
+      setCurrentStep('aiRoutinePM');
     } else {
       Alert.alert('Coming Soon', `${tabId} feature will be available soon!`);
     }
@@ -1539,6 +1551,8 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
         onNavigateToSkinTest={handleNavigateToSkinTest}
         onNavigateToDayRoutine={handleNavigateToDayRoutine}
         onNavigateToNightRoutine={handleNavigateToNightRoutine}
+        onNavigateToAIRoutineAM={handleNavigateToAIRoutineAM}
+        onNavigateToAIRoutinePM={handleNavigateToAIRoutinePM}
         onNavigateToScanSkin={handleNavigateToScanSkin}
         onNavigateToMyJourney={handleNavigateToMyJourney}
         onNavigateToProfile={() => {
@@ -1654,6 +1668,22 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
         style={styles.screenContent}
       />
     </View>
+  );
+
+  const renderAIRoutineAM = () => (
+    <AIRoutineTimerScreen
+      onBack={() => setCurrentStep('home')}
+      onComplete={() => setCurrentStep('home')}
+      routineType="am"
+    />
+  );
+
+  const renderAIRoutinePM = () => (
+    <AIRoutineTimerScreen
+      onBack={() => setCurrentStep('home')}
+      onComplete={() => setCurrentStep('home')}
+      routineType="pm"
+    />
   );
 
   const renderMyNightRoutine = () => (
@@ -2799,12 +2829,12 @@ const renderComprehensiveNightRoutineStep4 = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {showIntro ? (
         <IntroAnimation onComplete={handleIntroComplete} />
       ) : (
         <>
-      <StatusBar barStyle="dark-content" backgroundColor="#FAFBFC" translucent={false} />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
       
       <View style={styles.globalBackground}>
         <View style={styles.decorativeDot1} />
@@ -2859,6 +2889,8 @@ const renderComprehensiveNightRoutineStep4 = () => {
         {isOnboardingComplete && currentStep === 'nightRoutine' && renderNightRoutine()}
         {isOnboardingComplete && currentStep === 'myDayRoutine' && renderMyDayRoutine()}
         {isOnboardingComplete && currentStep === 'myNightRoutine' && renderMyNightRoutine()}
+        {isOnboardingComplete && currentStep === 'aiRoutineAM' && renderAIRoutineAM()}
+        {isOnboardingComplete && currentStep === 'aiRoutinePM' && renderAIRoutinePM()}
         {isOnboardingComplete && currentStep === 'library' && renderLibrary()}
 
         {/* Profile & Settings Flow */}
@@ -2989,14 +3021,14 @@ const renderComprehensiveNightRoutineStep4 = () => {
       )}
         </>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFBFC',
+    backgroundColor: 'transparent',
   },
   globalBackground: {
     position: 'absolute',

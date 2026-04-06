@@ -24,7 +24,7 @@ const BANNER_IMAGES = {
   scanSkin: require('../../assets/images/banner-scan-skin-base.png'),
 };
 
-export const RoutineBanners = React.memo(({ 
+export const RoutineBanners = React.memo(({
   onDayRoutinePress,
   onNightRoutinePress,
   onSkinTestPress,
