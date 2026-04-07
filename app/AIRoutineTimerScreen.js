@@ -14,6 +14,7 @@ import OnboardingSensitivities from './onboardingScreens/OnboardingSensitivities
 import OnboardingAllergies from './onboardingScreens/OnboardingAllergies';
 import OnboardingSkinConcerns from './onboardingScreens/OnboardingSkinConcerns';
 import OnboardingProducts from './onboardingScreens/OnboardingProducts';
+import { t } from './i18n';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -46,6 +47,8 @@ export default function AIRoutineTimerScreen({
   const [generating, setGenerating] = useState(false);
   const [miniStep, setMiniStep] = useState(null);
   const [miniData, setMiniData] = useState({});
+  const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
+  const [feedbackSent, setFeedbackSent] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
   const progressAnim = useRef(new Animated.Value(0)).current;
@@ -259,6 +262,42 @@ export default function AIRoutineTimerScreen({
     setMiniStep('onboardingSkinHistory');
   };
 
+  const handleFeedback = async (type) => {
+    setFeedbackModalVisible(false);
+    const currentProduct = steps[currentStepIndex]?.product || 'Unknown product';
+
+    try {
+      const feedback = {
+        type,
+        product: currentProduct,
+        step: currentStepIndex + 1,
+        routineType,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Save feedback to AsyncStorage
+      const existing = await AsyncStorage.getItem('@dracne_feedback');
+      const feedbackList = existing ? JSON.parse(existing) : [];
+      feedbackList.push(feedback);
+      await AsyncStorage.setItem(
+        '@dracne_feedback',
+        JSON.stringify(feedbackList)
+      );
+
+      if (type === 'refresh') {
+        // Trigger routine regeneration
+        setMiniStep('generating');
+        setSteps([]);
+        await generateWithData({});
+      }
+
+      setFeedbackSent(true);
+      setTimeout(() => setFeedbackSent(false), 2000);
+    } catch (error) {
+      console.log('Feedback error:', error.message);
+    }
+  };
+
   const generateWithData = async (data) => {
     try {
       const deviceId = Application.applicationId + '_' +
@@ -405,10 +444,10 @@ export default function AIRoutineTimerScreen({
                 resizeMode="contain"
               />
               <Text style={styles.emptyTitle}>
-                Building your routine...
+                {t('timer.generating_title')}
               </Text>
               <Text style={styles.emptySubtext}>
-                Analyzing your skin profile and selecting the best steps
+                {t('timer.generating_sub')}
               </Text>
             </View>
           )}
@@ -426,7 +465,7 @@ export default function AIRoutineTimerScreen({
             />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>
-            {routineType === 'am' ? 'Morning Routine' : 'Night Routine'}
+            {routineType === 'am' ? t('timer.morning_title') : t('timer.night_title')}
           </Text>
           <TouchableOpacity onPress={onBack} style={styles.doneButton}>
             <Text style={styles.doneText}>Done</Text>
@@ -448,19 +487,19 @@ export default function AIRoutineTimerScreen({
               resizeMode="contain"
             />
             <Text style={styles.emptyTitle}>
-              Your AI routine is ready to build
+              {t('timer.empty_title')}
             </Text>
             <Text style={styles.emptySubtext}>
-              We will generate your personalized routine based on your skin profile
+              {t('timer.empty_sub')}
             </Text>
             <TouchableOpacity
               style={styles.button}
               onPress={startMiniOnboarding}
             >
-              <Text style={styles.buttonText}>Build my routine</Text>
+              <Text style={styles.buttonText}>{t('timer.build_button')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.skipButton} onPress={onBack}>
-              <Text style={styles.skipText}>Go back</Text>
+              <Text style={styles.skipText}>{t('timer.go_back')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -474,7 +513,7 @@ export default function AIRoutineTimerScreen({
                 {' / '}
                 {formatDuration(totalRoutineSeconds)}
               </Text>
-              <Text style={styles.durationLabel}>today's routine</Text>
+              <Text style={styles.durationLabel}>{t('timer.today_label')}</Text>
             </View>
 
             {/* Progress dots */}
@@ -537,18 +576,18 @@ export default function AIRoutineTimerScreen({
                   {!hasStarted && (
                     <>
                       <Text style={styles.stepNumber}>
-                        Step {currentStepIndex + 1} of {steps.length}
+                        {t('timer.step_label')}{currentStepIndex + 1}{t('timer.step_of')}{steps.length}
                       </Text>
                       <Text style={styles.productName}>
                         {steps[currentStepIndex]?.product}
                       </Text>
-                      <Text style={styles.tapToStartText}>Tap to start</Text>
+                      <Text style={styles.tapToStartText}>{t('timer.tap_to_start')}</Text>
                     </>
                   )}
                   {hasStarted && (
                     <>
                       <Text style={styles.stepNumber}>
-                        Step {currentStepIndex + 1} of {steps.length}
+                        {t('timer.step_label')}{currentStepIndex + 1}{t('timer.step_of')}{steps.length}
                       </Text>
                       <Text style={styles.productName}>
                         {steps[currentStepIndex]?.product}
@@ -559,7 +598,7 @@ export default function AIRoutineTimerScreen({
                         </Text>
                       )}
                       {!isWaiting && (
-                        <Text style={styles.applyText}>Apply now</Text>
+                        <Text style={styles.applyText}>{t('timer.apply_now')}</Text>
                       )}
                     </>
                   )}
@@ -580,10 +619,10 @@ export default function AIRoutineTimerScreen({
             >
               <Text style={styles.buttonText}>
                 {isWaiting
-                  ? 'Wait ' + Math.floor(timeLeft / 60) + ':' + String(timeLeft % 60).padStart(2, '0')
+                  ? t('timer.wait_label') + Math.floor(timeLeft / 60) + ':' + String(timeLeft % 60).padStart(2, '0')
                   : currentStepIndex < steps.length - 1
-                    ? 'Next Step'
-                    : 'Complete Routine'
+                    ? t('timer.next_step')
+                    : t('timer.complete_routine')
                 }
               </Text>
             </TouchableOpacity>
@@ -593,10 +632,127 @@ export default function AIRoutineTimerScreen({
               style={styles.skipButton}
               onPress={handleNext}
             >
-              <Text style={styles.skipText}>Skip and continue</Text>
+              <Text style={styles.skipText}>{t('timer.skip')}</Text>
             </TouchableOpacity>
+
+            {feedbackSent && (
+              <Text style={styles.feedbackConfirm}>
+                {t('timer.feedback_confirm')}
+              </Text>
+            )}
+
+            {!feedbackSent && (
+              <TouchableOpacity
+                style={styles.feedbackButton}
+                onPress={() => setFeedbackModalVisible(true)}
+              >
+                <Text style={styles.feedbackButtonText}>
+                  {t('timer.feedback_button')}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
+
+        <Modal
+          visible={feedbackModalVisible}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setFeedbackModalVisible(false)}
+        >
+          <TouchableOpacity
+            style={styles.feedbackOverlay}
+            activeOpacity={1}
+            onPress={() => setFeedbackModalVisible(false)}
+          >
+            <View style={styles.feedbackSheet}>
+              <View style={styles.feedbackHandle} />
+              <Text style={styles.feedbackTitle}>
+                {t('timer.feedback_title')}
+              </Text>
+              <Text style={styles.feedbackProduct}>
+                {t('timer.feedback_current_step')}{steps[currentStepIndex]?.product}
+              </Text>
+
+              <TouchableOpacity
+                style={styles.feedbackOption}
+                onPress={() => handleFeedback('irritation')}
+              >
+                <View style={[styles.feedbackOptionIcon,
+                  { backgroundColor: '#FF7A7A20' }]}>
+                  <Image
+                    source={require('../assets/images/dracne-logo.png')}
+                    style={styles.feedbackOptionImg}
+                    resizeMode="contain"
+                  />
+                </View>
+                <View style={styles.feedbackOptionText}>
+                  <Text style={styles.feedbackOptionTitle}>
+                    {t('timer.feedback_irritation_title')}
+                  </Text>
+                  <Text style={styles.feedbackOptionSub}>
+                    {t('timer.feedback_irritation_sub')}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <View style={styles.feedbackDivider} />
+
+              <TouchableOpacity
+                style={styles.feedbackOption}
+                onPress={() => handleFeedback('finished')}
+              >
+                <View style={[styles.feedbackOptionIcon,
+                  { backgroundColor: '#F39C1220' }]}>
+                  <Image
+                    source={require('../assets/images/Bottle1.png')}
+                    style={styles.feedbackOptionImg}
+                    resizeMode="contain"
+                  />
+                </View>
+                <View style={styles.feedbackOptionText}>
+                  <Text style={styles.feedbackOptionTitle}>
+                    {t('timer.feedback_finished_title')}
+                  </Text>
+                  <Text style={styles.feedbackOptionSub}>
+                    {t('timer.feedback_finished_sub')}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <View style={styles.feedbackDivider} />
+
+              <TouchableOpacity
+                style={styles.feedbackOption}
+                onPress={() => handleFeedback('refresh')}
+              >
+                <View style={[styles.feedbackOptionIcon,
+                  { backgroundColor: '#7CB34220' }]}>
+                  <Image
+                    source={require('../assets/images/Plus.png')}
+                    style={styles.feedbackOptionImg}
+                    resizeMode="contain"
+                  />
+                </View>
+                <View style={styles.feedbackOptionText}>
+                  <Text style={styles.feedbackOptionTitle}>
+                    {t('timer.feedback_refresh_title')}
+                  </Text>
+                  <Text style={styles.feedbackOptionSub}>
+                    {t('timer.feedback_refresh_sub')}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.feedbackCancel}
+                onPress={() => setFeedbackModalVisible(false)}
+              >
+                <Text style={styles.feedbackCancelText}>{t('timer.feedback_cancel')}</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Modal>
 
         {/* Complete overlay */}
         {!miniStep && isComplete && (
@@ -606,9 +762,9 @@ export default function AIRoutineTimerScreen({
               style={styles.mascotParty}
               resizeMode="contain"
             />
-            <Text style={styles.completeText}>Routine Complete!</Text>
+            <Text style={styles.completeText}>{t('timer.complete_title')}</Text>
             <Text style={styles.completeSubtext}>
-              {formatDuration(elapsedSeconds)} · great job taking care of your skin
+              {formatDuration(elapsedSeconds)} · {t('timer.complete_sub')}
             </Text>
           </View>
         )}
@@ -826,6 +982,101 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 32,
     backgroundColor: '#FAFBFC',
+  },
+  feedbackButton: {
+    marginTop: 8,
+    padding: 8,
+  },
+  feedbackButtonText: {
+    color: '#999',
+    fontSize: 12,
+    textDecorationLine: 'underline',
+    textAlign: 'center',
+  },
+  feedbackConfirm: {
+    marginTop: 8,
+    color: BRAND_COLORS.primary,
+    fontSize: 13,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  feedbackOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  feedbackSheet: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    paddingBottom: 40,
+  },
+  feedbackHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  feedbackTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#1a1a1a',
+    marginBottom: 4,
+  },
+  feedbackProduct: {
+    fontSize: 13,
+    color: '#999',
+    marginBottom: 20,
+  },
+  feedbackOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  feedbackOptionIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  feedbackOptionImg: {
+    width: 24,
+    height: 24,
+  },
+  feedbackOptionText: {
+    flex: 1,
+  },
+  feedbackOptionTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  feedbackOptionSub: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
+  },
+  feedbackDivider: {
+    height: 1,
+    backgroundColor: '#F5F5F5',
+    marginVertical: 4,
+  },
+  feedbackCancel: {
+    marginTop: 16,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 16,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  feedbackCancelText: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '600',
   },
   completeOverlay: {
     ...StyleSheet.absoluteFillObject,

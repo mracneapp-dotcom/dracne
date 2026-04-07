@@ -2567,4 +2567,37 @@
     "helper_2": "Máximo 2 protectores solares seleccionados",
     "citation": "Las recomendaciones de protector solar se basan en guías de la American Academy of Dermatology sobre protección solar, investigación sobre cantidades adecuadas de aplicación de SPF y eficacia, y estudios clínicos sobre efectividad de filtros UV y fotoprotección. La protección solar diaria es esencial; consulta a un dermatólogo para consejos personalizados."
   }
+},
+"timer": {
+  "morning_title": "Rutina de manana",
+  "night_title": "Rutina de noche",
+  "today_label": "TU RUTINA DE HOY",
+  "step_label": "Paso ",
+  "step_of": " de ",
+  "tap_to_start": "Toca para iniciar",
+  "apply_now": "Aplica ahora",
+  "next_step": "Siguiente paso",
+  "complete_routine": "Completar rutina",
+  "wait_label": "Espera ",
+  "skip": "Saltar y continuar",
+  "complete_title": "Rutina completada!",
+  "complete_sub": "excelente trabajo cuidando tu piel",
+  "empty_title": "Tu rutina IA esta lista para construir",
+  "empty_sub": "Generaremos tu rutina personalizada basada en tu perfil de piel",
+  "build_button": "Construir mi rutina",
+  "go_back": "Volver",
+  "generating_title": "Construyendo tu rutina...",
+  "generating_sub": "Analizando tu perfil de piel y seleccionando los mejores pasos",
+  "feedback_button": "Algo no funciona? Cuentanos",
+  "feedback_title": "Como podemos mejorar tu rutina?",
+  "feedback_current_step": "Paso actual: ",
+  "feedback_irritation_title": "Irritacion de piel",
+  "feedback_irritation_sub": "Este producto esta causando irritacion",
+  "feedback_finished_title": "Producto terminado",
+  "feedback_finished_sub": "Se me acabo este producto",
+  "feedback_refresh_title": "Actualizar mi rutina",
+  "feedback_refresh_sub": "Generar una nueva rutina personalizada",
+  "feedback_cancel": "Cancelar",
+  "feedback_confirm": "Comentario recibido. Gracias!"
+}
 }

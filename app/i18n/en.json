@@ -2636,4 +2636,37 @@
   "helper_2": "Maximum 2 sunscreens selected",
   "citation": "Sunscreen recommendations based on American Academy of Dermatology guidelines on sun protection, research on proper SPF application amounts and efficacy, and clinical studies on UV filter effectiveness and photoprotection. Daily sun protection is essential - consult a dermatologist for personalized advice."
 }
+},
+"timer": {
+  "morning_title": "Morning Routine",
+  "night_title": "Night Routine",
+  "today_label": "TODAY'S ROUTINE",
+  "step_label": "Step ",
+  "step_of": " of ",
+  "tap_to_start": "Tap to start",
+  "apply_now": "Apply now",
+  "next_step": "Next Step",
+  "complete_routine": "Complete Routine",
+  "wait_label": "Wait ",
+  "skip": "Skip and continue",
+  "complete_title": "Routine Complete!",
+  "complete_sub": "great job taking care of your skin",
+  "empty_title": "Your AI routine is ready to build",
+  "empty_sub": "We will generate your personalized routine based on your skin profile",
+  "build_button": "Build my routine",
+  "go_back": "Go back",
+  "generating_title": "Building your routine...",
+  "generating_sub": "Analyzing your skin profile and selecting the best steps",
+  "feedback_button": "Something not working? Let us know",
+  "feedback_title": "How can we improve your routine?",
+  "feedback_current_step": "Current step: ",
+  "feedback_irritation_title": "Skin irritation",
+  "feedback_irritation_sub": "This product is causing irritation",
+  "feedback_finished_title": "Product finished",
+  "feedback_finished_sub": "I ran out of this product",
+  "feedback_refresh_title": "Refresh my routine",
+  "feedback_refresh_sub": "Generate a new personalized routine",
+  "feedback_cancel": "Cancel",
+  "feedback_confirm": "Feedback noted. Thank you!"
+}
 }
