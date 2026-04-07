@@ -5,10 +5,15 @@ import { doc, getDoc } from 'firebase/firestore';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated, View, Text, TouchableOpacity,
-  StyleSheet, SafeAreaView, Dimensions, Image
+  StyleSheet, SafeAreaView, Dimensions, Image, Modal
 } from 'react-native';
 import { auth, db } from '../config/firebase';
 import Svg, { Circle } from 'react-native-svg';
+import OnboardingSkinHistory from './onboardingScreens/OnboardingSkinHistory';
+import OnboardingSensitivities from './onboardingScreens/OnboardingSensitivities';
+import OnboardingAllergies from './onboardingScreens/OnboardingAllergies';
+import OnboardingSkinConcerns from './onboardingScreens/OnboardingSkinConcerns';
+import OnboardingProducts from './onboardingScreens/OnboardingProducts';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -30,6 +35,7 @@ export default function AIRoutineTimerScreen({
   onBack,
   onComplete,
   routineType,
+  onboardingData,
 }) {
   const [steps, setSteps] = useState([]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -37,6 +43,9 @@ export default function AIRoutineTimerScreen({
   const [isWaiting, setIsWaiting] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [miniStep, setMiniStep] = useState(null);
+  const [miniData, setMiniData] = useState({});
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
   const progressAnim = useRef(new Animated.Value(0)).current;
@@ -57,6 +66,20 @@ export default function AIRoutineTimerScreen({
 
   const loadRoutine = async () => {
     try {
+      // Try AsyncStorage cache first (fastest, works offline)
+      try {
+        const cached = await AsyncStorage.getItem('@dracne_ai_routine');
+        if (cached) {
+          const routine = JSON.parse(cached);
+          setSteps(routine[routineType] || []);
+          setLoading(false);
+          return;
+        }
+      } catch (cacheErr) {
+        console.log('Cache read error:', cacheErr.message);
+      }
+
+      // Then try Firestore...
       // Try authenticated user first
       if (auth.currentUser) {
         try {
@@ -148,7 +171,54 @@ export default function AIRoutineTimerScreen({
     } else {
       setIsComplete(true);
       const key = routineType === 'am' ? 'lastAMComplete' : 'lastPMComplete';
-      AsyncStorage.setItem(key, new Date().toISOString());
+      const now = new Date();
+      AsyncStorage.setItem(key, now.toISOString());
+
+      // Update routine streak
+      const updateRoutineStreak = async () => {
+        try {
+          const lastStreakDate = await AsyncStorage.getItem(
+            '@dracne_routine_streak_date'
+          );
+          const currentStreak = await AsyncStorage.getItem(
+            '@dracne_routine_streak'
+          );
+          const streak = parseInt(currentStreak || '0');
+
+          if (!lastStreakDate) {
+            // First time completing a routine
+            await AsyncStorage.setItem('@dracne_routine_streak', '1');
+            await AsyncStorage.setItem(
+              '@dracne_routine_streak_date',
+              now.toDateString()
+            );
+          } else if (lastStreakDate === now.toDateString()) {
+            // Already completed a routine today - no change
+          } else {
+            const lastDate = new Date(lastStreakDate);
+            const yesterday = new Date(now);
+            yesterday.setDate(yesterday.getDate() - 1);
+            if (lastDate.toDateString() === yesterday.toDateString()) {
+              // Completed yesterday - increment streak
+              await AsyncStorage.setItem(
+                '@dracne_routine_streak',
+                String(streak + 1)
+              );
+            } else {
+              // Missed a day - reset streak
+              await AsyncStorage.setItem('@dracne_routine_streak', '1');
+            }
+            await AsyncStorage.setItem(
+              '@dracne_routine_streak_date',
+              now.toDateString()
+            );
+          }
+        } catch (e) {
+          console.log('Streak update error:', e.message);
+        }
+      };
+
+      updateRoutineStreak();
       setTimeout(() => onComplete(), 1500);
     }
   };
@@ -162,8 +232,189 @@ export default function AIRoutineTimerScreen({
   const totalRoutineSeconds = steps.reduce((acc, step) =>
     acc + (step.waitSeconds || 0) + 60, 0);
 
+  const handleMiniNext = (stepName, data) => {
+    const merged = { ...miniData, ...data };
+    setMiniData(merged);
+
+    const flow = [
+      'onboardingSkinHistory',
+      'onboardingSensitivities',
+      'onboardingAllergies',
+      'onboardingSkinConcerns',
+      'onboardingProducts',
+      'generate',
+    ];
+
+    const nextIndex = flow.indexOf(stepName);
+    if (nextIndex === -1 || stepName === 'generate') {
+      setMiniStep('generating');
+      generateWithData(merged);
+    } else {
+      setMiniStep(stepName);
+    }
+  };
+
+  const startMiniOnboarding = () => {
+    setMiniData({});
+    setMiniStep('onboardingSkinHistory');
+  };
+
+  const generateWithData = async (data) => {
+    try {
+      const deviceId = Application.applicationId + '_' +
+        ((await Application.getIosIdForVendorAsync()) ||
+         Application.getAndroidId() ||
+         'unknown');
+
+      const skinProfile = {
+        acneHistory: data?.acneHistory ||
+                     onboardingData?.acneHistory || 'none',
+        skinType: onboardingData?.userSkinType || 'normal',
+        skinConcerns: data?.skinConcerns ||
+                      onboardingData?.skinConcerns || [],
+        sensitivities: data?.sensitivities ||
+                       onboardingData?.sensitivities || [],
+        allergies: data?.allergies ||
+                   onboardingData?.allergies || [],
+        products: data?.products ||
+                  onboardingData?.products || [],
+        routineLevel: onboardingData?.selectedRoutineLevel || 'moderate',
+      };
+
+      console.log('Calling function with profile:', JSON.stringify(skinProfile));
+
+      const response = await fetch(
+        'https://generateskinroutine-j6mvldpxdq-uc.a.run.app',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: { skinProfile, deviceId } }),
+        }
+      );
+
+      const json = await response.json();
+      console.log('Function response:', JSON.stringify(json));
+
+      if (json?.result?.routine) {
+        const routine = json.result.routine;
+        // Save full routine to AsyncStorage for offline/next session use
+        await AsyncStorage.setItem(
+          '@dracne_ai_routine',
+          JSON.stringify(routine)
+        );
+        setSteps(routine[routineType] || []);
+      } else if (json?.result?.cached && json?.result?.routine) {
+        const routine = json.result.routine;
+        await AsyncStorage.setItem(
+          '@dracne_ai_routine',
+          JSON.stringify(routine)
+        );
+        setSteps(routine[routineType] || []);
+      }
+    } catch (error) {
+      console.log('Generation error:', error.message);
+    } finally {
+      setMiniStep(null);
+      setGenerating(false);
+      setLoading(false);
+    }
+  };
+
+  const generateRoutineNow = async () => {
+    setGenerating(true);
+    try {
+      const deviceId = Application.applicationId + '_' +
+        ((await Application.getIosIdForVendorAsync()) ||
+         Application.getAndroidId() ||
+         'unknown');
+
+      const skinProfile = {
+        acneHistory: onboardingData?.acneHistory || 'none',
+        skinType: onboardingData?.userSkinType || 'normal',
+        skinConcerns: onboardingData?.skinConcerns || [],
+        sensitivities: onboardingData?.sensitivities || [],
+        allergies: onboardingData?.allergies || [],
+        products: onboardingData?.products || [],
+        routineLevel: onboardingData?.selectedRoutineLevel || 'moderate',
+      };
+
+      const response = await fetch(
+        'https://generateskinroutine-j6mvldpxdq-uc.a.run.app',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: { skinProfile, deviceId } }),
+        }
+      );
+
+      const json = await response.json();
+
+      if (json?.result?.routine) {
+        const routine = json.result.routine;
+        await AsyncStorage.setItem(
+          '@dracne_ai_routine',
+          JSON.stringify(routine)
+        );
+        setSteps(routine[routineType] || []);
+      }
+    } catch (error) {
+      console.log('Generation error:', error.message);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   return (
     <View style={styles.fullScreen}>
+      <Modal
+        visible={miniStep !== null}
+        animationType="slide"
+        presentationStyle="fullScreen"
+      >
+        <View style={styles.miniOnboardingContainer}>
+          {miniStep === 'onboardingSkinHistory' && (
+            <OnboardingSkinHistory
+              onNext={(step, data) => handleMiniNext('onboardingSensitivities', data)}
+            />
+          )}
+          {miniStep === 'onboardingSensitivities' && (
+            <OnboardingSensitivities
+              onNext={(step, data) => handleMiniNext('onboardingAllergies', data)}
+            />
+          )}
+          {miniStep === 'onboardingAllergies' && (
+            <OnboardingAllergies
+              onNext={(step, data) => handleMiniNext('onboardingSkinConcerns', data)}
+            />
+          )}
+          {miniStep === 'onboardingSkinConcerns' && (
+            <OnboardingSkinConcerns
+              onNext={(step, data) => handleMiniNext('onboardingProducts', data)}
+            />
+          )}
+          {miniStep === 'onboardingProducts' && (
+            <OnboardingProducts
+              onNext={(step, data) => handleMiniNext('generate', data)}
+            />
+          )}
+          {miniStep === 'generating' && (
+            <View style={styles.generatingContainer}>
+              <Image
+                source={require('../assets/images/dracne-logo.png')}
+                style={styles.emptyLogo}
+                resizeMode="contain"
+              />
+              <Text style={styles.emptyTitle}>
+                Building your routine...
+              </Text>
+              <Text style={styles.emptySubtext}>
+                Analyzing your skin profile and selecting the best steps
+              </Text>
+            </View>
+          )}
+        </View>
+      </Modal>
+
       <SafeAreaView style={styles.container}>
         {/* Header -- matches app style */}
         <View style={styles.header}>
@@ -183,27 +434,38 @@ export default function AIRoutineTimerScreen({
         </View>
 
 
-        {loading && (
+        {!miniStep && loading && (
           <View style={styles.centerContent}>
             <Text style={styles.loadingText}>Loading your routine...</Text>
           </View>
         )}
 
-        {!loading && steps.length === 0 && (
+        {!miniStep && !loading && steps.length === 0 && (
           <View style={styles.centerContent}>
+            <Image
+              source={require('../assets/images/dracne-logo.png')}
+              style={styles.emptyLogo}
+              resizeMode="contain"
+            />
             <Text style={styles.emptyTitle}>
-              Your AI routine is being prepared
+              Your AI routine is ready to build
             </Text>
             <Text style={styles.emptySubtext}>
-              Complete onboarding to generate your personalized plan
+              We will generate your personalized routine based on your skin profile
             </Text>
-            <TouchableOpacity style={styles.button} onPress={onBack}>
-              <Text style={styles.buttonText}>Go Back</Text>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={startMiniOnboarding}
+            >
+              <Text style={styles.buttonText}>Build my routine</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.skipButton} onPress={onBack}>
+              <Text style={styles.skipText}>Go back</Text>
             </TouchableOpacity>
           </View>
         )}
 
-        {!loading && steps.length > 0 && (
+        {!miniStep && !loading && steps.length > 0 && (
           <View style={styles.content}>
             {/* Duration tracker */}
             <View style={styles.durationBar}>
@@ -337,7 +599,7 @@ export default function AIRoutineTimerScreen({
         )}
 
         {/* Complete overlay */}
-        {isComplete && (
+        {!miniStep && isComplete && (
           <View style={styles.completeOverlay}>
             <Image
               source={require('../assets/images/Mascot party.png')}
@@ -398,6 +660,11 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: '#666',
+  },
+  emptyLogo: {
+    width: 120,
+    height: 80,
+    marginBottom: 24,
   },
   emptyTitle: {
     fontSize: 22,
@@ -548,6 +815,17 @@ const styles = StyleSheet.create({
     color: '#999',
     fontSize: 14,
     textDecorationLine: 'underline',
+  },
+  miniOnboardingContainer: {
+    flex: 1,
+    backgroundColor: '#FAFBFC',
+  },
+  generatingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    backgroundColor: '#FAFBFC',
   },
   completeOverlay: {
     ...StyleSheet.absoluteFillObject,

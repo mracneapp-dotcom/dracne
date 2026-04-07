@@ -242,6 +242,7 @@ export default function AIScannerScreen() {
 
   // Existing App State
   const [currentStep, setCurrentStep] = useState('capture');
+  const [homeRefreshKey, setHomeRefreshKey] = useState(0);
   const [selectedImageUri, setSelectedImageUri] = useState(null);
   const [analysisData, setAnalysisData] = useState(null);
   const [annotatedImageBlob, setAnnotatedImageBlob] = useState(null);
@@ -1548,6 +1549,7 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
   const renderHomeScreen = () => (
     <View style={styles.homeScreenContainer}>
       <HomeScreen
+        key={homeRefreshKey}
         onNavigateToSkinTest={handleNavigateToSkinTest}
         onNavigateToDayRoutine={handleNavigateToDayRoutine}
         onNavigateToNightRoutine={handleNavigateToNightRoutine}
@@ -1673,16 +1675,24 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
   const renderAIRoutineAM = () => (
     <AIRoutineTimerScreen
       onBack={() => setCurrentStep('home')}
-      onComplete={() => setCurrentStep('home')}
+      onComplete={() => {
+        setCurrentStep('home');
+        setHomeRefreshKey(prev => prev + 1);
+      }}
       routineType="am"
+      onboardingData={onboardingData}
     />
   );
 
   const renderAIRoutinePM = () => (
     <AIRoutineTimerScreen
       onBack={() => setCurrentStep('home')}
-      onComplete={() => setCurrentStep('home')}
+      onComplete={() => {
+        setCurrentStep('home');
+        setHomeRefreshKey(prev => prev + 1);
+      }}
       routineType="pm"
+      onboardingData={onboardingData}
     />
   );
 
