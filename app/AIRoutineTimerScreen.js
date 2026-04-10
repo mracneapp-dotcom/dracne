@@ -610,6 +610,14 @@ export default function AIRoutineTimerScreen({
             <Text style={styles.benefitText}>
               {steps[currentStepIndex]?.benefit}
             </Text>
+            {steps[currentStepIndex]?.scienceNote && (
+              <View style={styles.scienceNoteCard}>
+                <Text style={styles.scienceNoteIcon}>🔬</Text>
+                <Text style={styles.scienceNoteText}>
+                  {steps[currentStepIndex]?.scienceNote}
+                </Text>
+              </View>
+            )}
 
             {/* Main button */}
             <TouchableOpacity
@@ -945,8 +953,28 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     paddingHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 8,
     lineHeight: 20,
+  },
+  scienceNoteCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: BRAND_COLORS.primary + '12',
+    borderRadius: 12,
+    padding: 10,
+    marginHorizontal: 24,
+    marginBottom: 8,
+  },
+  scienceNoteIcon: {
+    fontSize: 14,
+    marginRight: 8,
+    marginTop: 1,
+  },
+  scienceNoteText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#444',
+    lineHeight: 17,
   },
   button: {
     backgroundColor: BRAND_COLORS.primary,

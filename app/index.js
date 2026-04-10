@@ -243,6 +243,7 @@ export default function AIScannerScreen() {
   // Existing App State
   const [currentStep, setCurrentStep] = useState('capture');
   const [homeRefreshKey, setHomeRefreshKey] = useState(0);
+  const [userName, setUserName] = useState('');
   const [selectedImageUri, setSelectedImageUri] = useState(null);
   const [analysisData, setAnalysisData] = useState(null);
   const [annotatedImageBlob, setAnnotatedImageBlob] = useState(null);
@@ -350,6 +351,11 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
             const parsedData = JSON.parse(savedOnboardingData);
             setOnboardingData(parsedData);
             console.log('📦 Restored onboarding data:', parsedData);
+            if (parsedData?.displayName) {
+              setUserName(parsedData.displayName.split(' ')[0]);
+            } else if (parsedData?.email) {
+              setUserName(parsedData.email.split('@')[0]);
+            }
           }
         } else {
           console.log('ℹ️ First time user - showing onboarding flow');
@@ -1567,6 +1573,7 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
         onTabPress={handleTabPress}
         newlyUnlockedBadge={newlyUnlockedBadge}
         onBadgeModalClose={() => setNewlyUnlockedBadge(null)}
+        userName={userName}
         style={styles.homeScreenContent}
       />
     </View>

@@ -64,6 +64,7 @@ export const HomeScreen = ({
   newlyUnlockedBadge,
   onBadgeModalClose,
   style,
+  userName = '',
 }) => {
   const [streakModalVisible, setStreakModalVisible] = useState(false);
   const [appStreak, setAppStreak] = useState(0);
@@ -111,7 +112,7 @@ export const HomeScreen = ({
         <View style={styles.greetingBanner}>
           <View style={styles.greetingLeft}>
             <Text style={styles.greetingText}>
-              {getGreeting()}, Ale
+              {getGreeting()}{userName ? ', ' + userName : ''}
             </Text>
             <Text style={styles.skinStatusText}>
               {getSkinStatus()} {getSkinEmoji()}

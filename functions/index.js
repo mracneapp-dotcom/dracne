@@ -62,48 +62,80 @@ exports.generateSkinRoutine = onCall(
     } = profile;
 
     // Build Claude prompt
-    const prompt = `You are an expert dermatologist and cosmetic chemist.
-Create a personalized skincare routine based on this patient profile:
+    const prompt = `You are an expert dermatologist and cosmetic chemist specializing in evidence-based skincare routines.
 
-SKIN HISTORY: ${acneHistory}
-SKIN TYPE: ${skinType}
-MAIN CONCERNS: ${skinConcerns.join(", ") || "general maintenance"}
-SENSITIVITIES: ${sensitivities.join(", ") || "none known"}
-ALLERGIES: ${allergies.join(", ") || "none known"}
-PRODUCTS OWNED: ${products.join(", ") || "starting fresh"}
-EXPERIENCE LEVEL: ${routineLevel}
+PATIENT SKIN PROFILE:
+- Skin history: ${acneHistory}
+- Skin type: ${skinType}
+- Main concerns: ${skinConcerns.join(', ') || 'general maintenance'}
+- Sensitivities: ${sensitivities.join(', ') || 'none known'}
+- Allergies: ${allergies.join(', ') || 'none known'}
+- Product categories owned: ${products.join(', ') || 'starting fresh'}
+- Specific brands mentioned: ${profile.brandNotes || 'none specified'}
+- Experience level: ${routineLevel}
 
-Create a complete AM and PM skincare routine.
-Respond ONLY with a JSON object, no markdown, no explanation, exactly this structure:
+SCIENCE-BASED ORDERING RULES (apply strictly):
+1. Cleanse first, always. Oil cleanser before water cleanser if PM.
+2. Thinnest to thickest texture always.
+3. Vitamin C (L-ascorbic acid): apply on damp skin, wait 60 seconds before next step. Never layer directly with niacinamide in same step.
+4. BHA (salicylic acid): wait 15 minutes after application before continuing.
+5. Niacinamide: apply after toner, before heavier serums.
+6. Hyaluronic acid: always apply on damp skin for best absorption.
+7. Retinoids: always last active before moisturizer. Sandwich with moisturizer if skin is sensitive (moisturizer, then retinoid, then moisturizer).
+8. SPF: always the absolute last step in AM. Never skip.
+9. Actives go BEFORE moisturizer, not after.
+10. Eye cream: thinner formulas before actives, richer formulas after.
+11. Never combine: BHA + retinoids same night. Vitamin C + retinoids same session. Strong AHA + BHA same session.
+12. If user has sensitivities listed, avoid those ingredient families entirely.
+13. If user has allergies listed, flag and exclude those ingredients.
+
+PERSONALIZATION RULES:
+- If brand notes are provided, incorporate those specific brands into the product names.
+- If product categories are listed, prioritize those in the routine.
+- If starting fresh, recommend specific product types that match their skin profile.
+- Tailor every benefit description to THIS patient's specific concerns.
+- Never use generic benefits. Always reference their actual skin issues.
+
+WAIT TIME RULES (waitSeconds):
+- Vitamin C standalone: 60 seconds
+- BHA/AHA exfoliants: 900 seconds (15 minutes)
+- Retinoids: 300 seconds (5 minutes)
+- All other steps: 0 seconds
+- Moisturizer after retinoid in sandwich: 0 seconds
+
+Respond ONLY with a JSON object. No markdown, no explanation.
+Exact structure required:
 {
   "am": [
     {
       "step": 1,
-      "product": "Product name",
-      "benefit": "One sentence benefit for this skin profile",
-      "waitSeconds": 0
+      "product": "Specific product name using their brands if provided",
+      "benefit": "Personalized benefit referencing their specific skin concern",
+      "waitSeconds": 0,
+      "scienceNote": "Optional: one sentence science tip for this step"
     }
   ],
   "pm": [
     {
       "step": 1,
-      "product": "Product name",
-      "benefit": "One sentence benefit for this skin profile",
-      "waitSeconds": 0
+      "product": "Specific product name",
+      "benefit": "Personalized benefit",
+      "waitSeconds": 0,
+      "scienceNote": "Optional science tip"
     }
   ],
-  "weeklyNotes": "2-3 sentences of weekly routine advice for this specific profile",
-  "keyIngredients": ["ingredient1", "ingredient2", "ingredient3"]
+  "weeklyNotes": "2-3 sentences of weekly advice specific to their profile",
+  "keyIngredients": ["ingredient1", "ingredient2", "ingredient3"],
+  "conflictWarnings": ["Warning about any ingredient conflicts for their profile"]
 }
 
 Rules:
-- waitSeconds is 0 for most steps, 60 for vitamin C, 900 for BHA, 300 for retinoids
-- AM routine must always end with SPF
-- PM routine should address their top concern directly
-- If they have products listed, incorporate them by category
-- Maximum 8 steps for AM, 10 steps for PM
-- Keep benefits specific to THEIR concerns, not generic
-- No em dashes in any text`;
+- Maximum 7 steps AM, 9 steps PM
+- AM must end with SPF
+- PM must address their top concern directly
+- No em dashes in any text
+- Every benefit must mention something specific to their skin history or concerns
+- conflictWarnings array can be empty [] if no conflicts`;
 
     // Call Claude API
     const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY.value() });
