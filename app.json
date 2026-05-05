@@ -4,7 +4,7 @@
     "slug": "dracne",
     "owner": "aleb",
     "scheme": "dracne",
-    "version": "1.0.13",
+    "version": "1.0.14",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "backgroundColor": "#FAFBFC",
@@ -17,7 +17,7 @@
     },
     "ios": {
       "bundleIdentifier": "com.aleboshi.dracne",
-      "buildNumber": "16",
+      "buildNumber": "1",
       "usesAppleSignIn": true,
       "supportsTablet": true,
       "infoPlist": {
@@ -36,7 +36,7 @@
     },
     "android": {
       "package": "com.aleboshi.dracne",
-      "versionCode": 13,
+      "versionCode": 14,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
@@ -90,7 +90,19 @@
       "expo-web-browser",
       "expo-localization",
       "./expo-plugins/exclude-iap-android.js",
-      "expo-tracking-transparency"
+      "expo-tracking-transparency",
+      [
+        "react-native-fbsdk-next",
+        {
+          "appID": "4296363337358170",
+          "clientToken": "a8b5624d65b53300f686786d69fe0922",
+          "displayName": "Dr. Acne",
+          "scheme": "fb4296363337358170",
+          "advertiserIDCollectionEnabled": true,
+          "autoLogAppEventsEnabled": true,
+          "isAutoInitEnabled": true
+        }
+      ]
     ],
     "extra": {
       "iosClientId": "338991525353-kvd8elr7d227p8493is5qnda0aq2cd5e.apps.googleusercontent.com",

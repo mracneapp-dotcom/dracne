@@ -19,22 +19,15 @@ import {
 } from 'react-native';
 import { DrAcneButton } from '../../components/ui/DrAcneButton';
 import { t } from '../i18n';
-import { trackPaywallViewed, trackSubscriptionStarted } from '../utils/facebookPixel';
+import { trackPaywallViewed, trackSubscriptionStarted, trackOnboardingComplete } from '../utils/facebookPixel';
 
 // ============================================================
 // iOS ONLY: expo-in-app-purchases (UNCHANGED)
 // ============================================================
-let Facebook = null;
 let InAppPurchases = null;
 let IAPResponseCode = null;
 
 if (Platform.OS === 'ios') {
-  try {
-    Facebook = require('expo-facebook');
-  } catch (e) {
-    console.log('Facebook SDK not available');
-  }
-  
   try {
     InAppPurchases = require('expo-in-app-purchases');
     IAPResponseCode = InAppPurchases.IAPResponseCode;
@@ -244,11 +237,16 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     hasNavigatedRef.current = true;
     
     const planType = purchase.productId === PRODUCT_IDS.annual ? 'annual' : 'monthly';
-    const price = planType === 'annual' ? 37.90 : 7.79;
-    
-    trackSubscriptionStarted(planType);
+    const price = planType === 'annual' ? 47.99 : 12.00;
     
     setLoading(false);
+    try {
+      const price = planType === 'annual' ? 47.99 : 12.00;
+      trackSubscriptionStarted(planType, price);
+      trackOnboardingComplete();
+    } catch (e) {
+      console.log('FB purchase tracking:', e.message);
+    }
     onNext('complete', {
       ...onboardingData,
       paywallCompleted: true,
@@ -386,8 +384,15 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     
     const hasAnnual = customerInfo.activeSubscriptions.includes(PRODUCT_IDS.annual);
     const planType = hasAnnual ? 'annual' : 'monthly';
-    
+
     setLoading(false);
+    try {
+      const price = planType === 'annual' ? 47.99 : 12.00;
+      trackSubscriptionStarted(planType, price);
+      trackOnboardingComplete();
+    } catch (e) {
+      console.log('FB purchase tracking:', e.message);
+    }
     onNext('complete', {
       ...onboardingData,
       paywallCompleted: true,
@@ -532,19 +537,12 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   };
 
   const handleContinue = async () => {
-    if (Platform.OS === 'ios' && Facebook) {
-      try {
-        await Facebook.logEvent('InitiateCheckout', {
-          content_type: 'subscription',
-          content_id: selectedPlan,
-          value: selectedPlan === 'annual' ? 37.90 : 7.79,
-          currency: 'USD'
-        });
-      } catch (error) {
-        console.log('FB tracking:', error.message);
-      }
+    try {
+      trackPaywallViewed();
+    } catch (e) {
+      console.log('FB tracking:', e.message);
     }
-    
+
     hasNavigatedRef.current = false;
     
     if (loading) {
@@ -789,7 +787,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
                 <Text style={styles.modernPlanName}>{t('onboarding.paywall.modal_annual')}</Text>
                 
                 <View style={styles.modernPriceRow}>
-                  <Text style={styles.modernPrice}>$37.90</Text>
+                  <Text style={styles.modernPrice}>$47.99</Text>
                   <Text style={styles.modernPeriod}>{t('onboarding.paywall.modal_per_year')}</Text>
                 </View>
                 

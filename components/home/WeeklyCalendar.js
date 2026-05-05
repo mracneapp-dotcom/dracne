@@ -110,22 +110,18 @@ const styles = StyleSheet.create({
   },
   dayContainer: {
     alignItems: 'center',
-    position: 'relative',
-    marginHorizontal: 6,
+    marginHorizontal: 2,
   },
   dayText: {
-    fontSize: 11,
-    color: BRAND_COLORS.gray,
-    marginBottom: 6,
-    textAlign: 'center',
+    fontSize: 9,
+    marginBottom: 2,
   },
   dateCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1.5,
   },
   activeCircle: {
     backgroundColor: BRAND_COLORS.primary,
@@ -147,7 +143,7 @@ const styles = StyleSheet.create({
     borderStyle: 'dotted',
   },
   dateText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
   },
   activeDateText: {
@@ -157,12 +153,11 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.gray,
   },
   connectionLine: {
-    position: 'absolute',
-    top: 30,
-    left: 28,
-    width: 12,
+    width: 6,
     height: 2,
-    zIndex: -1,
+    position: 'absolute',
+    top: 28,
+    left: 26,
   },
   activeLine: {
     backgroundColor: BRAND_COLORS.primary,

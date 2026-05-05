@@ -1,65 +1,77 @@
-// app/utils/facebookPixel.js
 import { Platform } from 'react-native';
 import { shouldEnableFacebookPixel } from './facebookToggle';
 
-// iOS ONLY: Conditional imports
-let Facebook = null;
+let AppEventsLogger = null;
+let Settings = null;
 let Tracking = null;
+
+try {
+  const FBSDK = require('react-native-fbsdk-next');
+  AppEventsLogger = FBSDK.AppEventsLogger;
+  Settings = FBSDK.Settings;
+} catch (e) {
+  console.log('Facebook SDK not available:', e.message);
+}
 
 if (Platform.OS === 'ios') {
   try {
-    Facebook = require('expo-facebook');
     Tracking = require('expo-tracking-transparency');
   } catch (e) {
-    console.log('Facebook SDK not available');
+    console.log('Tracking not available');
   }
 }
 
 export const initializeFacebookPixel = async () => {
-  if (!shouldEnableFacebookPixel() || Platform.OS !== 'ios' || !Facebook) {
-    console.log('🚫 Facebook Pixel: DISABLED');
+  if (!shouldEnableFacebookPixel() || !Settings) {
+    console.log('Facebook Pixel: DISABLED');
     return;
   }
 
   try {
-    const { status } = await Tracking.requestTrackingPermissionsAsync();
-    
-    if (status === 'granted') {
-      await Facebook.setAdvertiserTrackingEnabledAsync(true);
-    } else {
-      await Facebook.setAdvertiserTrackingEnabledAsync(false);
+    if (Platform.OS === 'ios' && Tracking) {
+      const { status } = await Tracking.requestTrackingPermissionsAsync();
+      await Settings.setAdvertiserTrackingEnabled(status === 'granted');
     }
-
-    await Facebook.initializeAsync({
-      appId: '4296363337358170',
-      appName: 'Dr. Acne',
-    });
-    console.log('✅ Facebook Pixel: Initialized');
+    await Settings.initializeSDK();
+    console.log('Facebook Pixel: Initialized on', Platform.OS);
   } catch (error) {
-    console.error('Facebook Pixel error:', error);
+    console.log('Facebook Pixel error:', error.message);
   }
 };
 
 export const trackFacebookEvent = async (eventName, parameters = {}) => {
-  if (!shouldEnableFacebookPixel() || Platform.OS !== 'ios' || !Facebook) return;
-
+  if (!shouldEnableFacebookPixel() || !AppEventsLogger) return;
   try {
-    await Facebook.logEventAsync(eventName, parameters);
-    console.log(`📊 Facebook: ${eventName}`);
+    AppEventsLogger.logEvent(eventName, parameters);
+    console.log('Facebook event:', eventName);
   } catch (error) {
-    console.error('Facebook tracking error:', error);
+    console.log('Facebook tracking error:', error.message);
   }
 };
 
-// Predefined events
 export const trackOnboardingWelcome = () => {
   trackFacebookEvent('OnboardingWelcome');
 };
 
 export const trackPaywallViewed = () => {
-  trackFacebookEvent('PaywallViewed');
+  trackFacebookEvent('ViewContent', {
+    content_type: 'paywall',
+    content_id: 'dracne_paywall',
+  });
 };
 
-export const trackSubscriptionStarted = (plan) => {
-  trackFacebookEvent('SubscriptionStarted', { plan });
+export const trackSubscriptionStarted = (plan, price) => {
+  if (!AppEventsLogger) return;
+  try {
+    AppEventsLogger.logPurchase(price, 'USD', { plan });
+    console.log('Facebook purchase tracked:', plan, price);
+  } catch (e) {
+    console.log('Facebook purchase error:', e.message);
+  }
+};
+
+export const trackOnboardingComplete = () => {
+  trackFacebookEvent('CompleteRegistration', {
+    registration_method: 'DrAcne',
+  });
 };

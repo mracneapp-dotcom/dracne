@@ -15,6 +15,7 @@ import OnboardingAllergies from './onboardingScreens/OnboardingAllergies';
 import OnboardingSkinConcerns from './onboardingScreens/OnboardingSkinConcerns';
 import OnboardingProducts from './onboardingScreens/OnboardingProducts';
 import { t } from './i18n';
+import * as StoreReview from 'expo-store-review';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -215,6 +216,31 @@ export default function AIRoutineTimerScreen({
               '@dracne_routine_streak_date',
               now.toDateString()
             );
+          }
+
+          // Track total routines completed
+          const totalRoutines = await AsyncStorage.getItem('@dracne_total_routines');
+          const total = parseInt(totalRoutines || '0') + 1;
+          await AsyncStorage.setItem('@dracne_total_routines', String(total));
+
+          // Request review at multiple milestones - aggressively but respectfully
+          // iOS allows system to decide if it actually shows, Android shows every time
+          const lastReviewAt = await AsyncStorage.getItem('@dracne_last_review_at');
+          const lastReviewTotal = parseInt(lastReviewAt || '0');
+          const routinesSinceLastReview = total - lastReviewTotal;
+
+          // Show after: 1st, 3rd, 7th, 15th, 30th routine
+          // Then every 10 routines after that
+          const milestones = [1, 3, 7, 15, 30];
+          const shouldRequest = milestones.includes(total) ||
+            (total > 30 && routinesSinceLastReview >= 10);
+
+          if (shouldRequest) {
+            const isAvailable = await StoreReview.isAvailableAsync();
+            if (isAvailable) {
+              await StoreReview.requestReview();
+              await AsyncStorage.setItem('@dracne_last_review_at', String(total));
+            }
           }
         } catch (e) {
           console.log('Streak update error:', e.message);
