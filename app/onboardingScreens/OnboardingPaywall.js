@@ -20,6 +20,7 @@ import {
 import { DrAcneButton } from '../../components/ui/DrAcneButton';
 import { t } from '../i18n';
 import { trackPaywallViewed, trackSubscriptionStarted, trackOnboardingComplete } from '../utils/facebookPixel';
+import { trackTikTokPaywallViewed, trackTikTokSubscriptionStarted, trackTikTokOnboardingComplete } from '../utils/tiktokPixel';
 
 // ============================================================
 // iOS ONLY: expo-in-app-purchases (UNCHANGED)
@@ -162,6 +163,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
 
   const trackPaywallView = async () => {
     trackPaywallViewed();
+    trackTikTokPaywallViewed();
   };
 
   // ============================================================
@@ -244,6 +246,8 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       const price = planType === 'annual' ? 47.99 : 12.00;
       trackSubscriptionStarted(planType, price);
       trackOnboardingComplete();
+      trackTikTokSubscriptionStarted(planType, price);
+      trackTikTokOnboardingComplete();
     } catch (e) {
       console.log('FB purchase tracking:', e.message);
     }
@@ -390,6 +394,8 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       const price = planType === 'annual' ? 47.99 : 12.00;
       trackSubscriptionStarted(planType, price);
       trackOnboardingComplete();
+      trackTikTokSubscriptionStarted(planType, price);
+      trackTikTokOnboardingComplete();
     } catch (e) {
       console.log('FB purchase tracking:', e.message);
     }
@@ -539,6 +545,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   const handleContinue = async () => {
     try {
       trackPaywallViewed();
+      trackTikTokPaywallViewed();
     } catch (e) {
       console.log('FB tracking:', e.message);
     }

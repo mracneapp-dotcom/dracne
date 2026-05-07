@@ -4,7 +4,7 @@
     "slug": "dracne",
     "owner": "aleb",
     "scheme": "dracne",
-    "version": "1.0.14",
+    "version": "1.0.15",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "backgroundColor": "#FAFBFC",
@@ -29,6 +29,9 @@
         "SKAdNetworkItems": [
           {
             "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork"
+          },
+          {
+            "SKAdNetworkIdentifier": "v9wttpbfk9.skadnetwork"
           }
         ],
         "UILaunchStoryboardName": "SplashScreen"
@@ -101,6 +104,18 @@
           "advertiserIDCollectionEnabled": true,
           "autoLogAppEventsEnabled": true,
           "isAutoInitEnabled": true
+        }
+      ],
+      [
+        "@layers/expo-tiktok-business/app.plugin.cjs",
+        {
+          "ios": {
+            "tiktokAppId": "7637256358793887762",
+            "urlSchemes": ["snssdk1233"]
+          },
+          "android": {
+            "tiktokAppId": "7637256358793887762"
+          }
         }
       ]
     ],

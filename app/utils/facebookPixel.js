@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { initializeTikTok } from './tiktokPixel';
 import { shouldEnableFacebookPixel } from './facebookToggle';
 
 let AppEventsLogger = null;
@@ -34,6 +35,7 @@ export const initializeFacebookPixel = async () => {
     }
     await Settings.initializeSDK();
     console.log('Facebook Pixel: Initialized on', Platform.OS);
+    await initializeTikTok();
   } catch (error) {
     console.log('Facebook Pixel error:', error.message);
   }

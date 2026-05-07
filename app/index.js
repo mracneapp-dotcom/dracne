@@ -26,6 +26,7 @@ import { ProgressBar } from '../components/ui/ProgressBar';
 import { analyzeImageWithRoboflow, analyzeImageWithRoboflowVisual, handleAPIError } from '../services/RoboflowAPI';
 import { initializeLanguage } from './i18n';
 import { initializeProgress, logRoutine, logSkinScan } from './utils/progressManager';
+import { scheduleDailyReminders } from './utils/notificationService';
 
 // Basic Routine Screens
 import BasicRoutineProductSelection from './BasicRoutineProductSelection';
@@ -355,6 +356,15 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
               setUserName(parsedData.displayName.split(' ')[0]);
             } else if (parsedData?.email) {
               setUserName(parsedData.email.split('@')[0]);
+            }
+
+            // Reschedule notifications if user enabled them
+            if (parsedData?.notificationsEnabled) {
+              const morningTime = parsedData?.reminders?.morning?.time || '8:00 AM';
+              const eveningTime = parsedData?.reminders?.evening?.time || '10:00 PM';
+              scheduleDailyReminders(morningTime, eveningTime).catch(e =>
+                console.log('Reschedule notifications error:', e.message)
+              );
             }
           }
         } else {

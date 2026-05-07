@@ -1,11 +1,8 @@
 // app/onboardingScreens/OnboardingReminders.js
-import Constants from 'expo-constants';
 import React, { useEffect, useRef } from 'react';
 import {
-  Alert,
   Animated,
   Image,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -13,6 +10,10 @@ import {
 } from 'react-native';
 import { DrAcneButton } from '../../components/ui/DrAcneButton';
 import { t } from '../i18n';
+import {
+  requestNotificationPermissions,
+  scheduleDailyReminders,
+} from '../utils/notificationService';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -23,7 +24,6 @@ const BRAND_COLORS = {
 };
 
 export default function OnboardingReminders({ onNext }) {
-  const isExpoGo = Constants.appOwnership === 'expo';
   const bounceAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -57,15 +57,18 @@ export default function OnboardingReminders({ onNext }) {
     };
   }, [bounceAnim]);
 
-  const handleAllow = () => {
-    if (isExpoGo) {
-      Alert.alert(
-        'Notifications Enabled!',
-        'In the real app, this will open your phone settings. For now, we\'ll continue with reminders enabled.',
-        [{ text: 'Continue', onPress: () => proceedWithNotifications(true) }]
-      );
-    } else {
-      openNotificationSettings();
+  const handleAllow = async () => {
+    try {
+      const granted = await requestNotificationPermissions();
+      if (granted) {
+        await scheduleDailyReminders('8:00 AM', '10:00 PM');
+        proceedWithNotifications(true);
+      } else {
+        proceedWithNotifications(false);
+      }
+    } catch (error) {
+      console.log('Notification setup error:', error.message);
+      proceedWithNotifications(false);
     }
   };
 
@@ -79,19 +82,6 @@ export default function OnboardingReminders({ onNext }) {
 
   const handleContinue = () => {
     proceedWithNotifications(false);
-  };
-
-  const openNotificationSettings = async () => {
-    try {
-      const { Linking } = require('react-native');
-      if (Platform.OS === 'ios') {
-        await Linking.openURL('app-settings:');
-      } else {
-        await Linking.openSettings();
-      }
-    } catch (error) {
-      console.log('Error opening settings:', error);
-    }
   };
 
   const proceedWithNotifications = (enabled) => {

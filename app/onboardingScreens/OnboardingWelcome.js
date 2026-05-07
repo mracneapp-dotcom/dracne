@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { t } from '../i18n';
 import { trackOnboardingWelcome } from '../utils/facebookPixel'; // ⬅️ ADD THIS LINE
+import { trackTikTokOnboardingWelcome } from '../utils/tiktokPixel';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -32,6 +33,7 @@ export default function OnboardingWelcome({ onNext }) {
 
   useEffect(() => {
     trackOnboardingWelcome(); // ⬅️ ADD THIS LINE (safe - does nothing if disabled)
+    trackTikTokOnboardingWelcome();
 
     Animated.parallel([
       Animated.timing(fadeAnim, {
