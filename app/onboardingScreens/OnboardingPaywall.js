@@ -14,6 +14,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -22,35 +23,13 @@ import { t } from '../i18n';
 import { trackPaywallViewed, trackSubscriptionStarted, trackOnboardingComplete } from '../utils/facebookPixel';
 import { trackTikTokPaywallViewed, trackTikTokSubscriptionStarted, trackTikTokOnboardingComplete } from '../utils/tiktokPixel';
 
-// ============================================================
-// iOS ONLY: expo-in-app-purchases (UNCHANGED)
-// ============================================================
-let InAppPurchases = null;
-let IAPResponseCode = null;
-
-if (Platform.OS === 'ios') {
-  try {
-    InAppPurchases = require('expo-in-app-purchases');
-    IAPResponseCode = InAppPurchases.IAPResponseCode;
-  } catch (e) {
-    console.log('⚠️ In-app purchases not available');
-  }
-}
-
-// ============================================================
-// ANDROID ONLY: RevenueCat (UNCHANGED)
-// ============================================================
+// RevenueCat — used on BOTH platforms
 let Purchases = null;
 let PURCHASES_ERROR_CODE = null;
-
-if (Platform.OS === 'android') {
-  try {
-    Purchases = require('react-native-purchases').default;
-    PURCHASES_ERROR_CODE = require('react-native-purchases').PURCHASES_ERROR_CODE;
-  } catch (e) {
-    console.log('⚠️ RevenueCat not available');
-  }
-}
+try {
+  Purchases = require('react-native-purchases').default;
+  PURCHASES_ERROR_CODE = require('react-native-purchases').PURCHASES_ERROR_CODE;
+} catch (e) { console.log('⚠️ RevenueCat not available'); }
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -84,7 +63,7 @@ const BENEFITS = [
   },
 ];
 
-const IS_TEST_MODE = Platform.OS === 'ios' ? !InAppPurchases : !Purchases;
+const IS_TEST_MODE = !Purchases;
 
 const PRODUCT_IDS = Platform.select({
   ios: {
@@ -97,7 +76,9 @@ const PRODUCT_IDS = Platform.select({
   }
 });
 
-const REVENUECAT_API_KEY = 'goog_zstECKBazYtFkwiyJMlgKvSRcoK';
+const REVENUECAT_API_KEY = Platform.OS === 'ios'
+  ? 'appl_DQRoEPWrzOPLnOytfksLtkVkrCi'
+  : 'goog_zstECKBazYtFkwiyJMlgKvSRcoK';
 
 export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -107,8 +88,9 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [iapReady, setIapReady] = useState(false);
+  const [showPromoModal, setShowPromoModal] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
   
-  const purchaseListenerRef = useRef(null);
   const hasNavigatedRef = useRef(false);
 
   useEffect(() => {
@@ -145,19 +127,13 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
 
     if (!IS_TEST_MODE) {
       if (Platform.OS === 'ios') {
-        initializeIAP_iOS();
+        initializeRevenueCat_iOS();
       } else {
         initializeRevenueCat_Android();
       }
     }
 
     return () => {
-      if (Platform.OS === 'ios' && purchaseListenerRef.current) {
-        purchaseListenerRef.current.remove();
-      }
-      if (Platform.OS === 'ios' && !IS_TEST_MODE && InAppPurchases) {
-        InAppPurchases.disconnectAsync().catch(() => {});
-      }
     };
   }, [fadeAnim, scaleAnim]);
 
@@ -169,78 +145,30 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
   // ============================================================
   // iOS ONLY FUNCTIONS (100% UNCHANGED - PAYMENT LOGIC SAFE)
   // ============================================================
-  const initializeIAP_iOS = async () => {
-    if (!InAppPurchases) {
-      console.log('❌ InAppPurchases not available');
-      return;
-    }
-    
+  const initializeRevenueCat_iOS = async () => {
+    if (!Purchases) { console.log('❌ RevenueCat not available'); return; }
     try {
-      console.log('🔌 Connecting to IAP...');
-      await InAppPurchases.connectAsync();
-      console.log('✅ Connected to IAP');
-
-      console.log('📦 Loading products...');
-      const { results, responseCode } = await InAppPurchases.getProductsAsync([
-        PRODUCT_IDS.monthly,
-        PRODUCT_IDS.annual,
-      ]);
-
-      console.log('📦 Response Code:', responseCode);
-      console.log('📦 Products Found:', results?.length || 0);
-
-      if (responseCode === IAPResponseCode.OK && results && results.length > 0) {
-        setProducts(results);
-        console.log('✅ Products loaded successfully');
-        
-        if (purchaseListenerRef.current) {
-          purchaseListenerRef.current.remove();
-        }
-
-        purchaseListenerRef.current = InAppPurchases.setPurchaseListener(
-          ({ responseCode, results, errorCode }) => {
-            console.log('📱 Purchase Listener - Response:', responseCode, 'Error:', errorCode);
-            
-            if (responseCode === IAPResponseCode.OK && results) {
-              console.log('✅ Purchase successful via listener');
-              results.forEach((purchase) => {
-                console.log('🎉 Processing purchase:', purchase.productId);
-                handlePurchaseSuccess_iOS(purchase);
-              });
-            } else if (responseCode === IAPResponseCode.USER_CANCELED) {
-              console.log('❌ User canceled purchase');
-              setLoading(false);
-            } else if (responseCode === IAPResponseCode.ERROR) {
-              console.log('❌ Purchase error:', errorCode);
-              setLoading(false);
-            }
-          }
-        );
-        
+      Purchases.configure({ apiKey: REVENUECAT_API_KEY });
+      const offerings = await Purchases.getOfferings();
+      if (offerings.current && offerings.current.availablePackages.length > 0) {
+        const packages = offerings.current.availablePackages;
+        packages.forEach(pkg => console.log('📦 iOS Package:', pkg.identifier, '| Product:', pkg.product.identifier));
+        setProducts(packages);
         setIapReady(true);
-        console.log('✅ IAP Ready');
-      } else {
-        console.log('⚠️ No products loaded');
-        setIapReady(false);
-      }
+      } else { setIapReady(false); }
     } catch (error) {
-      console.error('❌ IAP initialization failed:', error);
+      console.error('❌ RevenueCat iOS initialization failed:', error);
       setIapReady(false);
     }
   };
 
-  const handlePurchaseSuccess_iOS = async (purchase) => {
-    if (hasNavigatedRef.current) {
-      console.log('⚠️ Already navigated');
-      return;
-    }
-
-    console.log('🎉 Purchase confirmed - NAVIGATING NOW');
+  const handlePurchaseSuccess_iOS = async (customerInfo) => {
+    if (hasNavigatedRef.current) { console.log('⚠️ Already navigated'); return; }
     hasNavigatedRef.current = true;
-    
-    const planType = purchase.productId === PRODUCT_IDS.annual ? 'annual' : 'monthly';
-    const price = planType === 'annual' ? 47.99 : 12.00;
-    
+    const hasAnnual = customerInfo.activeSubscriptions
+      ? customerInfo.activeSubscriptions.some(s => s.includes('annual') || s.includes('friendsfamily'))
+      : false;
+    const planType = hasAnnual ? 'annual' : 'monthly';
     setLoading(false);
     try {
       const price = planType === 'annual' ? 47.99 : 12.00;
@@ -248,41 +176,27 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       trackOnboardingComplete();
       trackTikTokSubscriptionStarted(planType, price);
       trackTikTokOnboardingComplete();
-    } catch (e) {
-      console.log('FB purchase tracking:', e.message);
-    }
-    onNext('complete', {
-      ...onboardingData,
-      paywallCompleted: true,
-      trialStarted: new Date().toISOString(),
-      subscriptionType: planType,
-      isPremium: true,
-    });
-
+    } catch (e) { console.log('FB purchase tracking:', e.message); }
+    onNext('complete', { ...onboardingData, paywallCompleted: true,
+      trialStarted: new Date().toISOString(), subscriptionType: planType, isPremium: true });
     setTimeout(() => {
-      saveToFirebaseBackground(purchase, planType)
-        .catch((error) => console.log('⚠️ Firebase save failed:', error.message));
-      
-      if (InAppPurchases) {
-        InAppPurchases.finishTransactionAsync(purchase, true)
-          .catch((error) => console.log('⚠️ Finish transaction failed:', error.message));
-      }
+      saveToFirebaseBackground_Android(customerInfo, planType).catch(console.error);
     }, 1000);
   };
 
   const purchaseSubscription_iOS = async (plan) => {
-    if (!InAppPurchases) {
-      console.log('❌ InAppPurchases not available');
+    if (!Purchases) {
+      console.log('❌ RevenueCat not available');
       setLoading(false);
       return;
     }
-    
     try {
-      const productId = PRODUCT_IDS[plan];
-      const product = products.find(p => p.productId === productId);
-      
-      if (!product) {
-        console.log('❌ Product not found:', productId);
+      setLoading(true);
+      const packageToPurchase = products.find(pkg =>
+        pkg.product.identifier === PRODUCT_IDS[plan]
+      );
+      if (!packageToPurchase) {
+        console.log('❌ Package not found for:', plan);
         setLoading(false);
         Alert.alert(
           t('onboarding.paywall.alert_purchase_failed'),
@@ -290,48 +204,21 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
         );
         return;
       }
-
-      console.log('🛒 Starting purchase for:', productId);
-      setLoading(true);
-      
-      console.log('🚀 Calling purchaseItemAsync...');
-      await InAppPurchases.purchaseItemAsync(productId);
-      console.log('✅ purchaseItemAsync completed');
-      
-      setTimeout(async () => {
-        if (!hasNavigatedRef.current) {
-          console.log('⚠️ Listener did not fire - checking purchase history as backup');
-          try {
-            const { results } = await InAppPurchases.getPurchaseHistoryAsync();
-            console.log('📋 Purchase history results:', results?.length || 0);
-            
-            const recentPurchase = results?.find(p => p.productId === productId);
-            
-            if (recentPurchase) {
-              console.log('✅ Found purchase in history - navigating via backup');
-              handlePurchaseSuccess_iOS(recentPurchase);
-            } else {
-              console.log('❌ No purchase found - stopping loading');
-              setLoading(false);
-            }
-          } catch (error) {
-            console.log('❌ Error checking purchase history:', error);
-            setLoading(false);
-          }
-        } else {
-          console.log('✅ Already navigated via listener');
-        }
-      }, 3000);
-      
+      console.log('🛒 Purchasing iOS package:', packageToPurchase.identifier);
+      const { customerInfo } = await Purchases.purchasePackage(packageToPurchase);
+      if (customerInfo.activeSubscriptions && customerInfo.activeSubscriptions.length > 0) {
+        handlePurchaseSuccess_iOS(customerInfo);
+      } else {
+        console.log('⚠️ No active subscriptions after purchase');
+        setLoading(false);
+      }
     } catch (error) {
-      console.error('❌ Purchase error:', error);
+      console.error('❌ iOS purchase error:', error);
       setLoading(false);
-      
-      if (error.code === 'E_USER_CANCELLED') {
+      if (error.code === PURCHASES_ERROR_CODE?.PURCHASE_CANCELLED_ERROR) {
         console.log('ℹ️ User cancelled purchase');
         return;
       }
-      
       Alert.alert(
         t('onboarding.paywall.alert_purchase_failed'),
         error.message || t('onboarding.paywall.alert_purchase_error')
@@ -496,46 +383,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
         updatedAt: serverTimestamp(),
       });
       console.log('✅ Firebase subscription saved (Android)');
-    } catch (error) {
-      console.error('⚠️ Firebase save failed:', error);
-      throw error;
-    }
-  };
-
-  // ============================================================
-  // SHARED FUNCTIONS (100% UNCHANGED - PAYMENT LOGIC SAFE)
-  // ============================================================
-  const saveToFirebaseBackground = async (purchase, plan) => {
-    try {
-      const auth = getAuth();
-      const user = auth.currentUser;
-      if (!user) {
-        console.log('ℹ️ No user logged in, skipping Firebase save');
-        return;
-      }
-
-      const db = getFirestore();
-      const userSubscriptionRef = doc(db, 'users', user.uid, 'subscription', 'current');
-
-      const trialEndDate = new Date();
-      trialEndDate.setDate(trialEndDate.getDate() + 3);
-
-      await setDoc(userSubscriptionRef, {
-        subscriptionType: plan,
-        productId: PRODUCT_IDS[plan],
-        trialStarted: serverTimestamp(),
-        trialEnds: trialEndDate.toISOString(),
-        status: 'trial',
-        receipt: {
-          transactionId: purchase.transactionId,
-          productId: purchase.productId,
-          transactionDate: purchase.transactionDate,
-        },
-        platform: Platform.OS,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-      console.log('✅ Firebase subscription saved');
     } catch (error) {
       console.error('⚠️ Firebase save failed:', error);
       throw error;
@@ -712,6 +559,70 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
         <Text style={styles.cancelText}>
           {t('onboarding.paywall.cancel_text')}
         </Text>
+
+        <TouchableOpacity onPress={() => setShowPromoModal(true)} style={{ marginBottom: 16 }}>
+          <Text style={styles.promoCodeLink}>Have a promo code?</Text>
+        </TouchableOpacity>
+
+        <Modal
+          visible={showPromoModal}
+          animationType="fade"
+          transparent={true}
+          onRequestClose={() => setShowPromoModal(false)}
+        >
+          <View style={styles.promoModalOverlay}>
+            <View style={styles.promoModalContainer}>
+              <Text style={styles.promoModalTitle}>Enter Promo Code</Text>
+              <TextInput
+                style={styles.promoInput}
+                value={promoCode}
+                onChangeText={setPromoCode}
+                placeholder="DRACNEFAM"
+                autoCapitalize="characters"
+                autoCorrect={false}
+              />
+              <TouchableOpacity
+                style={styles.promoApplyButton}
+                onPress={async () => {
+                  const code = promoCode.trim().toUpperCase();
+                  if (code !== 'DRACNEFAM') {
+                    Alert.alert('Invalid Code', 'That promo code is not valid.');
+                    return;
+                  }
+                  setShowPromoModal(false);
+                  if (!Purchases) return;
+                  try {
+                    setLoading(true);
+                    const offerings = await Purchases.getOfferings();
+                    const promoOffering = offerings.all['friends_family'];
+                    const pkg = promoOffering
+                      ? promoOffering.availablePackages.find(p => p.identifier === '$rc_annual') || promoOffering.availablePackages[0]
+                      : null;
+                    if (!pkg) { setLoading(false); Alert.alert('Unavailable', 'Promo offering not found.'); return; }
+                    const { customerInfo } = await Purchases.purchasePackage(pkg);
+                    if (customerInfo.activeSubscriptions && customerInfo.activeSubscriptions.length > 0) {
+                      Platform.OS === 'ios'
+                        ? handlePurchaseSuccess_iOS(customerInfo)
+                        : handlePurchaseSuccess_Android(customerInfo);
+                    } else {
+                      setLoading(false);
+                    }
+                  } catch (e) {
+                    setLoading(false);
+                    if (e.code !== PURCHASES_ERROR_CODE?.PURCHASE_CANCELLED_ERROR) {
+                      Alert.alert('Purchase Failed', e.message || 'Something went wrong.');
+                    }
+                  }
+                }}
+              >
+                <Text style={styles.promoApplyButtonText}>Apply</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowPromoModal(false)}>
+                <Text style={styles.promoCancelText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
         <View style={styles.regulatoryContainer}>
           <Text style={styles.regulatoryText}>
@@ -1181,5 +1092,63 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: BRAND_COLORS.primary,
     fontWeight: '600',
+  },
+  promoCodeLink: {
+    fontSize: 13,
+    color: BRAND_COLORS.primary,
+    textAlign: 'center',
+    fontWeight: '500',
+    textDecorationLine: 'underline',
+  },
+  promoModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  promoModalContainer: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: BRAND_COLORS.white,
+    borderRadius: 20,
+    padding: 24,
+    alignItems: 'center',
+  },
+  promoModalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: BRAND_COLORS.black,
+    marginBottom: 16,
+  },
+  promoInput: {
+    width: '100%',
+    borderWidth: 1.5,
+    borderColor: '#E5E5E5',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 16,
+    color: BRAND_COLORS.black,
+    marginBottom: 16,
+    textAlign: 'center',
+    letterSpacing: 2,
+  },
+  promoApplyButton: {
+    backgroundColor: BRAND_COLORS.primary,
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    marginBottom: 12,
+  },
+  promoApplyButtonText: {
+    color: BRAND_COLORS.white,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  promoCancelText: {
+    fontSize: 14,
+    color: '#999',
+    fontWeight: '400',
   },
 });
