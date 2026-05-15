@@ -27,6 +27,7 @@ import { analyzeImageWithRoboflow, analyzeImageWithRoboflowVisual, handleAPIErro
 import { initializeLanguage } from './i18n';
 import { initializeProgress, logRoutine, logSkinScan } from './utils/progressManager';
 import { scheduleDailyReminders } from './utils/notificationService';
+import { initializeFacebookPixel } from './utils/facebookPixel';
 
 // Basic Routine Screens
 import BasicRoutineProductSelection from './BasicRoutineProductSelection';
@@ -334,6 +335,7 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       try {
+        initializeFacebookPixel();
 // ✅ Initialize language FIRST
         const currentLanguage = await initializeLanguage();
         console.log('🌐 Language initialized:', currentLanguage);
