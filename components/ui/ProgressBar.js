@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const BRAND_COLORS = {
   primary: '#7CB342',
@@ -15,14 +16,15 @@ const BRAND_COLORS = {
   white: '#FFFFFF',
 };
 
-export const ProgressBar = ({ 
-  progress = 0, 
+export const ProgressBar = ({
+  progress = 0,
   onBack,
   showBackButton = true,
-  style = {} 
+  style = {}
 }) => {
+  const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, { paddingTop: insets.top + 8 }, style]}>
       <View style={styles.logoContainer}>
         <Image 
           source={require('../../assets/images/dracne-logo.png')} 

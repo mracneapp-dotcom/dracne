@@ -23,6 +23,7 @@ import { BottomNavigation } from '../components/ui/BottomNavigation';
 import { DrAcneButton } from '../components/ui/DrAcneButton';
 import { FeatureCards } from '../components/ui/FeatureCards';
 import { ProgressBar } from '../components/ui/ProgressBar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { analyzeImageWithRoboflow, analyzeImageWithRoboflowVisual, handleAPIError } from '../services/RoboflowAPI';
 import { initializeLanguage } from './i18n';
 import { initializeProgress, logRoutine, logSkinScan } from './utils/progressManager';
@@ -237,6 +238,8 @@ const BrainLoader = () => {
 };
 
 export default function AIScannerScreen() {
+  const insets = useSafeAreaInsets();
+
   // Onboarding State
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
   const [currentOnboardingStep, setCurrentOnboardingStep] = useState('onboardingWelcome');
@@ -2881,7 +2884,7 @@ const renderComprehensiveNightRoutineStep4 = () => {
         />
       )}
       
-      <View style={styles.content} {...panResponder.panHandlers}>
+      <View style={[styles.content, !isOnboardingComplete ? { paddingBottom: insets.bottom } : null]} {...panResponder.panHandlers}>
         {/* ONBOARDING FLOW */}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingWelcome' && renderOnboardingWelcome()}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingDiscovery' && renderOnboardingDiscovery()}

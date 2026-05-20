@@ -17,7 +17,7 @@
     },
     "ios": {
       "bundleIdentifier": "com.aleboshi.dracne",
-      "buildNumber": "19",
+      "buildNumber": "20",
       "usesAppleSignIn": true,
       "supportsTablet": true,
       "infoPlist": {
@@ -39,7 +39,7 @@
     },
     "android": {
       "package": "com.aleboshi.dracne",
-      "versionCode": 20,
+      "versionCode": 21,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
