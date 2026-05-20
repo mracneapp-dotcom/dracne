@@ -335,7 +335,7 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       try {
-        initializeFacebookPixel();
+        setTimeout(() => { initializeFacebookPixel(); }, 2000);
 // ✅ Initialize language FIRST
         const currentLanguage = await initializeLanguage();
         console.log('🌐 Language initialized:', currentLanguage);

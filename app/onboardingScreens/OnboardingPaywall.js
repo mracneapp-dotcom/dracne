@@ -560,10 +560,6 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
           {t('onboarding.paywall.cancel_text')}
         </Text>
 
-        <TouchableOpacity onPress={() => setShowPromoModal(true)} style={{ marginBottom: 16 }}>
-          <Text style={styles.promoCodeLink}>Have a promo code?</Text>
-        </TouchableOpacity>
-
         <Modal
           visible={showPromoModal}
           animationType="fade"
@@ -577,7 +573,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
                 style={styles.promoInput}
                 value={promoCode}
                 onChangeText={setPromoCode}
-                placeholder="DRACNEFAM"
+                placeholder="Enter code"
                 autoCapitalize="characters"
                 autoCorrect={false}
               />
@@ -653,6 +649,10 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
               <Text style={styles.linkText}>{t('onboarding.paywall.terms_of_use')}</Text>
             </TouchableOpacity>
           </View>
+
+          <TouchableOpacity onPress={() => setShowPromoModal(true)} style={{ marginTop: 12 }}>
+            <Text style={styles.promoCodeLink}>Have a promo code?</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -1094,11 +1094,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   promoCodeLink: {
-    fontSize: 13,
-    color: BRAND_COLORS.primary,
+    fontSize: 11,
+    color: '#999',
     textAlign: 'center',
-    fontWeight: '500',
-    textDecorationLine: 'underline',
+    fontWeight: '400',
+    textDecorationLine: 'none',
   },
   promoModalOverlay: {
     flex: 1,

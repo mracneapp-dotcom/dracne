@@ -95,7 +95,7 @@ export default function OnboardingDiscovery({ onNext }) {
                   isSelected && {
                     borderColor: option.color,
                     borderWidth: 2,
-                    backgroundColor: `${option.color}10`,
+                    backgroundColor: '#F0F7E8',
                   }
                 ]}
                 onPress={() => handleOptionSelect(option.id)}

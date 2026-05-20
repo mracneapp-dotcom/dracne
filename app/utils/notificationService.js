@@ -1,5 +1,5 @@
 import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
+import { Linking, Platform } from 'react-native';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -15,6 +15,15 @@ export const requestNotificationPermissions = async () => {
       await Notifications.getPermissionsAsync();
 
     if (existingStatus === 'granted') return true;
+
+    if (existingStatus === 'denied') {
+      if (Platform.OS === 'ios') {
+        Linking.openURL('app-settings:');
+      } else {
+        Linking.openSettings();
+      }
+      return false;
+    }
 
     const { status } = await Notifications.requestPermissionsAsync();
     return status === 'granted';
