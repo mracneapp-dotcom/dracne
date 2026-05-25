@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Linking, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -33,6 +34,42 @@ export const requestNotificationPermissions = async () => {
   }
 };
 
+const EN_AM = [
+  'Rise and glow! Your skin works hard for you -- return the favor. 🌿',
+  'Morning! 2 minutes of care today = skin that thanks you tomorrow.',
+  'Your skin healed overnight. Now help it shine through the day. 🌅',
+  'Good morning! Consistency is your best skincare ingredient -- don\'t skip today.',
+  'New day, fresh start. Your skin is ready -- are you? ✨',
+];
+
+const EN_PM = [
+  'Day done. Your skin collected everything -- pollution, stress, sun. Time to reset. 🌙',
+  'Tonight\'s routine is tomorrow\'s glow. Don\'t go to bed without it.',
+  'Your skin repairs itself while you sleep -- give it what it needs first. ✨',
+  '2 minutes before bed. That\'s all your skin is asking for tonight.',
+  'Wash the day off. Literally. Your skin deserves a clean slate. 🌿',
+  'Night mode: ON. Skincare mode: ON. You\'ve got this.',
+  'The best thing you can do for tomorrow-you? Your routine. Right now.',
+];
+
+const ES_AM = [
+  '¡Buenos días! Tu piel trabajó toda la noche -- ahora dale lo que necesita. 🌿',
+  'Nuevo día, piel radiante. 2 minutos es todo lo que necesitas hoy. ✨',
+  '¡Empieza el día con intención! Tu rutina de mañana marca la diferencia.',
+  'Tu piel se renovó mientras dormías. Ayúdala a brillar hoy. 🌅',
+  'Consistencia es el mejor ingrediente. ¡No te saltes hoy!',
+];
+
+const ES_PM = [
+  'Fin del día. Tu piel acumuló todo -- es hora de resetear. 🌙',
+  'La rutina de noche de hoy es el brillo de mañana. Vale la pena.',
+  'Tu piel se repara mientras duermes -- dale lo que necesita primero. ✨',
+  '2 minuticos antes de dormir. Tu piel te lo agradecerá.',
+  'Límpiate el día. Literalmente. Tu piel merece empezar de cero. 🌿',
+  'Modo noche: activado. Rutina: activada. Tú puedes.',
+  'Lo mejor que puedes hacer por tu yo de mañana? Tu rutina. Ahora mismo.',
+];
+
 export const scheduleDailyReminders = async (
   morningTime = '8:00 AM',
   eveningTime = '10:00 PM'
@@ -44,11 +81,18 @@ export const scheduleDailyReminders = async (
     const parseMorning = parseTime(morningTime);
     const parseEvening = parseTime(eveningTime);
 
+    const lang = (await AsyncStorage.getItem('userLanguage')) || 'en';
+    const day = new Date().getDay();
+    const amMessages = lang === 'es' ? ES_AM : EN_AM;
+    const pmMessages = lang === 'es' ? ES_PM : EN_PM;
+    const amTitle = lang === 'es' ? '¡Buenos días!' : 'Good morning!';
+    const pmTitle = lang === 'es' ? '¡Es hora de tu rutina!' : 'Evening routine time!';
+
     // Schedule morning notification
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: 'Good morning!',
-        body: 'Time for your morning skincare routine. Your skin will thank you.',
+        title: amTitle,
+        body: amMessages[day % amMessages.length],
         sound: true,
       },
       trigger: {
@@ -61,8 +105,8 @@ export const scheduleDailyReminders = async (
     // Schedule evening notification
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: 'Evening routine time!',
-        body: 'Do not forget your night routine. Consistency is the key to clear skin.',
+        title: pmTitle,
+        body: pmMessages[day % pmMessages.length],
         sound: true,
       },
       trigger: {

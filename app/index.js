@@ -29,6 +29,8 @@ import { initializeLanguage } from './i18n';
 import { initializeProgress, logRoutine, logSkinScan } from './utils/progressManager';
 import { scheduleDailyReminders } from './utils/notificationService';
 import { initializeFacebookPixel } from './utils/facebookPixel';
+import { SuperwallProvider, useSuperwall } from 'expo-superwall';
+import Purchases from 'react-native-purchases';
 
 // Basic Routine Screens
 import BasicRoutineProductSelection from './BasicRoutineProductSelection';
@@ -235,6 +237,35 @@ const BrainLoader = () => {
       </Animated.View>
     </View>
   );
+};
+
+const REVENUECAT_KEY = Platform.OS === 'ios'
+  ? 'appl_DQRoEPWrzOPLnOytfksLtkVkrCi'
+  : 'goog_zstECKBazYtFkwiyJMlgKvSRcoK';
+
+const SuperwallRevenueCatSync = () => {
+  const { setSubscriptionStatus, isConfigured } = useSuperwall();
+
+  useEffect(() => {
+    if (!isConfigured) return;
+    const sync = async () => {
+      try {
+        if (!Purchases.isConfigured) {
+          Purchases.configure({ apiKey: REVENUECAT_KEY });
+        }
+        const customerInfo = await Purchases.getCustomerInfo();
+        const isActive = customerInfo.activeSubscriptions.length > 0;
+        await setSubscriptionStatus(
+          isActive ? { status: 'ACTIVE', entitlements: [] } : { status: 'INACTIVE' }
+        );
+      } catch (e) {
+        console.log('Superwall RC sync:', e.message);
+      }
+    };
+    sync();
+  }, [isConfigured]);
+
+  return null;
 };
 
 export default function AIScannerScreen() {
@@ -2861,7 +2892,9 @@ const renderComprehensiveNightRoutineStep4 = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <SuperwallProvider apiKeys={{ ios: "pk_vYoGMZJc31P_9SIEF_rTq", android: "pk_l9Let5opKrvhcCYSh0PVN" }}>
+      <SuperwallRevenueCatSync />
+      <View style={styles.container}>
       {showIntro ? (
         <IntroAnimation onComplete={handleIntroComplete} />
       ) : (
@@ -3053,7 +3086,8 @@ const renderComprehensiveNightRoutineStep4 = () => {
       )}
         </>
       )}
-    </View>
+      </View>
+    </SuperwallProvider>
   );
 }
 
