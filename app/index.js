@@ -29,7 +29,7 @@ import { initializeLanguage } from './i18n';
 import { initializeProgress, logRoutine, logSkinScan } from './utils/progressManager';
 import { scheduleDailyReminders } from './utils/notificationService';
 import { initializeFacebookPixel } from './utils/facebookPixel';
-import { SuperwallProvider, useSuperwall } from 'expo-superwall';
+import { SuperwallProvider, useSuperwall, usePlacement } from 'expo-superwall';
 import Purchases from 'react-native-purchases';
 
 // Basic Routine Screens
@@ -309,6 +309,35 @@ export default function AIScannerScreen() {
   const [smartRoutineDayProducts, setSmartRoutineDayProducts] = useState([]);
   const [showSmartRoutineSuggestion, setShowSmartRoutineSuggestion] = useState(false);
   const [confirmedConcern, setConfirmedConcern] = useState(null);
+
+  const [superwallFeatureActive, setSuperwallFeatureActive] = useState(false);
+  const superwallTriggeredRef = useRef(false);
+
+  const { registerPlacement } = usePlacement({
+    onDismiss: (_paywallInfo, result) => {
+      if (result.type === 'purchased' || result.type === 'restored') {
+        handleOnboardingNext('complete');
+      } else {
+        setSuperwallFeatureActive(true);
+      }
+    },
+    onSkip: () => setSuperwallFeatureActive(true),
+    onError: () => setSuperwallFeatureActive(true),
+  });
+
+  useEffect(() => {
+    if (currentOnboardingStep === 'onboardingPaywall' && !superwallTriggeredRef.current) {
+      superwallTriggeredRef.current = true;
+      registerPlacement({
+        placement: 'app_launch',
+        feature: () => setSuperwallFeatureActive(true),
+      });
+    }
+    if (currentOnboardingStep !== 'onboardingPaywall') {
+      superwallTriggeredRef.current = false;
+      setSuperwallFeatureActive(false);
+    }
+  }, [currentOnboardingStep]);
 
   // Product Selection State
   const [selectedProducts, setSelectedProducts] = useState({
@@ -2945,7 +2974,7 @@ const renderComprehensiveNightRoutineStep4 = () => {
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingReminders' && renderOnboardingReminders()}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingRating' && renderOnboardingRating()}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingSaveProgress' && renderOnboardingSaveProgress()}
-        {!isOnboardingComplete && currentOnboardingStep === 'onboardingPaywall' && renderOnboardingPaywall()}
+        {!isOnboardingComplete && currentOnboardingStep === 'onboardingPaywall' && superwallFeatureActive && renderOnboardingPaywall()}
         
         {/* Main App Flow */}
         {isOnboardingComplete && currentStep === 'home' && renderHomeScreen()}
