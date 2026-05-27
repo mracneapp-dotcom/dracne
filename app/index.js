@@ -1,6 +1,6 @@
 // app/index.js - UPDATED WITH ONBOARDING PERSISTENCE CHECK
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Alert,
   Animated,
@@ -268,6 +268,37 @@ const SuperwallRevenueCatSync = () => {
   return null;
 };
 
+const SuperwallPaywallGate = ({ currentOnboardingStep, onFeatureActive, onComplete }) => {
+  const { registerPlacement } = usePlacement({
+    onDismiss: (_paywallInfo, result) => {
+      if (result.type === 'purchased' || result.type === 'restored') {
+        onComplete();
+      } else {
+        onFeatureActive();
+      }
+    },
+    onSkip: onFeatureActive,
+    onError: onFeatureActive,
+  });
+
+  const triggeredRef = useRef(false);
+
+  useEffect(() => {
+    if (currentOnboardingStep === 'onboardingPaywall' && !triggeredRef.current) {
+      triggeredRef.current = true;
+      registerPlacement({
+        placement: 'app_launch',
+        feature: onFeatureActive,
+      });
+    }
+    if (currentOnboardingStep !== 'onboardingPaywall') {
+      triggeredRef.current = false;
+    }
+  }, [currentOnboardingStep]);
+
+  return null;
+};
+
 export default function AIScannerScreen() {
   const insets = useSafeAreaInsets();
 
@@ -311,30 +342,9 @@ export default function AIScannerScreen() {
   const [confirmedConcern, setConfirmedConcern] = useState(null);
 
   const [superwallFeatureActive, setSuperwallFeatureActive] = useState(false);
-  const superwallTriggeredRef = useRef(false);
-
-  const { registerPlacement } = usePlacement({
-    onDismiss: (_paywallInfo, result) => {
-      if (result.type === 'purchased' || result.type === 'restored') {
-        handleOnboardingNext('complete');
-      } else {
-        setSuperwallFeatureActive(true);
-      }
-    },
-    onSkip: () => setSuperwallFeatureActive(true),
-    onError: () => setSuperwallFeatureActive(true),
-  });
 
   useEffect(() => {
-    if (currentOnboardingStep === 'onboardingPaywall' && !superwallTriggeredRef.current) {
-      superwallTriggeredRef.current = true;
-      registerPlacement({
-        placement: 'app_launch',
-        feature: () => setSuperwallFeatureActive(true),
-      });
-    }
     if (currentOnboardingStep !== 'onboardingPaywall') {
-      superwallTriggeredRef.current = false;
       setSuperwallFeatureActive(false);
     }
   }, [currentOnboardingStep]);
@@ -2923,6 +2933,11 @@ const renderComprehensiveNightRoutineStep4 = () => {
   return (
     <SuperwallProvider apiKeys={{ ios: "pk_vYoGMZJc31P_9SIEF_rTq", android: "pk_l9Let5opKrvhcCYSh0PVN" }}>
       <SuperwallRevenueCatSync />
+      <SuperwallPaywallGate
+        currentOnboardingStep={currentOnboardingStep}
+        onFeatureActive={() => setSuperwallFeatureActive(true)}
+        onComplete={() => handleOnboardingNext('complete')}
+      />
       <View style={styles.container}>
       {showIntro ? (
         <IntroAnimation onComplete={handleIntroComplete} />
