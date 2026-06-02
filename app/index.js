@@ -385,6 +385,8 @@ export default function AIScannerScreen() {
   const [showSpinWheel, setShowSpinWheel] = useState(false);
   const [pendingSuperwallFeature, setPendingSuperwallFeature] = useState(false);
   const [spinWheelOffering, setSpinWheelOffering] = useState(null);
+  const pendingSuperwallFeatureRef = useRef(false);
+  const spinWheelTriggeredRef = useRef(false);
 
   useEffect(() => {
     AsyncStorage.getItem(CRASH_LOG_KEY).then(log => {
@@ -1695,16 +1697,19 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
   );
 
   const handleSuperwallDismiss = async () => {
+    if (spinWheelTriggeredRef.current) return;
     const shown = await AsyncStorage.getItem('spinWheelShown');
     if (shown === 'true') {
       setSuperwallFeatureActive(true);
     } else {
+      spinWheelTriggeredRef.current = true;
+      pendingSuperwallFeatureRef.current = true;
       setPendingSuperwallFeature(true);
       setShowSpinWheel(true);
     }
   };
 
-  const isDevBuild = true; // TODO: set to false before App Store submission
+  const isDevBuild = false; // TODO: set to true for TestFlight/debug builds
 
   const DEV_RESET_KEYS = [
     'onboardingComplete', 'onboardingData', 'spinWheelShown',
@@ -3049,7 +3054,10 @@ const renderComprehensiveNightRoutineStep4 = () => {
             <SuperwallRevenueCatSync />
             <SuperwallPaywallGate
               currentOnboardingStep={currentOnboardingStep}
-              onFeatureActive={() => setSuperwallFeatureActive(true)}
+              onFeatureActive={() => {
+                setCurrentOnboardingStep('onboardingPaywall');
+                setSuperwallFeatureActive(true);
+              }}
               onDismissWithoutPurchase={handleSuperwallDismiss}
               onComplete={() => handleOnboardingNext('complete')}
             />
@@ -3114,7 +3122,9 @@ const renderComprehensiveNightRoutineStep4 = () => {
             visible={showSpinWheel}
             onClose={() => {
               setShowSpinWheel(false);
-              if (pendingSuperwallFeature) {
+              spinWheelTriggeredRef.current = false;
+              if (pendingSuperwallFeatureRef.current) {
+                pendingSuperwallFeatureRef.current = false;
                 setPendingSuperwallFeature(false);
                 setSuperwallFeatureActive(true);
               } else {
@@ -3122,11 +3132,13 @@ const renderComprehensiveNightRoutineStep4 = () => {
               }
             }}
             onClaim={(discount) => {
-              console.log('Spin wheel claimed:', discount);
+              console.log('Spin wheel claimed:', discount, '| pendingRef:', pendingSuperwallFeatureRef.current);
               if (discount === '30% OFF') setSpinWheelOffering('spin_wheel_30');
               else if (discount === '20% OFF') setSpinWheelOffering('spin_wheel_20');
               setShowSpinWheel(false);
-              if (pendingSuperwallFeature) {
+              spinWheelTriggeredRef.current = false;
+              if (pendingSuperwallFeatureRef.current) {
+                pendingSuperwallFeatureRef.current = false;
                 setPendingSuperwallFeature(false);
                 setSuperwallFeatureActive(true);
               } else {
