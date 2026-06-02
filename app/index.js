@@ -308,8 +308,11 @@ const SuperwallRevenueCatSync = () => {
 };
 
 const SuperwallPaywallGate = ({ currentOnboardingStep, onFeatureActive, onDismissWithoutPurchase, onComplete }) => {
+  const superwallTimeoutRef = useRef(null);
+
   const { registerPlacement } = usePlacement({
     onDismiss: (_paywallInfo, result) => {
+      clearTimeout(superwallTimeoutRef.current);
       if (result.type === 'purchased' || result.type === 'restored') {
         onComplete();
       } else {
@@ -317,7 +320,7 @@ const SuperwallPaywallGate = ({ currentOnboardingStep, onFeatureActive, onDismis
       }
     },
     onSkip: onDismissWithoutPurchase || onFeatureActive,
-    onError: onFeatureActive,
+    onError: () => { clearTimeout(superwallTimeoutRef.current); onFeatureActive(); },
   });
 
   const triggeredRef = useRef(false);
@@ -327,12 +330,19 @@ const SuperwallPaywallGate = ({ currentOnboardingStep, onFeatureActive, onDismis
       triggeredRef.current = true;
       registerPlacement({
         placement: 'app_launch',
-        feature: onFeatureActive,
+        feature: () => {
+          clearTimeout(superwallTimeoutRef.current);
+          onFeatureActive();
+        },
       });
+      superwallTimeoutRef.current = setTimeout(() => {
+        onFeatureActive();
+      }, 3000);
     }
     if (currentOnboardingStep !== 'onboardingPaywall') {
       triggeredRef.current = false;
     }
+    return () => clearTimeout(superwallTimeoutRef.current);
   }, [currentOnboardingStep]);
 
   return null;
@@ -606,6 +616,8 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
       if (shown === 'true') {
         setCurrentOnboardingStep('onboardingSaveProgress');
       } else {
+        pendingSuperwallFeatureRef.current = true;
+        setPendingSuperwallFeature(true);
         setShowSpinWheel(true);
       }
     }
@@ -3132,7 +3144,6 @@ const renderComprehensiveNightRoutineStep4 = () => {
               }
             }}
             onClaim={(discount) => {
-              console.log('Spin wheel claimed:', discount, '| pendingRef:', pendingSuperwallFeatureRef.current);
               if (discount === '30% OFF') setSpinWheelOffering('spin_wheel_30');
               else if (discount === '20% OFF') setSpinWheelOffering('spin_wheel_20');
               setShowSpinWheel(false);
