@@ -838,6 +838,15 @@
         "alert_subscription_loading": "Subscription system is still loading. Please wait a moment.",
         "alert_purchase_error": "Something went wrong. Please try again."
       },
+      "spinWheel": {
+        "header": "Wait! Before you go...",
+        "subtext": "Spin for an exclusive one-time offer",
+        "spin_button": "SPIN",
+        "expires_text": "This offer expires when you leave this screen!",
+        "you_won": "You won:",
+        "claim_button": "Claim Offer",
+        "no_thanks": "No thanks"
+      },
       "banners": {
         "day_routine_line1": "Day",
         "day_routine_line2": "Routine",

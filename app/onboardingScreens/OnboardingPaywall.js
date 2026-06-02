@@ -22,6 +22,7 @@ import { DrAcneButton } from '../../components/ui/DrAcneButton';
 import { t } from '../i18n';
 import { trackPaywallViewed, trackSubscriptionStarted, trackOnboardingComplete } from '../utils/facebookPixel';
 import { trackTikTokPaywallViewed, trackTikTokSubscriptionStarted, trackTikTokOnboardingComplete } from '../utils/tiktokPixel';
+import { scheduleTrialReminders } from '../utils/notificationService';
 
 // RevenueCat — used on BOTH platforms
 let Purchases = null;
@@ -80,7 +81,7 @@ const REVENUECAT_API_KEY = Platform.OS === 'ios'
   ? 'appl_DQRoEPWrzOPLnOytfksLtkVkrCi'
   : 'goog_zstECKBazYtFkwiyJMlgKvSRcoK';
 
-export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
+export default function OnboardingPaywall({ onNext, onboardingData = {}, initialOffering = null }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.98)).current;
   const [showPlansModal, setShowPlansModal] = useState(false);
@@ -150,8 +151,9 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     try {
       Purchases.configure({ apiKey: REVENUECAT_API_KEY });
       const offerings = await Purchases.getOfferings();
-      if (offerings.current && offerings.current.availablePackages.length > 0) {
-        const packages = offerings.current.availablePackages;
+      const offering = (initialOffering && offerings.all[initialOffering]) || offerings.current;
+      if (offering && offering.availablePackages.length > 0) {
+        const packages = offering.availablePackages;
         packages.forEach(pkg => console.log('📦 iOS Package:', pkg.identifier, '| Product:', pkg.product.identifier));
         setProducts(packages);
         setIapReady(true);
@@ -177,6 +179,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       trackTikTokSubscriptionStarted(planType, price);
       trackTikTokOnboardingComplete();
     } catch (e) { console.log('FB purchase tracking:', e.message); }
+    scheduleTrialReminders().catch(e => console.log('Trial reminders error:', e.message));
     onNext('complete', { ...onboardingData, paywallCompleted: true,
       trialStarted: new Date().toISOString(), subscriptionType: planType, isPremium: true });
     setTimeout(() => {
@@ -244,8 +247,9 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
       const offerings = await Purchases.getOfferings();
       console.log('📦 Offerings loaded');
 
-      if (offerings.current && offerings.current.availablePackages.length > 0) {
-        const packages = offerings.current.availablePackages;
+      const offering = (initialOffering && offerings.all[initialOffering]) || offerings.current;
+      if (offering && offering.availablePackages.length > 0) {
+        const packages = offering.availablePackages;
         console.log('✅ Found', packages.length, 'packages');
         
         packages.forEach(pkg => {
@@ -286,6 +290,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {} }) {
     } catch (e) {
       console.log('FB purchase tracking:', e.message);
     }
+    scheduleTrialReminders().catch(e => console.log('Trial reminders error:', e.message));
     onNext('complete', {
       ...onboardingData,
       paywallCompleted: true,

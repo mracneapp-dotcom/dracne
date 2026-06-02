@@ -133,6 +133,57 @@ export const cancelAllReminders = async () => {
   }
 };
 
+export const scheduleTrialReminders = async () => {
+  try {
+    const lang = (await AsyncStorage.getItem('userLanguage')) || 'en';
+
+    const messages = [
+      {
+        seconds: 3600,
+        title: lang === 'es' ? '¡Bienvenido a Dr. Acne Premium! 🌿' : 'Welcome to Dr. Acne Premium! 🌿',
+        body: lang === 'es'
+          ? 'Tu prueba gratuita de 3 dias ha comenzado. Esta noche, prueba tu rutina personalizada.'
+          : 'Your 3-day free trial has started. Tonight, try your personalized routine and see the difference.',
+      },
+      {
+        seconds: 86400,
+        title: lang === 'es' ? '¿Como se siente tu piel? ✨' : 'How is your skin feeling? ✨',
+        body: lang === 'es'
+          ? 'Dia 2 de tu prueba. La consistencia es todo -- no te saltes esta noche.'
+          : 'Day 2 of your free trial. Consistency is everything -- don\'t skip tonight.',
+      },
+      {
+        seconds: 172800,
+        title: lang === 'es' ? 'Tu prueba gratuita termina mañana 🌙' : 'Your free trial ends tomorrow 🌙',
+        body: lang === 'es'
+          ? 'Has llegado hasta aquí -- tu piel lo ha notado. Mantén tus resultados con Dr. Acne Premium.'
+          : 'You have made it this far -- your skin has noticed. Keep your results with Dr. Acne Premium.',
+      },
+    ];
+
+    for (const msg of messages) {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: msg.title,
+          body: msg.body,
+          sound: true,
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: msg.seconds,
+          repeats: false,
+        },
+      });
+    }
+
+    console.log('Trial reminders scheduled');
+    return true;
+  } catch (error) {
+    console.log('Trial reminder schedule error:', error.message);
+    return false;
+  }
+};
+
 const parseTime = (timeString) => {
   // Parse "8:00 AM" or "10:00 PM" format
   const [time, period] = timeString.split(' ');

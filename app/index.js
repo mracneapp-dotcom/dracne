@@ -128,6 +128,7 @@ import OnboardingExperience from './onboardingScreens/OnboardingExperience';
 import OnboardingGenerating from './onboardingScreens/OnboardingGenerating';
 import OnboardingGoals from './onboardingScreens/OnboardingGoals';
 import OnboardingPaywall from './onboardingScreens/OnboardingPaywall';
+import SpinWheelModal from './onboardingScreens/SpinWheelModal';
 import OnboardingPlanReady from './onboardingScreens/OnboardingPlanReady';
 import OnboardingPrivacy from './onboardingScreens/OnboardingPrivacy';
 import OnboardingRating from './onboardingScreens/OnboardingRating';
@@ -239,6 +240,44 @@ const BrainLoader = () => {
   );
 };
 
+const CRASH_LOG_KEY = '@dracne_crash_log';
+
+const saveCrashLog = async (error, isFatal) => {
+  try {
+    const entry = JSON.stringify({
+      message: error?.message || String(error),
+      stack: error?.stack || '',
+      isFatal: !!isFatal,
+      timestamp: new Date().toISOString(),
+    });
+    await AsyncStorage.setItem(CRASH_LOG_KEY, entry);
+  } catch (_) {}
+};
+
+const _prevGlobalHandler = ErrorUtils.getGlobalHandler?.();
+ErrorUtils.setGlobalHandler((error, isFatal) => {
+  saveCrashLog(error, isFatal);
+  _prevGlobalHandler?.(error, isFatal);
+});
+
+class SuperwallErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error) {
+    console.log('Superwall error boundary caught:', error.message);
+    this.props.onError?.();
+  }
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
+
 const REVENUECAT_KEY = Platform.OS === 'ios'
   ? 'appl_DQRoEPWrzOPLnOytfksLtkVkrCi'
   : 'goog_zstECKBazYtFkwiyJMlgKvSRcoK';
@@ -268,16 +307,16 @@ const SuperwallRevenueCatSync = () => {
   return null;
 };
 
-const SuperwallPaywallGate = ({ currentOnboardingStep, onFeatureActive, onComplete }) => {
+const SuperwallPaywallGate = ({ currentOnboardingStep, onFeatureActive, onDismissWithoutPurchase, onComplete }) => {
   const { registerPlacement } = usePlacement({
     onDismiss: (_paywallInfo, result) => {
       if (result.type === 'purchased' || result.type === 'restored') {
         onComplete();
       } else {
-        onFeatureActive();
+        (onDismissWithoutPurchase || onFeatureActive)();
       }
     },
-    onSkip: onFeatureActive,
+    onSkip: onDismissWithoutPurchase || onFeatureActive,
     onError: onFeatureActive,
   });
 
@@ -342,6 +381,19 @@ export default function AIScannerScreen() {
   const [confirmedConcern, setConfirmedConcern] = useState(null);
 
   const [superwallFeatureActive, setSuperwallFeatureActive] = useState(false);
+  const [superwallFailed, setSuperwallFailed] = useState(false);
+  const [showSpinWheel, setShowSpinWheel] = useState(false);
+  const [pendingSuperwallFeature, setPendingSuperwallFeature] = useState(false);
+  const [spinWheelOffering, setSpinWheelOffering] = useState(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem(CRASH_LOG_KEY).then(log => {
+      if (log) {
+        console.log('[DrAcne CrashLog]', log);
+        AsyncStorage.removeItem(CRASH_LOG_KEY);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (currentOnboardingStep !== 'onboardingPaywall') {
@@ -494,7 +546,7 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
     }
   };
 
-  const handleOnboardingBack = () => {
+  const handleOnboardingBack = async () => {
     if (currentOnboardingStep === 'onboardingWelcome') {
       return;
     } else if (currentOnboardingStep === 'onboardingDiscovery') {
@@ -548,7 +600,12 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
     } else if (currentOnboardingStep === 'onboardingSaveProgress') {
       setCurrentOnboardingStep('onboardingRating');
     } else if (currentOnboardingStep === 'onboardingPaywall') {
-      setCurrentOnboardingStep('onboardingSaveProgress');
+      const shown = await AsyncStorage.getItem('spinWheelShown');
+      if (shown === 'true') {
+        setCurrentOnboardingStep('onboardingSaveProgress');
+      } else {
+        setShowSpinWheel(true);
+      }
     }
   };
 
@@ -1634,8 +1691,57 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
   );
 
   const renderOnboardingPaywall = () => (
-    <OnboardingPaywall onNext={handleOnboardingNext} onboardingData={onboardingData} style={styles.screenContent} />
+    <OnboardingPaywall onNext={handleOnboardingNext} onboardingData={onboardingData} initialOffering={spinWheelOffering} style={styles.screenContent} />
   );
+
+  const handleSuperwallDismiss = async () => {
+    const shown = await AsyncStorage.getItem('spinWheelShown');
+    if (shown === 'true') {
+      setSuperwallFeatureActive(true);
+    } else {
+      setPendingSuperwallFeature(true);
+      setShowSpinWheel(true);
+    }
+  };
+
+  const isDevBuild = true; // TODO: set to false before App Store submission
+
+  const DEV_RESET_KEYS = [
+    'onboardingComplete', 'onboardingData', 'spinWheelShown',
+    'userLanguage', 'userName', 'userSession', 'userSkinType', 'userSkinGoals',
+    'appInstallDate', 'routineLogCount',
+    'myBasicRoutine', 'myBasicNightRoutine',
+    'myModerateRoutine', 'myModerateNightRoutine',
+    'myComprehensiveRoutine', 'myComprehensiveNightRoutine',
+    'myDayRoutine', 'myNightRoutine',
+    'selectedRoutineLevel', 'selectedNightRoutineLevel',
+    'selectedSmartConcern', 'smartRoutine',
+    '@dracne_user_streak', '@dracne_routine_streak', '@dracne_total_routines',
+    '@dracne_ai_routine', '@dracne_feedback', '@dracne_last_review_at',
+    CRASH_LOG_KEY,
+  ];
+
+  const handleDevReset = () => {
+    Alert.alert(
+      'Dev Reset',
+      'Clear all data and restart onboarding?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: async () => {
+            await AsyncStorage.multiRemove(DEV_RESET_KEYS);
+            setIsOnboardingComplete(false);
+            setCurrentOnboardingStep('onboardingWelcome');
+            setCurrentStep('capture');
+            setUserName('');
+            setSuperwallFeatureActive(false);
+          },
+        },
+      ]
+    );
+  };
 
   const renderHomeScreen = () => (
     <View style={styles.homeScreenContainer}>
@@ -1661,6 +1767,11 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
         userName={userName}
         style={styles.homeScreenContent}
       />
+      {isDevBuild && (
+        <TouchableOpacity style={styles.devResetBtn} onPress={handleDevReset}>
+          <Text style={styles.devResetText}>↺ Reset</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
@@ -2930,14 +3041,21 @@ const renderComprehensiveNightRoutineStep4 = () => {
     </View>
   );
 
-  return (
-    <SuperwallProvider apiKeys={{ ios: "pk_vYoGMZJc31P_9SIEF_rTq", android: "pk_l9Let5opKrvhcCYSh0PVN" }}>
-      <SuperwallRevenueCatSync />
-      <SuperwallPaywallGate
-        currentOnboardingStep={currentOnboardingStep}
-        onFeatureActive={() => setSuperwallFeatureActive(true)}
-        onComplete={() => handleOnboardingNext('complete')}
-      />
+  try { return (
+    <>
+      {!superwallFailed && (
+        <SuperwallErrorBoundary onError={() => { setSuperwallFailed(true); setSuperwallFeatureActive(true); }}>
+          <SuperwallProvider apiKeys={{ ios: "pk_vYoGMZJc31P_9SIEF_rTq", android: "pk_l9Let5opKrvhcCYSh0PVN" }}>
+            <SuperwallRevenueCatSync />
+            <SuperwallPaywallGate
+              currentOnboardingStep={currentOnboardingStep}
+              onFeatureActive={() => setSuperwallFeatureActive(true)}
+              onDismissWithoutPurchase={handleSuperwallDismiss}
+              onComplete={() => handleOnboardingNext('complete')}
+            />
+          </SuperwallProvider>
+        </SuperwallErrorBoundary>
+      )}
       <View style={styles.container}>
       {showIntro ? (
         <IntroAnimation onComplete={handleIntroComplete} />
@@ -2990,7 +3108,34 @@ const renderComprehensiveNightRoutineStep4 = () => {
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingRating' && renderOnboardingRating()}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingSaveProgress' && renderOnboardingSaveProgress()}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingPaywall' && superwallFeatureActive && renderOnboardingPaywall()}
-        
+
+        {showSpinWheel && (
+          <SpinWheelModal
+            visible={showSpinWheel}
+            onClose={() => {
+              setShowSpinWheel(false);
+              if (pendingSuperwallFeature) {
+                setPendingSuperwallFeature(false);
+                setSuperwallFeatureActive(true);
+              } else {
+                setCurrentOnboardingStep('onboardingSaveProgress');
+              }
+            }}
+            onClaim={(discount) => {
+              console.log('Spin wheel claimed:', discount);
+              if (discount === '30% OFF') setSpinWheelOffering('spin_wheel_30');
+              else if (discount === '20% OFF') setSpinWheelOffering('spin_wheel_20');
+              setShowSpinWheel(false);
+              if (pendingSuperwallFeature) {
+                setPendingSuperwallFeature(false);
+                setSuperwallFeatureActive(true);
+              } else {
+                setCurrentOnboardingStep('onboardingSaveProgress');
+              }
+            }}
+          />
+        )}
+
         {/* Main App Flow */}
         {isOnboardingComplete && currentStep === 'home' && renderHomeScreen()}
         {isOnboardingComplete && currentStep === 'routinesHub' && renderRoutinesHub()}
@@ -3131,8 +3276,12 @@ const renderComprehensiveNightRoutineStep4 = () => {
         </>
       )}
       </View>
-    </SuperwallProvider>
-  );
+    </>
+  ); } catch (error) {
+    saveCrashLog(error, true);
+    console.log('[DrAcne] render error:', error.message, error.stack);
+    return null;
+  }
 }
 
 const styles = StyleSheet.create({
@@ -3206,6 +3355,17 @@ const styles = StyleSheet.create({
   homeScreenContainer: {
     flex: 1,
     backgroundColor: 'transparent',
+  },
+  devResetBtn: {
+    position: 'absolute',
+    bottom: 6,
+    right: 10,
+    zIndex: 9999,
+    padding: 6,
+  },
+  devResetText: {
+    fontSize: 11,
+    color: 'rgba(150,150,150,0.55)',
   },
   homeScreenContent: {
     flex: 1,

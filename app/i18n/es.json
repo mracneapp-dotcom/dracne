@@ -838,6 +838,15 @@
       "alert_subscription_loading": "El sistema de suscripción aún está cargando. Por favor espera un momento.",
       "alert_purchase_error": "Algo salió mal. Por favor intenta de nuevo."
     },
+    "spinWheel": {
+      "header": "¡Espera! Antes de irte...",
+      "subtext": "Gira para una oferta exclusiva de una sola vez",
+      "spin_button": "GIRAR",
+      "expires_text": "¡Esta oferta expira cuando salgas de esta pantalla!",
+      "you_won": "Ganaste:",
+      "claim_button": "Reclamar Oferta",
+      "no_thanks": "No gracias"
+    },
     "banners": {
       "day_routine_line1": "Rutina",
       "day_routine_line2": "De Día",
