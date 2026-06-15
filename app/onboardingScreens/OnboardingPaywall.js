@@ -553,9 +553,14 @@ export default function OnboardingPaywall({ onNext, onboardingData = {}, initial
           <Text style={styles.loadingText}>{t('onboarding.paywall.loading_text')}</Text>
         )}
         
-        <Text style={styles.pricingText}>
-          {getPricingText()}
-        </Text>
+        {selectedPlan === 'annual' ? (
+          <>
+            <Text style={styles.annualPrice}>$47.90/year</Text>
+            <Text style={styles.annualPriceDetail}>Then $3.99/month · 3-day free trial included</Text>
+          </>
+        ) : (
+          <Text style={styles.pricingText}>{getPricingText()}</Text>
+        )}
 
         <TouchableOpacity onPress={() => setShowPlansModal(true)}>
           <Text style={styles.seeOtherPlansLink}>{t('onboarding.paywall.see_other_plans')}</Text>
@@ -710,7 +715,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {}, initial
                 <Text style={styles.modernPlanName}>{t('onboarding.paywall.modal_annual')}</Text>
                 
                 <View style={styles.modernPriceRow}>
-                  <Text style={styles.modernPrice}>$47.99</Text>
+                  <Text style={styles.modernPrice}>$47.90</Text>
                   <Text style={styles.modernPeriod}>{t('onboarding.paywall.modal_per_year')}</Text>
                 </View>
                 
@@ -742,6 +747,7 @@ export default function OnboardingPaywall({ onNext, onboardingData = {}, initial
                 </View>
                 
                 <Text style={styles.modernPriceDetail}>{t('onboarding.paywall.modal_monthly_detail')}</Text>
+                <Text style={{ fontSize: 12, color: '#666' }}>$1.80/week</Text>
               </TouchableOpacity>
             </View>
 
@@ -890,6 +896,19 @@ const styles = StyleSheet.create({
     color: BRAND_COLORS.black,
     textAlign: 'center',
     fontWeight: '600',
+    marginBottom: 6,
+  },
+  annualPrice: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: BRAND_COLORS.black,
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  annualPriceDetail: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
     marginBottom: 6,
   },
   seeOtherPlansLink: {

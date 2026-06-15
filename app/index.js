@@ -29,8 +29,6 @@ import { initializeLanguage } from './i18n';
 import { initializeProgress, logRoutine, logSkinScan } from './utils/progressManager';
 import { scheduleDailyReminders } from './utils/notificationService';
 import { initializeFacebookPixel } from './utils/facebookPixel';
-import { SuperwallProvider, useSuperwall, usePlacement } from 'expo-superwall';
-import Purchases from 'react-native-purchases';
 
 // Basic Routine Screens
 import BasicRoutineProductSelection from './BasicRoutineProductSelection';
@@ -261,93 +259,6 @@ ErrorUtils.setGlobalHandler((error, isFatal) => {
   _prevGlobalHandler?.(error, isFatal);
 });
 
-class SuperwallErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-  componentDidCatch(error) {
-    console.log('Superwall error boundary caught:', error.message);
-    this.props.onError?.();
-  }
-  render() {
-    if (this.state.hasError) return null;
-    return this.props.children;
-  }
-}
-
-const REVENUECAT_KEY = Platform.OS === 'ios'
-  ? 'appl_DQRoEPWrzOPLnOytfksLtkVkrCi'
-  : 'goog_zstECKBazYtFkwiyJMlgKvSRcoK';
-
-const SuperwallRevenueCatSync = () => {
-  const { setSubscriptionStatus, isConfigured } = useSuperwall();
-
-  useEffect(() => {
-    if (!isConfigured) return;
-    const sync = async () => {
-      try {
-        if (!Purchases.isConfigured) {
-          Purchases.configure({ apiKey: REVENUECAT_KEY });
-        }
-        const customerInfo = await Purchases.getCustomerInfo();
-        const isActive = customerInfo.activeSubscriptions.length > 0;
-        await setSubscriptionStatus(
-          isActive ? { status: 'ACTIVE', entitlements: [] } : { status: 'INACTIVE' }
-        );
-      } catch (e) {
-        console.log('Superwall RC sync:', e.message);
-      }
-    };
-    sync();
-  }, [isConfigured]);
-
-  return null;
-};
-
-const SuperwallPaywallGate = ({ currentOnboardingStep, onFeatureActive, onDismissWithoutPurchase, onComplete }) => {
-  const superwallTimeoutRef = useRef(null);
-
-  const { registerPlacement } = usePlacement({
-    onDismiss: (_paywallInfo, result) => {
-      clearTimeout(superwallTimeoutRef.current);
-      if (result.type === 'purchased' || result.type === 'restored') {
-        onComplete();
-      } else {
-        (onDismissWithoutPurchase || onFeatureActive)();
-      }
-    },
-    onSkip: onDismissWithoutPurchase || onFeatureActive,
-    onError: () => { clearTimeout(superwallTimeoutRef.current); onFeatureActive(); },
-  });
-
-  const triggeredRef = useRef(false);
-
-  useEffect(() => {
-    if (currentOnboardingStep === 'onboardingPaywall' && !triggeredRef.current) {
-      triggeredRef.current = true;
-      registerPlacement({
-        placement: 'app_launch',
-        feature: () => {
-          clearTimeout(superwallTimeoutRef.current);
-          onFeatureActive();
-        },
-      });
-      superwallTimeoutRef.current = setTimeout(() => {
-        onFeatureActive();
-      }, 3000);
-    }
-    if (currentOnboardingStep !== 'onboardingPaywall') {
-      triggeredRef.current = false;
-    }
-    return () => clearTimeout(superwallTimeoutRef.current);
-  }, [currentOnboardingStep]);
-
-  return null;
-};
 
 export default function AIScannerScreen() {
   const insets = useSafeAreaInsets();
@@ -391,14 +302,9 @@ export default function AIScannerScreen() {
   const [showSmartRoutineSuggestion, setShowSmartRoutineSuggestion] = useState(false);
   const [confirmedConcern, setConfirmedConcern] = useState(null);
 
-  const [superwallFeatureActive, setSuperwallFeatureActive] = useState(false);
-  const [superwallFailed, setSuperwallFailed] = useState(false);
   const [showSpinWheel, setShowSpinWheel] = useState(false);
   const [showSurvey, setShowSurvey] = useState(false);
-  const [pendingSuperwallFeature, setPendingSuperwallFeature] = useState(false);
   const [spinWheelOffering, setSpinWheelOffering] = useState(null);
-  const pendingSuperwallFeatureRef = useRef(false);
-  const spinWheelTriggeredRef = useRef(false);
   const spinWheelShownRef = useRef(false);
   const surveyShownRef = useRef(false);
 
@@ -416,12 +322,6 @@ export default function AIScannerScreen() {
       surveyShownRef.current = val === 'true';
     });
   }, []);
-
-  useEffect(() => {
-    if (currentOnboardingStep !== 'onboardingPaywall') {
-      setSuperwallFeatureActive(false);
-    }
-  }, [currentOnboardingStep]);
 
   // Product Selection State
   const [selectedProducts, setSelectedProducts] = useState({
@@ -626,8 +526,6 @@ const [showComprehensiveNightProductSelectionStep4, setShowComprehensiveNightPro
       if (shown === 'true') {
         setCurrentOnboardingStep('onboardingSaveProgress');
       } else {
-        pendingSuperwallFeatureRef.current = true;
-        setPendingSuperwallFeature(true);
         setShowSpinWheel(true);
       }
     }
@@ -1718,18 +1616,6 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
     <OnboardingPaywall onNext={handleOnboardingNext} onboardingData={onboardingData} initialOffering={spinWheelOffering} style={styles.screenContent} />
   );
 
-  const handleSuperwallDismiss = () => {
-    if (spinWheelTriggeredRef.current) return;
-    if (spinWheelShownRef.current) {
-      setSuperwallFeatureActive(true);
-    } else {
-      spinWheelTriggeredRef.current = true;
-      pendingSuperwallFeatureRef.current = true;
-      setPendingSuperwallFeature(true);
-      setShowSpinWheel(true);
-    }
-  };
-
   const isDevBuild = false; // TODO: set to true for TestFlight/debug builds
 
   const DEV_RESET_KEYS = [
@@ -1762,7 +1648,6 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
             setCurrentOnboardingStep('onboardingWelcome');
             setCurrentStep('capture');
             setUserName('');
-            setSuperwallFeatureActive(false);
           },
         },
       ]
@@ -3068,23 +2953,6 @@ const renderComprehensiveNightRoutineStep4 = () => {
   );
 
   try { return (
-    <>
-      {!superwallFailed && (
-        <SuperwallErrorBoundary onError={() => { setSuperwallFailed(true); setSuperwallFeatureActive(true); }}>
-          <SuperwallProvider apiKeys={{ ios: "pk_vYoGMZJc31P_9SIEF_rTq", android: "pk_l9Let5opKrvhcCYSh0PVN" }}>
-            <SuperwallRevenueCatSync />
-            <SuperwallPaywallGate
-              currentOnboardingStep={currentOnboardingStep}
-              onFeatureActive={() => {
-                setCurrentOnboardingStep('onboardingPaywall');
-                setSuperwallFeatureActive(true);
-              }}
-              onDismissWithoutPurchase={handleSuperwallDismiss}
-              onComplete={() => handleOnboardingNext('complete')}
-            />
-          </SuperwallProvider>
-        </SuperwallErrorBoundary>
-      )}
       <View style={styles.container}>
       {showIntro ? (
         <IntroAnimation onComplete={handleIntroComplete} />
@@ -3144,36 +3012,22 @@ const renderComprehensiveNightRoutineStep4 = () => {
             onClose={() => {
               spinWheelShownRef.current = true;
               setShowSpinWheel(false);
-              spinWheelTriggeredRef.current = false;
-              if (!surveyShownRef.current) {
+              if (!surveyShownRef.current && Platform.OS === 'android') {
                 setShowSurvey(true);
                 return;
               }
-              if (pendingSuperwallFeatureRef.current) {
-                pendingSuperwallFeatureRef.current = false;
-                setPendingSuperwallFeature(false);
-                setSuperwallFeatureActive(true);
-              } else {
-                setCurrentOnboardingStep('onboardingSaveProgress');
-              }
+              setCurrentOnboardingStep('onboardingSaveProgress');
             }}
             onClaim={(discount) => {
               spinWheelShownRef.current = true;
               if (discount === '30% OFF') setSpinWheelOffering('spin_wheel_30');
               else if (discount === '20% OFF') setSpinWheelOffering('spin_wheel_20');
               setShowSpinWheel(false);
-              spinWheelTriggeredRef.current = false;
-              if (!surveyShownRef.current) {
+              if (!surveyShownRef.current && Platform.OS === 'android') {
                 setShowSurvey(true);
                 return;
               }
-              if (pendingSuperwallFeatureRef.current) {
-                pendingSuperwallFeatureRef.current = false;
-                setPendingSuperwallFeature(false);
-                setSuperwallFeatureActive(true);
-              } else {
-                setCurrentOnboardingStep('onboardingSaveProgress');
-              }
+              setCurrentOnboardingStep('onboardingSaveProgress');
             }}
           />
         )}
@@ -3184,24 +3038,12 @@ const renderComprehensiveNightRoutineStep4 = () => {
             onComplete={(_answers) => {
               surveyShownRef.current = true;
               setShowSurvey(false);
-              if (pendingSuperwallFeatureRef.current) {
-                pendingSuperwallFeatureRef.current = false;
-                setPendingSuperwallFeature(false);
-                setSuperwallFeatureActive(true);
-              } else {
-                setCurrentOnboardingStep('onboardingSaveProgress');
-              }
+              setCurrentOnboardingStep('onboardingSaveProgress');
             }}
             onClose={() => {
               surveyShownRef.current = true;
               setShowSurvey(false);
-              if (pendingSuperwallFeatureRef.current) {
-                pendingSuperwallFeatureRef.current = false;
-                setPendingSuperwallFeature(false);
-                setSuperwallFeatureActive(true);
-              } else {
-                setCurrentOnboardingStep('onboardingSaveProgress');
-              }
+              setCurrentOnboardingStep('onboardingSaveProgress');
             }}
           />
         )}
@@ -3346,7 +3188,6 @@ const renderComprehensiveNightRoutineStep4 = () => {
         </>
       )}
       </View>
-    </>
   ); } catch (error) {
     saveCrashLog(error, true);
     return null;
