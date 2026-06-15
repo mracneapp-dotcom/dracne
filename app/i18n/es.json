@@ -847,6 +847,22 @@
       "claim_button": "Reclamar Oferta",
       "no_thanks": "No gracias"
     },
+    "survey": {
+      "slide1_headline": "Viniste aquí porque tu piel te está molestando.",
+      "slide1_subtext": "Antes de irte, cuéntanos por qué te vas y desbloquea 1 mes GRATIS. Sin tarjeta de crédito. Sin trampa.",
+      "slide1_button": "Vamos",
+      "slide2_headline": "¿Qué te impide probar DrAcne?",
+      "slide2_option1": "Demasiado caro ahora mismo",
+      "slide2_option2": "No estoy seguro de que funcione para mi piel",
+      "slide2_option3": "Simplemente no estoy listo",
+      "slide2_option4": "Ya lo he intentado todo",
+      "slide2_next": "Siguiente",
+      "slide3_headline": "¿Qué te impide suscribirte hoy?",
+      "slide3_placeholder": "Cuéntanos sinceramente...",
+      "slide3_button": "Reclamar mi mes gratis",
+      "slide3_disclaimer": "Tu respuesta nos ayuda a mejorar DrAcne para todos.",
+      "success_message": "¡Tu mes gratis está activado!"
+    },
     "banners": {
       "day_routine_line1": "Rutina",
       "day_routine_line2": "De Día",

@@ -129,6 +129,7 @@ import OnboardingGenerating from './onboardingScreens/OnboardingGenerating';
 import OnboardingGoals from './onboardingScreens/OnboardingGoals';
 import OnboardingPaywall from './onboardingScreens/OnboardingPaywall';
 import SpinWheelModal from './onboardingScreens/SpinWheelModal';
+import SurveyModal from './onboardingScreens/SurveyModal';
 import OnboardingPlanReady from './onboardingScreens/OnboardingPlanReady';
 import OnboardingPrivacy from './onboardingScreens/OnboardingPrivacy';
 import OnboardingRating from './onboardingScreens/OnboardingRating';
@@ -393,10 +394,13 @@ export default function AIScannerScreen() {
   const [superwallFeatureActive, setSuperwallFeatureActive] = useState(false);
   const [superwallFailed, setSuperwallFailed] = useState(false);
   const [showSpinWheel, setShowSpinWheel] = useState(false);
+  const [showSurvey, setShowSurvey] = useState(false);
   const [pendingSuperwallFeature, setPendingSuperwallFeature] = useState(false);
   const [spinWheelOffering, setSpinWheelOffering] = useState(null);
   const pendingSuperwallFeatureRef = useRef(false);
   const spinWheelTriggeredRef = useRef(false);
+  const spinWheelShownRef = useRef(false);
+  const surveyShownRef = useRef(false);
 
   useEffect(() => {
     AsyncStorage.getItem(CRASH_LOG_KEY).then(log => {
@@ -404,6 +408,12 @@ export default function AIScannerScreen() {
         console.log('[DrAcne CrashLog]', log);
         AsyncStorage.removeItem(CRASH_LOG_KEY);
       }
+    });
+    AsyncStorage.getItem('spinWheelShown').then(val => {
+      spinWheelShownRef.current = val === 'true';
+    });
+    AsyncStorage.getItem('surveyShown').then(val => {
+      surveyShownRef.current = val === 'true';
     });
   }, []);
 
@@ -1708,10 +1718,9 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
     <OnboardingPaywall onNext={handleOnboardingNext} onboardingData={onboardingData} initialOffering={spinWheelOffering} style={styles.screenContent} />
   );
 
-  const handleSuperwallDismiss = async () => {
+  const handleSuperwallDismiss = () => {
     if (spinWheelTriggeredRef.current) return;
-    const shown = await AsyncStorage.getItem('spinWheelShown');
-    if (shown === 'true') {
+    if (spinWheelShownRef.current) {
       setSuperwallFeatureActive(true);
     } else {
       spinWheelTriggeredRef.current = true;
@@ -1724,7 +1733,7 @@ const handleComprehensiveNightAdvancedSelected = (products) => {
   const isDevBuild = false; // TODO: set to true for TestFlight/debug builds
 
   const DEV_RESET_KEYS = [
-    'onboardingComplete', 'onboardingData', 'spinWheelShown',
+    'onboardingComplete', 'onboardingData', 'spinWheelShown', 'surveyShown',
     'userLanguage', 'userName', 'userSession', 'userSkinType', 'userSkinGoals',
     'appInstallDate', 'routineLogCount',
     'myBasicRoutine', 'myBasicNightRoutine',
@@ -3127,14 +3136,19 @@ const renderComprehensiveNightRoutineStep4 = () => {
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingReminders' && renderOnboardingReminders()}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingRating' && renderOnboardingRating()}
         {!isOnboardingComplete && currentOnboardingStep === 'onboardingSaveProgress' && renderOnboardingSaveProgress()}
-        {!isOnboardingComplete && currentOnboardingStep === 'onboardingPaywall' && superwallFeatureActive && renderOnboardingPaywall()}
+        {!isOnboardingComplete && currentOnboardingStep === 'onboardingPaywall' && renderOnboardingPaywall()}
 
         {showSpinWheel && (
           <SpinWheelModal
             visible={showSpinWheel}
             onClose={() => {
+              spinWheelShownRef.current = true;
               setShowSpinWheel(false);
               spinWheelTriggeredRef.current = false;
+              if (!surveyShownRef.current) {
+                setShowSurvey(true);
+                return;
+              }
               if (pendingSuperwallFeatureRef.current) {
                 pendingSuperwallFeatureRef.current = false;
                 setPendingSuperwallFeature(false);
@@ -3144,10 +3158,43 @@ const renderComprehensiveNightRoutineStep4 = () => {
               }
             }}
             onClaim={(discount) => {
+              spinWheelShownRef.current = true;
               if (discount === '30% OFF') setSpinWheelOffering('spin_wheel_30');
               else if (discount === '20% OFF') setSpinWheelOffering('spin_wheel_20');
               setShowSpinWheel(false);
               spinWheelTriggeredRef.current = false;
+              if (!surveyShownRef.current) {
+                setShowSurvey(true);
+                return;
+              }
+              if (pendingSuperwallFeatureRef.current) {
+                pendingSuperwallFeatureRef.current = false;
+                setPendingSuperwallFeature(false);
+                setSuperwallFeatureActive(true);
+              } else {
+                setCurrentOnboardingStep('onboardingSaveProgress');
+              }
+            }}
+          />
+        )}
+
+        {showSurvey && (
+          <SurveyModal
+            visible={showSurvey}
+            onComplete={(_answers) => {
+              surveyShownRef.current = true;
+              setShowSurvey(false);
+              if (pendingSuperwallFeatureRef.current) {
+                pendingSuperwallFeatureRef.current = false;
+                setPendingSuperwallFeature(false);
+                setSuperwallFeatureActive(true);
+              } else {
+                setCurrentOnboardingStep('onboardingSaveProgress');
+              }
+            }}
+            onClose={() => {
+              surveyShownRef.current = true;
+              setShowSurvey(false);
               if (pendingSuperwallFeatureRef.current) {
                 pendingSuperwallFeatureRef.current = false;
                 setPendingSuperwallFeature(false);
@@ -3302,7 +3349,6 @@ const renderComprehensiveNightRoutineStep4 = () => {
     </>
   ); } catch (error) {
     saveCrashLog(error, true);
-    console.log('[DrAcne] render error:', error.message, error.stack);
     return null;
   }
 }

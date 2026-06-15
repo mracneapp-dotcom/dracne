@@ -847,6 +847,22 @@
         "claim_button": "Claim Offer",
         "no_thanks": "No thanks"
       },
+      "survey": {
+        "slide1_headline": "You came here because your skin is bothering you.",
+        "slide1_subtext": "Before you go, tell us why you're leaving and unlock 1 FREE month. No credit card. No catch.",
+        "slide1_button": "Let's go",
+        "slide2_headline": "What's stopping you from trying DrAcne?",
+        "slide2_option1": "Too expensive right now",
+        "slide2_option2": "Not sure it will work for my skin",
+        "slide2_option3": "Just not ready yet",
+        "slide2_option4": "Already tried everything",
+        "slide2_next": "Next",
+        "slide3_headline": "What's preventing you from subscribing today?",
+        "slide3_placeholder": "Tell us honestly...",
+        "slide3_button": "Claim my free month",
+        "slide3_disclaimer": "Your response helps us improve DrAcne for everyone.",
+        "success_message": "Your free month is activated!"
+      },
       "banners": {
         "day_routine_line1": "Day",
         "day_routine_line2": "Routine",

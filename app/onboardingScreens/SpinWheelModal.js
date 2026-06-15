@@ -14,20 +14,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { t } from '../i18n';
 
 const { width } = Dimensions.get('window');
-const WHEEL_SIZE = Math.min(width * 0.82, 320);
+const WHEEL_SIZE = Math.min(width * 0.88, 360);
 const R = WHEEL_SIZE / 2;
 const CX = R;
 const CY = R;
 
 const SEGMENTS = [
-  { label: '10%\nOFF',      short: '10% OFF',      color: '#9C27B0' },
-  { label: '20%\nOFF',      short: '20% OFF',      color: '#00BCD4' },
-  { label: '10%\nOFF',      short: '10% OFF',      color: '#FF9800' },
-  { label: '30%\nOFF',      short: '30% OFF',      color: '#4CAF50' },
-  { label: '20%\nOFF',      short: '20% OFF',      color: '#2196F3' },
-  { label: '50%\nOFF',      short: '50% OFF',      color: '#F44336' },
-  { label: '10%\nOFF',      short: '10% OFF',      color: '#FFC107' },
-  { label: '1 MONTH\nFREE', short: '1 Month Free', color: '#388E3C' },
+  { label: '10%\nOFF',      short: '10% OFF',      color: '#5B8C3E' },
+  { label: '20%\nOFF',      short: '20% OFF',      color: '#fff' },
+  { label: '10%\nOFF',      short: '10% OFF',      color: '#4A7A2E' },
+  { label: '30%\nOFF',      short: '30% OFF',      color: '#fff' },
+  { label: '20%\nOFF',      short: '20% OFF',      color: '#6B9F4E' },
+  { label: '50%\nOFF',      short: '50% OFF',      color: '#fff' },
+  { label: '10%\nOFF',      short: '10% OFF',      color: '#3D6B28' },
+  { label: '1 MONTH\nFREE', short: '1 Month Free', color: '#fff' },
 ];
 
 const WINNER_INDICES = [3, 4];
@@ -92,11 +92,11 @@ export default function SpinWheelModal({ visible, onClose, onClaim }) {
     <Modal
       visible={visible}
       transparent
-      animationType="slide"
+      animationType="fade"
       onRequestClose={handleDismiss}
     >
       <View style={styles.overlay}>
-        <View style={styles.card}>
+        <View style={styles.content}>
           <Text style={styles.header}>{t('onboarding.spinWheel.header')}</Text>
           <Text style={styles.subtext}>{t('onboarding.spinWheel.subtext')}</Text>
 
@@ -114,19 +114,20 @@ export default function SpinWheelModal({ visible, onClose, onClaim }) {
                   const lx = CX + labelR * Math.sin(toRad(centerDeg));
                   const ly = CY - labelR * Math.cos(toRad(centerDeg));
                   const lines = seg.label.split('\n');
+                  const textFill = seg.color === '#fff' ? '#3D6B28' : '#fff';
                   return (
                     <G key={i}>
                       <Path
                         d={slicePath(CX, CY, R - 1, startDeg, endDeg)}
                         fill={seg.color}
-                        stroke="#fff"
+                        stroke="#2E5A1A"
                         strokeWidth={2}
                       />
                       <SvgText
                         x={lx}
                         y={ly}
                         textAnchor="middle"
-                        fill="white"
+                        fill={textFill}
                         fontSize={fontSize}
                         fontWeight="bold"
                         transform={`rotate(${centerDeg}, ${lx}, ${ly})`}
@@ -144,7 +145,7 @@ export default function SpinWheelModal({ visible, onClose, onClaim }) {
                     </G>
                   );
                 })}
-                <Circle cx={CX} cy={CY} r={R * 0.11} fill="#fff" />
+                <Circle cx={CX} cy={CY} r={R * 0.11} fill="#2E5A1A" />
               </Svg>
             </Animated.View>
           </View>
@@ -189,35 +190,33 @@ export default function SpinWheelModal({ visible, onClose, onClaim }) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    justifyContent: 'flex-end',
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 24,
-    paddingTop: 28,
-    paddingBottom: 36,
+    backgroundColor: 'rgba(0,0,0,0.92)',
+    justifyContent: 'center',
     alignItems: 'center',
   },
+  content: {
+    width: '100%',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 32,
+  },
   header: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '800',
-    color: '#1a1a1a',
+    color: '#fff',
     textAlign: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   subtext: {
-    fontSize: 15,
-    color: '#555',
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.7)',
     textAlign: 'center',
-    marginBottom: 18,
+    marginBottom: 20,
   },
   wheelWrapper: {
     alignItems: 'center',
-    marginBottom: 20,
-    paddingTop: 16,
+    marginBottom: 24,
+    paddingTop: 20,
   },
   pointerWrap: {
     position: 'absolute',
@@ -234,17 +233,19 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderTopColor: '#FF5722',
+    borderTopColor: '#fff',
   },
   spinBtn: {
-    backgroundColor: '#4CAF50',
-    borderRadius: 30,
-    paddingVertical: 16,
-    paddingHorizontal: 60,
-    marginBottom: 12,
+    width: '80%',
+    alignSelf: 'center',
+    backgroundColor: '#5B8C3E',
+    borderRadius: 16,
+    paddingVertical: 18,
+    alignItems: 'center',
+    marginBottom: 14,
   },
   spinBtnDisabled: {
-    backgroundColor: '#aaa',
+    backgroundColor: '#555',
   },
   spinBtnText: {
     color: '#fff',
@@ -254,32 +255,33 @@ const styles = StyleSheet.create({
   },
   expires: {
     fontSize: 12,
-    color: '#E53935',
+    color: '#FF5252',
     textAlign: 'center',
     marginBottom: 10,
   },
   noThanks: {
     fontSize: 13,
-    color: '#999',
-    textDecorationLine: 'underline',
-    marginTop: 2,
+    color: '#888',
+    marginTop: 4,
   },
   youWon: {
     fontSize: 16,
-    color: '#555',
+    color: 'rgba(255,255,255,0.8)',
     marginBottom: 4,
   },
   wonValue: {
-    fontSize: 28,
+    fontSize: 36,
     fontWeight: '900',
-    color: '#4CAF50',
-    marginBottom: 16,
+    color: '#fff',
+    marginBottom: 20,
   },
   claimBtn: {
-    backgroundColor: '#4CAF50',
-    borderRadius: 30,
-    paddingVertical: 16,
-    paddingHorizontal: 60,
+    width: '80%',
+    alignSelf: 'center',
+    backgroundColor: '#5B8C3E',
+    borderRadius: 16,
+    paddingVertical: 18,
+    alignItems: 'center',
     marginBottom: 12,
   },
   claimBtnText: {
