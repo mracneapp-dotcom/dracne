@@ -87,12 +87,12 @@ export default function OnboardingGenerating({ onNext, onboardingData }) {
 
         const skinProfile = {
           acneHistory: onboardingData?.acneHistory || 'none',
-          skinType: onboardingData?.userSkinType || 'normal',
+          skinType: onboardingData?.skinType || 'normal',
           skinConcerns: onboardingData?.skinConcerns || [],
           sensitivities: onboardingData?.sensitivities || [],
           allergies: onboardingData?.allergies || [],
           products: onboardingData?.products || [],
-          routineLevel: onboardingData?.selectedRoutineLevel || 'moderate',
+          routineLevel: onboardingData?.routineLevel || 'moderate',
         };
 
         console.log('Calling generateSkinRoutine...');

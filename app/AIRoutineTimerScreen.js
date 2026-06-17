@@ -334,7 +334,7 @@ export default function AIRoutineTimerScreen({
       const skinProfile = {
         acneHistory: data?.acneHistory ||
                      onboardingData?.acneHistory || 'none',
-        skinType: onboardingData?.userSkinType || 'normal',
+        skinType: onboardingData?.skinType || 'normal',
         skinConcerns: data?.skinConcerns ||
                       onboardingData?.skinConcerns || [],
         sensitivities: data?.sensitivities ||
@@ -343,7 +343,7 @@ export default function AIRoutineTimerScreen({
                    onboardingData?.allergies || [],
         products: data?.products ||
                   onboardingData?.products || [],
-        routineLevel: onboardingData?.selectedRoutineLevel || 'moderate',
+        routineLevel: onboardingData?.routineLevel || 'moderate',
       };
 
       console.log('Calling function with profile:', JSON.stringify(skinProfile));
@@ -395,12 +395,12 @@ export default function AIRoutineTimerScreen({
 
       const skinProfile = {
         acneHistory: onboardingData?.acneHistory || 'none',
-        skinType: onboardingData?.userSkinType || 'normal',
+        skinType: onboardingData?.skinType || 'normal',
         skinConcerns: onboardingData?.skinConcerns || [],
         sensitivities: onboardingData?.sensitivities || [],
         allergies: onboardingData?.allergies || [],
         products: onboardingData?.products || [],
-        routineLevel: onboardingData?.selectedRoutineLevel || 'moderate',
+        routineLevel: onboardingData?.routineLevel || 'moderate',
       };
 
       const response = await fetch(
